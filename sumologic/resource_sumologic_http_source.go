@@ -1,8 +1,9 @@
 package sumologic
 
 import (
-	"log"
 	"strconv"
+
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -12,7 +13,6 @@ func resourceSumologicHTTPSource() *schema.Resource {
 	httpSource.Create = resourceSumologicHTTPSourceCreate
 	httpSource.Read = resourceSumologicHTTPSourceRead
 	httpSource.Update = resourceSumologicHTTPSourceUpdate
-	httpSource.Delete = resourceSumologicHTTPSourceDelete
 
 	httpSource.Schema["message_per_request"] = &schema.Schema{
 		Type:     schema.TypeBool,
@@ -78,18 +78,15 @@ func resourceSumologicHTTPSourceUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceToHTTPSource(d *schema.ResourceData) HTTPSource {
-
-	id, _ := strconv.Atoi(d.Id())
-
-	source := HTTPSource{}
-	source.ID = id
+	source := resourceToSource(d)
 	source.Type = "HTTP"
-	source.Name = d.Get("name").(string)
-	source.Description = d.Get("description").(string)
-	source.Category = d.Get("category").(string)
-	source.MessagePerRequest = d.Get("message_per_request").(bool)
 
-	return source
+	httpSource := HTTPSource{
+		Source:            source,
+		MessagePerRequest: d.Get("message_per_request").(bool),
+	}
+
+	return httpSource
 }
 
 func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) error {
@@ -98,7 +95,6 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	id, _ := strconv.Atoi(d.Id())
 	source, err := c.GetHTTPSource(d.Get("collector_id").(int), id)
 
-	// Source is gone, remove it from state
 	if err != nil {
 		log.Printf("[WARN] HTTP source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
@@ -111,20 +107,6 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("category", source.Category)
 	d.Set("message_per_request", source.MessagePerRequest)
 	d.Set("url", source.URL)
-
-	return nil
-}
-
-func resourceSumologicHTTPSourceDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	// Destroy source if `destroy` is true, otherwise ignore
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		collectorID, _ := d.Get("collector_id").(int)
-
-		return c.DestroySource(id, collectorID)
-	}
 
 	return nil
 }

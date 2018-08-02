@@ -3,9 +3,10 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"strconv"
 )
 
 type Source struct {
@@ -40,6 +41,7 @@ type SourceList struct {
 
 func resourceSumologicSource() *schema.Resource {
 	return &schema.Resource{
+		Delete: resourceSumologicSourceDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -163,6 +165,20 @@ func resourceSumologicSource() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+
+	// Destroy source if `destroy` is true, otherwise ignore
+	if d.Get("destroy").(bool) {
+		id, _ := strconv.Atoi(d.Id())
+		collectorID, _ := d.Get("collector_id").(int)
+
+		return c.DestroySource(id, collectorID)
+	}
+
+	return nil
 }
 
 func resourceToSource(d *schema.ResourceData) Source {
