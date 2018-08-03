@@ -44,14 +44,9 @@ func resourceSumologicHTTPSourceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if d.Id() == "" {
-		source := resourceToSource(d)
-		source.Type = "HTTP"
-		httpSource := HTTPSource{
-			Source:            source,
-			MessagePerRequest: d.Get("message_per_request").(bool),
-		}
+		source := resourceToHTTPSource(d)
 
-		id, err := c.CreateHTTPSource(httpSource, d.Get("collector_id").(int))
+		id, err := c.CreateHTTPSource(source, d.Get("collector_id").(int))
 
 		if err != nil {
 			return err
