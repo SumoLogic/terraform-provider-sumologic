@@ -10,29 +10,34 @@ import (
 )
 
 type Source struct {
-	ID                         int      `json:"id,omitempty"`
-	Type                       string   `json:"sourceType"`
-	Name                       string   `json:"name"`
-	Description                string   `json:"description,omitempty"`
-	Category                   string   `json:"category,omitempty"`
-	HostName                   string   `json:"hostName,omitempty"`
-	TimeZone                   string   `json:"timeZone,omitempty"`
-	AutomaticDateParsing       bool     `json:"automaticDateParsing"`
-	MultilineProcessingEnabled bool     `json:"multilineProcessingEnabled"`
-	UseAutolineMatching        bool     `json:"useAutolineMatching"`
-	ManualPrefixRegexp         string   `json:"manualPrefixRegexp,omitempty"`
-	ForceTimeZone              bool     `json:"forceTimeZone"`
-	DefaultDateFormats         string   `json:"defaultDateFormat,omitempty"`
-	Filters                    []Filter `json:"filters,omitempty"`
-	CutoffTimestamp            int      `json:"cutoffTimestamp,omitempty"`
-	CutoffRelativeTime         string   `json:"cutoffRelativeTime,omitempty"`
+	ID                         int      				`json:"id,omitempty"`
+	Type                       string   				`json:"sourceType"`
+	Name                       string   				`json:"name"`
+	Description                string   				`json:"description,omitempty"`
+	Category                   string   				`json:"category,omitempty"`
+	HostName                   string   				`json:"hostName,omitempty"`
+	TimeZone                   string   				`json:"timeZone,omitempty"`
+	AutomaticDateParsing       bool     				`json:"automaticDateParsing"`
+	MultilineProcessingEnabled bool     				`json:"multilineProcessingEnabled"`
+	UseAutolineMatching        bool     				`json:"useAutolineMatching"`
+	ManualPrefixRegexp         string   				`json:"manualPrefixRegexp,omitempty"`
+	ForceTimeZone              bool     				`json:"forceTimeZone"`
+	DefaultDateFormats         []DefaultDateFormat   	`json:"defaultDateFormats,omitempty"`
+	Filters                    []Filter 				`json:"filters,omitempty"`
+	CutoffTimestamp            int      				`json:"cutoffTimestamp,omitempty"`
+	CutoffRelativeTime         string   				`json:"cutoffRelativeTime,omitempty"`
+}
+
+type DefaultDateFormat struct {
+	Format		string `json:"format"`
+	Locator 	string `json:"locator"`
 }
 
 type Filter struct {
-	Name       string `json:"name"`
-	FilterType string `json:"filterType"`
-	Regexp     string `json:"regexp"`
-	Mask       string `json:"mask"`
+	Name		string `json:"name"`
+	FilterType 	string `json:"filterType"`
+	Regexp     	string `json:"regexp"`
+	Mask       	string `json:"mask"`
 }
 
 type SourceList struct {
@@ -103,10 +108,21 @@ func resourceSumologicSource() *schema.Resource {
 				Default:  false,
 			},
 			"default_date_formats": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
-				Default:  "",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"format": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"locator": {
+							Type:         schema.TypeString,
+							Optional:     true,
+						},
+					},
+				},
 			},
 			"filters": {
 				Type:     schema.TypeList,
@@ -196,12 +212,28 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.UseAutolineMatching = d.Get("use_autoline_matching").(bool)
 	source.ManualPrefixRegexp = d.Get("manual_prefix_regexp").(string)
 	source.ForceTimeZone = d.Get("force_timezone").(bool)
-	source.DefaultDateFormats = d.Get("default_date_formats").(string)
+	source.DefaultDateFormats = getDefaultDateFormats(d)
 	source.Filters = getFilters(d)
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
 
 	return source
+}
+
+func getDefaultDateFormats(d *schema.ResourceData) []DefaultDateFormat {
+
+	rawDefaultDateFormatsConfig := d.Get("default_date_formats").([]interface{})
+	var defaultDateDormats []DefaultDateFormat
+
+	for _, rawConfig := range rawDefaultDateFormatsConfig {
+		config := rawConfig.(map[string]interface{})
+		defaultDateFormat := DefaultDateFormat{}
+		defaultDateFormat.Format = config["format"].(string)
+		defaultDateFormat.Locator = config["locator"].(string)
+		defaultDateDormats = append(defaultDateDormats, defaultDateFormat)
+	}
+
+	return defaultDateDormats
 }
 
 func getFilters(d *schema.ResourceData) []Filter {

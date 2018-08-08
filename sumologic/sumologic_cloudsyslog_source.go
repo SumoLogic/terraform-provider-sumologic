@@ -5,25 +5,19 @@ import (
 	"fmt"
 )
 
+//TODO: Build Struct
 type CloudsyslogSource struct {
 	Source
-	Token string `json:"token,omitempty"`
 }
 
-func (s *Client) CreateCloudsyslogSource(name string, description string, collectorID int) (int, error) {
+func (s *Client) CreateCloudsyslogSource(cloudsyslogSource CloudsyslogSource, collectorID int) (int, error) {
 
 	type CloudsyslogSourceMessage struct {
 		Source CloudsyslogSource `json:"source"`
 	}
 
 	request := CloudsyslogSourceMessage{
-		Source: CloudsyslogSource{
-			Source: Source{
-				Type:        "Cloudsyslog",
-				Name:        name,
-				Description: description,
-			},
-		},
+		Source: cloudsyslogSource,
 	}
 
 	urlPath := fmt.Sprintf("collectors/%d/sources", collectorID)
@@ -34,21 +28,20 @@ func (s *Client) CreateCloudsyslogSource(name string, description string, collec
 	}
 
 	var response CloudsyslogSourceMessage
-	err = json.Unmarshal(body, &response)
 
+	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return -1, err
 	}
 
-	newSource := response.Source
-
-	return newSource.ID, nil
+	return response.Source.ID, nil
 }
 
 func (s *Client) GetCloudsyslogSource(collectorID, sourceID int) (*CloudsyslogSource, error) {
 
-	urlPath := fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath)
+	body, _, err := s.Get(
+		fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID),
+	)
 
 	if err != nil {
 		return nil, err
@@ -59,16 +52,16 @@ func (s *Client) GetCloudsyslogSource(collectorID, sourceID int) (*CloudsyslogSo
 	}
 
 	var response Response
-	json.Unmarshal(body, &response)
 
-	var source = response.Source
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
 
-	return &source, nil
+	return &response.Source, nil
 }
 
 func (s *Client) UpdateCloudsyslogSource(source CloudsyslogSource, collectorID int) error {
-
-	url := fmt.Sprintf("collectors/%d/sources/%d", collectorID, source.ID)
 
 	type CloudsyslogSourceMessage struct {
 		Source CloudsyslogSource `json:"source"`
@@ -78,7 +71,8 @@ func (s *Client) UpdateCloudsyslogSource(source CloudsyslogSource, collectorID i
 		Source: source,
 	}
 
-	_, err := s.Put(url, request)
+	urlPath := fmt.Sprintf("collectors/%d/sources/%d", collectorID, source.ID)
+	_, err := s.Put(urlPath, request)
 
 	return err
 }
