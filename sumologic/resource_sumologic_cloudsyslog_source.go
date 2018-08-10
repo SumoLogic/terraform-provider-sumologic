@@ -1,60 +1,20 @@
 package sumologic
 
 import (
-	"log"
 	"strconv"
+
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceSumologicCloudsyslogSource() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceSumologicCloudsyslogSourceCreate,
-		Read:   resourceSumologicCloudsyslogSourceRead,
-		Update: resourceSumologicCloudsyslogSourceUpdate,
-		Delete: resourceSumologicCloudsyslogSourceDelete,
+	cloudsyslogSource := resourceSumologicSource()
+	cloudsyslogSource.Create = resourceSumologicCloudsyslogSourceCreate
+	cloudsyslogSource.Read = resourceSumologicCloudsyslogSourceRead
+	cloudsyslogSource.Update = resourceSumologicCloudsyslogSourceUpdate
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "",
-			},
-			"collector_id": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"category": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "",
-			},
-			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"lookup_by_name": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  false,
-			},
-			"destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
-			},
-		},
-	}
+	return cloudsyslogSource
 }
 
 func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -67,22 +27,15 @@ func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta inter
 			return err
 		}
 
-		// Set ID of source if it exists
 		if source != nil {
 			d.SetId(strconv.Itoa(source.ID))
 		}
 	}
 
-	// If source ID is still empty, create a new source
 	if d.Id() == "" {
-		source := CloudsyslogSource{}
-		source.Name = d.Get("name").(string)
+		source := resourceToCloudsyslogSource(d)
 
-		id, err := c.CreateCloudsyslogSource(
-			d.Get("name").(string),
-			d.Get("description").(string),
-			d.Get("collector_id").(int),
-		)
+		id, err := c.CreateCloudsyslogSource(source, d.Get("collector_id").(int))
 
 		if err != nil {
 			return err
@@ -91,7 +44,7 @@ func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta inter
 		d.SetId(strconv.Itoa(id))
 	}
 
-	return resourceSumologicCloudsyslogSourceUpdate(d, meta)
+	return resourceSumologicCloudsyslogSourceRead(d, meta)
 }
 
 func resourceSumologicCloudsyslogSourceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -109,17 +62,14 @@ func resourceSumologicCloudsyslogSourceUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceToCloudsyslogSource(d *schema.ResourceData) CloudsyslogSource {
-
-	id, _ := strconv.Atoi(d.Id())
-
-	source := CloudsyslogSource{}
-	source.ID = id
+	source := resourceToSource(d)
 	source.Type = "Cloudsyslog"
-	source.Name = d.Get("name").(string)
-	source.Description = d.Get("description").(string)
-	source.Category = d.Get("category").(string)
 
-	return source
+	cloudsyslogSource := CloudsyslogSource{
+		Source:            source,
+	}
+
+	return cloudsyslogSource
 }
 
 func resourceSumologicCloudsyslogSourceRead(d *schema.ResourceData, meta interface{}) error {
@@ -128,31 +78,16 @@ func resourceSumologicCloudsyslogSourceRead(d *schema.ResourceData, meta interfa
 	id, _ := strconv.Atoi(d.Id())
 	source, err := c.GetCloudsyslogSource(d.Get("collector_id").(int), id)
 
-	// Source is gone, remove it from state
 	if err != nil {
-		log.Printf("Cloudsyslog source %v: %v", id, err)
+		log.Printf("[WARN] Cloudsyslog source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
 	}
-
+	//TODO: Create a common READ and then do the unique reads specific to each resource.
 	d.Set("name", source.Name)
 	d.Set("description", source.Description)
-	d.Set("token", source.Token)
-
-	return nil
-}
-
-func resourceSumologicCloudsyslogSourceDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	// Destroy source if `destroy` is true, otherwise ignore
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		collectorID, _ := d.Get("collector_id").(int)
-
-		return c.DestroySource(id, collectorID)
-	}
+	d.Set("category", source.Category)
 
 	return nil
 }
