@@ -96,7 +96,7 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 
 		return nil
 	}
-
+	//TODO: Create a common READ and then do the unique reads specific to each resource.
 	d.Set("name", source.Name)
 	d.Set("description", source.Description)
 	d.Set("category", source.Category)

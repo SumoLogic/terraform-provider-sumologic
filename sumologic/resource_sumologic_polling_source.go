@@ -5,108 +5,101 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 func resourceSumologicPollingSource() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceSumologicPollingSourceCreate,
-		Read:   resourceSumologicPollingSourceRead,
-		Update: resourceSumologicPollingSourceUpdate,
-		Delete: resourceSumologicPollingSourceDelete,
+	pollingSource := resourceSumologicSource()
+	pollingSource.Create = resourceSumologicPollingSourceCreate
+	pollingSource.Read = resourceSumologicPollingSourceRead
+	pollingSource.Update = resourceSumologicPollingSourceUpdate
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "",
-			},
-			"category": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
-			},
-			"content_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"scan_interval": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: false,
-			},
-			"paused": {
-				Type:     schema.TypeBool,
-				Required: true,
-				ForceNew: false,
-			},
-			"collector_id": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"authentication": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"access_key": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: false,
-						},
-						"secret_key": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: false,
+	pollingSource.Schema["content_type"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket"}, false),
+	}
+	pollingSource.Schema["scan_interval"] = &schema.Schema{
+		Type:     schema.TypeInt,
+		Required: true,
+		ForceNew: false,
+		Default:  300000,
+	}
+	pollingSource.Schema["paused"] = &schema.Schema{
+		Type:     schema.TypeBool,
+		Required: true,
+		ForceNew: false,
+		Default:  false,
+	}
+	pollingSource.Schema["third_party_ref"] = &schema.Schema{
+		Type:     schema.TypeMap,
+		Required: true,
+		ForceNew: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"resources": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: false,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"service_type": {
+								//Should have the same value as "content_type"
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+								ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket"}, false),
+							},
+							"path": {
+								Type:     schema.TypeList,
+								Required: true,
+								ForceNew: true,
+								MinItems: 1,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"bucket_name": {
+											Type:     schema.TypeString,
+											Required: true,
+											ForceNew: false,
+										},
+										"path_expression": {
+											Type:     schema.TypeString,
+											Required: true,
+											ForceNew: false,
+										},
+									},
+								},
+							},
+							"authentication": {
+								Type:     schema.TypeList,
+								Required: true,
+								ForceNew: true,
+								MinItems: 1,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"access_key": {
+											Type:     schema.TypeString,
+											Optional: true,
+											ForceNew: false,
+										},
+										"secret_key": {
+											Type:     schema.TypeString,
+											Optional: true,
+											ForceNew: false,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
-			},
-			"path": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"bucket_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: false,
-						},
-						"path_expression": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: false,
-						},
-					},
-				},
-			},
-			"lookup_by_name": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  false,
-			},
-			"destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
 			},
 		},
 	}
+	return pollingSource
 }
 
 func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
