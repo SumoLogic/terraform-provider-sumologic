@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-//TODO: Build Struct
-type CloudsyslogSource struct {
+type CloudSyslogSource struct {
 	Source
+	Token string `json:"url,omitempty"`
 }
 
-func (s *Client) CreateCloudsyslogSource(cloudsyslogSource CloudsyslogSource, collectorID int) (int, error) {
+func (s *Client) CreateCloudsyslogSource(cloudSyslogSource CloudSyslogSource, collectorID int) (int, error) {
 
-	type CloudsyslogSourceMessage struct {
-		Source CloudsyslogSource `json:"source"`
+	type CloudSyslogSourceMessage struct {
+		Source CloudSyslogSource `json:"source"`
 	}
 
-	request := CloudsyslogSourceMessage{
-		Source: cloudsyslogSource,
+	request := CloudSyslogSourceMessage{
+		Source: cloudSyslogSource,
 	}
 
 	urlPath := fmt.Sprintf("collectors/%d/sources", collectorID)
@@ -27,7 +27,7 @@ func (s *Client) CreateCloudsyslogSource(cloudsyslogSource CloudsyslogSource, co
 		return -1, err
 	}
 
-	var response CloudsyslogSourceMessage
+	var response CloudSyslogSourceMessage
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *Client) CreateCloudsyslogSource(cloudsyslogSource CloudsyslogSource, co
 	return response.Source.ID, nil
 }
 
-func (s *Client) GetCloudsyslogSource(collectorID, sourceID int) (*CloudsyslogSource, error) {
+func (s *Client) GetCloudSyslogSource(collectorID, sourceID int) (*CloudSyslogSource, error) {
 
 	body, _, err := s.Get(
 		fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID),
@@ -48,7 +48,7 @@ func (s *Client) GetCloudsyslogSource(collectorID, sourceID int) (*CloudsyslogSo
 	}
 
 	type Response struct {
-		Source CloudsyslogSource `json:"source"`
+		Source CloudSyslogSource `json:"source"`
 	}
 
 	var response Response
@@ -61,13 +61,13 @@ func (s *Client) GetCloudsyslogSource(collectorID, sourceID int) (*CloudsyslogSo
 	return &response.Source, nil
 }
 
-func (s *Client) UpdateCloudsyslogSource(source CloudsyslogSource, collectorID int) error {
+func (s *Client) UpdateCloudSyslogSource(source CloudSyslogSource, collectorID int) error {
 
-	type CloudsyslogSourceMessage struct {
-		Source CloudsyslogSource `json:"source"`
+	type CloudSyslogSourceMessage struct {
+		Source CloudSyslogSource `json:"source"`
 	}
 
-	request := CloudsyslogSourceMessage{
+	request := CloudSyslogSourceMessage{
 		Source: source,
 	}
 

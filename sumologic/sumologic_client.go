@@ -120,11 +120,11 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 }
 
 func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
-	log.Printf("got payload:%c", payload)
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
+	log.Printf("got body:%s", body)
 	req, _ := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body))
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)

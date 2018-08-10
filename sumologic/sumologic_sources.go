@@ -10,34 +10,34 @@ import (
 )
 
 type Source struct {
-	ID                         int      				`json:"id,omitempty"`
-	Type                       string   				`json:"sourceType"`
-	Name                       string   				`json:"name"`
-	Description                string   				`json:"description,omitempty"`
-	Category                   string   				`json:"category,omitempty"`
-	HostName                   string   				`json:"hostName,omitempty"`
-	TimeZone                   string   				`json:"timeZone,omitempty"`
-	AutomaticDateParsing       bool     				`json:"automaticDateParsing"`
-	MultilineProcessingEnabled bool     				`json:"multilineProcessingEnabled"`
-	UseAutolineMatching        bool     				`json:"useAutolineMatching"`
-	ManualPrefixRegexp         string   				`json:"manualPrefixRegexp,omitempty"`
-	ForceTimeZone              bool     				`json:"forceTimeZone"`
-	DefaultDateFormats         []DefaultDateFormat   	`json:"defaultDateFormats,omitempty"`
-	Filters                    []Filter 				`json:"filters,omitempty"`
-	CutoffTimestamp            int      				`json:"cutoffTimestamp,omitempty"`
-	CutoffRelativeTime         string   				`json:"cutoffRelativeTime,omitempty"`
+	ID                         int                 `json:"id,omitempty"`
+	Type                       string              `json:"sourceType"`
+	Name                       string              `json:"name"`
+	Description                string              `json:"description,omitempty"`
+	Category                   string              `json:"category,omitempty"`
+	HostName                   string              `json:"hostName,omitempty"`
+	TimeZone                   string              `json:"timeZone,omitempty"`
+	AutomaticDateParsing       bool                `json:"automaticDateParsing"`
+	MultilineProcessingEnabled bool                `json:"multilineProcessingEnabled"`
+	UseAutolineMatching        bool                `json:"useAutolineMatching"`
+	ManualPrefixRegexp         string              `json:"manualPrefixRegexp,omitempty"`
+	ForceTimeZone              bool                `json:"forceTimeZone"`
+	DefaultDateFormats         []DefaultDateFormat `json:"defaultDateFormats,omitempty"`
+	Filters                    []Filter            `json:"filters,omitempty"`
+	CutoffTimestamp            int                 `json:"cutoffTimestamp,omitempty"`
+	CutoffRelativeTime         string              `json:"cutoffRelativeTime,omitempty"`
 }
 
 type DefaultDateFormat struct {
-	Format		string `json:"format"`
-	Locator 	string `json:"locator"`
+	Format  string `json:"format"`
+	Locator string `json:"locator"`
 }
 
 type Filter struct {
-	Name		string `json:"name"`
-	FilterType 	string `json:"filterType"`
-	Regexp     	string `json:"regexp"`
-	Mask       	string `json:"mask"`
+	Name       string `json:"name"`
+	FilterType string `json:"filterType"`
+	Regexp     string `json:"regexp"`
+	Mask       string `json:"mask"`
 }
 
 type SourceList struct {
@@ -118,8 +118,8 @@ func resourceSumologicSource() *schema.Resource {
 							Required: true,
 						},
 						"locator": {
-							Type:         schema.TypeString,
-							Optional:     true,
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -218,6 +218,23 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
 
 	return source
+}
+
+func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
+	d.Set("name", source.Name)
+	d.Set("description", source.Description)
+	d.Set("category", source.Category)
+	d.Set("host_name", source.HostName)
+	d.Set("timezone", source.TimeZone)
+	d.Set("automatic_date_parsing", source.AutomaticDateParsing)
+	d.Set("multiline_processing_enabled", source.MultilineProcessingEnabled)
+	d.Set("use_autoline_matching", source.UseAutolineMatching)
+	d.Set("manual_prefix_regexp", source.ManualPrefixRegexp)
+	d.Set("force_timezone", source.ForceTimeZone)
+	d.Set("default_date_formats", source.DefaultDateFormats)
+	d.Set("filters", source.Filters)
+	d.Set("cutoff_timestamp", source.CutoffTimestamp)
+	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
 }
 
 func getDefaultDateFormats(d *schema.ResourceData) []DefaultDateFormat {

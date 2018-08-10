@@ -32,12 +32,12 @@ resource "sumologic_polling_source" "s3_audit" {
   description = "test_desc"
   category = "some/category"
   content_type = "AwsS3AuditBucket"
-  scan_interval = 1
+  scan_interval = 1000
   paused = false
 
   authentication {
-    access_key = "AKIAIOSFODNN7EXAMPLE"
-    secret_key = "******"
+    access_key = "${vars.aws_accessid}"
+    secret_key = "${vars.aws_accesskey}"
   }
 
   path {
