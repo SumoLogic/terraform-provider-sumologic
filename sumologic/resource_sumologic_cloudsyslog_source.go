@@ -9,15 +9,20 @@ import (
 )
 
 func resourceSumologicCloudsyslogSource() *schema.Resource {
-	cloudsyslogSource := resourceSumologicSource()
-	cloudsyslogSource.Create = resourceSumologicCloudsyslogSourceCreate
-	cloudsyslogSource.Read = resourceSumologicCloudsyslogSourceRead
-	cloudsyslogSource.Update = resourceSumologicCloudsyslogSourceUpdate
+	cloudSyslogSource := resourceSumologicSource()
+	cloudSyslogSource.Create = resourceSumologicCloudSyslogSourceCreate
+	cloudSyslogSource.Read = resourceSumologicCloudSyslogSourceRead
+	cloudSyslogSource.Update = resourceSumologicCloudSyslogSourceUpdate
 
-	return cloudsyslogSource
+	cloudSyslogSource.Schema["token"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Computed: true,
+	}
+
+	return cloudSyslogSource
 }
 
-func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudSyslogSourceCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	if d.Get("lookup_by_name").(bool) {
@@ -33,7 +38,7 @@ func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta inter
 	}
 
 	if d.Id() == "" {
-		source := resourceToCloudsyslogSource(d)
+		source := resourceToCloudSyslogSource(d)
 
 		id, err := c.CreateCloudsyslogSource(source, d.Get("collector_id").(int))
 
@@ -44,50 +49,49 @@ func resourceSumologicCloudsyslogSourceCreate(d *schema.ResourceData, meta inter
 		d.SetId(strconv.Itoa(id))
 	}
 
-	return resourceSumologicCloudsyslogSourceRead(d, meta)
+	return resourceSumologicCloudSyslogSourceRead(d, meta)
 }
 
-func resourceSumologicCloudsyslogSourceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudSyslogSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	source := resourceToCloudsyslogSource(d)
+	source := resourceToCloudSyslogSource(d)
 
-	err := c.UpdateCloudsyslogSource(source, d.Get("collector_id").(int))
+	err := c.UpdateCloudSyslogSource(source, d.Get("collector_id").(int))
 
 	if err != nil {
 		return err
 	}
 
-	return resourceSumologicCloudsyslogSourceRead(d, meta)
+	return resourceSumologicCloudSyslogSourceRead(d, meta)
 }
 
-func resourceToCloudsyslogSource(d *schema.ResourceData) CloudsyslogSource {
+func resourceToCloudSyslogSource(d *schema.ResourceData) CloudSyslogSource {
 	source := resourceToSource(d)
 	source.Type = "Cloudsyslog"
 
-	cloudsyslogSource := CloudsyslogSource{
-		Source:            source,
+	cloudsyslogSource := CloudSyslogSource{
+		Source: source,
 	}
 
 	return cloudsyslogSource
 }
 
-func resourceSumologicCloudsyslogSourceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudSyslogSourceRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
-	source, err := c.GetCloudsyslogSource(d.Get("collector_id").(int), id)
+	source, err := c.GetCloudSyslogSource(d.Get("collector_id").(int), id)
 
 	if err != nil {
-		log.Printf("[WARN] Cloudsyslog source not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] Cloud Syslog source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
 	}
-	//TODO: Create a common READ and then do the unique reads specific to each resource.
-	d.Set("name", source.Name)
-	d.Set("description", source.Description)
-	d.Set("category", source.Category)
+
+	resourceSumologicSourceRead(d, source.Source)
+	d.Set("token", source.Token)
 
 	return nil
 }

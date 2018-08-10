@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 )
 
 func resourceSumologicPollingSource() *schema.Resource {
@@ -16,85 +15,57 @@ func resourceSumologicPollingSource() *schema.Resource {
 
 	pollingSource.Schema["content_type"] = &schema.Schema{
 		Type:     schema.TypeString,
-		Optional: true,
+		Required: true,
 		ForceNew: true,
-		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
 		Required: true,
 		ForceNew: false,
-		Default:  300000,
 	}
 	pollingSource.Schema["paused"] = &schema.Schema{
 		Type:     schema.TypeBool,
 		Required: true,
 		ForceNew: false,
-		Default:  false,
 	}
-	pollingSource.Schema["third_party_ref"] = &schema.Schema{
-		Type:     schema.TypeMap,
+	pollingSource.Schema["authentication"] = &schema.Schema{
+		Type:     schema.TypeList,
 		Required: true,
 		ForceNew: true,
+		MinItems: 1,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"resources": {
-					Type:     schema.TypeList,
+				"access_key": {
+					Type:     schema.TypeString,
 					Required: true,
 					ForceNew: false,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"service_type": {
-								//Should have the same value as "content_type"
-								Type:     schema.TypeString,
-								Optional: true,
-								ForceNew: true,
-								ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket"}, false),
-							},
-							"path": {
-								Type:     schema.TypeList,
-								Required: true,
-								ForceNew: true,
-								MinItems: 1,
-								MaxItems: 1,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"bucket_name": {
-											Type:     schema.TypeString,
-											Required: true,
-											ForceNew: false,
-										},
-										"path_expression": {
-											Type:     schema.TypeString,
-											Required: true,
-											ForceNew: false,
-										},
-									},
-								},
-							},
-							"authentication": {
-								Type:     schema.TypeList,
-								Required: true,
-								ForceNew: true,
-								MinItems: 1,
-								MaxItems: 1,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"access_key": {
-											Type:     schema.TypeString,
-											Optional: true,
-											ForceNew: false,
-										},
-										"secret_key": {
-											Type:     schema.TypeString,
-											Optional: true,
-											ForceNew: false,
-										},
-									},
-								},
-							},
-						},
-					},
+				},
+				"secret_key": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: false,
+				},
+			},
+		},
+	}
+	pollingSource.Schema["path"] = &schema.Schema{
+		Type:     schema.TypeList,
+		Required: true,
+		ForceNew: true,
+		MinItems: 1,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"bucket_name": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: false,
+				},
+				"path_expression": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: false,
 				},
 			},
 		},
@@ -113,13 +84,11 @@ func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface
 			return err
 		}
 
-		// Set ID of source if it exists
 		if source != nil {
 			d.SetId(strconv.Itoa(source.ID))
 		}
 	}
 
-	// If source ID is still empty, create a new source
 	if d.Id() == "" {
 		sourceID, err := c.CreatePollingSource(
 			d.Get("name").(string),
@@ -154,7 +123,6 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 
 	source, err := c.GetPollingSource(collectorID, id)
 
-	// Source is gone, remove it from state
 	if err != nil {
 		log.Printf("Polling source %v: %v", id, err)
 		d.SetId("")
@@ -175,20 +143,6 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 	d.Set("category", source.Category)
 	d.Set("scan_interval", source.ScanInterval)
 	d.Set("paused", source.Paused)
-
-	return nil
-}
-
-func resourceSumologicPollingSourceDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	// Destroy source if `destroy` is true, otherwise ignore
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		collectorID, _ := d.Get("collector_id").(int)
-
-		return c.DestroySource(id, collectorID)
-	}
 
 	return nil
 }

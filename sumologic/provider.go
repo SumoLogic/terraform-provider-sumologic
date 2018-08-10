@@ -27,11 +27,10 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"sumologic_collector":                   resourceSumologicCollector(),
-			"sumologic_http_source":                 resourceSumologicHTTPSource(),
-			"sumologic_polling_source":              resourceSumologicPollingSource(),
-			"sumologic_cloudsyslog_source":          resourceSumologicCloudsyslogSource(),
-			"sumologic_http_source_sns_autoconfirm": resourceSumologicHTTPSourceSNSAutoConfirm(),
+			"sumologic_collector":          resourceSumologicCollector(),
+			"sumologic_http_source":        resourceSumologicHTTPSource(),
+			"sumologic_polling_source":     resourceSumologicPollingSource(),
+			"sumologic_cloudsyslog_source": resourceSumologicCloudsyslogSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),

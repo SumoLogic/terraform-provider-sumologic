@@ -16,6 +16,7 @@ func TestAccSumologicHTTPSource(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckHTTPSourceExists("sumologic_http_source.http", t),
 					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "id"),
+					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "url"),
 				),
 			},
 		},
@@ -34,7 +35,7 @@ func TestAccSumologicHTTPSourceUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_http_source.http", "name", "test_http"),
 					resource.TestCheckResourceAttr("sumologic_http_source.http", "description", "test_desc"),
 					resource.TestCheckResourceAttr("sumologic_http_source.http", "message_per_request", "false"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "category","source/category"),
+					resource.TestCheckResourceAttr("sumologic_http_source.http", "category", "source/category"),
 				),
 			},
 			{
@@ -44,7 +45,7 @@ func TestAccSumologicHTTPSourceUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "id"),
 					resource.TestCheckResourceAttr("sumologic_http_source.http", "name", "test_http"),
 					resource.TestCheckResourceAttr("sumologic_http_source.http", "description", "desc_test"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "category","category/source"),
+					resource.TestCheckResourceAttr("sumologic_http_source.http", "category", "category/source"),
 				),
 			},
 		},
@@ -88,5 +89,6 @@ resource "sumologic_http_source" "http" {
   message_per_request = false
   category = "category/source"
   collector_id = "${sumologic_collector.test.id}"
+  lookup_by_name = true
 }
 `

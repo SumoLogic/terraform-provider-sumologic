@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccSumologicCloudsyslogSource(t *testing.T) {
@@ -12,8 +13,18 @@ func TestAccSumologicCloudsyslogSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicCloudsyslogSourceConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudSyslogSourceExists("sumologic_cloudsyslog_source.cloudsyslog", t),
+					resource.TestCheckResourceAttrSet("sumologic_cloudsyslog_source.cloudsyslog", "id"),
+				),
 			},
 		}})
+}
+
+func testAccCheckCloudSyslogSourceExists(n string, t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return nil
+	}
 }
 
 var testAccSumologicCloudsyslogSourceConfig = `

@@ -55,7 +55,6 @@ func resourceSumologicCollector() *schema.Resource {
 }
 
 func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) error {
-
 	c := meta.(*Client)
 
 	id, err := strconv.Atoi(d.Id())
@@ -66,7 +65,6 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 
 	collector, err := c.GetCollector(id)
 
-	// Collector is gone, remove it from state
 	if err != nil {
 		log.Printf("[WARN] Collector not found, removing from state: %v - %v", id, err)
 		d.SetId("")
@@ -83,10 +81,8 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceSumologicCollectorDelete(d *schema.ResourceData, meta interface{}) error {
-
 	c := meta.(*Client)
 
-	// Destroy collector if `destroy` is true, otherwise ignore
 	if d.Get("destroy").(bool) {
 		id, _ := strconv.Atoi(d.Id())
 		return c.DeleteCollector(id)
@@ -105,13 +101,11 @@ func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		// Set ID of collector if it exists
 		if collector != nil {
 			d.SetId(strconv.Itoa(collector.ID))
 		}
 	}
 
-	// If collector ID is still empty, create a collector
 	if d.Id() == "" {
 		id, err := c.CreateCollector(Collector{
 			CollectorType: "Hosted",
@@ -122,7 +116,6 @@ func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		// Set ID of new created collector
 		d.SetId(strconv.Itoa(id))
 	}
 
