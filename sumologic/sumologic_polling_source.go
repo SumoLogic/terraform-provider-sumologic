@@ -24,9 +24,10 @@ type PollingResource struct {
 }
 
 type PollingAuthentication struct {
-	Type   string `json:"type"`
-	AwsID  string `json:"awsId"`
-	AwsKey string `json:"awsKey"`
+	Type    string `json:"type"`
+	AwsID   string `json:"awsId"`
+	AwsKey  string `json:"awsKey"`
+	RoleARN string `json:"roleARN"`
 }
 
 type PollingPath struct {
@@ -35,29 +36,14 @@ type PollingPath struct {
 	PathExpression string `json:"pathExpression"`
 }
 
-func (s *Client) CreatePollingSource(name string, description string, contentType string, category string, scanInterval int, paused bool, collectorID int, auth PollingAuthentication, path PollingPath) (int, error) {
+func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int, error) {
 
 	type PollingSourceMessage struct {
 		Source PollingSource `json:"source"`
 	}
 
 	request := PollingSourceMessage{
-		Source: PollingSource{
-			Source: Source{
-				Type:        "Polling",
-				Name:        name,
-				Description: description,
-				Category:    category,
-			},
-			ContentType:  contentType,
-			ScanInterval: scanInterval,
-			Paused:       false,
-			ThirdPartyRef: PollingThirdPartyRef{
-				Resources: []PollingResource{
-					{ServiceType: contentType, Authentication: auth, Path: path},
-				},
-			},
-		},
+		Source: source,
 	}
 
 	urlPath := fmt.Sprintf("collectors/%d/sources", collectorID)

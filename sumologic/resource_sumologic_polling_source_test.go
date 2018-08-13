@@ -20,6 +20,9 @@ func TestAccSumologicPollingSource(t *testing.T) {
 }
 
 var testAccSumologicPollingSourceConfig = `
+variable "aws_accessid" {}
+variable "aws_accesskey" {}
+
 resource "sumologic_collector" "AWS" {
   name = "AWS2"
   description = "AWS logs"
@@ -31,18 +34,18 @@ resource "sumologic_polling_source" "s3_audit" {
   name = "Amazon S3 Audit"
   description = "test_desc"
   category = "some/category"
-  content_type = "AwsS3AuditBucket"
+  content_type = "AwsS3Bucket"
   scan_interval = 1000
   paused = false
 
   authentication {
-    access_key = "${vars.aws_accessid}"
-    secret_key = "${vars.aws_accesskey}"
+    access_key = "${var.aws_accessid}"
+    secret_key = "${var.aws_accesskey}"
   }
 
   path {
-    bucket_name = "Bucket1"
-    path_expression = "*"
+    bucket_name = "freno-personal-cloudtrail"
+    path_expression = "AWSLogs/244663422124/CloudTrail/us-west-2/2018/08/10/*"
   }
 }
 `

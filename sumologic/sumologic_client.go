@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
 
-// Client base
 type Client struct {
 	AccessID    string
 	AccessKey   string
@@ -124,7 +122,6 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
-	log.Printf("got body:%s", body)
 	req, _ := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body))
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
