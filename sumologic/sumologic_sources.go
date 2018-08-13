@@ -186,7 +186,6 @@ func resourceSumologicSource() *schema.Resource {
 func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	// Destroy source if `destroy` is true, otherwise ignore
 	if d.Get("destroy").(bool) {
 		id, _ := strconv.Atoi(d.Id())
 		collectorID, _ := d.Get("collector_id").(int)
