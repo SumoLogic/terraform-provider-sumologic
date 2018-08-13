@@ -1,5 +1,5 @@
 # sumologic_caller_identity
-Provides an easy way to retrive Sumologic auth details.
+Provides an easy way to retrieve Sumo Logic auth details.
 
 
 ## Example Usage
@@ -10,8 +10,8 @@ data "sumologic_caller_identity" "current" {}
 
 ## Attributes reference
 The following attributes are exported:
-- `access_id` - Sumologic access ID.
-- `access_key` - Sumologic access key.
+- `access_id` - Sumo Logic access ID.
+- `access_key` - Sumo Logic access key.
 - `environment` - API endpoint environment.
 
 [Back to Index][0]

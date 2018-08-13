@@ -34,25 +34,25 @@ resource "sumologic_http_source_sns_autoconfirm" "sns_confirm" {
 ```
 
 ## Authentication
-The Sumologic Provider offers a flexible means of providing credentials for authentication. The following methods are supported and explained below:
+The Sumo Logic Provider offers a flexible means of providing credentials for authentication. The following methods are supported and explained below:
 
  - Static credentials
  - Environment variables
 
 ### Static credentials
-Static credentials can be provided by adding an `access_id` and `access_key` in-line in the Sumologic provider block:
+Static credentials can be provided by adding an `access_id` and `access_key` in-line in the Sumo Logic provider block:
 
 Usage:
 ```hcl
 provider "sumologic" {
-    environment = "eu"
+    environment = "us2"
     access_id   = "your-access-id"
     access_key  = "your-access-key"
 }
 ```
 
 ### Environment variables
-You can provide your credentials via the `SUMOLOGIC_ACCESSID` and `SUMOLOGIC_ACCESSKEY` environment variables, representing your Sumologic Access ID and Sumologic Access Key, respectively.
+You can provide your credentials via the `SUMOLOGIC_ACCESSID` and `SUMOLOGIC_ACCESSKEY` environment variables, representing your Sumo Logic Access ID and Sumo Logic Access Key, respectively.
 
 Usage:
 ```hcl
@@ -66,9 +66,9 @@ $ terraform plan
 ```
 
 ## Argument Reference
-- `access_id` - (Optional) This is the Sumologic Access ID. It must be provided, but it can also be source from the SUMOLOGIC_ACCESS_ID environment variable.
-- `access_key` - (Optional) This is the Sumologic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESS_KEY variable.
-- `environment` - (Optional) This is the API endpoint to use. Default is eu. See the [Sumologic documentation][1] for details on which environment you should use.
+- `access_id` - (Optional) This is the Sumo Logic Access ID. It must be provided, but it can also be source from the SUMOLOGIC_ACCESSID environment variable.
+- `access_key` - (Optional) This is the Sumo Logic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSKEY variable.
+- `environment` - (Optional) This is the API endpoint to use. Default is eu. See the [Sumo Logic documentation][1] for details on which environment you should use.
 
 [Back to Index][0]
 

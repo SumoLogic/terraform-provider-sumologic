@@ -1,6 +1,6 @@
 # sumologic_cloudsyslog_source
 
-Provides a [Sumologic Cloud Syslog source][1].
+Provides a [Sumo Logic Cloud Syslog source][1].
 
 __IMPORTANT:__ The token is stored in plain-text in the state. This is a potential security issue.
 
@@ -21,11 +21,7 @@ resource "sumologic_collector" "collector" {
 
 ## Argument reference
 
-The following arguments are supported:
-- `name` - (Required) The name of the source. This is required, and has to be unique in the scope of the collector. Changing this will force recreation the source.
-- `description` - (Optional) Description of the source.
-- `collector_id` - (Required) The ID of the collector to attach this source to.
-- `category` - (Optional) The source category this source logs to.
+Only the common properties are valid.
 
 ## Attributes reference
 
