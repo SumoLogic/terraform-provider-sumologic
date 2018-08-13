@@ -39,13 +39,14 @@ resource "sumologic_polling_source" "s3_audit" {
   paused = false
 
   authentication {
+	type	   = "S3BucketAuthentication"
     access_key = "${var.aws_accessid}"
     secret_key = "${var.aws_accesskey}"
   }
 
   path {
-    bucket_name = "freno-personal-cloudtrail"
-    path_expression = "AWSLogs/244663422124/CloudTrail/us-west-2/2018/08/10/*"
+    bucket_name = "Bucket1"
+    path_expression = "AWSLogs/*"
   }
 }
 `
