@@ -15,7 +15,7 @@ resource "sumologic_polling_source" "s3_audit" {
   collector_id  = "${sumologic_collector.collector.id}"
 
   authentication {
-    access_key = "AKIAIOSFODNN7EXAMPLE"
+    access_key = "someKey"
     secret_key = "******"
   }
 
@@ -32,16 +32,15 @@ resource "sumologic_collector" "collector" {
 ```
 
 ## Argument reference
- - `name` - (Required) The name of the source. This is required, and has to be unique in the scope of the collector. Changing this will force recreation the source.
- - `description` - (Optional) Description of the source.
- - `collector_id` - (Required) The ID of the collector to attach this source to.
- - `category` - (Required) The source category this source logs to.
+In addition to the common properties, the following arguments are supported:
  - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][2].
  - `scan_interval` - (Required) Time interval of scans for new data.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
  - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
-     + `access_key` - (Required) Your AWS access key
-     + `secret_key` - (Required) Your AWS secret key
+     + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication` 
+     + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
+     + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
+     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
  - `path` - (Required) The location to scan for new data.
      + `bucket_name` - (Required) The name of the bucket.
      + `path_expression` - (Required) The path to the data.
