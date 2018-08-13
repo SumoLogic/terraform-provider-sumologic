@@ -144,6 +144,8 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 }
 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
+	SumoMutexKV.Lock(urlPath)
+	defer SumoMutexKV.Unlock(urlPath)
 
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
