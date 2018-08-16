@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type Client struct {
@@ -23,6 +24,8 @@ var endpoints = map[string]string{
 	"au":  "https://api.au.sumologic.com/api/v1/",
 	"de":  "https://api.de.sumologic.com/api/v1/",
 }
+
+var rateLimiter = time.Tick(time.Minute / 240)
 
 type ErrorResponse struct {
 	Status  int    `json:"status"`
@@ -51,6 +54,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
+	<-rateLimiter
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil, err
@@ -95,6 +99,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 		req.AddCookie(cookie)
 	}
 
+	<-rateLimiter
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, "", err
@@ -126,6 +131,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
+	<-rateLimiter
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -159,6 +165,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
+	<-rateLimiter
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -184,6 +191,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
+	<-rateLimiter
 	resp, _ := http.DefaultClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
@@ -205,6 +213,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
+	<-rateLimiter
 	resp, _ := http.DefaultClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
