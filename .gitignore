@@ -93,3 +93,4 @@ fabric.properties
 .idea/httpRequests
 
 terra.tf
+dist/
