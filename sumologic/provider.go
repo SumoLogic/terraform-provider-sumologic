@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"log"
 	"os"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
@@ -9,6 +10,12 @@ import (
 )
 
 func Provider() terraform.ResourceProvider {
+	defaultEnvironment := os.Getenv("SUMOLOGIC_ENVIRONMENT")
+	if defaultEnvironment == "" {
+		defaultEnvironment = "us2"
+	}
+	log.Printf("[DEBUG] sumo default environment: %s", defaultEnvironment)
+
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_id": {
@@ -24,7 +31,7 @@ func Provider() terraform.ResourceProvider {
 			"environment": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "us2",
+				Default:  defaultEnvironment,
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{

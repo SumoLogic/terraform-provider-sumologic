@@ -44,9 +44,9 @@ $ terraform plan
 ```
 
 ## Argument Reference
-- `access_id` - (Optional) This is the Sumo Logic Access ID. It must be provided, but it can also be source from the SUMOLOGIC_ACCESSID environment variable.
-- `access_key` - (Optional) This is the Sumo Logic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSKEY variable.
-- `environment` - (Optional) This is the API endpoint to use. Default is us2. See the [Sumo Logic documentation][1] for details on which environment you should use.
+- `access_id` - (Optional) This is the Sumo Logic Access ID. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSID environment variable.
+- `access_key` - (Optional) This is the Sumo Logic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSKEY environment variable.
+- `environment` - (Optional) This is the API endpoint to use. Default is us2, but it can also be sourced from the SUMOLOGIC_ENVIRONMENT environment variable. See the [Sumo Logic documentation][1] for details on which environment you should use.
 
 # Building the provider
 
