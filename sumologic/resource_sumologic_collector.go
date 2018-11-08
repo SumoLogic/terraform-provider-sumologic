@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -13,6 +14,7 @@ func resourceSumologicCollector() *schema.Resource {
 		Read:   resourceSumologicCollectorRead,
 		Delete: resourceSumologicCollectorDelete,
 		Update: resourceSumologicCollectorUpdate,
+		Exists: resourceSumologicCollectorExists,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -134,6 +136,20 @@ func resourceSumologicCollectorUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	return resourceSumologicCollectorRead(d, meta)
+}
+
+func resourceSumologicCollectorExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+	c := meta.(*Client)
+
+	id, err := strconv.Atoi(d.Id())
+
+	if err != nil {
+		return false, fmt.Errorf("collector id should be an integer; got %s (%s)", d.Id(), err)
+	}
+
+	_, err = c.GetCollector(id)
+
+	return err == nil, nil
 }
 
 func resourceToCollector(d *schema.ResourceData) Collector {
