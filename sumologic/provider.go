@@ -42,6 +42,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
+			"sumologic_collector":       dataSourceSumologicCollector(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
