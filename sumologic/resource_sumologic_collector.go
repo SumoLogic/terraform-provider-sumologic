@@ -18,7 +18,7 @@ func resourceSumologicCollector() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
