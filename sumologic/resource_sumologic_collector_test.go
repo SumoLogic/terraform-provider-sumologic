@@ -88,6 +88,49 @@ func TestAccSumologicCollectorChangeConfig(t *testing.T) {
 	})
 }
 
+func TestAccSumologicCollectorManualDeletion(t *testing.T) {
+	var collector *Collector
+
+	deleteCollector := func() {
+		c := testAccProvider.Meta().(*Client)
+		_, err := c.GetCollector(collector.ID)
+		if err != nil {
+			t.Fatal(fmt.Sprintf("attempted to delete collector %d but it does not exist (%s)", collector.ID, err))
+		}
+		err = c.DeleteCollector(collector.ID)
+		if err != nil {
+			t.Fatal(fmt.Sprintf("failed to delete collector %d (%s)", collector.ID, err))
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicCollectorConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+				),
+			},
+			{
+				PreConfig: deleteCollector, // simulate a manual deletion by deleting the collector between the 2 applies
+				Config: testAccSumologicCollectorConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCollectorId(name string, collector **Collector) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -130,7 +173,7 @@ func testAccCheckCollectorExists(name string, collector **Collector, t *testing.
 		c := testAccProvider.Meta().(*Client)
 		*collector, err = c.GetCollector(id)
 		if err != nil {
-			return fmt.Errorf("collector %d not foung", id)
+			return fmt.Errorf("collector %d not found", id)
 		}
 		return nil
 	}
