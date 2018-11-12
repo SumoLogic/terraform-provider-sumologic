@@ -12,6 +12,7 @@ import (
 
 func TestAccSumologicCollectorMinimal(t *testing.T) {
 	var collector *Collector
+	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
@@ -19,14 +20,20 @@ func TestAccSumologicCollectorMinimal(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfigMinimal,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", ""),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", ""),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", "MyCollector"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "category", ""),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string {"lookup_by_name", "destroy"},
 			},
 		},
 	})
@@ -34,6 +41,7 @@ func TestAccSumologicCollectorMinimal(t *testing.T) {
 
 func TestAccSumologicCollectorSimple(t *testing.T) {
 	var collector *Collector
+	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
@@ -41,14 +49,20 @@ func TestAccSumologicCollectorSimple(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", "MyCollector"),
+					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
+					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string {"lookup_by_name", "destroy"},
 			},
 		},
 	})
@@ -56,6 +70,7 @@ func TestAccSumologicCollectorSimple(t *testing.T) {
 
 func TestAccSumologicCollectorLookupByName(t *testing.T) {
 	var collector *Collector
+	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
@@ -66,10 +81,16 @@ func TestAccSumologicCollectorLookupByName(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfigLookupByName,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string {"lookup_by_name", "destroy"},
 			},
 		},
 	})
@@ -77,6 +98,7 @@ func TestAccSumologicCollectorLookupByName(t *testing.T) {
 
 func TestAccSumologicCollectorAllConfig(t *testing.T) {
 	var collector *Collector
+	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
@@ -84,14 +106,20 @@ func TestAccSumologicCollectorAllConfig(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfigAll,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "CollectorName"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "CollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Category"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Europe/Berlin"),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", "CollectorName"),
+					resource.TestCheckResourceAttr(resourceName, "description", "CollectorDesc"),
+					resource.TestCheckResourceAttr(resourceName, "category", "Category"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Europe/Berlin"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string {"lookup_by_name", "destroy"},
 			},
 		},
 	})
@@ -99,6 +127,7 @@ func TestAccSumologicCollectorAllConfig(t *testing.T) {
 
 func TestAccSumologicCollectorChangeConfig(t *testing.T) {
 	var collector *Collector
+	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
@@ -106,25 +135,31 @@ func TestAccSumologicCollectorChangeConfig(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttr(resourceName, "name", "MyCollector"),
+					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
+					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string {"lookup_by_name", "destroy"},
 			},
 			{
 				Config: testAccSumologicCollectorConfigAll,
 				Check: resource.ComposeTestCheckFunc(
 					// check the id of this resource is the same as the one in the previous step
-					testAccCheckCollectorId("sumologic_collector.test", &collector),
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					testAccCheckCollectorAttributes("sumologic_collector.test", &collector),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "CollectorName"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "CollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Category"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Europe/Berlin"),
+					testAccCheckCollectorId(resourceName, &collector),
+					testAccCheckCollectorExists(resourceName, &collector, t),
+					testAccCheckCollectorAttributes(resourceName, &collector),
+					resource.TestCheckResourceAttr(resourceName, "name", "CollectorName"),
+					resource.TestCheckResourceAttr(resourceName, "description", "CollectorDesc"),
+					resource.TestCheckResourceAttr(resourceName, "category", "Category"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Europe/Berlin"),
 				),
 			},
 		},
