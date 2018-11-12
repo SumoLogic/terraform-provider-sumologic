@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"fmt"
+	"github.com/go-errors/errors"
 	"log"
 	"os"
 
@@ -9,10 +11,12 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+const DefaultEnvironment = "us2"
+
 func Provider() terraform.ResourceProvider {
 	defaultEnvironment := os.Getenv("SUMOLOGIC_ENVIRONMENT")
 	if defaultEnvironment == "" {
-		defaultEnvironment = "us2"
+		defaultEnvironment = DefaultEnvironment
 	}
 	log.Printf("[DEBUG] sumo default environment: %s", defaultEnvironment)
 
@@ -51,9 +55,27 @@ func Provider() terraform.ResourceProvider {
 var SumoMutexKV = mutexkv.NewMutexKV()
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+	accessId := d.Get("access_id").(string)
+	accessKey := d.Get("access_key").(string)
+	environment := d.Get("environment").(string)
+
+	msg := ""
+	if accessId == "" {
+		msg = "sumologic provider: access_id should be set;"
+	}
+	if accessKey == "" {
+		msg = fmt.Sprintf("%s access_key should be set; ", msg)
+	}
+	if msg != "" {
+		if environment == DefaultEnvironment {
+			msg = fmt.Sprintf("%s make sure environment is set or that the default (%s) is appropriate", msg, DefaultEnvironment)
+		}
+		return nil, errors.New(msg)
+	}
+
 	return NewClient(
-		d.Get("access_id").(string),
-		d.Get("access_key").(string),
-		d.Get("environment").(string),
+		accessId,
+		accessKey,
+		environment,
 	)
 }
