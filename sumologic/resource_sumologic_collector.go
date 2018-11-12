@@ -15,6 +15,9 @@ func resourceSumologicCollector() *schema.Resource {
 		Delete: resourceSumologicCollectorDelete,
 		Update: resourceSumologicCollectorUpdate,
 		Exists: resourceSumologicCollectorExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {

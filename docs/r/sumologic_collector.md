@@ -22,6 +22,12 @@ The following arguments are supported:
 The following attributes are exported:
 - `id` - The internal ID of the collector. This can be used to attach sources to the collector.
 
+## Import
+Collectors can be imported using the collector id, e.g.:
+```hcl
+terraform import sumologic_collector.test 1234567890
+```
+
 [Back to Index][0]
 
 [0]: ../README.md
