@@ -26,6 +26,7 @@ The following properties are common to ALL sources and can be used to configure 
 
 ##### Data Sources
   + [sumologic_caller_identity][10]
+  + [sumologic_collector][11]
 
 ##### Resources
   + [sumologic_collector][20]
@@ -37,6 +38,7 @@ The following properties are common to ALL sources and can be used to configure 
 [0]: sumologic-provider.md
 [2]: https://en.wikipedia.org/wiki/Tz_database
 [10]: d/sumologic_caller_identity.md
+[11]: d/sumologic_collector.md
 [20]: r/sumologic_collector.md
 [21]: r/sumologic_http_source.md
 [22]: r/sumologic_polling_source.md
