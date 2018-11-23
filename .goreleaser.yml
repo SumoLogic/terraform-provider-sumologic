@@ -3,6 +3,7 @@
 builds:
 - env:
   - CGO_ENABLED=0
+  binary: terraform-provider-sumologic
   goos:
   - darwin
   - freebsd
