@@ -144,6 +144,10 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 	source, err := c.GetPollingSource(d.Get("collector_id").(int), id)
 
 	if err != nil {
+		return err
+	}
+
+	if source == nil {
 		log.Printf("[WARN] Polling source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 

@@ -115,7 +115,9 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 		return nil, "", err
 	}
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode == 404 {
+		return nil, "", nil
+	} else if resp.StatusCode >= 400 {
 		var errorResponse ErrorResponse
 		if err = json.Unmarshal(d, &errorResponse); err != nil {
 			return nil, "", err
@@ -201,7 +203,9 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 
 	d, _ := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode == 404 {
+		return nil, "", nil
+	} else if resp.StatusCode >= 400 {
 		var errorResponse ErrorResponse
 		_ = json.Unmarshal(d, &errorResponse)
 		return nil, "", errors.New(errorResponse.Message)

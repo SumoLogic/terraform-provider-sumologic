@@ -65,7 +65,6 @@ func TestGetCollectorFound(t *testing.T) {
 }
 
 func TestGetCollectorNotFound(t *testing.T) {
-	t.Skip("skipping test as we've not yet changed the behaviour to make this pass")
 	body := []byte(`{
 		"status": 404,
 		"code" : "collectors.collector.invalid",
@@ -81,7 +80,7 @@ func TestGetCollectorNotFound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected GetCollector to succeed, received: %s", err)
 	}
-	if !reflect.DeepEqual(*collectorResponse, &Collector{}) {
+	if collectorResponse != nil {
 		t.Errorf("Expected GetCollector to return an empty response, instead of %v", *collectorResponse)
 	}
 }

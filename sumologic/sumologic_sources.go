@@ -287,6 +287,10 @@ func (s *Client) GetSourceName(collectorID int, sourceName string) (*Source, err
 		return nil, err
 	}
 
+	if data == nil {
+		return nil, nil
+	}
+
 	var response SourceList
 	err = json.Unmarshal(data, &response)
 
