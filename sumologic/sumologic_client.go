@@ -12,11 +12,16 @@ import (
 	"time"
 )
 
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
 	AccessID    string
 	AccessKey   string
 	Environment string
 	BaseURL     *url.URL
+	httpClient  HttpClient
 }
 
 var endpoints = map[string]string{
@@ -57,7 +62,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -78,7 +83,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 			log.Printf("[DEBUG] client PostWithCookies response unmarshalling failed %s\n%s\n", err, d)
 			return nil, nil, errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
-		return nil, nil, errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
+		return nil, nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
 	}
 
 	return d, respCookie, nil
@@ -105,7 +110,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	}
 
 	<-rateLimiter
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, "", err
 	}
@@ -115,7 +120,9 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 		return nil, "", err
 	}
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode == 404 {
+		return nil, "", nil
+	} else if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
 		log.Printf("[DEBUG] client GetWithCookies returned status %d\n%s\n", resp.StatusCode, d)
 		var errorResponse ErrorResponse
@@ -124,7 +131,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 			log.Printf("[DEBUG] client GetWithCookies response unmarshalling failed %s\n%s\n", err, d)
 			return nil, "", errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
-		return nil, "", errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
+		return nil, "", errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
 	}
 
 	return d, resp.Header.Get("ETag"), nil
@@ -140,7 +147,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.httpClient.Do(req)
 
 	if err != nil {
 		return nil, err
@@ -157,7 +164,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 			log.Printf("[DEBUG] client Post response unmarshalling failed %s\n%s\n", err, d)
 			return nil, errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
-		return nil, errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
+		return nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
 	}
 
 	return d, nil
@@ -180,7 +187,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.httpClient.Do(req)
 
 	if err != nil {
 		return nil, err
@@ -197,7 +204,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 			log.Printf("[DEBUG] client Put response unmarshalling failed %s\n%s\n", err, d)
 			return nil, errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
-		return nil, errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
+		return nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
 	}
 
 	return d, nil
@@ -212,11 +219,13 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := http.DefaultClient.Do(req)
+	resp, _ := s.httpClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode == 404 {
+		return nil, "", nil
+	} else if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
 		log.Printf("[DEBUG] client Get returned status %d\n%s\n", resp.StatusCode, d)
 		var errorResponse ErrorResponse
@@ -225,7 +234,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 			log.Printf("[DEBUG] client Get response unmarshalling failed %s\n%s\n", err, d)
 			return nil, "", errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
-		return nil, "", errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
+		return nil, "", errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
 	}
 
 	return d, resp.Header.Get("ETag"), nil
@@ -240,7 +249,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := http.DefaultClient.Do(req)
+	resp, _ := s.httpClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
 
@@ -256,6 +265,7 @@ func NewClient(accessID, accessKey, environment string) (*Client, error) {
 		AccessID:    accessID,
 		AccessKey:   accessKey,
 		Environment: environment,
+		httpClient:  http.DefaultClient,
 	}
 
 	client.BaseURL, _ = url.Parse(endpoints[client.Environment])

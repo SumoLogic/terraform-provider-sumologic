@@ -73,6 +73,10 @@ func (s *Client) GetPollingSource(collectorID, sourceID int) (*PollingSource, er
 		return nil, err
 	}
 
+	if body == nil {
+		return nil, nil
+	}
+
 	type PollingSourceResponse struct {
 		Source PollingSource `json:"source"`
 	}

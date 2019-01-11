@@ -42,9 +42,12 @@ func (s *Client) GetCloudSyslogSource(collectorID, sourceID int) (*CloudSyslogSo
 	body, _, err := s.Get(
 		fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID),
 	)
-
 	if err != nil {
 		return nil, err
+	}
+
+	if body == nil {
+		return nil, nil
 	}
 
 	type Response struct {

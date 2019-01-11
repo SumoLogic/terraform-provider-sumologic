@@ -71,6 +71,10 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 	collector, err := c.GetCollector(id)
 
 	if err != nil {
+		return err
+	}
+
+	if collector == nil {
 		log.Printf("[WARN] Collector not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 

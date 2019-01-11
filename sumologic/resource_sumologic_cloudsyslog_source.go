@@ -1,9 +1,8 @@
 package sumologic
 
 import (
-	"strconv"
-
 	"log"
+	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -82,8 +81,11 @@ func resourceSumologicCloudSyslogSourceRead(d *schema.ResourceData, meta interfa
 
 	id, _ := strconv.Atoi(d.Id())
 	source, err := c.GetCloudSyslogSource(d.Get("collector_id").(int), id)
-
 	if err != nil {
+		return err
+	}
+
+	if source == nil {
 		log.Printf("[WARN] Cloud Syslog source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 

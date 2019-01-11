@@ -7,14 +7,16 @@ import (
 
 func (s *Client) GetCollector(id int) (*Collector, error) {
 	data, _, err := s.Get(fmt.Sprintf("collectors/%d", id))
-
 	if err != nil {
 		return nil, err
 	}
 
+	if data == nil {
+		return nil, nil
+	}
+
 	var response CollectorResponse
 	err = json.Unmarshal(data, &response)
-
 	if err != nil {
 		return nil, err
 	}
@@ -25,14 +27,16 @@ func (s *Client) GetCollector(id int) (*Collector, error) {
 func (s *Client) GetCollectorName(name string) (*Collector, error) {
 	// TODO: check default limit count of 1000 and paginate
 	data, _, err := s.Get("collectors")
-
 	if err != nil {
 		return nil, err
 	}
 
+	if data == nil {
+		return &Collector{}, nil
+	}
+
 	var response CollectorList
 	err = json.Unmarshal(data, &response)
-
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +65,6 @@ func (s *Client) CreateCollector(collector Collector) (int, error) {
 	var response CollectorResponse
 
 	responseBody, err := s.Post("collectors", request)
-
 	if err != nil {
 		return -1, err
 	}
