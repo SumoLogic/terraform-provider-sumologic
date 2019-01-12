@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/SumoLogic/sumologic-terraform-provider.svg?branch=master)](https://travis-ci.org/SumoLogic/sumologic-terraform-provider) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/SumoLogic/sumologic-terraform-provider/issues)
+
 # terraform-provider-sumologic
 This provider is used to manage Hosted collectors and sources supported by Sumo Logic.
 
