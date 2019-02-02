@@ -5,6 +5,14 @@ __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This i
 
 ## Example Usage
 ```hcl
+locals {
+  filters = [{
+    name        = "Exclude Comments"
+    filter_type = "Exclude"
+    regexp      = "#.*"
+  }]
+}
+
 resource "sumologic_polling_source" "s3_audit" {
   name          = "Amazon S3 Audit"
   description   = "My description"
@@ -13,6 +21,7 @@ resource "sumologic_polling_source" "s3_audit" {
   scan_interval = 1
   paused        = false
   collector_id  = "${sumologic_collector.collector.id}"
+  filters       = "${local.filters}"
 
   authentication {
     access_key = "someKey"
@@ -37,7 +46,7 @@ In addition to the common properties, the following arguments are supported:
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
  - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
-     + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication` 
+     + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
      + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
