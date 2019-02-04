@@ -16,11 +16,6 @@ func dataSourceSumologicCallerIdentity() *schema.Resource {
 				Computed: true,
 			},
 
-			"access_key": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"environment": {
 				Type:     schema.TypeString,
 				Computed: true,
