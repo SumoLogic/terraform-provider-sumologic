@@ -79,6 +79,8 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
 		log.Printf("[DEBUG] client PostWithCookies returned status %d\n%s\n", resp.StatusCode, d)
+		requestBody, err := json.MarshalIndent(payload, "", "  ")
+		log.Printf("[TRACE] request body \n%s\n", requestBody)
 		var errorResponse ErrorResponse
 		err = json.Unmarshal(d, &errorResponse)
 		if err != nil {
@@ -160,6 +162,8 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
 		log.Printf("[DEBUG] client Post returned status %d\n%s\n", resp.StatusCode, d)
+		requestBody, err := json.MarshalIndent(payload, "", "  ")
+		log.Printf("[TRACE] request body \n%s\n", requestBody)
 		var errorResponse ErrorResponse
 		err = json.Unmarshal(d, &errorResponse)
 		if err != nil {
@@ -200,6 +204,8 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
 		log.Printf("[DEBUG] client Put returned status %d\n%s\n", resp.StatusCode, d)
+		requestBody, err := json.MarshalIndent(payload, "", "  ")
+		log.Printf("[TRACE] request body \n%s\n", requestBody)
 		var errorResponse ErrorResponse
 		err = json.Unmarshal(d, &errorResponse)
 		if err != nil {
