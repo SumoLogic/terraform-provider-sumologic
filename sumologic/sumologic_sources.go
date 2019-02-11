@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -194,6 +195,17 @@ func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return nil
+}
+
+func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	ids := strings.Split(d.Id(), "/")
+
+	d.SetId(ids[1])
+
+	collectorID, _ := strconv.Atoi(ids[0])
+	d.Set("collector_id", collectorID)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func resourceToSource(d *schema.ResourceData) Source {
