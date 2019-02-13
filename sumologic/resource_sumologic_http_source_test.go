@@ -58,6 +58,7 @@ func TestAccSumologicHTTPSourceImport(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:            testAccSumologicHTTPSourceConfig,
+				ResourceName:      "sumologic_http_source.http",
 				ImportState:       true,
 				ImportStateId:     "123/456",
 				ImportStateVerify: true,
