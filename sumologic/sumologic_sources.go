@@ -201,7 +201,7 @@ func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*sc
 	ids := strings.Split(d.Id(), "/")
 
 	if len(ids) != 2 {
-		return errors.Sprintf("expected collector_id/source_id, got %s", d.Id())
+		return nil, fmt.Errorf("expected collector_id/source_id, got %s", d.Id())
 	}
 
 	d.SetId(ids[1])
