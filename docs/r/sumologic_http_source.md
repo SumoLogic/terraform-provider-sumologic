@@ -28,6 +28,13 @@ The following attributes are exported:
 - `id` - The internal ID of the source.
 - `url` - The HTTP endpoint to use for sending data to this source.
 
+## Import
+HTTP sources can be imported using the collector and source IDs (`collector/source`), e.g.:
+
+```hcl
+terraform import sumologic_http_collector.test 123/456
+```
+
 [Back to Index][0]
 
 [0]: ../README.md
