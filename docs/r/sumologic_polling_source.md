@@ -42,7 +42,7 @@ resource "sumologic_collector" "collector" {
 
 ## Argument reference
 In addition to the common properties, the following arguments are supported:
- - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][2].
+ - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
  - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
