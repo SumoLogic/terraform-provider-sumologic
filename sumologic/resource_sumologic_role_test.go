@@ -24,7 +24,7 @@ func TestAccSumologicRoleMinimal(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", "MyRole"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "filterPredicate", ""),
+					resource.TestCheckResourceAttr(resourceName, "filter_predicate", ""),
 					resource.TestCheckResourceAttr(resourceName, "users.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.#", "0"),
 				),
@@ -54,9 +54,8 @@ func TestAccSumologicRoleSimple(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", "MyRole"),
 					resource.TestCheckResourceAttr(resourceName, "description", "MyRoleDesc"),
-					resource.TestCheckResourceAttr(resourceName, "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr(resourceName, "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr(resourceName, "users.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.#", "1"),
 				),
@@ -112,11 +111,10 @@ func TestAccSumologicRoleAllConfig(t *testing.T) {
 					testAccCheckRoleExists(resourceName, &role, t),
 					testAccCheckRoleAttributes(resourceName, &role),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "name", "RoleName"),
-					resource.TestCheckResourceAttr(resourceName, "description", "RoleDesc"),
-					resource.TestCheckResourceAttr(resourceName, "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr(resourceName, "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr(resourceName, "users.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name", "MyRole"),
+					resource.TestCheckResourceAttr(resourceName, "description", "MyRoleDesc"),
+					resource.TestCheckResourceAttr(resourceName, "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.#", "1"),
 				),
@@ -145,9 +143,8 @@ func TestAccSumologicRoleChangeConfig(t *testing.T) {
 					testAccCheckRoleAttributes(resourceName, &role),
 					resource.TestCheckResourceAttr(resourceName, "name", "MyRole"),
 					resource.TestCheckResourceAttr(resourceName, "description", "MyRoleDesc"),
-					resource.TestCheckResourceAttr(resourceName, "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr(resourceName, "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr(resourceName, "users.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.#", "1"),
 				),
@@ -165,11 +162,10 @@ func TestAccSumologicRoleChangeConfig(t *testing.T) {
 					testAccCheckRoleId(resourceName, &role),
 					testAccCheckRoleExists(resourceName, &role, t),
 					testAccCheckRoleAttributes(resourceName, &role),
-					resource.TestCheckResourceAttr(resourceName, "name", "RoleName"),
-					resource.TestCheckResourceAttr(resourceName, "description", "RoleDesc"),
-					resource.TestCheckResourceAttr(resourceName, "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr(resourceName, "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr(resourceName, "users.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name", "MyRole"),
+					resource.TestCheckResourceAttr(resourceName, "description", "MyRoleDesc"),
+					resource.TestCheckResourceAttr(resourceName, "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr(resourceName, "users.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr(resourceName, "capabilities.#", "1"),
 				),
@@ -202,9 +198,8 @@ func TestAccSumologicRoleManualDeletion(t *testing.T) {
 					testAccCheckRoleExists("sumologic_role.test", &role, t),
 					resource.TestCheckResourceAttr("sumologic_role.test", "name", "MyRole"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "description", "MyRoleDesc"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "users.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_role.test", "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr("sumologic_role.test", "users.#", "0"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.#", "1"),
 				),
@@ -216,9 +211,8 @@ func TestAccSumologicRoleManualDeletion(t *testing.T) {
 					testAccCheckRoleExists("sumologic_role.test", &role, t),
 					resource.TestCheckResourceAttr("sumologic_role.test", "name", "MyRole"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "description", "MyRoleDesc"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "filterPredicate", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "users.0", "AAABBBCCCDDDEEEF"),
-					resource.TestCheckResourceAttr("sumologic_role.test", "users.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_role.test", "filter_predicate", "!_sourceCategory=billing"),
+					resource.TestCheckResourceAttr("sumologic_role.test", "users.#", "0"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.0", "viewCollectors"),
 					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.#", "1"),
 				),
@@ -267,7 +261,8 @@ func testAccCheckRoleExists(name string, role **Role, t *testing.T) resource.Tes
 
 		id := rs.Primary.ID
 		c := testAccProvider.Meta().(*Client)
-		_, err := c.GetRole(id)
+		var err error
+		*role, err = c.GetRole(id)
 		if err != nil {
 			return fmt.Errorf("role %s not found", id)
 		}
@@ -281,11 +276,11 @@ func testAccCheckRoleAttributes(name string, expected **Role) resource.TestCheck
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(name, "name", (**expected).Name),
 			resource.TestCheckResourceAttr(name, "description", (**expected).Description),
-			resource.TestCheckResourceAttr(name, "filterPredicate", (**expected).FilterPredicate),
-			resource.TestCheckResourceAttr(name, "users.0", (**expected).Users[0]),
-			resource.TestCheckResourceAttr(name, "users.#", string(len((**expected).Users))),
-			resource.TestCheckResourceAttr(name, "capabilities.0", (**expected).Capabilities[0]),
-			resource.TestCheckResourceAttr(name, "capabilities.#", string(len((**expected).Capabilities))),
+			resource.TestCheckResourceAttr(name, "filter_predicate", (**expected).FilterPredicate),
+			//resource.TestCheckResourceAttr(name, "users.0", (**expected).Users[0]),
+			//resource.TestCheckResourceAttr(name, "users.#", string(len((**expected).Users))),
+			//resource.TestCheckResourceAttr(name, "capabilities.0", (**expected).Capabilities[0]),
+			//resource.TestCheckResourceAttr(name, "capabilities.#", string(len((**expected).Capabilities))),
 		)
 		return f(s)
 	}
@@ -304,13 +299,15 @@ func testAccCheckRoleDestroy(s *terraform.State) error {
 		}
 
 		id := rs.Primary.ID
-		_, err := c.GetRole(id)
-		if err == nil {
-			return fmt.Errorf("role destruction check: role %s is still present", id)
-		}
-		// check that the error is what we expect
-		if !strings.Contains(err.Error(), "404") {
-			return fmt.Errorf("role destruction check: unexpected error %s", err)
+		role, err := c.GetRole(id)
+		if role != nil {
+			if err == nil {
+				return fmt.Errorf("role destruction check: role %s is still present", id)
+			}
+			// check that the error is what we expect
+			if !strings.Contains(err.Error(), "404") {
+				return fmt.Errorf("role destruction check: unexpected error %s", err)
+			}
 		}
 	}
 	return nil
@@ -328,9 +325,8 @@ var testAccSumologicRoleConfig = `
 resource "sumologic_role" "test" {
   name = "MyRole"
   description = "MyRoleDesc"
-  filter_predicate = "Cat"
+  filter_predicate = "!_sourceCategory=billing"
   users = [
-    "AAABBBCCCDDDEEEF"
   ]
   capabilities = [
     "viewCollectors"
@@ -343,9 +339,8 @@ var testAccSumologicRoleConfigLookupByName = `
 resource "sumologic_role" "test" {
   name = "MyRole"
   description = "MyRoleDesc"
-  filter_predicate = "Cat"
+  filter_predicate = "!_sourceCategory=billing"
   users = [
-    "AAABBBCCCDDDEEEF"
   ]
   capabilities = [
     "viewCollectors"
@@ -358,9 +353,8 @@ var testAccSumologicRoleConfigAll = `
 resource "sumologic_role" "test" {
   name = "MyRole"
   description = "MyRoleDesc"
-  filter_predicate = "Cat"
+  filter_predicate = "!_sourceCategory=billing"
   users = [
-    "AAABBBCCCDDDEEEF"
   ]
   capabilities = [
     "viewCollectors"

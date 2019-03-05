@@ -88,8 +88,8 @@ type RoleList struct {
 type Role struct {
 	ID              string   `json:"id,omitempty"`
 	Name            string   `json:"name"`
-	Description     string   `json:"description,omitempty"`
-	FilterPredicate string   `json:"filterPredicate,omitempty"`
-	Users           []string ` json:"users,omitempty"`
-	Capabilities    []string ` json:"capabilities,omitempty"`
+	Description     string   `json:"description"`
+	FilterPredicate string   `json:"filterPredicate"`
+	Users           []string ` json:"users"`
+	Capabilities    []string ` json:"capabilities"`
 }
