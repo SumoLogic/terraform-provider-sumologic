@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -87,7 +88,9 @@ func resourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", role.Name)
 	d.Set("description", role.Description)
 	d.Set("filter_predicate", role.FilterPredicate)
+	sort.Strings(role.Users)
 	d.Set("users", role.Users)
+	sort.Strings(role.Capabilities)
 	d.Set("capabilities", role.Capabilities)
 
 	return nil
