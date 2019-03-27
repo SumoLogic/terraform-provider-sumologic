@@ -12,6 +12,9 @@ func resourceSumologicHTTPSource() *schema.Resource {
 	httpSource.Create = resourceSumologicHTTPSourceCreate
 	httpSource.Read = resourceSumologicHTTPSourceRead
 	httpSource.Update = resourceSumologicHTTPSourceUpdate
+	httpSource.Importer = &schema.ResourceImporter{
+		State: resourceSumologicSourceImport,
+	}
 
 	httpSource.Schema["message_per_request"] = &schema.Schema{
 		Type:     schema.TypeBool,
