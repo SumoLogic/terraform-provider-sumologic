@@ -32,7 +32,7 @@ The following attributes are exported:
 HTTP sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_http_collector.test 123/456
+terraform import sumologic_http_source.test 123/456
 ```
 
 [Back to Index][0]
