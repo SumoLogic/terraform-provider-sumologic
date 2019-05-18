@@ -2,9 +2,10 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/go-errors/errors"
 	"log"
 	"os"
+
+	"github.com/go-errors/errors"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -44,6 +45,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_polling_source":     resourceSumologicPollingSource(),
 			"sumologic_cloudsyslog_source": resourceSumologicCloudsyslogSource(),
 			"sumologic_role":               resourceSumologicRole(),
+			"sumologic_user":               resourceSumologicUser(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
