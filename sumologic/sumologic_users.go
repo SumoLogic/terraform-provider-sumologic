@@ -24,31 +24,6 @@ func (s *Client) GetUser(id string) (*User, error) {
 	return &user, nil
 }
 
-func (s *Client) GetUserName(name string) (*User, error) {
-	data, _, err := s.Get("users")
-	if err != nil {
-		return nil, err
-	}
-
-	if data == nil {
-		return &User{}, nil
-	}
-
-	var response UserList
-	err = json.Unmarshal(data, &response)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range response.Users {
-		if c.Name == name {
-			return &c, nil
-		}
-	}
-
-	return nil, nil
-}
-
 func (s *Client) DeleteUser(id string) error {
 	_, err := s.Delete(fmt.Sprintf("users/%s", id))
 
@@ -86,10 +61,9 @@ type UserList struct {
 }
 
 type User struct {
-	ID              string   `json:"id,omitempty"`
-	Name            string   `json:"name"`
-	Description     string   `json:"description"`
-	FilterPredicate string   `json:"filterPredicate"`
-	Users           []string ` json:"users"`
-	Capabilities    []string ` json:"capabilities"`
+	ID        string   `json:"id,omitempty"`
+	FirstName string   `json:"firstName"`
+	LastName  string   `json:"lastName"`
+	Email     string   `json:"email"`
+	RoleIds   []string `json:"roleIds"`
 }
