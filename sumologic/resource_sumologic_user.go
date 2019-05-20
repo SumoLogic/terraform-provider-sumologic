@@ -19,44 +19,28 @@ func resourceSumologicUser() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": {
+			"first_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"description": {
+			"last_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
-				Default:  "",
 			},
-			"filter_predicate": {
+			"email": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
-				Default:  "",
 			},
-			"users": {
+			"role_ids": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			"capabilities": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: false,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"lookup_by_name": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  false,
 			},
 			"destroy": {
 				Type:     schema.TypeBool,
@@ -85,13 +69,11 @@ func resourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("name", user.Name)
-	d.Set("description", user.Description)
-	d.Set("filter_predicate", user.FilterPredicate)
-	sort.Strings(user.Users)
-	d.Set("users", user.Users)
-	sort.Strings(user.Capabilities)
-	d.Set("capabilities", user.Capabilities)
+	d.Set("firstName", user.FirstName)
+	d.Set("lastName", user.LastName)
+	d.Set("email", user.Email)
+	sort.Strings(user.RoleIds)
+	d.Set("roleIds", user.RoleIds)
 
 	return nil
 }
@@ -109,22 +91,9 @@ func resourceSumologicUserDelete(d *schema.ResourceData, meta interface{}) error
 func resourceSumologicUserCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("lookup_by_name").(bool) {
-		user, err := c.GetUserName(d.Get("name").(string))
-
-		if err != nil {
-			return err
-		}
-
-		if user != nil {
-			d.SetId(user.ID)
-		}
-	}
-
 	if d.Id() == "" {
-		id, err := c.CreateUser(User{
-			Name: d.Get("name").(string),
-		})
+		user := resourceToUser(d)
+		id, err := c.CreateUser(user)
 
 		if err != nil {
 			return err
@@ -166,24 +135,17 @@ func resourceSumologicUserImport(d *schema.ResourceData, m interface{}) ([]*sche
 }
 
 func resourceToUser(d *schema.ResourceData) User {
-	rawUsers := d.Get("users").([]interface{})
-	users := make([]string, len(rawUsers))
-	for i, v := range rawUsers {
-		users[i] = v.(string)
-	}
-
-	rawCapabilities := d.Get("capabilities").([]interface{})
-	capabilitiess := make([]string, len(rawCapabilities))
-	for i, v := range rawCapabilities {
-		capabilitiess[i] = v.(string)
+	rawRoles := d.Get("role_ids").([]interface{})
+	roleIds := make([]string, len(rawRoles))
+	for i, v := range rawRoles {
+		roleIds[i] = v.(string)
 	}
 
 	return User{
-		ID:              d.Id(),
-		Name:            d.Get("name").(string),
-		Description:     d.Get("description").(string),
-		FilterPredicate: d.Get("filter_predicate").(string),
-		Users:           users,
-		Capabilities:    capabilitiess,
+		ID:        d.Id(),
+		FirstName: d.Get("first_name").(string),
+		LastName:  d.Get("last_name").(string),
+		Email:     d.Get("email").(string),
+		RoleIds:   roleIds,
 	}
 }
