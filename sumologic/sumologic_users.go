@@ -31,7 +31,6 @@ func (s *Client) DeleteUser(id string) error {
 }
 
 func (s *Client) CreateUser(user User) (string, error) {
-
 	var createdUser User
 
 	responseBody, err := s.Post("users", user)
@@ -51,6 +50,7 @@ func (s *Client) CreateUser(user User) (string, error) {
 func (s *Client) UpdateUser(user User) error {
 	url := fmt.Sprintf("user/%s", user.ID)
 
+	var
 	_, err := s.Put(url, user)
 
 	return err
@@ -66,4 +66,13 @@ type User struct {
 	LastName  string   `json:"lastName"`
 	Email     string   `json:"email"`
 	RoleIds   []string `json:"roleIds"`
+}
+
+type UserPut struct {
+	ID        string   `json:"id,omitempty"`
+	FirstName string   `json:"firstName"`
+	LastName  string   `json:"lastName"`
+	Email     string   `json:"email"`
+	RoleIds   []string `json:"roleIds"`
+	Active string `json:"isActive"`
 }
