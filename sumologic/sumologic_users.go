@@ -48,13 +48,11 @@ func (s *Client) CreateUser(user User) (string, error) {
 }
 
 func (s *Client) UpdateUser(user User) error {
-	url := fmt.Sprintf("user/%s", user.ID)
+	url := fmt.Sprintf("users/%s", user.ID)
 
 	pUser := UserPut{
-		ID:        user.ID,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
-		Email:     user.Email,
 		Active:    true,
 		RoleIds:   user.RoleIds,
 	}
@@ -76,10 +74,8 @@ type User struct {
 }
 
 type UserPut struct {
-	ID        string   `json:"id,omitempty"`
 	FirstName string   `json:"firstName"`
 	LastName  string   `json:"lastName"`
-	Email     string   `json:"email"`
 	Active    bool     `json:"isActive"`
 	RoleIds   []string `json:"roleIds"`
 }
