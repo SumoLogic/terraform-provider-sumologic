@@ -128,9 +128,12 @@ func resourceSumologicUserUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceSumologicUserExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	c := meta.(*Client)
 
-	_, err := c.GetUser(d.Id())
+	user, err := c.GetUser(d.Id())
+	if err != nil {
+		return false, err
+	}
 
-	return err == nil, nil
+	return user != nil, nil
 }
 
 func resourceSumologicUserImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
