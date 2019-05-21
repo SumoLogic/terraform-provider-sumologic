@@ -34,6 +34,12 @@ func resourceSumologicUser() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+			"active": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
 			"role_ids": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -146,6 +152,7 @@ func resourceToUser(d *schema.ResourceData) User {
 		FirstName: d.Get("first_name").(string),
 		LastName:  d.Get("last_name").(string),
 		Email:     d.Get("email").(string),
+		Active:    d.Get("active").(bool),
 		RoleIds:   roleIds,
 	}
 }
