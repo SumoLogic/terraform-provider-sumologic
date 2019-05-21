@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 )
 
 func resourceSumologicUser() *schema.Resource {
@@ -20,19 +21,22 @@ func resourceSumologicUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"first_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     false,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"last_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     false,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     false,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"active": {
 				Type:     schema.TypeBool,
