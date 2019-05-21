@@ -2,10 +2,9 @@ package sumologic
 
 import (
 	"fmt"
+	"github.com/go-errors/errors"
 	"log"
 	"os"
-
-	"github.com/go-errors/errors"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
