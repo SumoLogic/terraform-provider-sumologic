@@ -48,12 +48,6 @@ func resourceSumologicUser() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
-			},
 		},
 	}
 }
@@ -86,12 +80,7 @@ func resourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSumologicUserDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-
-	if d.Get("destroy").(bool) {
-		return c.DeleteUser(d.Id())
-	}
-
-	return nil
+	return c.DeleteUser(d.Id())
 }
 
 func resourceSumologicUserCreate(d *schema.ResourceData, meta interface{}) error {
