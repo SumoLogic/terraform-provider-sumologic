@@ -18,7 +18,7 @@ resource "sumologic_polling_source" "s3_audit" {
   description   = "My description"
   category      = "aws/s3audit"
   content_type  = "AwsS3AuditBucket"
-  scan_interval = 1
+  scan_interval = 300000
   paused        = false
   collector_id  = "${sumologic_collector.collector.id}"
   filters       = "${local.filters}"
