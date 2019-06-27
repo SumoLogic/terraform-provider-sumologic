@@ -7,7 +7,7 @@ import (
 
 type CloudSyslogSource struct {
 	Source
-	Token string `json:"url,omitempty"`
+	Token string `json:"token,omitempty"`
 }
 
 func (s *Client) CreateCloudsyslogSource(cloudSyslogSource CloudSyslogSource, collectorID int) (int, error) {
