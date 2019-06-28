@@ -8,7 +8,6 @@ __IMPORTANT:__ The endpoint is stored in plain-text in the state. This is a pote
 resource "sumologic_http_source" "http_source" {
   name                = "HTTP"
   description         = "My description"
-  message_per_request = true
   category            = "my/source/category"
   collector_id        = "${sumologic_collector.collector.id}"
 }
