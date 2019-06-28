@@ -16,7 +16,7 @@ test: test-all
 
 .PHONY: test-all
 test-all:
-	@TF_ACC=1 go test -v -race $(GO_PACKAGES)
+	@TF_ACC=1 go test -run Role -v -race $(GO_PACKAGES)
 
 ${DIST_PATH}/${PLUGIN_NAME}: ${GO_FILES}
 	mkdir -p $(DIST_PATH); \
