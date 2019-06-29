@@ -38,6 +38,8 @@ The following arguments are supported:
 - `role_ids` - (Required) List of roleIds associated with the user.
 
 ## Attributes reference
+The following attributes are exported:
+- `id` - The internal ID of the user.
 
 
 [Back to Index][0]
