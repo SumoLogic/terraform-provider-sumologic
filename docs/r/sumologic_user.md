@@ -30,7 +30,12 @@ resource "sumologic_user" "example_user2" {
 ```
 
 ## Argument reference
-
+The following arguments are supported:
+- `first_name` - (Required) First name of the user..
+- `last_name` - (Required) Last name of the user.
+- `email` - (Required) Last name of the user.
+- `active` - (Optional) This has the value true if the user is active and false if they have been deactivated..
+- `role_ids` - (Required) List of roleIds associated with the user.
 
 ## Attributes reference
 
