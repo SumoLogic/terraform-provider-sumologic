@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -35,12 +33,6 @@ var endpoints = map[string]string{
 }
 
 var rateLimiter = time.Tick(time.Minute / 240)
-
-type ErrorResponse struct {
-	Status  int    `json:"status"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
 
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
 	relativeURL, err := url.Parse(urlPath)
@@ -77,17 +69,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	}
 
 	if resp.StatusCode >= 400 {
-		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
-		log.Printf("[DEBUG] client PostWithCookies returned status %d\n%s\n", resp.StatusCode, d)
-		requestBody, err := json.MarshalIndent(payload, "", "  ")
-		log.Printf("[TRACE] request body \n%s\n", requestBody)
-		var errorResponse ErrorResponse
-		err = json.Unmarshal(d, &errorResponse)
-		if err != nil {
-			log.Printf("[DEBUG] client PostWithCookies response unmarshalling failed %s\n%s\n", err, d)
-			return nil, nil, errors.New(fmt.Sprintf(errMsgFormat, err))
-		}
-		return nil, nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
+		return nil, nil, errors.New(string(d))
 	}
 
 	return d, respCookie, nil
@@ -127,15 +109,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	if resp.StatusCode == 404 {
 		return nil, "", nil
 	} else if resp.StatusCode >= 400 {
-		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
-		log.Printf("[DEBUG] client GetWithCookies returned status %d\n%s\n", resp.StatusCode, d)
-		var errorResponse ErrorResponse
-		err = json.Unmarshal(d, &errorResponse)
-		if err != nil {
-			log.Printf("[DEBUG] client GetWithCookies response unmarshalling failed %s\n%s\n", err, d)
-			return nil, "", errors.New(fmt.Sprintf(errMsgFormat, err))
-		}
-		return nil, "", errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
+		return nil, "", errors.New(string(d))
 	}
 
 	return d, resp.Header.Get("ETag"), nil
@@ -160,17 +134,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	d, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode >= 400 {
-		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
-		log.Printf("[DEBUG] client Post returned status %d\n%s\n", resp.StatusCode, d)
-		requestBody, err := json.MarshalIndent(payload, "", "  ")
-		log.Printf("[TRACE] request body \n%s\n", requestBody)
-		var errorResponse ErrorResponse
-		err = json.Unmarshal(d, &errorResponse)
-		if err != nil {
-			log.Printf("[DEBUG] client Post response unmarshalling failed %s\n%s\n", err, d)
-			return nil, errors.New(fmt.Sprintf(errMsgFormat, err))
-		}
-		return nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
+		return nil, errors.New(string(d))
 	}
 
 	return d, nil
@@ -202,17 +166,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	d, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode >= 400 {
-		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
-		log.Printf("[DEBUG] client Put returned status %d\n%s\n", resp.StatusCode, d)
-		requestBody, err := json.MarshalIndent(payload, "", "  ")
-		log.Printf("[TRACE] request body \n%s\n", requestBody)
-		var errorResponse ErrorResponse
-		err = json.Unmarshal(d, &errorResponse)
-		if err != nil {
-			log.Printf("[DEBUG] client Put response unmarshalling failed %s\n%s\n", err, d)
-			return nil, errors.New(fmt.Sprintf(errMsgFormat, err))
-		}
-		return nil, errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
+		return nil, errors.New(string(d))
 	}
 
 	return d, nil
@@ -234,15 +188,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	if resp.StatusCode == 404 {
 		return nil, "", nil
 	} else if resp.StatusCode >= 400 {
-		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
-		log.Printf("[DEBUG] client Get returned status %d\n%s\n", resp.StatusCode, d)
-		var errorResponse ErrorResponse
-		err := json.Unmarshal(d, &errorResponse)
-		if err != nil {
-			log.Printf("[DEBUG] client Get response unmarshalling failed %s\n%s\n", err, d)
-			return nil, "", errors.New(fmt.Sprintf(errMsgFormat, err))
-		}
-		return nil, "", errors.New(fmt.Sprintf(errMsgFormat, errorResponse.Message))
+		return nil, "", errors.New(string(d))
 	}
 
 	return d, resp.Header.Get("ETag"), nil
