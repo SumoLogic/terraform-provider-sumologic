@@ -288,7 +288,7 @@ func getFilters(d *schema.ResourceData) []Filter {
 
 func (s *Client) DestroySource(sourceID int, collectorID int) error {
 
-	_, err := s.Delete(fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID))
+	_, err := s.Delete(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 
 	return err
 }
@@ -296,7 +296,7 @@ func (s *Client) DestroySource(sourceID int, collectorID int) error {
 func (s *Client) GetSourceName(collectorID int, sourceName string) (*Source, error) {
 
 	data, _, err := s.Get(
-		fmt.Sprintf("collectors/%d/sources", collectorID),
+		fmt.Sprintf("v1/collectors/%d/sources", collectorID),
 	)
 
 	if err != nil {

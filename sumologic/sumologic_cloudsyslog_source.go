@@ -20,7 +20,7 @@ func (s *Client) CreateCloudsyslogSource(cloudSyslogSource CloudSyslogSource, co
 		Source: cloudSyslogSource,
 	}
 
-	urlPath := fmt.Sprintf("collectors/%d/sources", collectorID)
+	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
 	body, err := s.Post(urlPath, request)
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *Client) CreateCloudsyslogSource(cloudSyslogSource CloudSyslogSource, co
 func (s *Client) GetCloudSyslogSource(collectorID, sourceID int) (*CloudSyslogSource, error) {
 
 	body, _, err := s.Get(
-		fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID),
+		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
 	)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (s *Client) UpdateCloudSyslogSource(source CloudSyslogSource, collectorID i
 		Source: source,
 	}
 
-	urlPath := fmt.Sprintf("collectors/%d/sources/%d", collectorID, source.ID)
+	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
 	_, err := s.Put(urlPath, request)
 
 	return err

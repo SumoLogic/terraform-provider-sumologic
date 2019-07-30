@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCollector(id int) (*Collector, error) {
-	data, _, err := s.Get(fmt.Sprintf("collectors/%d", id))
+	data, _, err := s.Get(fmt.Sprintf("v1/collectors/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (s *Client) GetCollector(id int) (*Collector, error) {
 
 func (s *Client) GetCollectorName(name string) (*Collector, error) {
 	// TODO: check default limit count of 1000 and paginate
-	data, _, err := s.Get("collectors")
+	data, _, err := s.Get("v1/collectors")
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (s *Client) GetCollectorName(name string) (*Collector, error) {
 }
 
 func (s *Client) DeleteCollector(id int) error {
-	_, err := s.Delete(fmt.Sprintf("collectors/%d", id))
+	_, err := s.Delete(fmt.Sprintf("v1/collectors/%d", id))
 
 	return err
 }
@@ -64,7 +64,7 @@ func (s *Client) CreateCollector(collector Collector) (int, error) {
 
 	var response CollectorResponse
 
-	responseBody, err := s.Post("collectors", request)
+	responseBody, err := s.Post("v1/collectors", request)
 	if err != nil {
 		return -1, err
 	}
@@ -79,7 +79,7 @@ func (s *Client) CreateCollector(collector Collector) (int, error) {
 }
 
 func (s *Client) UpdateCollector(collector Collector) error {
-	url := fmt.Sprintf("collectors/%d", collector.ID)
+	url := fmt.Sprintf("v1/collectors/%d", collector.ID)
 
 	request := CollectorRequest{
 		Collector: collector,

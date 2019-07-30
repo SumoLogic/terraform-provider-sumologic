@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetUser(id string) (*User, error) {
-	data, _, err := s.Get(fmt.Sprintf("users/%s", id))
+	data, _, err := s.Get(fmt.Sprintf("v1/users/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (s *Client) GetUser(id string) (*User, error) {
 }
 
 func (s *Client) DeleteUser(id string) error {
-	_, err := s.Delete(fmt.Sprintf("users/%s", id))
+	_, err := s.Delete(fmt.Sprintf("v1/users/%s", id))
 
 	return err
 }
@@ -33,7 +33,7 @@ func (s *Client) DeleteUser(id string) error {
 func (s *Client) CreateUser(user User) (string, error) {
 	var createdUser User
 
-	responseBody, err := s.Post("users", user)
+	responseBody, err := s.Post("v1/users", user)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func (s *Client) CreateUser(user User) (string, error) {
 }
 
 func (s *Client) UpdateUser(user User) error {
-	url := fmt.Sprintf("users/%s", user.ID)
+	url := fmt.Sprintf("v1/users/%s", user.ID)
 
 	user.ID = ""
 	user.Email = ""

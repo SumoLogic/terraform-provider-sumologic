@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetRole(id string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("roles/%s", id))
+	data, _, err := s.Get(fmt.Sprintf("v1/roles/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (s *Client) GetRole(id string) (*Role, error) {
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	data, _, err := s.Get("roles")
+	data, _, err := s.Get("v1/roles")
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (s *Client) GetRoleName(name string) (*Role, error) {
 }
 
 func (s *Client) DeleteRole(id string) error {
-	_, err := s.Delete(fmt.Sprintf("roles/%s", id))
+	_, err := s.Delete(fmt.Sprintf("v1/roles/%s", id))
 
 	return err
 }
@@ -59,7 +59,7 @@ func (s *Client) CreateRole(role Role) (string, error) {
 
 	var createdRole Role
 
-	responseBody, err := s.Post("roles", role)
+	responseBody, err := s.Post("v1/roles", role)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +74,7 @@ func (s *Client) CreateRole(role Role) (string, error) {
 }
 
 func (s *Client) UpdateRole(role Role) error {
-	url := fmt.Sprintf("roles/%s", role.ID)
+	url := fmt.Sprintf("v1/roles/%s", role.ID)
 
 	_, err := s.Put(url, role)
 
