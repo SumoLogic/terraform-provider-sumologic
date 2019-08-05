@@ -64,7 +64,7 @@ func resourceSumologicFolder() *schema.Resource {
 						},
 						"description": {
 							Type: schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"parent_id": {
 							Type: schema.TypeString,
