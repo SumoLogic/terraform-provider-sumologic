@@ -24,5 +24,3 @@ The following arguments are supported:
 - `item_type` - (Computed) What the type of the content item is (will obviously be "Folder").
 - `permissions` - (Computed) List of permissions the user has on the content item.
 - `children` - (Computed) A list of all the content items in the created folder (can be folders or other content items).
-
-[Back to Index][0]
