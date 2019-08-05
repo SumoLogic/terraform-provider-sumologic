@@ -10,6 +10,11 @@ resource "sumologic_folder" "folder" {
 }
 ```
 
+## Finding the parent ID
+Unfortunately, the only way to find the parent folder's hexadecimal ID is by sending the following request `curl -X GET -u {ACCESS_ID}:{ACCESS_KEY} https://api.sumologic.com/api/v2/content/folders/personal` and subsequently getting children's folders (GET `.../api/v2/content/folders/{id}`) until you find the correct parent folder.
+
+In the future, there will be a button in the UI that will reveal the hex ID.
+
 ## Argument reference
 The following arguments are supported:
 - `name` - (Required) The name of the folder. This is required, and has to be unique.
