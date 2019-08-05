@@ -70,21 +70,7 @@ func (s *Client) DeleteFolderStatus(id string, job_id string) (string, error) {
 }
 
 type Folder struct {
-	Name              	string                    `json:"name"`
-	Description       	string                    `json:"description"`
-	ParentId            string                    `json:"parentId"`
-	ItemType           	string                    `json:"itemType"`
-	Permissions         []string                  `json:"permissions"`
-	CreatedAt           string                    `json:"createdAt"`
-	CreatedBy           string                    `json:"createdBy"`
-	ModifiedAt          string                    `json:"modifiedAt"`
-	ModifiedBy          string                    `json:"modifiedBy"`
-	ID              		string                    `json:"id"`
-	Children 						[]Children								`json:"children"`
-}
-
-type Children struct {
-	Name              	string                    `json:"name"`
+	Name                string                    `json:"name"`
 	Description         string                    `json:"description"`
 	ParentId            string                    `json:"parentId"`
 	ItemType            string                    `json:"itemType"`
@@ -93,32 +79,46 @@ type Children struct {
 	CreatedBy           string                    `json:"createdBy"`
 	ModifiedAt          string                    `json:"modifiedAt"`
 	ModifiedBy          string                    `json:"modifiedBy"`
-	ID              		string                    `json:"id"`
+	ID                  string                    `json:"id"`
+	Children 	    []Children		      `json:"children"`
+}
+
+type Children struct {
+	Name                string                    `json:"name"`
+	Description         string                    `json:"description"`
+	ParentId            string                    `json:"parentId"`
+	ItemType            string                    `json:"itemType"`
+	Permissions         []string                  `json:"permissions"`
+	CreatedAt           string                    `json:"createdAt"`
+	CreatedBy           string                    `json:"createdBy"`
+	ModifiedAt          string                    `json:"modifiedAt"`
+	ModifiedBy          string                    `json:"modifiedBy"`
+	ID                  string                    `json:"id"`
 }
 
 type FolderCreate struct {
-	Name              	string                    `json:"name"`
+	Name                string                    `json:"name"`
 	Description         string                    `json:"description"`
 	ParentId            string                    `json:"parentId"`
 }
 
 type FolderUpdate struct {
-	Name              	string                    `json:"name"`
+	Name                string                    `json:"name"`
 	Description         string                    `json:"description"`
 }
 
 type BeginDeletionJobResponse struct {
-	ID              		string                    `json:"id"`
+	ID                  string                    `json:"id"`
 }
 
 type DeletionJobStatus struct {
 	Status              string                    `json:"status"`
 	StatusMessage       string                    `json:"statusMessage"`
-	Error								ErrorDescription 					`json:"error"`
+	Error		    ErrorDescription 	      `json:"error"`
 }
 
 type ErrorDescription struct {
-	Code            		string                  `json:"code"`
-	Message         		string                  `json:"message"`
-	Detail          		string                  `json:"detail"`
+	Code                string                  `json:"code"`
+	Message             string                  `json:"message"`
+	Detail              string                  `json:"detail"`
 }
