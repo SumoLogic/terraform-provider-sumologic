@@ -12,7 +12,7 @@ Released under Apache 2.0 License.
 
 ## Usage
 
-The provider needs to be configured with the proper credentials before it can be used.  You must provide an [Access ID and Access Key](0) to use this provider.
+The provider needs to be configured with the proper credentials before it can be used.  You must provide an [Access ID and Access Key][0] to use this provider.
 
 ### Authentication
 The Sumo Logic Provider offers a flexible means of providing credentials for authentication. The following methods are supported and explained below:
