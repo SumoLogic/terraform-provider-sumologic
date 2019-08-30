@@ -1,4 +1,4 @@
-module github.com/SumoLogic/sumologic-terraform-provider
+module github.com/sumologic/sumologic-terraform-provider
 
 go 1.12
 

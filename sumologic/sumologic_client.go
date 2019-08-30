@@ -23,13 +23,13 @@ type Client struct {
 }
 
 var endpoints = map[string]string{
-	"us1": "https://api.sumologic.com/api/v1/",
-	"us2": "https://api.us2.sumologic.com/api/v1/",
-	"eu":  "https://api.eu.sumologic.com/api/v1/",
-	"au":  "https://api.au.sumologic.com/api/v1/",
-	"de":  "https://api.de.sumologic.com/api/v1/",
-	"jp":  "https://api.jp.sumologic.com/api/v1/",
-	"ca":  "https://api.ca.sumologic.com/api/v1/",
+	"us1": "https://api.sumologic.com/api/",
+	"us2": "https://api.us2.sumologic.com/api/",
+	"eu":  "https://api.eu.sumologic.com/api/",
+	"au":  "https://api.au.sumologic.com/api/",
+	"de":  "https://api.de.sumologic.com/api/",
+	"jp":  "https://api.jp.sumologic.com/api/",
+	"ca":  "https://api.ca.sumologic.com/api/",
 }
 
 var rateLimiter = time.Tick(time.Minute / 240)

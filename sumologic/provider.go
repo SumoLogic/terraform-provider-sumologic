@@ -3,7 +3,6 @@ package sumologic
 import (
 	"fmt"
 	"github.com/go-errors/errors"
-	"log"
 	"os"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
@@ -11,15 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-const DefaultEnvironment = "us2"
-
 func Provider() terraform.ResourceProvider {
-	defaultEnvironment := os.Getenv("SUMOLOGIC_ENVIRONMENT")
-	if defaultEnvironment == "" {
-		defaultEnvironment = DefaultEnvironment
-	}
-	log.Printf("[DEBUG] sumo default environment: %s", defaultEnvironment)
-
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_id": {
@@ -35,7 +26,7 @@ func Provider() terraform.ResourceProvider {
 			"environment": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  defaultEnvironment,
+				Default:  os.Getenv("SUMOLOGIC_ENVIRONMENT"),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -47,6 +38,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_user":                               resourceSumologicUser(),
 			"sumologic_ingest_budget":                      resourceSumologicIngestBudget(),
 			"sumologic_collector_ingest_budget_assignment": resourceSumologicCollectorIngestBudgetAssignment(),
+			"sumologic_folder":				resourceSumologicFolder(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
@@ -71,8 +63,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		msg = fmt.Sprintf("%s access_key should be set; ", msg)
 	}
 	if msg != "" {
-		if environment == DefaultEnvironment {
-			msg = fmt.Sprintf("%s make sure environment is set or that the default (%s) is appropriate", msg, DefaultEnvironment)
+		if environment == "" {
+			msg = fmt.Sprintf("%s make sure environment is set", msg)
 		}
 		return nil, errors.New(msg)
 	}

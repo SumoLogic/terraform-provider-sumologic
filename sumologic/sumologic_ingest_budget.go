@@ -18,7 +18,7 @@ type IngestBudget struct {
 }
 
 func (s *Client) CreateIngestBudget(budget IngestBudget) (string, error) {
-	body, err := s.Post("ingestBudgets", budget)
+	body, err := s.Post("v1/ingestBudgets", budget)
 
 	if err != nil {
 		return "", err
@@ -36,7 +36,7 @@ func (s *Client) CreateIngestBudget(budget IngestBudget) (string, error) {
 
 func (s *Client) GetIngestBudget(id string) (*IngestBudget, error) {
 	body, _, err := s.Get(
-		fmt.Sprintf("ingestBudgets/%s", id),
+		fmt.Sprintf("v1/ingestBudgets/%s", id),
 	)
 	if err != nil {
 		return nil, err
@@ -57,14 +57,14 @@ func (s *Client) GetIngestBudget(id string) (*IngestBudget, error) {
 }
 
 func (s *Client) UpdateIngestBudget(budget IngestBudget) error {
-	urlPath := fmt.Sprintf("ingestBudgets/%s", budget.ID)
+	urlPath := fmt.Sprintf("v1/ingestBudgets/%s", budget.ID)
 	_, err := s.Put(urlPath, budget)
 
 	return err
 }
 
 func (s *Client) DeleteIngestBudget(id string) error {
-	_, err := s.Delete(fmt.Sprintf("ingestBudgets/%s", id))
+	_, err := s.Delete(fmt.Sprintf("v1/ingestBudgets/%s", id))
 
 	return err
 }
@@ -79,7 +79,7 @@ func (s *Client) FindIngestBudget(name string) (*IngestBudget, error) {
 
 	for {
 		body, _, err := s.Get(
-			fmt.Sprintf("ingestBudgets?next=%s", next),
+			fmt.Sprintf("v1/ingestBudgets?next=%s", next),
 		)
 		if err != nil {
 			return nil, err
@@ -123,7 +123,7 @@ func (s *Client) CollectorAssignedToIngestBudget(ingestBudgetId string, collecto
 
 	for {
 		body, _, err := s.Get(
-			fmt.Sprintf("ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next),
+			fmt.Sprintf("v1/ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next),
 		)
 		if err != nil {
 			return false, err
@@ -157,14 +157,14 @@ func (s *Client) CollectorAssignedToIngestBudget(ingestBudgetId string, collecto
 }
 
 func (s *Client) AssignCollectorToIngestBudget(ingestBudgetId string, collectorId int) error {
-	urlPath := fmt.Sprintf("ingestBudgets/%s/collectors/%d", ingestBudgetId, collectorId)
+	urlPath := fmt.Sprintf("v1/ingestBudgets/%s/collectors/%d", ingestBudgetId, collectorId)
 	_, err := s.Put(urlPath, nil)
 
 	return err
 }
 
 func (s *Client) UnAssignCollectorToIngestBudget(ingestBudgetId string, collectorId int) error {
-	_, err := s.Delete(fmt.Sprintf("ingestBudgets/%s/collectors/%d", ingestBudgetId, collectorId))
+	_, err := s.Delete(fmt.Sprintf("v1/ingestBudgets/%s/collectors/%d", ingestBudgetId, collectorId))
 
 	return err
 }
