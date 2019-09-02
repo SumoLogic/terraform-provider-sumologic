@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"encoding/json"
+	"time"
 )
 
 func (s *Client) CreateScheduledView(sview ScheduledView) (string, error) {
@@ -22,10 +23,10 @@ func (s *Client) CreateScheduledView(sview ScheduledView) (string, error) {
 }
 
 type ScheduledView struct {
-	ID               string   `json:"id,omitempty"`
-	Query            string   `json:"query"`
-	IndexName        string   `json:"indexName"`
-	StartTime        string   `json:"startTime"`
-	RetentionPeriod  int      `json:"retentionPeriod"`
-	DataForwardingId string   `json:"dataForwardingId"`
+	ID               string    `json:"id,omitempty"`
+	Query            string    `json:"query"`
+	IndexName        string    `json:"indexName"`
+	StartTime        time.Time `json:"startTime"`
+	RetentionPeriod  int       `json:"retentionPeriod"`
+	DataForwardingId string    `json:"dataForwardingId"`
 }

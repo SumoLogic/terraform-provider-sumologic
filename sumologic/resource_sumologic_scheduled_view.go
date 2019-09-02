@@ -3,6 +3,7 @@ package sumologic
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	"time"
 )
 
 func resourceSumologicScheduledView() *schema.Resource {
@@ -30,7 +31,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:         schema.TypeString, // TODO type should be different
 				Required:     true,
 				ForceNew:     false,
-				ValidateFunc: validation.NoZeroValues,
+				ValidateFunc: validation.ValidateRFC3339TimeString,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -77,11 +78,15 @@ func resourceSumologicScheduledViewExists(d *schema.ResourceData, meta interface
 }
 
 func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
+    var startTimeParsed, err = time.Parse(time.RFC3339, d.Get("start_time").(string))
+    if err != nil {
+        panic(err)
+    }
 	return ScheduledView{
 		ID:        d.Id(),
 		Query:     d.Get("query").(string),
 		IndexName: d.Get("index_name").(string),
-		StartTime: d.Get("start_time").(string),
+		StartTime: startTimeParsed,
 		RetentionPeriod:  d.Get("retention_period").(int),
 		DataForwardingId: d.Get("data_forwarding_id").(string),
 	}
