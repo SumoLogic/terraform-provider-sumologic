@@ -53,5 +53,5 @@ The following properties are common to ALL sources and can be used to configure 
 [23]: r/sumologic_cloudsyslog_source.md
 [24]: r/sumologic_collector_ingest_budget_assignment.md
 [25]: r/sumologic_ingest_budget.md
-[30]: d/sumologic_role.md
-[31]: d/sumologic_user.md
+[30]: r/sumologic_role.md
+[31]: r/sumologic_user.md
