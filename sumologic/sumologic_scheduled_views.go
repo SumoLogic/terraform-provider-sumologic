@@ -3,23 +3,43 @@ package sumologic
 import (
 	"encoding/json"
 	"time"
+	"fmt"
 )
 
-func (s *Client) CreateScheduledView(sview ScheduledView) (string, error) {
+func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {
+	data, _, err := s.Get(fmt.Sprintf("scheduledViews/%s", id))
+	if err != nil {
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, nil
+	}
+
+	var sview ScheduledView
+	err = json.Unmarshal(data, &sview)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sview, nil
+}
+
+func (s *Client) CreateScheduledView(sview ScheduledView) (*ScheduledView, error) {
 	var createdSview ScheduledView
 
 	responseBody, err := s.Post("scheduledViews", sview)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	err = json.Unmarshal(responseBody, &createdSview)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return createdSview.ID, nil
+	return &createdSview, nil
 }
 
 type ScheduledView struct {

@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"time"
+	"log"
 )
 
 func resourceSumologicScheduledView() *schema.Resource {
@@ -37,8 +38,12 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     false,
-				Default:      -1,
 				ValidateFunc: validation.IntAtLeast(-1),
+                Default:      -1,
+                DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+                    // taken from https://stackoverflow.com/a/57785476/118587
+                    return new == "-1"
+                },
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
@@ -53,19 +58,43 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 	c := meta.(*Client)
 	if d.Id() == "" {
 		sview := resourceToScheduledView(d)
-		id, err := c.CreateScheduledView(sview)
+		createdSview, err := c.CreateScheduledView(sview)
 
 		if err != nil {
 			return err
 		}
 
-		d.SetId(id)
+		d.SetId(createdSview.ID)
+		d.Set("retention_period", createdSview.RetentionPeriod)
 	}
 
 	return resourceSumologicScheduledViewUpdate(d, meta)
 }
+
 func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}) error {
-    return nil // TODO implement
+	c := meta.(*Client)
+
+	id := d.Id()
+	sview, err := c.GetScheduledView(id)
+
+    if err != nil {
+		return err
+	}
+
+	if sview == nil {
+		log.Printf("[WARN] Scheduled view not found, removing from state: %v - %v", id, err)
+		d.SetId("")
+
+		return nil
+	}
+
+    d.Set("query", sview.Query)
+    d.Set("index_name", sview.IndexName)
+	d.Set("start_time", sview.StartTime) // TODO formatting / casting?
+	d.Set("retention_period", sview.RetentionPeriod)
+	d.Set("data_forwarding_id", sview.DataForwardingId)
+
+	return nil
 }
 func resourceSumologicScheduledViewDelete(d *schema.ResourceData, meta interface{}) error {
     return nil // TODO implement
@@ -74,7 +103,14 @@ func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface
     return nil // TODO implement
 }
 func resourceSumologicScheduledViewExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-    return false, nil // TODO implement
+	c := meta.(*Client)
+
+	sview, err := c.GetScheduledView(d.Id())
+	if err != nil {
+		return false, err
+	}
+
+	return sview != nil, nil
 }
 
 func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
