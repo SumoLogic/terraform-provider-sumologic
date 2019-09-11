@@ -2,8 +2,8 @@ package sumologic
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {

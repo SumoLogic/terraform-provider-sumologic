@@ -3,8 +3,8 @@ package sumologic
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"time"
 	"log"
+	"time"
 )
 
 func resourceSumologicScheduledView() *schema.Resource {
@@ -39,11 +39,11 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Optional:     true,
 				ForceNew:     false,
 				ValidateFunc: validation.IntAtLeast(-1),
-                Default:      -1,
-                DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-                    // taken from https://stackoverflow.com/a/57785476/118587
-                    return old == "-1"
-                },
+				Default:      -1,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					// taken from https://stackoverflow.com/a/57785476/118587
+					return old == "-1"
+				},
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
@@ -77,7 +77,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 	id := d.Id()
 	sview, err := c.GetScheduledView(id)
 
-    if err != nil {
+	if err != nil {
 		return err
 	}
 
@@ -88,8 +88,8 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-    d.Set("query", sview.Query)
-    d.Set("index_name", sview.IndexName)
+	d.Set("query", sview.Query)
+	d.Set("index_name", sview.IndexName)
 	d.Set("start_time", sview.StartTime)
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
@@ -124,15 +124,15 @@ func resourceSumologicScheduledViewExists(d *schema.ResourceData, meta interface
 }
 
 func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
-    var startTimeParsed, err = time.Parse(time.RFC3339, d.Get("start_time").(string))
-    if err != nil {
-        panic(err)
-    }
+	var startTimeParsed, err = time.Parse(time.RFC3339, d.Get("start_time").(string))
+	if err != nil {
+		panic(err)
+	}
 	return ScheduledView{
-		ID:        d.Id(),
-		Query:     d.Get("query").(string),
-		IndexName: d.Get("index_name").(string),
-		StartTime: startTimeParsed,
+		ID:               d.Id(),
+		Query:            d.Get("query").(string),
+		IndexName:        d.Get("index_name").(string),
+		StartTime:        startTimeParsed,
 		RetentionPeriod:  d.Get("retention_period").(int),
 		DataForwardingId: d.Get("data_forwarding_id").(string),
 	}
