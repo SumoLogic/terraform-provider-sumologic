@@ -28,6 +28,11 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  os.Getenv("SUMOLOGIC_ENVIRONMENT"),
 			},
+			"base_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"sumologic_collector":                          resourceSumologicCollector(),
@@ -38,7 +43,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_user":                               resourceSumologicUser(),
 			"sumologic_ingest_budget":                      resourceSumologicIngestBudget(),
 			"sumologic_collector_ingest_budget_assignment": resourceSumologicCollectorIngestBudgetAssignment(),
-			"sumologic_folder":				resourceSumologicFolder(),
+			"sumologic_folder":                             resourceSumologicFolder(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
@@ -54,6 +59,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessId := d.Get("access_id").(string)
 	accessKey := d.Get("access_key").(string)
 	environment := d.Get("environment").(string)
+	baseUrl := d.Get("base_url").(string)
 
 	msg := ""
 	if accessId == "" {
@@ -73,5 +79,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		accessId,
 		accessKey,
 		environment,
+		baseUrl,
 	)
 }

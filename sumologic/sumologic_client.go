@@ -214,14 +214,17 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func NewClient(accessID, accessKey, environment string) (*Client, error) {
+func NewClient(accessID, accessKey, environment, base_url string) (*Client, error) {
 	client := Client{
 		AccessID:    accessID,
 		AccessKey:   accessKey,
-		Environment: environment,
 		httpClient:  http.DefaultClient,
+		Environment: environment,
 	}
+	if base_url == "" {
+	  base_url = endpoints[client.Environment]
+	}
+	client.BaseURL, _ = url.Parse(base_url)
 
-	client.BaseURL, _ = url.Parse(endpoints[client.Environment])
 	return &client, nil
 }
