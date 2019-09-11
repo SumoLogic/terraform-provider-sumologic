@@ -19,7 +19,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"query": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
+				ForceNew:     true,
                 ValidateFunc: validation.StringLenBetween(1, 16384),
 			},
 			"index_name": {
@@ -29,7 +29,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"start_time": {
-				Type:         schema.TypeString, // TODO type should be different
+				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validation.ValidateRFC3339TimeString,
@@ -42,7 +42,7 @@ func resourceSumologicScheduledView() *schema.Resource {
                 Default:      -1,
                 DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
                     // taken from https://stackoverflow.com/a/57785476/118587
-                    return new == "-1"
+                    return old == "-1"
                 },
 			},
 			"data_forwarding_id": {
