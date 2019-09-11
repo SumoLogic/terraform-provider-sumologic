@@ -20,7 +20,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-                ValidateFunc: validation.StringLenBetween(1, 16384),
+				ValidateFunc: validation.StringLenBetween(1, 16384),
 			},
 			"index_name": {
 				Type:         schema.TypeString,
@@ -90,7 +90,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 
     d.Set("query", sview.Query)
     d.Set("index_name", sview.IndexName)
-	d.Set("start_time", sview.StartTime) // TODO formatting / casting?
+	d.Set("start_time", sview.StartTime)
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
 
