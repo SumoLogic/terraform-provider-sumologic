@@ -97,10 +97,20 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 func resourceSumologicScheduledViewDelete(d *schema.ResourceData, meta interface{}) error {
-    return nil // TODO implement
+	c := meta.(*Client)
+	return c.DeleteScheduledView(d.Id())
 }
 func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface{}) error {
-    return nil // TODO implement
+	sview := resourceToScheduledView(d)
+
+	c := meta.(*Client)
+	err := c.UpdateScheduledView(sview)
+
+	if err != nil {
+		return err
+	}
+
+	return resourceSumologicScheduledViewRead(d, meta)
 }
 func resourceSumologicScheduledViewExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	c := meta.(*Client)

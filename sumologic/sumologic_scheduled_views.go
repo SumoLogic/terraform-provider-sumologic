@@ -42,6 +42,20 @@ func (s *Client) CreateScheduledView(sview ScheduledView) (*ScheduledView, error
 	return &createdSview, nil
 }
 
+func (s *Client) DeleteScheduledView(id string) error {
+	_, err := s.Delete(fmt.Sprintf("scheduledViews/%s/disable", id))
+
+	return err
+}
+
+func (s *Client) UpdateScheduledView(sview ScheduledView) error {
+	url := fmt.Sprintf("scheduledViews/%s", sview.ID)
+
+	_, err := s.Put(url, sview)
+
+	return err
+}
+
 type ScheduledView struct {
 	ID               string    `json:"id,omitempty"`
 	Query            string    `json:"query"`
