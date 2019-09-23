@@ -34,11 +34,15 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_polling_source":                     resourceSumologicPollingSource(),
 			"sumologic_cloudsyslog_source":                 resourceSumologicCloudsyslogSource(),
+
 			"sumologic_role":                               resourceSumologicRole(),
 			"sumologic_user":                               resourceSumologicUser(),
+
 			"sumologic_ingest_budget":                      resourceSumologicIngestBudget(),
 			"sumologic_collector_ingest_budget_assignment": resourceSumologicCollectorIngestBudgetAssignment(),
 			"sumologic_folder":				resourceSumologicFolder(),
+
+			"sumologic_scheduled_view":                     resourceSumologicScheduledView(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
