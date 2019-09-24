@@ -20,6 +20,9 @@
 ##### User / Roles
   + [sumologic_role][30]
   + [sumologic_user][31]
+  
+##### Content
+  + [sumologic_scheduled_view][40]
 
 #### Common Source Properties
 
@@ -55,3 +58,4 @@ The following properties are common to ALL sources and can be used to configure 
 [25]: r/sumologic_ingest_budget.md
 [30]: r/sumologic_role.md
 [31]: r/sumologic_user.md
+[40]: r/sumologic_scheduled_view.md
