@@ -10,7 +10,7 @@ import (
 
 func dataSourceSumologicCollector() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceSumologicCollectorRead,
+		Read: dataSourceSumologicCollectorRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -29,6 +29,10 @@ func dataSourceSumologicCollector() *schema.Resource {
 			},
 			"category": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"fields": {
+				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			"timezone": {
@@ -70,8 +74,8 @@ func dataSourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("description", collector.Description)
 	d.Set("category", collector.Category)
 	d.Set("timezone", collector.TimeZone)
+	d.Set("fields", collector.Fields)
 
 	log.Printf("[DEBUG] data_source_sumologic_collector: retrieved %v", collector)
 	return nil
 }
-

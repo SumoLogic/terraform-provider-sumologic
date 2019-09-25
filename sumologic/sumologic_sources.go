@@ -11,22 +11,23 @@ import (
 )
 
 type Source struct {
-	ID                         int                 `json:"id,omitempty"`
-	Type                       string              `json:"sourceType"`
-	Name                       string              `json:"name"`
-	Description                string              `json:"description,omitempty"`
-	Category                   string              `json:"category,omitempty"`
-	HostName                   string              `json:"hostName,omitempty"`
-	TimeZone                   string              `json:"timeZone,omitempty"`
-	AutomaticDateParsing       bool                `json:"automaticDateParsing"`
-	MultilineProcessingEnabled bool                `json:"multilineProcessingEnabled"`
-	UseAutolineMatching        bool                `json:"useAutolineMatching"`
-	ManualPrefixRegexp         string              `json:"manualPrefixRegexp,omitempty"`
-	ForceTimeZone              bool                `json:"forceTimeZone"`
-	DefaultDateFormats         []DefaultDateFormat `json:"defaultDateFormats,omitempty"`
-	Filters                    []Filter            `json:"filters,omitempty"`
-	CutoffTimestamp            int                 `json:"cutoffTimestamp,omitempty"`
-	CutoffRelativeTime         string              `json:"cutoffRelativeTime,omitempty"`
+	ID                         int                    `json:"id,omitempty"`
+	Type                       string                 `json:"sourceType"`
+	Name                       string                 `json:"name"`
+	Description                string                 `json:"description,omitempty"`
+	Category                   string                 `json:"category,omitempty"`
+	HostName                   string                 `json:"hostName,omitempty"`
+	TimeZone                   string                 `json:"timeZone,omitempty"`
+	AutomaticDateParsing       bool                   `json:"automaticDateParsing"`
+	MultilineProcessingEnabled bool                   `json:"multilineProcessingEnabled"`
+	UseAutolineMatching        bool                   `json:"useAutolineMatching"`
+	ManualPrefixRegexp         string                 `json:"manualPrefixRegexp,omitempty"`
+	ForceTimeZone              bool                   `json:"forceTimeZone"`
+	DefaultDateFormats         []DefaultDateFormat    `json:"defaultDateFormats,omitempty"`
+	Filters                    []Filter               `json:"filters,omitempty"`
+	CutoffTimestamp            int                    `json:"cutoffTimestamp,omitempty"`
+	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
+	Fields                     map[string]interface{} `json:"fields,omitempty"`
 }
 
 type DefaultDateFormat struct {
@@ -163,6 +164,12 @@ func resourceSumologicSource() *schema.Resource {
 				ForceNew: true,
 				Default:  nil,
 			},
+			"fields": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Default:  nil,
+			},
 			"collector_id": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -231,6 +238,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.Filters = getFilters(d)
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
+	source.Fields = d.Get("fields").(map[string]interface{})
 
 	return source
 }
@@ -250,6 +258,7 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
 	d.Set("filters", source.Filters)
 	d.Set("cutoff_timestamp", source.CutoffTimestamp)
 	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
+	d.Set("fields", source.Fields)
 }
 
 func getDefaultDateFormats(d *schema.ResourceData) []DefaultDateFormat {
