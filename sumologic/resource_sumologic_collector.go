@@ -43,6 +43,12 @@ func resourceSumologicCollector() *schema.Resource {
 				ForceNew: false,
 				Default:  "Etc/UTC",
 			},
+			"fields": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+				Default:  "",
+			},
 			"lookup_by_name": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -85,6 +91,7 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("description", collector.Description)
 	d.Set("category", collector.Category)
 	d.Set("timezone", collector.TimeZone)
+	d.Set("fields", collector.Fields)
 
 	return nil
 }
@@ -169,5 +176,6 @@ func resourceToCollector(d *schema.ResourceData) Collector {
 		Description:   d.Get("description").(string),
 		Category:      d.Get("category").(string),
 		TimeZone:      d.Get("timezone").(string),
+		Fields:        d.Get("fields").(map[string]interface{}),
 	}
 }

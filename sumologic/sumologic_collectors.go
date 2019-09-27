@@ -108,14 +108,15 @@ type CollectorLink struct {
 }
 
 type Collector struct {
-	ID               int             `json:"id,omitempty"`
-	CollectorType    string          `json:"collectorType,omitempty"`
-	Name             string          `json:"name"`
-	Description      string          `json:"description,omitempty"`
-	Category         string          `json:"category,omitempty"`
-	TimeZone         string          `json:"timeZone,omitempty"`
-	Links            []CollectorLink `json:"links,omitempty"`
-	CollectorVersion string          `json:"collectorVersion,omitempty"`
-	LastSeenAlive    int             `json:"lastSeenAlive,omitempty"`
-	Alive            bool            `json:"alive,omitempty"`
+	ID               int                    `json:"id,omitempty"`
+	CollectorType    string                 `json:"collectorType,omitempty"`
+	Name             string                 `json:"name"`
+	Description      string                 `json:"description,omitempty"`
+	Category         string                 `json:"category,omitempty"`
+	TimeZone         string                 `json:"timeZone,omitempty"`
+	Fields           map[string]interface{} `json:"fields,omitempty"`
+	Links            []CollectorLink        `json:"links,omitempty"`
+	CollectorVersion string                 `json:"collectorVersion,omitempty"`
+	LastSeenAlive    int                    `json:"lastSeenAlive,omitempty"`
+	Alive            bool                   `json:"alive,omitempty"`
 }
