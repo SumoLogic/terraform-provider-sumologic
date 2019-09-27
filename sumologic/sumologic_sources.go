@@ -206,15 +206,24 @@ func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	ids := strings.Split(d.Id(), "/")
+	c := m.(*Client)
 
 	if len(ids) != 2 {
-		return nil, fmt.Errorf("expected collector_id/source_id, got %s", d.Id())
+		return nil, fmt.Errorf("expected collector/source, got %s", d.Id())
 	}
 
-	d.SetId(ids[1])
-
-	collectorID, _ := strconv.Atoi(ids[0])
-	d.Set("collector_id", collectorID)
+	collectorID, err := strconv.Atoi(ids[0])
+	if err == nil {
+		// collectorId/sourceId
+		d.SetId(ids[1])
+		d.Set("collector_id", collectorID)
+	} else {
+		// collectorName/sourceName
+		collector, _ := c.GetCollectorName(ids[0])
+		source, _ := c.GetSourceName(collector.ID, ids[1])
+		d.SetId(strconv.Itoa(source.ID))
+		d.Set("collector_id", collector.ID)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
