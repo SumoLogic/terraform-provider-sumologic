@@ -156,11 +156,11 @@ func resourceSumologicCollectorExists(d *schema.ResourceData, meta interface{}) 
 
 	if err != nil {
 		_, err := c.GetCollectorName(d.Id())
-		return err == nil, nil
+		return err == nil, err
 	}
 
 	_, err = c.GetCollector(id)
-	return err == nil, nil
+	return err == nil, err
 }
 
 func resourceToCollector(d *schema.ResourceData) Collector {
