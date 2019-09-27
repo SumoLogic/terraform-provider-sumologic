@@ -28,8 +28,15 @@ The following attributes are exported:
 
 ## Import
 Collectors can be imported using the collector id, e.g.:
+
 ```hcl
 terraform import sumologic_collector.test 1234567890
+```
+
+Collectors can also be imported using the collector name, which is unique per Sumo Logic account, e.g.:
+
+```hcl
+terraform import sumologic_collector.test my_test_collector
 ```
 
 [Back to Index][0]

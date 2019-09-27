@@ -34,6 +34,12 @@ HTTP sources can be imported using the collector and source IDs (`collector/sour
 terraform import sumologic_http_source.test 123/456
 ```
 
++HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
+
+```hcl
+terraform import sumologic_http_source.test my-test-collector/my-test-source
+```
+
 [Back to Index][0]
 
 [0]: ../README.md
