@@ -25,29 +25,22 @@ func (s *Client) GetCollector(id int) (*Collector, error) {
 }
 
 func (s *Client) GetCollectorName(name string) (*Collector, error) {
-	// TODO: check default limit count of 1000 and paginate
-	data, _, err := s.Get("v1/collectors")
+	data, _, err := s.Get(fmt.Sprintf("v1/collectors/name/%s", name))
 	if err != nil {
 		return nil, err
 	}
 
 	if data == nil {
-		return &Collector{}, nil
+		return nil, fmt.Errorf("collector with name '%s' does not exist", name)
 	}
 
-	var response CollectorList
+	var response CollectorResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, c := range response.Collectors {
-		if c.Name == name {
-			return &c, nil
-		}
-	}
-
-	return nil, nil
+	return &response.Collector, nil
 }
 
 func (s *Client) DeleteCollector(id int) error {
