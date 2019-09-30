@@ -53,7 +53,7 @@ func resourceSumologicSource() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -167,7 +167,7 @@ func resourceSumologicSource() *schema.Resource {
 			"fields": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Default:  nil,
 			},
 			"collector_id": {
