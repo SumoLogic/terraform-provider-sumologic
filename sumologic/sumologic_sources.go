@@ -11,22 +11,23 @@ import (
 )
 
 type Source struct {
-	ID                         int                 `json:"id,omitempty"`
-	Type                       string              `json:"sourceType"`
-	Name                       string              `json:"name"`
-	Description                string              `json:"description,omitempty"`
-	Category                   string              `json:"category,omitempty"`
-	HostName                   string              `json:"hostName,omitempty"`
-	TimeZone                   string              `json:"timeZone,omitempty"`
-	AutomaticDateParsing       bool                `json:"automaticDateParsing"`
-	MultilineProcessingEnabled bool                `json:"multilineProcessingEnabled"`
-	UseAutolineMatching        bool                `json:"useAutolineMatching"`
-	ManualPrefixRegexp         string              `json:"manualPrefixRegexp,omitempty"`
-	ForceTimeZone              bool                `json:"forceTimeZone"`
-	DefaultDateFormats         []DefaultDateFormat `json:"defaultDateFormats,omitempty"`
-	Filters                    []Filter            `json:"filters,omitempty"`
-	CutoffTimestamp            int                 `json:"cutoffTimestamp,omitempty"`
-	CutoffRelativeTime         string              `json:"cutoffRelativeTime,omitempty"`
+	ID                         int                    `json:"id,omitempty"`
+	Type                       string                 `json:"sourceType"`
+	Name                       string                 `json:"name"`
+	Description                string                 `json:"description,omitempty"`
+	Category                   string                 `json:"category,omitempty"`
+	HostName                   string                 `json:"hostName,omitempty"`
+	TimeZone                   string                 `json:"timeZone,omitempty"`
+	AutomaticDateParsing       bool                   `json:"automaticDateParsing"`
+	MultilineProcessingEnabled bool                   `json:"multilineProcessingEnabled"`
+	UseAutolineMatching        bool                   `json:"useAutolineMatching"`
+	ManualPrefixRegexp         string                 `json:"manualPrefixRegexp,omitempty"`
+	ForceTimeZone              bool                   `json:"forceTimeZone"`
+	DefaultDateFormats         []DefaultDateFormat    `json:"defaultDateFormats,omitempty"`
+	Filters                    []Filter               `json:"filters,omitempty"`
+	CutoffTimestamp            int                    `json:"cutoffTimestamp,omitempty"`
+	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
+	Fields                     map[string]interface{} `json:"fields,omitempty"`
 }
 
 type DefaultDateFormat struct {
@@ -52,7 +53,7 @@ func resourceSumologicSource() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -163,6 +164,12 @@ func resourceSumologicSource() *schema.Resource {
 				ForceNew: true,
 				Default:  nil,
 			},
+			"fields": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+				Default:  nil,
+			},
 			"collector_id": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -199,15 +206,24 @@ func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	ids := strings.Split(d.Id(), "/")
+	c := m.(*Client)
 
 	if len(ids) != 2 {
-		return nil, fmt.Errorf("expected collector_id/source_id, got %s", d.Id())
+		return nil, fmt.Errorf("expected collector/source, got %s", d.Id())
 	}
 
-	d.SetId(ids[1])
-
-	collectorID, _ := strconv.Atoi(ids[0])
-	d.Set("collector_id", collectorID)
+	collectorID, err := strconv.Atoi(ids[0])
+	if err == nil {
+		// collectorId/sourceId
+		d.SetId(ids[1])
+		d.Set("collector_id", collectorID)
+	} else {
+		// collectorName/sourceName
+		collector, _ := c.GetCollectorName(ids[0])
+		source, _ := c.GetSourceName(collector.ID, ids[1])
+		d.SetId(strconv.Itoa(source.ID))
+		d.Set("collector_id", collector.ID)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -231,6 +247,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.Filters = getFilters(d)
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
+	source.Fields = d.Get("fields").(map[string]interface{})
 
 	return source
 }
@@ -250,6 +267,7 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
 	d.Set("filters", source.Filters)
 	d.Set("cutoff_timestamp", source.CutoffTimestamp)
 	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
+	d.Set("fields", source.Fields)
 }
 
 func getDefaultDateFormats(d *schema.ResourceData) []DefaultDateFormat {
@@ -288,7 +306,7 @@ func getFilters(d *schema.ResourceData) []Filter {
 
 func (s *Client) DestroySource(sourceID int, collectorID int) error {
 
-	_, err := s.Delete(fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID))
+	_, err := s.Delete(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 
 	return err
 }
@@ -296,7 +314,7 @@ func (s *Client) DestroySource(sourceID int, collectorID int) error {
 func (s *Client) GetSourceName(collectorID int, sourceName string) (*Source, error) {
 
 	data, _, err := s.Get(
-		fmt.Sprintf("collectors/%d/sources", collectorID),
+		fmt.Sprintf("v1/collectors/%d/sources", collectorID),
 	)
 
 	if err != nil {

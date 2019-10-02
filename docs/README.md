@@ -1,6 +1,30 @@
 # Table of Contents
 
-##### Common Source Properties
+#### [Basic usage and authentication][0]
+
+#### Data Sources
+  + [sumologic_caller_identity][10]
+  + [sumologic_collector][11]
+
+#### Resources
+##### Sources
+  + [sumologic_collector][20]
+  + [sumologic_http_source][21]
+  + [sumologic_polling_source][22]
+  + [sumologic_cloudsyslog_source][23]
+  
+##### Ingest Budgets
+  + [sumologic_collector_ingest_budget_assignment][24]
+  + [sumologic_ingest_budget][25]
+
+##### User / Roles
+  + [sumologic_role][30]
+  + [sumologic_user][31]
+  
+##### Content
+  + [sumologic_scheduled_view][40]
+
+#### Common Source Properties
 
 The following properties are common to ALL sources and can be used to configure each source.
 
@@ -18,22 +42,10 @@ The following properties are common to ALL sources and can be used to configure 
 - `default_date_formats` - (Optional) Define formats for the dates present in your log messages. You can specify a locator regex to identify where timestamps appear in log lines. 
 - `filters` - (Optional) If you'd like to add a filter to the source, type the name of the filter (Exclude, Include, Mask, Hash, or Forward. 
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). 
-- `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively. 
+- `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
+- `fields` - (Optional) Map containing [key/value pairs][3]. 
 - `lookup_by_name` - (Optional) Configures an existent collector using the same 'name' or creates a new one if non existent. Defaults to false.
 - `destroy` - (Optional) Whether or not to delete the collector in Sumo when it is removed from Terraform.  Defaults to true.
-
-##### [Sumologic Provider][0]
-
-##### Data Sources
-  + [sumologic_caller_identity][10]
-  + [sumologic_collector][11]
-
-##### Resources
-  + [sumologic_collector][20]
-  + [sumologic_http_source][21]
-  + [sumologic_polling_source][22]
-  + [sumologic_cloudsyslog_source][23]
-
 
 [0]: sumologic-provider.md
 [2]: https://en.wikipedia.org/wiki/Tz_database
@@ -43,3 +55,8 @@ The following properties are common to ALL sources and can be used to configure 
 [21]: r/sumologic_http_source.md
 [22]: r/sumologic_polling_source.md
 [23]: r/sumologic_cloudsyslog_source.md
+[24]: r/sumologic_collector_ingest_budget_assignment.md
+[25]: r/sumologic_ingest_budget.md
+[30]: r/sumologic_role.md
+[31]: r/sumologic_user.md
+[40]: r/sumologic_scheduled_view.md

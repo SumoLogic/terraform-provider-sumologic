@@ -47,7 +47,7 @@ func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int
 		Source: source,
 	}
 
-	urlPath := fmt.Sprintf("collectors/%d/sources", collectorID)
+	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
 
 	body, err := s.Post(urlPath, request)
 
@@ -66,7 +66,7 @@ func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int
 }
 
 func (s *Client) GetPollingSource(collectorID, sourceID int) (*PollingSource, error) {
-	urlPath := fmt.Sprintf("collectors/%d/sources/%d", collectorID, sourceID)
+	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
 	body, _, err := s.Get(urlPath)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (s *Client) GetPollingSource(collectorID, sourceID int) (*PollingSource, er
 }
 
 func (s *Client) UpdatePollingSource(source PollingSource, collectorID int) error {
-	url := fmt.Sprintf("collectors/%d/sources/%d", collectorID, source.ID)
+	url := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
 
 	type PollingSourceMessage struct {
 		Source PollingSource `json:"source"`
