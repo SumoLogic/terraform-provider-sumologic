@@ -1,6 +1,6 @@
 
 # sumologic_scheduled_view
-Provides a [Sumologic Scheduled View[1].
+Provides a [Sumologic Scheduled View][1].
 
 ## Example Usage
 ```hcl
