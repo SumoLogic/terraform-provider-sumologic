@@ -48,7 +48,7 @@ func (s *Client) DeletePartition(id string) error {
 	return err
 }
 
-func (s *Client) UpdatePartition(sview ScheduledView) error {
+func (s *Client) UpdatePartition(spartition Partition) error {
 	url := fmt.Sprintf("partitions/%s", sview.ID)
 
 	_, err := s.Put(url, sview)
@@ -56,7 +56,7 @@ func (s *Client) UpdatePartition(sview ScheduledView) error {
 	return err
 }
 
-type ScheduledView struct {
+type Partition struct {
 	ID               	string    `json:"id,omitempty"`
 	Name             	string    `json:"name"`
 	RoutingExpression	string    `json:"routingExpression"`
