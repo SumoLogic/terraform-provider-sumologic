@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
@@ -17,18 +16,18 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 	}
 
 	var spartition Partition
-	err = json.Unmarshal(data, &sview)
+	err = json.Unmarshal(data, &spartition)
 	if err != nil {
 		return nil, err
 	}
 
-	return &sview, nil
+	return &spartition, nil
 }
 
-func (s *Client) CreatesPartition(spartition Partition) (*Partition, error) {
+func (s *Client) CreatePartition(spartition Partition) (*Partition, error) {
 	var createdspartition Partition
 
-	responseBody, err := s.Post("partitions", sview)
+	responseBody, err := s.Post("partitions", spartition)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +48,9 @@ func (s *Client) DeletePartition(id string) error {
 }
 
 func (s *Client) UpdatePartition(spartition Partition) error {
-	url := fmt.Sprintf("partitions/%s", sview.ID)
+	url := fmt.Sprintf("partitions/%s", spartition.ID)
 
-	_, err := s.Put(url, sview)
+	_, err := s.Put(url, spartition)
 
 	return err
 }

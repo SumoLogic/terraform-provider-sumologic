@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	"log"
-	"time"
 )
 
 func resourceSumologicPartition() *schema.Resource {
@@ -45,7 +44,7 @@ func resourceSumologicPartition() *schema.Resource {
 				},
 			},
 			"is_compliant": {
-				Type:         schema.bool,
+				Type:         schema.TypeBool,
 				Required:     true,
 				ForceNew:     false,
 			},
@@ -92,9 +91,9 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	d.Set("routing_expression", spartition.Query)
-	d.Set("name", spartition.name)
-	d.Set("analytics_tier", spartition.StartTime)
+	d.Set("routing_expression", spartition.RoutingExpression)
+	d.Set("name", spartition.Name)
+	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
 	d.Set("is_compliant", spartition.RetentionPeriod)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
@@ -105,7 +104,7 @@ func resourceSumologicPartitionDelete(d *schema.ResourceData, meta interface{}) 
 	c := meta.(*Client)
 	return c.DeletePartition(d.Id())
 }
-func resourceSumologicsPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
 	spartition := resourceToPartition(d)
 
 	c := meta.(*Client)
@@ -129,9 +128,6 @@ func resourceSumologicPartitionExists(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceToPartition(d *schema.ResourceData) Partition {
-	if err != nil {
-		panic(err)
-	}
 	return Partition{
 		ID:               		d.Id(),
 		Name:					d.Get("name").(string),
