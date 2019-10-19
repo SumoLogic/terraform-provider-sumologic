@@ -86,7 +86,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if spartition == nil {
-		log.Printf("[WARN] Partition view not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] Partition not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
@@ -103,9 +103,9 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 }
 func resourceSumologicPartitionDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	return c.DeleteScheduledView(d.Id())
+	return c.DeletePartition(d.Id())
 }
-func resourceSumologicsPartitionViewUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicsPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
 	spartition := resourceToPartition(d)
 
 	c := meta.(*Client)
