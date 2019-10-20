@@ -131,10 +131,10 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 	return Partition{
 		ID:               		d.Id(),
 		Name:					d.Get("name").(string),
-		RoutingExpression:		d.Get("routingExpression").(string),
-		AnalyticsTier:			d.Get("analyticsTier").(string),
+		RoutingExpression:		d.Get("routing_expression").(string),
+		AnalyticsTier:			d.Get("analytics_tier").(string),
 		RetentionPeriod:		d.Get("retention_period").(int),
-		IsCompliant:			d.Get("isCompliant").(bool),
+		IsCompliant:			d.Get("is_compliant").(bool),
 		DataForwardingId:		d.Get("data_forwarding_id").(string),
 	}
 }
