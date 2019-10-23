@@ -220,9 +220,17 @@ func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*sc
 	} else {
 		// collectorName/sourceName
 		collector, _ := c.GetCollectorName(ids[0])
-		source, _ := c.GetSourceName(collector.ID, ids[1])
-		d.SetId(strconv.Itoa(source.ID))
-		d.Set("collector_id", collector.ID)
+		if collector != nil {
+			source, _ := c.GetSourceName(collector.ID, ids[1])
+			if source != nil {
+				d.SetId(strconv.Itoa(source.ID))
+				d.Set("collector_id", collector.ID)
+			} else {
+				return nil, fmt.Errorf("source with name '%s' does not exist", ids[1])
+			}
+		} else {
+			return nil, fmt.Errorf("collector with name '%s' does not exist", ids[0])
+		}
 	}
 
 	return []*schema.ResourceData{d}, nil
