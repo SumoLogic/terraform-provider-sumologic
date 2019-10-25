@@ -2,8 +2,9 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/go-errors/errors"
 	"os"
+
+	"github.com/go-errors/errors"
 
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -14,19 +15,19 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  os.Getenv("SUMOLOGIC_ACCESSID"),
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSID", nil),
 			},
 			"access_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  os.Getenv("SUMOLOGIC_ACCESSKEY"),
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSKEY", nil),
 			},
 			"environment": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  os.Getenv("SUMOLOGIC_ENVIRONMENT"),
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ENVIRONMENT", nil),
 			},
 			"base_url": {
 				Type:     schema.TypeString,
@@ -39,16 +40,13 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_polling_source":                     resourceSumologicPollingSource(),
 			"sumologic_cloudsyslog_source":                 resourceSumologicCloudsyslogSource(),
-
 			"sumologic_role":                               resourceSumologicRole(),
 			"sumologic_user":                               resourceSumologicUser(),
-
 			"sumologic_ingest_budget":                      resourceSumologicIngestBudget(),
 			"sumologic_collector_ingest_budget_assignment": resourceSumologicCollectorIngestBudgetAssignment(),
 			"sumologic_folder":                             resourceSumologicFolder(),
-
 			"sumologic_scheduled_view":                     resourceSumologicScheduledView(),
-			"sumologic_partition":							resourceSumologicPartition(),
+			"sumologic_partition":                          resourceSumologicPartition(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
