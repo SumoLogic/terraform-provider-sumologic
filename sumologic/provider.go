@@ -47,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_folder":                             resourceSumologicFolder(),
 			"sumologic_scheduled_view":                     resourceSumologicScheduledView(),
 			"sumologic_partition":                          resourceSumologicPartition(),
+			"sumologic_field_extraction_rule":              resourceSumologicFieldExtractionRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
