@@ -28,9 +28,9 @@ func resourceSumologicPartition() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 16384),
 			},
 			"analytics_tier": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     false,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -44,9 +44,9 @@ func resourceSumologicPartition() *schema.Resource {
 				},
 			},
 			"is_compliant": {
-				Type:         schema.TypeBool,
-				Required:     true,
-				ForceNew:     false,
+				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: false,
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
@@ -129,12 +129,12 @@ func resourceSumologicPartitionExists(d *schema.ResourceData, meta interface{}) 
 
 func resourceToPartition(d *schema.ResourceData) Partition {
 	return Partition{
-		ID:               		d.Id(),
-		Name:					d.Get("name").(string),
-		RoutingExpression:		d.Get("routing_expression").(string),
-		AnalyticsTier:			d.Get("analytics_tier").(string),
-		RetentionPeriod:		d.Get("retention_period").(int),
-		IsCompliant:			d.Get("is_compliant").(bool),
-		DataForwardingId:		d.Get("data_forwarding_id").(string),
+		ID:                d.Id(),
+		Name:              d.Get("name").(string),
+		RoutingExpression: d.Get("routing_expression").(string),
+		AnalyticsTier:     d.Get("analytics_tier").(string),
+		RetentionPeriod:   d.Get("retention_period").(int),
+		IsCompliant:       d.Get("is_compliant").(bool),
+		DataForwardingId:  d.Get("data_forwarding_id").(string),
 	}
 }
