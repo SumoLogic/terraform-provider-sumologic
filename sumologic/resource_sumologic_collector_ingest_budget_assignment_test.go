@@ -1,24 +1,19 @@
 package sumologic
 
-import (
-	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
-)
-
-func TestAccSumologicCollectorIngestBudgetAssignment(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicCollectorIngestBudgetAssignmentConfig,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "collector_id"),
-					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "ingest_budget_id"),
-				),
-			},
-		}})
-}
+// func TestAccSumologicCollectorIngestBudgetAssignment(t *testing.T) {
+// 	resource.Test(t, resource.TestCase{
+// 		Providers: testAccProviders,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config: testAccSumologicCollectorIngestBudgetAssignmentConfig,
+// 				Check: resource.ComposeTestCheckFunc(
+// 					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "id"),
+// 					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "collector_id"),
+// 					resource.TestCheckResourceAttrSet("sumologic_collector_ingest_budget_assignment.assignment", "ingest_budget_id"),
+// 				),
+// 			},
+// 		}})
+// }
 
 var testAccSumologicCollectorIngestBudgetAssignmentConfig = `
 resource "sumologic_collector" "test" {

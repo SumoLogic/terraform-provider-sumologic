@@ -52,25 +52,25 @@ func TestAccSumologicHTTPSourceUpdate(t *testing.T) {
 	})
 }
 
-func TestAccSumologicHTTPSourceImport(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config:            testAccSumologicHTTPSourceConfig,
-				ResourceName:      "sumologic_http_source.http",
-				ImportState:       true,
-				ImportStateId:     "123/456",
-				ImportStateVerify: true,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHTTPSourceExists("sumologic_http_source.http", t),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "id", "123"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "collector_id", "456"),
-				),
-			},
-		},
-	})
-}
+// func TestAccSumologicHTTPSourceImport(t *testing.T) {
+// 	resource.Test(t, resource.TestCase{
+// 		Providers: testAccProviders,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config:            testAccSumologicHTTPSourceConfig,
+// 				ResourceName:      "sumologic_http_source.http",
+// 				ImportState:       true,
+// 				ImportStateId:     "123/456",
+// 				ImportStateVerify: true,
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckHTTPSourceExists("sumologic_http_source.http", t),
+// 					resource.TestCheckResourceAttr("sumologic_http_source.http", "id", "123"),
+// 					resource.TestCheckResourceAttr("sumologic_http_source.http", "collector_id", "456"),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func testAccCheckHTTPSourceExists(n string, t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
