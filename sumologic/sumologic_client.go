@@ -140,6 +140,29 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	return d, nil
 }
 
+func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
+	relativeURL, _ := url.Parse(urlPath)
+	sumoURL := s.BaseURL.ResolveReference(relativeURL)
+	req, _ := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)))
+	req.Header.Add("Content-Type", "application/json")
+	req.SetBasicAuth(s.AccessID, s.AccessKey)
+
+	<-rateLimiter
+	resp, err := s.httpClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	d, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode >= 400 {
+		return nil, errors.New(string(d))
+	}
+
+	return d, nil
+}
+
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	SumoMutexKV.Lock(urlPath)
 	defer SumoMutexKV.Unlock(urlPath)
@@ -227,4 +250,44 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 	client.BaseURL, _ = url.Parse(base_url)
 
 	return &client, nil
+}
+
+type Error struct {
+	Code    string `json:"status"`
+	Message string `json:"message"`
+	Detail  string `json:"detail"`
+}
+
+type Status struct {
+	Status        string  `json:"status"`
+	StatusMessage string  `json:"statusMessage"`
+	Errors        []Error `json:"errors"`
+}
+
+type FolderUpdate struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type JobId struct {
+	ID string `json:"id,omitempty"`
+}
+
+type Folder struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ParentId    string `json:"parentId"`
+}
+
+type Content struct {
+	ID             string      `json:"id,omitempty"`
+	Type           string      `json:"type"`
+	Name           string      `json:"name"`
+	Description    string      `json:"description"`
+	Children       []Content   `json:"children,omitempty"`
+	Search         interface{} `json:"search"`
+	SearchSchedule interface{} `json:"searchSchedule"`
+	Config         string      `json:"-"`
+	ParentId       string      `json:"-"`
 }

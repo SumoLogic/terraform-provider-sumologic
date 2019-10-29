@@ -2,34 +2,66 @@ package sumologic
 
 import (
 	"fmt"
-	"strings"
+	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccFolder(t *testing.T) {
+func TestAccFolderCreate(t *testing.T) {
 	var folder Folder
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	personalFolderId := os.Getenv("SUMOLOGIC_PF")
+
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() {testAccPreCheck(t)},
+		PreCheck:     func() { TestAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFolderDestroy(folder),
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccSumologicFolder,
+				Config: testAccSumologicFolder(rName, personalFolderId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
 					testAccCheckFolderAttributes("sumologic_folder.test"),
-					resource.TestCheckResourceAttr("sumologic_folder.test", "description", ""),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "test"),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
+				),
+			},
+		},
+	})
+}
+
+func TestAccFolderUpdate(t *testing.T) {
+	var folder Folder
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	personalFolderId := os.Getenv("SUMOLOGIC_PF")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { TestAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFolderDestroy(folder),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicFolder(rName, personalFolderId),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
+					testAccCheckFolderAttributes("sumologic_folder.test"),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "test"),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
 				),
 			},
 			{
-				Config: TestAccSumologicFolderUpdate,
+				Config: testAccSumologicFolderUpdate(rName, personalFolderId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
 					testAccCheckFolderAttributes("sumologic_folder.test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "Update test"),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
+					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
 				),
 			},
 		},
@@ -53,7 +85,7 @@ func testAccCheckFolderExists(name string, folder *Folder, t *testing.T) resourc
 		if err != nil {
 			return fmt.Errorf("Folder %s not found", id)
 		}
-		*folder = newFolder
+		folder = newFolder
 		return nil
 	}
 }
@@ -62,14 +94,8 @@ func testAccCheckFolderAttributes(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttrSet(name, "name"),
+			resource.TestCheckResourceAttrSet(name, "description"),
 			resource.TestCheckResourceAttrSet(name, "parent_id"),
-			resource.TestCheckResourceAttrSet(name, "created_at"),
-			resource.TestCheckResourceAttrSet(name, "created_by"),
-			resource.TestCheckResourceAttrSet(name, "modified_at"),
-			resource.TestCheckResourceAttrSet(name, "modified_by"),
-			resource.TestCheckResourceAttr(name, "item_type", "Folder"),
-			resource.TestCheckResourceAttr(name, "permissions.#", "6"),
-			resource.TestCheckNoResourceAttr(name, "children.#"),
 		)
 		return f(s)
 	}
@@ -86,25 +112,22 @@ func testAccCheckFolderDestroy(folder Folder) resource.TestCheckFunc {
 	}
 }
 
-func testAccPreCheck(t *testing.T) {
-	if strings.Contains(TestAccSumologicFolder, "PERSONAL_FOLDER_HEX_ID") ||
-	strings.Contains(TestAccSumologicFolderUpdate, "PERSONAL_FOLDER_HEX_ID") {
-		t.Fatal("The parent_id must be set for the TestAccSumologicFolder and" +
-			" TestAccSumologicFolderUpdate variables")
-	}
+func testAccSumologicFolder(name string, parentId string) string {
+	return fmt.Sprintf(`
+resource "sumologic_folder" "test" {
+  name = "%s"
+  parent_id = "%s"
+  description = "test"
+}
+`, name, parentId)
 }
 
-var TestAccSumologicFolder = `
+func testAccSumologicFolderUpdate(name string, parentId string) string {
+	return fmt.Sprintf(`
 resource "sumologic_folder" "test" {
-  name = "MyFolder"
-	parent_id = "<PERSONAL_FOLDER_HEX_ID>"
+  name = "%s"
+  parent_id = "%s"
+  description = "Update test"
 }
-`
-
-var TestAccSumologicFolderUpdate = `
-resource "sumologic_folder" "test" {
-  name = "MyFolder"
-	parent_id = "<PERSONAL_FOLDER_HEX_ID>"
-	description = "Update test"
+`, name, parentId)
 }
-`
