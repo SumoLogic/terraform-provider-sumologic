@@ -3,16 +3,19 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
 	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
 	if err != nil {
-		return nil, err
-	}
-
-	if data == nil {
-		return nil, nil
+		if strings.Contains(err.Error(), "Partition Not Found") {
+			if data == nil {
+				return nil, nil
+			} else {
+				return nil, err
+			}
+		}
 	}
 
 	var spartition Partition
@@ -41,8 +44,8 @@ func (s *Client) CreatePartition(spartition Partition) (*Partition, error) {
 	return &createdspartition, nil
 }
 
-func (s *Client) DeletePartition(id string) error {
-	_, err := s.Delete(fmt.Sprintf("v1/partitions/%s/decommission", id))
+func (s *Client) DecommissionPartition(id string) error {
+	_, err := s.Post(fmt.Sprintf("v1/partitions/%s/decommission", id), nil)
 
 	return err
 }
@@ -56,11 +59,11 @@ func (s *Client) UpdatePartition(spartition Partition) error {
 }
 
 type Partition struct {
-	ID               	string    `json:"id,omitempty"`
-	Name             	string    `json:"name"`
-	RoutingExpression	string    `json:"routingExpression"`
-	AnalyticsTier       string    `json:"analyticsTier"`
-	RetentionPeriod  	int       `json:"retentionPeriod"`
-	IsCompliant			bool      `json:"isCompliant"`
-	DataForwardingId 	string    `json:"dataForwardingId"`
+	ID                string `json:"id,omitempty"`
+	Name              string `json:"name"`
+	RoutingExpression string `json:"routingExpression"`
+	AnalyticsTier     string `json:"analyticsTier"`
+	RetentionPeriod   int    `json:"retentionPeriod"`
+	IsCompliant       bool   `json:"isCompliant"`
+	DataForwardingId  string `json:"dataForwardingId"`
 }
