@@ -2,18 +2,15 @@ package sumologic
 
 import (
 	"fmt"
-	"math/rand"
-	"strconv"
 	"testing"
-	"time"
 
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccSumoLogicPartition(t *testing.T) {
-	rand.Seed(time.Now().UTC().UnixNano())
-	testName := strconv.Itoa(rand.Int())
+	testName := acctest.RandString(16)
 	resource.Test(t, resource.TestCase{
 		// PreCheck:     func() { TestAccPreCheck(t) },
 		Providers:    testAccProviders,
