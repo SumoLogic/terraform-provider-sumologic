@@ -17,7 +17,8 @@ install:
 - bash scripts/gogetcookie.sh
 
 script:
-- make testacc
+- make test
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/run_on_non_pull_requests; fi'
 
 branches:
   only:

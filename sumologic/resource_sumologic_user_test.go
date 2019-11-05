@@ -13,11 +13,12 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccUserCreate(t *testing.T) {
@@ -28,7 +29,7 @@ func TestAccUserCreate(t *testing.T) {
 	testRoleIds := []string{"\"" + FieldsMap["User"]["roleIds"] + "\""}
 	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{
@@ -104,7 +105,7 @@ func TestAccUserUpdate(t *testing.T) {
 	testUpdatedIsActive, _ := strconv.ParseBool(FieldsMap["User"]["updatedIsActive"])
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{

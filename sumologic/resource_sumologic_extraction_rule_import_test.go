@@ -13,9 +13,10 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
 	"strconv"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestSumologicFieldExtractionRule_import(t *testing.T) {
@@ -26,7 +27,7 @@ func TestSumologicFieldExtractionRule_import(t *testing.T) {
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFieldExtractionRuleDestroy(fieldextractionrule),
 		Steps: []resource.TestStep{

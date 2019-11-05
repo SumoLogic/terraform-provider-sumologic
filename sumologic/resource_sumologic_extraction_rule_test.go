@@ -13,11 +13,12 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccFieldExtractionRuleCreate(t *testing.T) {
@@ -27,7 +28,7 @@ func TestAccFieldExtractionRuleCreate(t *testing.T) {
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFieldExtractionRuleDestroy(fieldextractionrule),
 		Steps: []resource.TestStep{
@@ -100,7 +101,7 @@ func TestAccFieldExtractionRuleUpdate(t *testing.T) {
 	testUpdatedEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["updatedEnabled"])
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFieldExtractionRuleDestroy(fieldextractionrule),
 		Steps: []resource.TestStep{

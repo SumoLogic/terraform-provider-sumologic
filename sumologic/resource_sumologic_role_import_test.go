@@ -14,8 +14,9 @@ package sumologic
 import (
 	"fmt"
 	//"strconv"
-	"github.com/hashicorp/terraform/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestSumologicRole_import(t *testing.T) {
@@ -26,7 +27,7 @@ func TestSumologicRole_import(t *testing.T) {
 	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRoleDestroy(role),
 		Steps: []resource.TestStep{
