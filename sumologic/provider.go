@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/go-errors/errors"
 
@@ -75,7 +76,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if environment == "" && baseUrl == "" {
-		msg = fmt.Sprintf("%s make sure one of environment or base_url is set", msg)
+		environment="us2"
+		// baseUrl will be set accordingly in NewClient constructor
+		log.Printf("[WARN] environment not set, setting to %s", environment)
 	}
 
 	if msg != "" {
