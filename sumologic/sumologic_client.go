@@ -245,7 +245,7 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 		Environment: environment,
 	}
 	if base_url == "" {
-	  base_url = endpoints[client.Environment]
+		base_url = endpoints[client.Environment]
 	}
 	client.BaseURL, _ = url.Parse(base_url)
 

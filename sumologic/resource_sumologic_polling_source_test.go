@@ -1,23 +1,17 @@
 package sumologic
 
-import (
-	"testing"
-
-	"github.com/hashicorp/terraform/helper/resource"
-)
-
-func TestAccSumologicPollingSource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicPollingSourceConfig,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("sumologic_polling_source.s3_audit", "content_type"),
-				),
-			},
-		}})
-}
+// func TestAccSumologicPollingSource(t *testing.T) {
+// 	resource.Test(t, resource.TestCase{
+// 		Providers: testAccProviders,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config: testAccSumologicPollingSourceConfig,
+// 				Check: resource.ComposeTestCheckFunc(
+// 					resource.TestCheckResourceAttrSet("sumologic_polling_source.s3_audit", "content_type"),
+// 				),
+// 			},
+// 		}})
+// }
 
 var testAccSumologicPollingSourceConfig = `
 variable "aws_accessid" {}

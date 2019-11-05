@@ -1,9 +1,10 @@
 package sumologic
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"log"
 )
 
 func resourceSumologicPartition() *schema.Resource {
@@ -28,10 +29,11 @@ func resourceSumologicPartition() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 16384),
 			},
 			"analytics_tier": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     false,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
 			},
+			// Terraform does not support reducing the retention period after creation
 			"retention_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -39,14 +41,16 @@ func resourceSumologicPartition() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(-1),
 				Default:      -1,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					// taken from https://stackoverflow.com/a/57785476/118587
-					return old == "-1"
+					if new == "-1" && old != "" {
+						return true
+					}
+					return false
 				},
 			},
 			"is_compliant": {
-				Type:         schema.TypeBool,
-				Required:     true,
-				ForceNew:     false,
+				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: false,
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
@@ -102,7 +106,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 }
 func resourceSumologicPartitionDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	return c.DeletePartition(d.Id())
+	return c.DecommissionPartition(d.Id())
 }
 func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
 	spartition := resourceToPartition(d)
@@ -129,12 +133,12 @@ func resourceSumologicPartitionExists(d *schema.ResourceData, meta interface{}) 
 
 func resourceToPartition(d *schema.ResourceData) Partition {
 	return Partition{
-		ID:               		d.Id(),
-		Name:					d.Get("name").(string),
-		RoutingExpression:		d.Get("routing_expression").(string),
-		AnalyticsTier:			d.Get("analytics_tier").(string),
-		RetentionPeriod:		d.Get("retention_period").(int),
-		IsCompliant:			d.Get("is_compliant").(bool),
-		DataForwardingId:		d.Get("data_forwarding_id").(string),
+		ID:                d.Id(),
+		Name:              d.Get("name").(string),
+		RoutingExpression: d.Get("routing_expression").(string),
+		AnalyticsTier:     d.Get("analytics_tier").(string),
+		RetentionPeriod:   d.Get("retention_period").(int),
+		IsCompliant:       d.Get("is_compliant").(bool),
+		DataForwardingId:  d.Get("data_forwarding_id").(string),
 	}
 }
