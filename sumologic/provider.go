@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/go-errors/errors"
-
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
@@ -45,6 +44,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_ingest_budget":                      resourceSumologicIngestBudget(),
 			"sumologic_collector_ingest_budget_assignment": resourceSumologicCollectorIngestBudgetAssignment(),
 			"sumologic_folder":                             resourceSumologicFolder(),
+			"sumologic_content":                            resourceSumologicContent(),
 			"sumologic_scheduled_view":                     resourceSumologicScheduledView(),
 			"sumologic_partition":                          resourceSumologicPartition(),
 			"sumologic_field_extraction_rule":              resourceSumologicFieldExtractionRule(),
@@ -52,6 +52,7 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
 			"sumologic_collector":       dataSourceSumologicCollector(),
+			"sumologic_personal_folder": dataSourceSumologicPersonalFolder(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

@@ -38,4 +38,7 @@ func TestAccPreCheck(t *testing.T) {
 	if v := os.Getenv("SUMOLOGIC_ENVIRONMENT"); v == "" {
 		t.Fatal("SUMOLOGIC_ENVIRONMENT must be set for acceptance tests")
 	}
+	if v := os.Getenv("SUMOLOGIC_PF"); v == "" {
+		t.Fatal("SUMOLOGIC_PF must be set for acceptance tests")
+	}
 }

@@ -3,122 +3,169 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 )
 
-func (s *Client) CreateFolder(folder FolderCreate) (Folder, error) {
-	response, err := s.Post("v2/content/folders", folder)
+//READ
+func (s *Client) GetFolder(id string) (*Folder, error) {
+	log.Println("####Begin GetFolder####")
+
+	url := fmt.Sprintf("v2/content/folders/%s", id)
+	log.Printf("Folder read url: %s", url)
+
+	//Execute the folder read request
+	rawFolder, _, err := s.Get(url)
+
+	//If there was an error, exit here and return it
 	if err != nil {
-		return Folder{}, err
+		return nil, err
 	}
-	var folderResponse Folder
-	err = json.Unmarshal(response, &folderResponse)
+
+	//Parse a Folder struct from the response
+	var folder Folder
+	err = json.Unmarshal(rawFolder, &folder)
+
+	//Exit here if there was an error parsing the json
 	if err != nil {
-		return Folder{}, err
+		return nil, err
 	}
-	return folderResponse, nil
+
+	log.Println("####End GetFolder####")
+	return &folder, nil
 }
 
-func (s *Client) GetFolder(id string) (Folder, error) {
-	var folderResponse Folder
-	response, _, err := s.Get(fmt.Sprintf("v2/content/folders/%s", id))
+//DELETE
+func (s *Client) DeleteFolder(id string) error {
+	log.Println("####Begin DeleteFolder####")
+
+	log.Printf("Deleting Folder Id: %s", id)
+
+	url := fmt.Sprintf("v2/content/%s/delete", id)
+	log.Printf("Folder delete url: %s", url)
+
+	//start the deletion job
+	rawJID, err := s.Delete(url)
+
 	if err != nil {
-		return Folder{}, err
+		return err
 	}
 
-	err = json.Unmarshal(response, &folderResponse)
+	var jid JobId
+
+	//Parse the response for the JobId
+	err = json.Unmarshal(rawJID, &jid)
+
+	//Exit here if there was an error parsing the json
 	if err != nil {
-		return Folder{}, err
+		return err
 	}
-	return folderResponse, nil
+
+	url = fmt.Sprintf("v2/content/%s/delete/%s/status", id, jid.ID)
+	log.Printf("Folder delete job status url: %s", url)
+
+	//Ensure the job has completed before proceeding
+	for {
+
+		log.Println("====Start Job Status Check====")
+
+		//check the status of the job
+		rawStatus, _, err := s.Get(url)
+
+		//If there were no errors during the request, proceed
+		if err != nil {
+			return err
+		}
+
+		// Parse the Job Status message
+		var status Status
+		err = json.Unmarshal(rawStatus, &status)
+
+		//Exit here if there was an error parsing the json
+		if err != nil {
+			return err
+		}
+
+		log.Printf("Job Status: %s", status.Status)
+		log.Printf("Job Message: %s", status.StatusMessage)
+		log.Println("Job Errors:")
+		log.Println(status.Errors)
+		log.Println("====End Job Status Check====")
+
+		if status.Status == "Success" {
+			break
+		}
+
+		log.Printf("Sleeping for 1 second before retrying Job Status check...")
+		time.Sleep(1 * time.Second)
+	}
+
+	log.Println("####End DeleteFolder####")
+	return err
 }
 
-func (s *Client) UpdateFolder(id string, folder FolderUpdate) (Folder, error) {
-	var folderResponse Folder
-	response, err := s.Put(fmt.Sprintf("v2/content/folders/%s", id), folder)
-	if err != nil {
-		return Folder{}, err
-	}
+//CREATE
+func (s *Client) CreateFolder(folder Folder) (string, error) {
+	log.Println("####Begin CreateFolder####")
 
-	err = json.Unmarshal(response, &folderResponse)
-	if err != nil {
-		return Folder{}, err
-	}
-	return folderResponse, nil
-}
+	url := "v2/content/folders"
+	log.Printf("Create folder url: %s", url)
 
-func (s *Client) StartDeleteFolder(id string) (string, error) {
-	var deletionJob BeginDeletionJobResponse
-	response, err := s.Delete(fmt.Sprintf("v2/content/%s/delete", id))
+	//Initiate folder creation
+	responseData, err := s.Post(url, folder)
+
+	//Exit if there was an error during the request
 	if err != nil {
 		return "", err
 	}
-	err = json.Unmarshal(response, &deletionJob)
+
+	//Parse Response
+	var folderResponse Folder
+	err = json.Unmarshal(responseData, &folderResponse)
+
+	//Catch parsing errors
 	if err != nil {
 		return "", err
 	}
-	return deletionJob.ID, nil
+
+	log.Printf("New folder ID is: %s", folderResponse.ID)
+	return folderResponse.ID, nil
 }
 
-func (s *Client) DeleteFolderStatus(id string, job_id string) (string, error) {
-	var deletionStatus DeletionJobStatus
-	response, _, err := s.Get(fmt.Sprintf("v2/content/%s/delete/%s/status", id, job_id))
-	err = json.Unmarshal(response, &deletionStatus)
+//FOLDER UPDATE
+
+func (s *Client) UpdateFolder(folder Folder) error {
+	log.Println("####Begin folder update####")
+
+	url := fmt.Sprintf("v2/content/folders/%s", folder.ID)
+	log.Printf("Update folder job status url: %s", url)
+
+	_, err := s.Put(url, folder)
+
+	log.Println("####End folder update####")
+	return err
+}
+
+//Retrieve PersonalFolder for current credentials
+func (s *Client) getPersonalFolder() (*Folder, error) {
+	log.Println("####Begin loading Personal Folder####")
+	url := "v2/content/folders/personal"
+	rawFolder, _, err := s.Get(url)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return deletionStatus.Status, nil
-}
 
-type Folder struct {
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	ParentId    string     `json:"parentId"`
-	ItemType    string     `json:"itemType"`
-	Permissions []string   `json:"permissions"`
-	CreatedAt   string     `json:"createdAt"`
-	CreatedBy   string     `json:"createdBy"`
-	ModifiedAt  string     `json:"modifiedAt"`
-	ModifiedBy  string     `json:"modifiedBy"`
-	ID          string     `json:"id"`
-	Children    []Children `json:"children"`
-}
+	var personalFolder Folder
+	err = json.Unmarshal(rawFolder, &personalFolder)
 
-type Children struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	ParentId    string   `json:"parentId"`
-	ItemType    string   `json:"itemType"`
-	Permissions []string `json:"permissions"`
-	CreatedAt   string   `json:"createdAt"`
-	CreatedBy   string   `json:"createdBy"`
-	ModifiedAt  string   `json:"modifiedAt"`
-	ModifiedBy  string   `json:"modifiedBy"`
-	ID          string   `json:"id"`
-}
+	if err != nil {
+		return nil, err
+	}
 
-type FolderCreate struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	ParentId    string `json:"parentId"`
-}
+	log.Printf("PF Id: %s", personalFolder.ID)
+	log.Printf("Name: %s", personalFolder.Name)
+	log.Printf("Description: %s", personalFolder.Description)
 
-type FolderUpdate struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-type BeginDeletionJobResponse struct {
-	ID string `json:"id"`
-}
-
-type DeletionJobStatus struct {
-	Status        string           `json:"status"`
-	StatusMessage string           `json:"statusMessage"`
-	Error         ErrorDescription `json:"error"`
-}
-
-type ErrorDescription struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Detail  string `json:"detail"`
+	log.Println("####End loading Personal Folder####")
+	return &personalFolder, nil
 }

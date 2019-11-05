@@ -12,7 +12,7 @@ import (
 func TestAccSumoLogicPartition(t *testing.T) {
 	testName := acctest.RandString(16)
 	resource.Test(t, resource.TestCase{
-		// PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { TestAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPartitionDestroy,
 		Steps: []resource.TestStep{
