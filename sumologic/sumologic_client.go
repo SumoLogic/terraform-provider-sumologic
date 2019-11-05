@@ -60,6 +60,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	if err != nil {
 		return nil, nil, err
 	}
+	defer resp.Body.Close()
 
 	respCookie := resp.Cookies()
 
@@ -100,6 +101,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	if err != nil {
 		return nil, "", err
 	}
+	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -126,12 +128,15 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
@@ -158,12 +163,15 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
@@ -181,9 +189,16 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := s.httpClient.Do(req)
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
 
 	if resp.StatusCode == 404 {
 		return nil, "", nil
@@ -203,9 +218,16 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := s.httpClient.Do(req)
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
