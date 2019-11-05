@@ -246,11 +246,12 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 	}
 
 	if base_url == "" {
-		var found bool
-		base_url, found = endpoints[client.Environment]
+
+		endpoint, found := endpoints[client.Environment]
 		if !found {
 			return nil, fmt.Errorf("could not find endpoint for environment %s", environment)
 		}
+		base_url = endpoint
 	}
 	parsed, err := url.Parse(base_url)
 	if err != nil {
