@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -243,10 +244,19 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 		httpClient:  http.DefaultClient,
 		Environment: environment,
 	}
+
 	if base_url == "" {
-		base_url = endpoints[client.Environment]
+		var found bool
+		base_url, found = endpoints[client.Environment]
+		if !found {
+			return nil, fmt.Errorf("could not find endpoint for environment %s", environment)
+		}
 	}
-	client.BaseURL, _ = url.Parse(base_url)
+	parsed, err := url.Parse(base_url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse base_url %s", base_url)
+	}
+	client.BaseURL = parsed
 
 	return &client, nil
 }
