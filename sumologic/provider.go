@@ -69,13 +69,16 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if accessId == "" {
 		msg = "sumologic provider: access_id should be set;"
 	}
+
 	if accessKey == "" {
 		msg = fmt.Sprintf("%s access_key should be set; ", msg)
 	}
+
+	if environment == "" && baseUrl == "" {
+		msg = fmt.Sprintf("%s make sure one of environment or base_url is set", msg)
+	}
+
 	if msg != "" {
-		if environment == "" {
-			msg = fmt.Sprintf("%s make sure environment is set", msg)
-		}
 		return nil, errors.New(msg)
 	}
 
