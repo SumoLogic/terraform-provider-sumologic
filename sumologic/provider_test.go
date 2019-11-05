@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -25,4 +26,16 @@ func TestProvider(t *testing.T) {
 
 func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
+}
+
+func TestAccPreCheck(t *testing.T) {
+	if v := os.Getenv("SUMOLOGIC_ACCESSKEY"); v == "" {
+		t.Fatal("SUMOLOGIC_ACCESSKEY must be set for acceptance tests")
+	}
+	if v := os.Getenv("SUMOLOGIC_ACCESSID"); v == "" {
+		t.Fatal("SUMOLOGIC_ACCESSID must be set for acceptance tests")
+	}
+	if v := os.Getenv("SUMOLOGIC_ENVIRONMENT"); v == "" {
+		t.Fatal("SUMOLOGIC_ENVIRONMENT must be set for acceptance tests")
+	}
 }
