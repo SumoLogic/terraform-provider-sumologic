@@ -2,8 +2,8 @@ package sumologic
 
 import (
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"github.com/go-errors/errors"
 	"github.com/hashicorp/terraform/helper/mutexkv"
@@ -77,7 +77,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if environment == "" && baseUrl == "" {
-		environment="us2"
+		environment = "us2"
 		// baseUrl will be set accordingly in NewClient constructor
 		log.Printf("[WARN] environment not set, setting to %s", environment)
 	}
