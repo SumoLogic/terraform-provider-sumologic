@@ -17,7 +17,7 @@ func TestAccContentCreate(t *testing.T) {
 	personalContentId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContentDestroy(content),
 		Steps: []resource.TestStep{
@@ -39,7 +39,7 @@ func TestAccContentUpdate(t *testing.T) {
 	personalContentId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContentDestroy(content),
 		Steps: []resource.TestStep{

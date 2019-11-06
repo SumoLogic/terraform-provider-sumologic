@@ -13,11 +13,12 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccRoleCreate(t *testing.T) {
@@ -27,7 +28,7 @@ func TestAccRoleCreate(t *testing.T) {
 	testFilterPredicate := FieldsMap["Role"]["filterPredicate"]
 	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRoleDestroy(role),
 		Steps: []resource.TestStep{
@@ -100,7 +101,7 @@ func TestAccRoleUpdate(t *testing.T) {
 	testUpdatedCapabilities := []string{"\"" + FieldsMap["Role"]["updatedCapabilities"] + "\""}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRoleDestroy(role),
 		Steps: []resource.TestStep{

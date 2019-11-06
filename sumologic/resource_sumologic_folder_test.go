@@ -16,7 +16,7 @@ func TestAccFolderCreate(t *testing.T) {
 	personalFolderId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFolderDestroy(folder),
 		Steps: []resource.TestStep{
@@ -40,7 +40,7 @@ func TestAccFolderUpdate(t *testing.T) {
 	personalFolderId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFolderDestroy(folder),
 		Steps: []resource.TestStep{

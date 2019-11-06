@@ -28,7 +28,7 @@ func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
 
-func TestAccPreCheck(t *testing.T) {
+func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("SUMOLOGIC_ACCESSKEY"); v == "" {
 		t.Fatal("SUMOLOGIC_ACCESSKEY must be set for acceptance tests")
 	}

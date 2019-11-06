@@ -13,9 +13,10 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
 	"strconv"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestSumologicUser_import(t *testing.T) {
@@ -27,7 +28,7 @@ func TestSumologicUser_import(t *testing.T) {
 	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { TestAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{
