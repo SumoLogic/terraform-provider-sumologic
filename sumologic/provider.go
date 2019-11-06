@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/go-errors/errors"
 	"github.com/hashicorp/terraform/helper/mutexkv"
@@ -70,13 +71,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if accessId == "" {
 		msg = "sumologic provider: access_id should be set;"
 	}
+
 	if accessKey == "" {
 		msg = fmt.Sprintf("%s access_key should be set; ", msg)
 	}
+
+	if environment == "" && baseUrl == "" {
+		environment="us2"
+		// baseUrl will be set accordingly in NewClient constructor
+		log.Printf("[WARN] environment not set, setting to %s", environment)
+	}
+
 	if msg != "" {
-		if environment == "" {
-			msg = fmt.Sprintf("%s make sure environment is set", msg)
-		}
 		return nil, errors.New(msg)
 	}
 

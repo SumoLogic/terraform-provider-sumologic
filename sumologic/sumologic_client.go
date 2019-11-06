@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -60,6 +61,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 	if err != nil {
 		return nil, nil, err
 	}
+	defer resp.Body.Close()
 
 	respCookie := resp.Cookies()
 
@@ -100,6 +102,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	if err != nil {
 		return nil, "", err
 	}
+	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -126,12 +129,15 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
@@ -181,12 +187,15 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
@@ -204,9 +213,16 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := s.httpClient.Do(req)
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
 
 	if resp.StatusCode == 404 {
 		return nil, "", nil
@@ -226,9 +242,16 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
-	resp, _ := s.httpClient.Do(req)
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
@@ -244,10 +267,20 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 		httpClient:  http.DefaultClient,
 		Environment: environment,
 	}
+
 	if base_url == "" {
-		base_url = endpoints[client.Environment]
+
+		endpoint, found := endpoints[client.Environment]
+		if !found {
+			return nil, fmt.Errorf("could not find endpoint for environment %s", environment)
+		}
+		base_url = endpoint
 	}
-	client.BaseURL, _ = url.Parse(base_url)
+	parsed, err := url.Parse(base_url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse base_url %s", base_url)
+	}
+	client.BaseURL = parsed
 
 	return &client, nil
 }
