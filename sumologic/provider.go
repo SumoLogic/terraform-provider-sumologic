@@ -3,7 +3,9 @@ package sumologic
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-errors/errors"
 	"github.com/hashicorp/terraform/helper/mutexkv"
@@ -61,6 +63,26 @@ func Provider() terraform.ResourceProvider {
 
 var SumoMutexKV = mutexkv.NewMutexKV()
 
+func resolveRedirectURL(accessId string, accessKey string) (string, error) {
+	req, err := http.NewRequest(http.MethodHead, "https://api.sumologic.com/api/v1/collectors", nil)
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth(accessId, accessKey)
+	client := &http.Client{CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	location := resp.Header.Get("location")
+	if location == "" {
+		return location, fmt.Errorf("location header not found")
+	}
+	return strings.Split(location, "v1")[0], nil
+}
+
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessId := d.Get("access_id").(string)
 	accessKey := d.Get("access_key").(string)
@@ -77,9 +99,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if environment == "" && baseUrl == "" {
-		environment = "us2"
-		// baseUrl will be set accordingly in NewClient constructor
-		log.Printf("[WARN] environment not set, setting to %s", environment)
+		log.Printf("Attempting to resolve redirection URL from access key/id")
+		url, err := resolveRedirectURL(accessId, accessKey)
+		if err != nil {
+			log.Printf("[WARN] Unable to resolve redirection URL, %s", err)
+			environment = "us2"
+			// baseUrl will be set accordingly in NewClient constructor
+			log.Printf("[WARN] environment not set, defaulting to %s", environment)
+		} else {
+			baseUrl = url
+			log.Printf("Resolved redirection URL %s", baseUrl)
+		}
+
 	}
 
 	if msg != "" {

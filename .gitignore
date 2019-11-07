@@ -94,3 +94,4 @@ fabric.properties
 
 terra.tf
 dist/
+go.sum
