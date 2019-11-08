@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/SumoLogic/sumologic-terraform-provider/sumologic"
-	"github.com/hashicorp/terraform/plugin"
+	"github.com/hashicorp/terraform-plugin-sdk/plugin"
 )
 
 func main() {
