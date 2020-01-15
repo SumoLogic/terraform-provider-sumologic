@@ -2,9 +2,10 @@ package sumologic
 
 import (
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"reflect"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceSumologicContent() *schema.Resource {

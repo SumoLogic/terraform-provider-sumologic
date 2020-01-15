@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -19,6 +20,9 @@ func (s *Client) GetContent(id string) (*Content, error) {
 
 	//If there was an error, exit here and return it
 	if err != nil {
+		if strings.Contains(err.Error(), "Content with the given ID does not exist.") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
