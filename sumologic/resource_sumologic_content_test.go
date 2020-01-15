@@ -129,11 +129,87 @@ func testAccCheckContentDestroy(s *terraform.State) error {
 	return nil
 }
 
-var updateConfigJson = `{"type":"SavedSearchWithScheduleSyncDefinition","name":"test-333","search":{"queryText":"\"warn\"","defaultTimeRange":"-15m","byReceiptTime":false,"viewName":"","viewStartTime":"1970-01-01T00:00:00Z","queryParameters":[],"parsingMode":"Manual"},"searchSchedule":{"cronExpression":"0 0 * * * ? *","displayableTimeRange":"-10m","parseableTimeRange":{"type":"BeginBoundedTimeRange","from":{"type":"RelativeTimeRangeBoundary","relativeTime":"-50m"},"to":null},"timeZone":"America/Los_Angeles","threshold":null,"notification":{"taskType":"EmailSearchNotificationSyncDefinition","toList":["ops@acme.org"],"subjectTemplate":"Search Results: {{SearchName}}","includeQuery":true,"includeResultSet":true,"includeHistogram":false,"includeCsvAttachment":false},"scheduleType":"1Hour","muteErrorEmails":false,"parameters":[]},"description":"Runs every hour with timerange of 15m and sends email notifications"}
-`
+var updateConfigJson = `{
+	"type": "SavedSearchWithScheduleSyncDefinition",
+	"name": "test-333",
+	"search": {
+		"queryText": "\"warn\"",
+		"defaultTimeRange": "-15m",
+		"byReceiptTime": false,
+		"viewName": "",
+		"viewStartTime": "1970-01-01T00:00:00Z",
+		"queryParameters": [],
+		"parsingMode": "Manual"
+	},
+	"searchSchedule": {
+		"cronExpression": "0 0 * * * ? *",
+		"displayableTimeRange": "-10m",
+		"parseableTimeRange": {
+			"type": "BeginBoundedTimeRange",
+			"from": {
+				"type": "RelativeTimeRangeBoundary",
+				"relativeTime": "-50m"
+			},
+			"to": null
+		},
+		"timeZone": "America/Los_Angeles",
+		"threshold": null,
+		"notification": {
+			"taskType": "EmailSearchNotificationSyncDefinition",
+			"toList": ["ops@acme.org"],
+			"subjectTemplate": "Search Results: {{SearchName}}",
+			"includeQuery": true,
+			"includeResultSet": true,
+			"includeHistogram": false,
+			"includeCsvAttachment": false
+		},
+		"scheduleType": "1Hour",
+		"muteErrorEmails": false,
+		"parameters": []
+	},
+	"description": "Runs every hour with timerange of 15m and sends email notifications"
+}`
 
-var configJson = `{"type":"SavedSearchWithScheduleSyncDefinition","name":"test-121","search":{"queryText":"\"error\"","defaultTimeRange":"-15m","byReceiptTime":false,"viewName":"","viewStartTime":"1970-01-01T00:00:00Z","queryParameters":[],"parsingMode":"Manual"},"searchSchedule":{"cronExpression":"0 0 * * * ? *","displayableTimeRange":"-10m","parseableTimeRange":{"type":"BeginBoundedTimeRange","from":{"type":"RelativeTimeRangeBoundary","relativeTime":"-50m"},"to":null},"timeZone":"America/Los_Angeles","threshold":null,"notification":{"taskType":"EmailSearchNotificationSyncDefinition","toList":["ops@acme.org"],"subjectTemplate":"Search Results: {{SearchName}}","includeQuery":true,"includeResultSet":true,"includeHistogram":false,"includeCsvAttachment":false},"scheduleType":"1Hour","muteErrorEmails":false,"parameters":[]},"description":"Runs every hour with timerange of 15m and sends email notifications"}
-`
+var configJson = `{
+	"type": "SavedSearchWithScheduleSyncDefinition",
+	"name": "test-121",
+	"search": {
+		"queryText": "\"error\"",
+		"defaultTimeRange": "-15m",
+		"byReceiptTime": false,
+		"viewName": "",
+		"viewStartTime": "1970-01-01T00:00:00Z",
+		"queryParameters": [],
+		"parsingMode": "Manual"
+	},
+	"searchSchedule": {
+		"cronExpression": "0 0 * * * ? *",
+		"displayableTimeRange": "-10m",
+		"parseableTimeRange": {
+			"type": "BeginBoundedTimeRange",
+			"from": {
+				"type": "RelativeTimeRangeBoundary",
+				"relativeTime": "-50m"
+			},
+			"to": null
+		},
+		"timeZone": "America/Los_Angeles",
+		"threshold": null,
+		"notification": {
+			"taskType": "EmailSearchNotificationSyncDefinition",
+			"toList": ["ops@acme.org"],
+			"subjectTemplate": "Search Results: {{SearchName}}",
+			"includeQuery": true,
+			"includeResultSet": true,
+			"includeHistogram": false,
+			"includeCsvAttachment": false
+		},
+		"scheduleType": "1Hour",
+		"muteErrorEmails": false,
+		"parameters": []
+	},
+	"description": "Runs every hour with timerange of 15m and sends email notifications"
+}`
 
 func testAccSumologicContent(parentId string, configJson string) string {
 	return fmt.Sprintf(`
