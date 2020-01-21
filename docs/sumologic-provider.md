@@ -61,7 +61,7 @@ provider "sumologic" { }
 
 ```bash
 $ export SUMOLOGIC_ACCESSID="your-access-id"
-$ export SUMOLOGIC_ACCESSKEY="your-access-id"
+$ export SUMOLOGIC_ACCESSKEY="your-access-key"
 $ terraform plan
 ```
 
