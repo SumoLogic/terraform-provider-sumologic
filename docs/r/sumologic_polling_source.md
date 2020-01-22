@@ -56,6 +56,7 @@ In addition to the common properties, the following arguments are supported:
 
 ## Attributes reference
 - `id` - The internal ID of the source.
+- `url` - The HTTP endpoint to use with [SNS to notify Sumo Logic of new files](https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-S3-Source#Set_up_SNS_in_AWS_(Optional)).
 
 [Back to Index][0]
 
