@@ -16,6 +16,10 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 				return nil, err
 			}
 		}
+	} else {
+		if data == nil {
+			return nil, nil
+		}
 	}
 
 	var spartition Partition
