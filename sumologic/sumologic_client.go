@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -35,6 +36,17 @@ var endpoints = map[string]string{
 
 var rateLimiter = time.Tick(time.Minute / 240)
 
+func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/2.0.0")
+	req.SetBasicAuth(accessID, accessKey)
+	return req, nil
+}
+
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
 	relativeURL, err := url.Parse(urlPath)
 	if err != nil {
@@ -48,13 +60,10 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 		return nil, nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body))
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
@@ -85,13 +94,10 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, err := http.NewRequest(http.MethodGet, sumoURL.String(), nil)
+	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, "", err
 	}
-
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
@@ -123,9 +129,10 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
-	req, _ := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body))
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
+	if err != nil {
+		return nil, err
+	}
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
@@ -149,9 +156,10 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	req, _ := http.NewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)))
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)), s.AccessID, s.AccessKey)
+	if err != nil {
+		return nil, err
+	}
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
@@ -179,11 +187,11 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
-	req, _ := http.NewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body))
-	req.Header.Add("Content-Type", "application/json")
+	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Add("If-Match", etag)
-
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
@@ -208,9 +216,10 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, _ := http.NewRequest(http.MethodGet, sumoURL.String(), nil)
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
+	if err != nil {
+		return nil, "", err
+	}
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
@@ -237,9 +246,10 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, _ := http.NewRequest(http.MethodDelete, sumoURL.String(), nil)
-	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey)
+	if err != nil {
+		return nil, err
+	}
 
 	<-rateLimiter
 	resp, err := s.httpClient.Do(req)
