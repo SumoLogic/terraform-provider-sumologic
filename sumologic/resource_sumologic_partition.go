@@ -13,7 +13,6 @@ func resourceSumologicPartition() *schema.Resource {
 		Read:   resourceSumologicPartitionRead,
 		Delete: resourceSumologicPartitionDelete,
 		Update: resourceSumologicPartitionUpdate,
-		Exists: resourceSumologicPartitionExists,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -119,16 +118,6 @@ func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	return resourceSumologicPartitionRead(d, meta)
-}
-func resourceSumologicPartitionExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	c := meta.(*Client)
-
-	spartition, err := c.GetPartition(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	return spartition != nil, nil
 }
 
 func resourceToPartition(d *schema.ResourceData) Partition {
