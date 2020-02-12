@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -13,7 +12,6 @@ import (
 func TestAccFolderCreate(t *testing.T) {
 	var folder Folder
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
-	personalFolderId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,13 +19,12 @@ func TestAccFolderCreate(t *testing.T) {
 		CheckDestroy: testAccCheckFolderDestroy(folder),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicFolder(rName, personalFolderId),
+				Config: testAccSumologicFolder(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
 					testAccCheckFolderAttributes("sumologic_folder.test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
-					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
 				),
 			},
 		},
@@ -37,7 +34,6 @@ func TestAccFolderCreate(t *testing.T) {
 func TestAccFolderUpdate(t *testing.T) {
 	var folder Folder
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
-	personalFolderId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -45,23 +41,21 @@ func TestAccFolderUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckFolderDestroy(folder),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicFolder(rName, personalFolderId),
+				Config: testAccSumologicFolder(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
 					testAccCheckFolderAttributes("sumologic_folder.test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
-					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
 				),
 			},
 			{
-				Config: testAccSumologicFolderUpdate(rName, personalFolderId),
+				Config: testAccSumologicFolderUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFolderExists("sumologic_folder.test", &folder, t),
 					testAccCheckFolderAttributes("sumologic_folder.test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "description", "Update test"),
 					resource.TestCheckResourceAttr("sumologic_folder.test", "name", rName),
-					resource.TestCheckResourceAttr("sumologic_folder.test", "parent_id", personalFolderId),
 				),
 			},
 		},
@@ -112,22 +106,24 @@ func testAccCheckFolderDestroy(folder Folder) resource.TestCheckFunc {
 	}
 }
 
-func testAccSumologicFolder(name string, parentId string) string {
+func testAccSumologicFolder(name string) string {
 	return fmt.Sprintf(`
+data "sumologic_personal_folder" "personalFolder" {}
 resource "sumologic_folder" "test" {
   name = "%s"
-  parent_id = "%s"
+  parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
   description = "test"
 }
-`, name, parentId)
+`, name)
 }
 
-func testAccSumologicFolderUpdate(name string, parentId string) string {
+func testAccSumologicFolderUpdate(name string) string {
 	return fmt.Sprintf(`
+data "sumologic_personal_folder" "personalFolder" {}
 resource "sumologic_folder" "test" {
   name = "%s"
-  parent_id = "%s"
+  parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
   description = "Update test"
 }
-`, name, parentId)
+`, name)
 }

@@ -3,8 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 
@@ -15,20 +13,17 @@ import (
 //Testing create functionality for Content resources
 func TestAccContentCreate(t *testing.T) {
 	var content Content
-	personalContentId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContentDestroy,
+		CheckDestroy: testAccCheckContentDestroy(content),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicContent(personalContentId, configJson),
+				Config: testAccSumologicContent(configJson),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContentExists("sumologic_content.test", &content, t),
 					testAccCheckContentAttributes("sumologic_content.test"),
-					//					testAccCheckContentConfig(&content),
-					resource.TestCheckResourceAttr("sumologic_content.test", "parent_id", personalContentId),
 				),
 			},
 		},
@@ -37,28 +32,23 @@ func TestAccContentCreate(t *testing.T) {
 
 func TestAccContentUpdate(t *testing.T) {
 	var content Content
-	personalContentId := os.Getenv("SUMOLOGIC_PF")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContentDestroy,
+		CheckDestroy: testAccCheckContentDestroy(content),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicContent(personalContentId, configJson),
+				Config: testAccSumologicContent(configJson),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContentExists("sumologic_content.test", &content, t),
 					testAccCheckContentAttributes("sumologic_content.test"),
-					//                                      testAccCheckContentConfig(&content),
-					resource.TestCheckResourceAttr("sumologic_content.test", "parent_id", personalContentId),
 				),
 			}, {
-				Config: testAccSumologicContent(personalContentId, updateConfigJson),
+				Config: testAccSumologicContent(updateConfigJson),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContentExists("sumologic_content.test", &content, t),
 					testAccCheckContentAttributes("sumologic_content.test"),
-					//                                      testAccCheckContentConfig(&content),
-					resource.TestCheckResourceAttr("sumologic_content.test", "parent_id", personalContentId),
 				),
 			},
 		},
@@ -90,7 +80,6 @@ func testAccCheckContentExists(name string, content *Content, t *testing.T) reso
 func testAccCheckContentAttributes(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		f := resource.ComposeTestCheckFunc(
-			//			resource.TestCheckResourceAttrSet(name, "config"),
 			resource.TestCheckResourceAttrSet(name, "parent_id"),
 		)
 		return f(s)
@@ -111,22 +100,15 @@ func testAccCheckContentConfig(content *Content) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckContentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*Client)
-	for _, r := range s.RootModule().Resources {
-		id := r.Primary.ID
-		log.Printf("Checking if ID is Destroyed: %s", id)
-		c, err := client.GetContent(id)
-
-		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
-		}
-
-		if c != nil {
+func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		client := testAccProvider.Meta().(*Client)
+		_, err := client.GetContent(content.ID)
+		if err == nil {
 			return fmt.Errorf("Content still exists")
 		}
+		return nil
 	}
-	return nil
 }
 
 var updateConfigJson = `{
@@ -211,13 +193,14 @@ var configJson = `{
 	"description": "Runs every hour with timerange of 15m and sends email notifications"
 }`
 
-func testAccSumologicContent(parentId string, configJson string) string {
+func testAccSumologicContent(configJson string) string {
 	return fmt.Sprintf(`
+data "sumologic_personal_folder" "personalFolder" {}
 resource "sumologic_content" "test" {
-  parent_id = "%s"
+  parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
   config = <<JSON
 %s
 JSON
 }
-`, parentId, configJson)
+`, configJson)
 }
