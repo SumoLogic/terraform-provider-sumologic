@@ -1,0 +1,65 @@
+<% wrap_layout :inner do %>
+    <% content_for :sidebar do %>
+      <div class="docs-sidebar hidden-print affix-top" role="complementary">
+        <ul class="nav docs-sidenav">
+          <li>
+          <a href="/docs/providers/index.html">All Providers</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/sumologic/index.html">Sumo Logic Provider</a>
+          </li>
+  
+          <li>
+            <a href="#">Data Sources</a>
+            <ul class="nav nav-visible">
+              <li>
+                <a href="/docs/providers/sumologic/d/caller_identity.html">sumologic_caller_identity</a>
+              </li>
+              <li>
+                <a href="/docs/providers/sumologic/d/collector.html">sumologic_collector</a>
+              </li>
+            </ul>
+          </li>
+  
+          <li>
+          <a href="#">Resources</a>
+          <ul class="nav nav-visible">
+            <li>
+              <a href="/docs/providers/sumologic/r/cloudsyslog_source.html">sumologic_cloudsyslog_source</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/collector_ingest_budget_assignment.html">sumologic_collector_ingest_budget_assignment</a>
+            </li>
+            <li>
+            <a href="/docs/providers/sumologic/r/collector.html">sumologic_collector</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/folder.html">sumologic_folder</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/http_source.html">sumologic_http_source</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/ingest_budget.html">sumologic_ingest_budget</a>
+            </li>
+            <li>
+                <a href="/docs/providers/sumologic/r/polling_source.html">sumologic_polling_source</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/role.html">sumologic_role</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/scheduled_view.html">sumologic_scheduled_view</a>
+            </li>
+            <li>
+              <a href="/docs/providers/sumologic/r/user.html">sumologic_user</a>
+            </li>
+          </ul>
+          </li>
+        </ul>
+      </div>
+    <% end %>
+  
+    <%= yield %>
+    <% end %>

@@ -1,3 +1,9 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_scheduled_view"
+description: |-
+  Provides a Sumologic Scheduled View
+---
 
 # sumologic_scheduled_view
 Provides a [Sumologic Scheduled View][1].

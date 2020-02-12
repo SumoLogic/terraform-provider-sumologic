@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_collector"
+description: |-
+  Provides a way to retrieve Sumo Logic collector details (id, names, etc) for a collector managed by another terraform stack.
+---
+
 # sumologic_collector
 
 Provides a way to retrieve Sumo Logic collector details (id, names, etc) for a collector

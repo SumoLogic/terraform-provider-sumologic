@@ -1,3 +1,9 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_user"
+description: |-
+  Provides a Sumologic User
+---
 
 # sumologic_user
 Provides a [Sumologic User][1].

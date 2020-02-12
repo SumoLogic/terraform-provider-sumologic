@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_collector"
+description: |-
+  Provides a Sumologic (Hosted) Collector.
+---
+
 # sumologic_collector
 Provides a [Sumologic (Hosted) Collector][1].
 

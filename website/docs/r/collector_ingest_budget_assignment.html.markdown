@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_collector_ingest_budget_assignment"
+description: |-
+  Assigns a Sumologic Collector to a Sumologic Ingest Budget.
+---
+
 # sumologic_collector_ingest_budget_assignment
 Assigns a [Sumologic Collector][1] to a [Sumologic Ingest Budget][2].
 
