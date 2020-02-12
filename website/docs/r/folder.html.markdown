@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_folder"
+description: |-
+  Provides the ability to create, read, delete, update, and manage of folders.
+---
+
 # sumologic_folder
 Provides the ability to create, read, delete, update, and manage of folders.
 

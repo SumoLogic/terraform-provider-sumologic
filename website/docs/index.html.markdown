@@ -1,5 +1,12 @@
+---
+layout: "sumologic"
+page_title: "Provider: SumoLogic"
+description: |-
+  This provider is used to manage resources supported by Sumologic.
+---
+
 # Sumologic Provider
-This provider is used to manage collectors and sources supported by Sumologic. The provider needs to be configured with the proper credentials before it can be used.
+This provider is used to manage resources supported by Sumologic. The provider needs to be configured with the proper credentials before it can be used.
 
 ## Example Usage
 ```hcl
@@ -68,10 +75,5 @@ $ terraform plan
 ## Argument Reference
 - `access_id` - (Optional) This is the Sumo Logic Access ID. It must be provided, but it can also be source from the SUMOLOGIC_ACCESSID environment variable.
 - `access_key` - (Optional) This is the Sumo Logic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSKEY variable.
-- `environment` - (Optional) This is the API endpoint to use. Default is `us2`. See the [Sumo Logic documentation][1] for details on which environment you should use. This value can also be source from the SUMOLOGIC_ENVIRONMENT variable.
+- `environment` - (Optional) This is the API endpoint to use. Default is `us2`. See the [Sumo Logic documentation](https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security) for details on which environment you should use. This value can also be source from the SUMOLOGIC_ENVIRONMENT variable.
 - `base_url` - (Optional) This is the API endpoint base URL to use. You can specify that instead of the environment. It can also be sourced from SUMOLOGIC_BASE_URL environment variable.
-
-[Back to Index][0]
-
-[0]: README.md
-[1]: https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security

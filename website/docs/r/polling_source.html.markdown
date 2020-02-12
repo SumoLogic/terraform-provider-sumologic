@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_polling_source"
+description: |-
+  Provides a Sumologic Polling source. This source is used to import data from  AWS S3 buckets.
+---
+
 # sumologic_polling_source
 Provides a Sumologic Polling source. This source is used to import data from  AWS S3 buckets.
 

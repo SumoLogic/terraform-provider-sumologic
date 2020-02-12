@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_ingest_budget"
+description: |-
+  Provides a Sumologic Ingest Budget
+---
+
 # sumologic_ingest_budget
 Provides a [Sumologic Ingest Budget][1].
 

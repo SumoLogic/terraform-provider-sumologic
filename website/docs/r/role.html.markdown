@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_role"
+description: |-
+  Provides a Sumologic Role
+---
+
 # sumologic_role
 Provides a [Sumologic Role][1].
 

@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_cloudsyslog_source"
+description: |-
+  Provides a Sumo Logic Cloud Syslog source.
+---
+
 # sumologic_cloudsyslog_source
 
 Provides a [Sumo Logic Cloud Syslog source][1].

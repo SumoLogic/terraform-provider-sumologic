@@ -1,3 +1,10 @@
+---
+layout: "sumologic"
+page_title: "SumoLogic: sumologic_http_source"
+description: |-
+  Provides a Sumologic HTTP source
+---
+
 # sumologic_http_source
 Provides a [Sumologic HTTP source][1].
 
