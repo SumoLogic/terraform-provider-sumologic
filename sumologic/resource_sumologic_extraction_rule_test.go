@@ -21,7 +21,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccFieldExtractionRuleCreate(t *testing.T) {
+func TestAccSumologicFieldExtractionRule_basic(t *testing.T) {
+	var fieldextractionrule FieldExtractionRule
+	testName := FieldsMap["FieldExtractionRule"]["name"]
+	testScope := FieldsMap["FieldExtractionRule"]["scope"]
+	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
+	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFieldExtractionRuleDestroy(fieldextractionrule),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckSumologicFieldExtractionRuleConfigImported(testName, testScope, testParseExpression, testEnabled),
+			},
+			{
+				ResourceName:      "sumologic_field_extraction_rule.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccFieldExtractionRule_create(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
 	testName := FieldsMap["FieldExtractionRule"]["name"]
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
@@ -88,7 +112,7 @@ func testAccCheckFieldExtractionRuleExists(name string, fieldextractionrule *Fie
 	}
 }
 
-func TestAccFieldExtractionRuleUpdate(t *testing.T) {
+func TestAccFieldExtractionRule_update(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
 	testName := FieldsMap["FieldExtractionRule"]["name"]
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
@@ -129,6 +153,17 @@ func TestAccFieldExtractionRuleUpdate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckSumologicFieldExtractionRuleConfigImported(name string, scope string, parseExpression string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "sumologic_field_extraction_rule" "foo" {
+      name = "%s"
+      scope = "%s"
+      parse_expression = "%s"
+      enabled = %t
+}
+`, name, scope, parseExpression, enabled)
 }
 
 func testAccSumologicFieldExtractionRule(name string, scope string, parseExpression string, enabled bool) string {

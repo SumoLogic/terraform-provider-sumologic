@@ -21,7 +21,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccRoleCreate(t *testing.T) {
+func TestAccSumologicRole_basic(t *testing.T) {
+	var role Role
+	testName := FieldsMap["Role"]["name"]
+	testDescription := FieldsMap["Role"]["description"]
+	testFilterPredicate := FieldsMap["Role"]["filterPredicate"]
+	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRoleDestroy(role),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckSumologicRoleConfigImported(testName, testDescription, testFilterPredicate, testCapabilities),
+			},
+			{
+				ResourceName:      "sumologic_role.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccRole_create(t *testing.T) {
 	var role Role
 	testName := FieldsMap["Role"]["name"]
 	testDescription := FieldsMap["Role"]["description"]
@@ -88,7 +112,7 @@ func testAccCheckRoleExists(name string, role *Role, t *testing.T) resource.Test
 	}
 }
 
-func TestAccRoleUpdate(t *testing.T) {
+func TestAccRole_update(t *testing.T) {
 	var role Role
 	testName := FieldsMap["Role"]["name"]
 	testDescription := FieldsMap["Role"]["description"]
@@ -129,6 +153,17 @@ func TestAccRoleUpdate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckSumologicRoleConfigImported(name string, description string, filterPredicate string, capabilities []string) string {
+	return fmt.Sprintf(`
+resource "sumologic_role" "foo" {
+      name = "%s"
+      description = "%s"
+      filter_predicate = "%s"
+      capabilities = %v
+}
+`, name, description, filterPredicate, capabilities)
 }
 
 func testAccSumologicRole(name string, description string, filterPredicate string, capabilities []string) string {

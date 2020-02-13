@@ -13,7 +13,7 @@ import (
 )
 
 //Testing create functionality for Content resources
-func TestAccContentCreate(t *testing.T) {
+func TestAccContent_create(t *testing.T) {
 	var content Content
 	personalContentId := os.Getenv("SUMOLOGIC_PF")
 
@@ -35,7 +35,7 @@ func TestAccContentCreate(t *testing.T) {
 	})
 }
 
-func TestAccContentUpdate(t *testing.T) {
+func TestAccContent_update(t *testing.T) {
 	var content Content
 	personalContentId := os.Getenv("SUMOLOGIC_PF")
 

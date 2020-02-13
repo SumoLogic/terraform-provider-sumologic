@@ -21,7 +21,32 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccUserCreate(t *testing.T) {
+func TestAccSumologicUser_basic(t *testing.T) {
+	var user User
+	testFirstName := FieldsMap["User"]["firstName"]
+	testLastName := FieldsMap["User"]["lastName"]
+	testEmail := FieldsMap["User"]["email"]
+	testRoleIds := []string{"\"" + FieldsMap["User"]["roleIds"] + "\""}
+	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckUserDestroy(user),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckSumologicUserConfigImported(testFirstName, testLastName, testEmail, testRoleIds, testIsActive),
+			},
+			{
+				ResourceName:      "sumologic_user.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccUser_create(t *testing.T) {
 	var user User
 	testFirstName := FieldsMap["User"]["firstName"]
 	testLastName := FieldsMap["User"]["lastName"]
@@ -90,7 +115,7 @@ func testAccCheckUserExists(name string, user *User, t *testing.T) resource.Test
 	}
 }
 
-func TestAccUserUpdate(t *testing.T) {
+func TestAccUser_update(t *testing.T) {
 	var user User
 	testFirstName := FieldsMap["User"]["firstName"]
 	testLastName := FieldsMap["User"]["lastName"]
@@ -135,6 +160,18 @@ func TestAccUserUpdate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckSumologicUserConfigImported(firstName string, lastName string, email string, roleIds []string, isActive bool) string {
+	return fmt.Sprintf(`
+resource "sumologic_user" "foo" {
+      first_name = "%s"
+      last_name = "%s"
+      email = "%s"
+      role_ids = %v
+      is_active = %t
+}
+`, firstName, lastName, email, roleIds, isActive)
 }
 
 func testAccSumologicUser(firstName string, lastName string, email string, roleIds []string, isActive bool) string {
