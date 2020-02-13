@@ -26,7 +26,9 @@ resource "sumologic_role" "example_role" {
 ```
 
 ## Argument reference
+
 The following arguments are supported:
+
 - `name` - (Required) The name of the role.
 - `description` - (Optional) The description of the role.
 - `filter_predicate` - (Optional) A search filter to restrict access to specific logs.
@@ -35,8 +37,8 @@ The following arguments are supported:
 - `lookup_by_name` - (Optional) Configures an existent role using the same 'name' or creates a new one if non existent. Defaults to false.
 - `destroy` - (Optional) Whether or not to delete the role in Sumo when it is removed from Terraform.  Defaults to true.
 
-## Attributes reference
 The following attributes are exported:
+
 - `id` - The internal ID of the role.
 
 

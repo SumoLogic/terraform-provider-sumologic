@@ -19,7 +19,9 @@ resource "sumologic_ingest_budget" "budget" {
 ```
 
 ## Argument reference
+
 The following arguments are supported:
+
 - `name` - (Required) Display name of the ingest budget. This must be unique across all of the ingest budgets
 - `field_value` - (Required) Custom field value that is used to assign Collectors to the ingest budget.
 - `capacity_bytes` - (Required) Capacity of the ingest budget, in bytes.
@@ -29,10 +31,9 @@ The following arguments are supported:
 - `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
 - `description` - (Optional) Description of the ingest budget.
 - `action` - (Optional) Action to take when ingest budget's capacity is reached. All actions are audited. Supported values are `stopCollecting` and `keepCollecting`.
-                        
 
-## Attributes reference
 The following attributes are exported:
+
 - `id` - The internal ID of the ingest budget. This can be used to assign collectors to the ingest budget.
 
 ## Import

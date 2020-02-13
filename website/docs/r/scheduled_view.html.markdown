@@ -25,15 +25,17 @@ QUERY
 ```
 
 ## Argument reference
+
 The following arguments are supported:
+
 - `index_name` - (Required) Name of the index (scheduled view).
 - `query` - (Required) Log query defining the scheduled view.
 - `start_time` - (Required) Starting date/time for log indexing.
 - `retention_period` - (Optional) Number of days to keep the scheduled view data for.
 - `data_forwarding_id` - (Optional) ID of a data forwarding configuration to be used by the scheduled view.
 
-## Attributes reference
 The following attributes are exported:
+
 - `id` - The internal ID of the scheduled view.
 
 [Back to Index][0]

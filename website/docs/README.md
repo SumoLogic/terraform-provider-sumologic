@@ -5,6 +5,7 @@
 #### Data Sources
   + [sumologic_caller_identity][10]
   + [sumologic_collector][11]
+  + [sumologic_personal_folder][12]
 
 #### Resources
 ##### Sources
@@ -23,6 +24,10 @@
   
 ##### Content
   + [sumologic_scheduled_view][40]
+  + [sumologic_partition][41]
+  + [sumologic_extraction_rule][42]
+  + [sumologic_folder][43]
+  + [sumologic_content][44]
 
 #### Common Source Properties
 
@@ -47,16 +52,21 @@ The following properties are common to ALL sources and can be used to configure 
 - `lookup_by_name` - (Optional) Configures an existent collector using the same 'name' or creates a new one if non existent. Defaults to false.
 - `destroy` - (Optional) Whether or not to delete the collector in Sumo when it is removed from Terraform.  Defaults to true.
 
-[0]: sumologic-provider.md
+[0]: index.html.markdown
 [2]: https://en.wikipedia.org/wiki/Tz_database
-[10]: d/sumologic_caller_identity.md
-[11]: d/sumologic_collector.md
-[20]: r/sumologic_collector.md
-[21]: r/sumologic_http_source.md
-[22]: r/sumologic_polling_source.md
-[23]: r/sumologic_cloudsyslog_source.md
-[24]: r/sumologic_collector_ingest_budget_assignment.md
-[25]: r/sumologic_ingest_budget.md
-[30]: r/sumologic_role.md
-[31]: r/sumologic_user.md
-[40]: r/sumologic_scheduled_view.md
+[10]: d/caller_identity.html.markdown
+[11]: d/collector.html.markdown
+[12]: d/personal_folder.html.markdown
+[20]: r/collector.html.markdown
+[21]: r/http_source.html.markdown
+[22]: r/polling_source.html.markdown
+[23]: r/cloudsyslog_source.html.markdown
+[24]: r/collector_ingest_budget_assignment.html.markdown
+[25]: r/ingest_budget.html.markdown
+[30]: r/role.html.markdown
+[31]: r/user.html.markdown
+[40]: r/scheduled_view.html.markdown
+[41]: r/partition.html.markdown
+[42]: r/extraction_rule.html.markdown
+[43]: r/folder.html.markdown
+[44]: r/content.html.markdown

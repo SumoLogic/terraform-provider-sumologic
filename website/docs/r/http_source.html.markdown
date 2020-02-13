@@ -26,11 +26,13 @@ resource "sumologic_collector" "collector" {
 ```
 
 ## Argument reference
+
 In addition to the common properties, the following arguments are supported:
+
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
 
-## Attributes reference
 The following attributes are exported:
+
 - `id` - The internal ID of the source.
 - `url` - The HTTP endpoint to use for sending data to this source.
 

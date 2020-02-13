@@ -48,7 +48,9 @@ resource "sumologic_collector" "collector" {
 ```
 
 ## Argument reference
+
 In addition to the common properties, the following arguments are supported:
+
  - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
@@ -61,7 +63,8 @@ In addition to the common properties, the following arguments are supported:
      + `bucket_name` - (Required) The name of the bucket.
      + `path_expression` - (Required) The path to the data.
 
-## Attributes reference
+The following attributes are exported:
+
 - `id` - The internal ID of the source.
 - `url` - The HTTP endpoint to use with [SNS to notify Sumo Logic of new files](https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-S3-Source#Set_up_SNS_in_AWS_(Optional)).
 

@@ -23,12 +23,15 @@ Unfortunately, the only way to find the parent folder's hexadecimal ID is by sen
 In the future, there will be a button in the UI that will reveal the hex ID.
 
 ## Argument reference
+
 The following arguments are supported:
+
 - `name` - (Required) The name of the folder. This is required, and has to be unique.
 - `parent_id` - (Required) The ID of the folder in which you want to create the new folder.
 - `description` - (Optional) The description of the folder.
 
-## Additional data provided in state
+Additional data provided in state
+
 - `created_at` - (Computed) When the folder was created.
 - `created_by` - (Computed) Who created the folder.
 - `modified_at` - (Computed) When was the folder last modified.
