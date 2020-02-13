@@ -121,17 +121,6 @@ func resourceSumologicUserUpdate(d *schema.ResourceData, meta interface{}) error
 	return resourceSumologicUserRead(d, meta)
 }
 
-func resourceSumologicUserExists(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	_, err := c.GetUser(d.Id())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func resourceToUser(d *schema.ResourceData) User {
 	rawRoleIds := d.Get("role_ids").([]interface{})
 	roleIds := make([]string, len(rawRoleIds))

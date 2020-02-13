@@ -34,7 +34,7 @@ var endpoints = map[string]string{
 	"ca":  "https://api.ca.sumologic.com/api/",
 }
 
-var rateLimiter = time.Tick(time.Minute / 240)
+var rateLimiter = time.NewTicker(time.Minute / 240)
 
 func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
@@ -65,7 +65,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 		return nil, nil, err
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, nil, err
@@ -103,7 +103,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 		req.AddCookie(cookie)
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, "", err
@@ -134,7 +134,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 		return nil, err
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 
 	if err != nil {
@@ -193,7 +193,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	}
 	req.Header.Add("If-Match", etag)
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -221,7 +221,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, "", err
@@ -251,7 +251,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
-	<-rateLimiter
+	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return nil, err
