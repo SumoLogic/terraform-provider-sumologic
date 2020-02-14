@@ -165,7 +165,7 @@ func resourceSumologicSource() *schema.Resource {
 				Default:  nil,
 			},
 			"fields": {
-				Type:     schema.TypeMap,
+				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

@@ -43,7 +43,7 @@ func resourceSumologicCollector() *schema.Resource {
 				Default:  "Etc/UTC",
 			},
 			"fields": {
-				Type:     schema.TypeMap,
+				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
