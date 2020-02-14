@@ -32,7 +32,6 @@ func resourceSumologicPollingSource() *schema.Resource {
 	}
 	pollingSource.Schema["url"] = &schema.Schema{
 		Type:     schema.TypeString,
-		Required: false,
 		ForceNew: false,
 		Computed: true,
 	}

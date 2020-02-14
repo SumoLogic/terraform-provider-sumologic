@@ -33,6 +33,9 @@ func dataSourceSumologicCollector() *schema.Resource {
 			},
 			"fields": {
 				Type:     schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Computed: true,
 			},
 			"timezone": {
