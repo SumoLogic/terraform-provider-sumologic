@@ -1,9 +1,7 @@
 package sumologic
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,7 +9,7 @@ import (
 )
 
 //Testing create functionality for Content resources
-func TestAccContentCreate(t *testing.T) {
+func TestAccContent_create(t *testing.T) {
 	var content Content
 
 	resource.Test(t, resource.TestCase{
@@ -30,7 +28,7 @@ func TestAccContentCreate(t *testing.T) {
 	})
 }
 
-func TestAccContentUpdate(t *testing.T) {
+func TestAccContent_update(t *testing.T) {
 	var content Content
 
 	resource.Test(t, resource.TestCase{
@@ -83,20 +81,6 @@ func testAccCheckContentAttributes(name string) resource.TestCheckFunc {
 			resource.TestCheckResourceAttrSet(name, "parent_id"),
 		)
 		return f(s)
-	}
-}
-
-func testAccCheckContentConfig(content *Content) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		var expectedContent Content
-		//unmarshal the expected config for comparison. Ignore the error here, configuration is known
-		_ = json.Unmarshal([]byte(configJson), &expectedContent)
-
-		//if the configuration structs are not equal
-		if !reflect.DeepEqual(expectedContent, content) {
-			return fmt.Errorf("Configuration is not equal, %v does not match expected %v", content, expectedContent)
-		}
-		return nil
 	}
 }
 

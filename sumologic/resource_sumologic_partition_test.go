@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumoLogicPartition(t *testing.T) {
+func TestAccSumoLogicPartition_basic(t *testing.T) {
 	testName := acctest.RandString(16)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

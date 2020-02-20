@@ -13,7 +13,6 @@ func resourceSumologicScheduledView() *schema.Resource {
 		Read:   resourceSumologicScheduledViewRead,
 		Delete: resourceSumologicScheduledViewDelete,
 		Update: resourceSumologicScheduledViewUpdate,
-		Exists: resourceSumologicScheduledViewExists,
 
 		Schema: map[string]*schema.Schema{
 			"query": {
@@ -32,7 +31,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
-				ValidateFunc: validation.ValidateRFC3339TimeString,
+				ValidateFunc: validation.IsRFC3339Time,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -90,7 +89,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 
 	d.Set("query", sview.Query)
 	d.Set("index_name", sview.IndexName)
-	d.Set("start_time", sview.StartTime)
+	d.Set("start_time", sview.StartTime.Format(time.RFC3339))
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
 
@@ -111,16 +110,6 @@ func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface
 	}
 
 	return resourceSumologicScheduledViewRead(d, meta)
-}
-func resourceSumologicScheduledViewExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	c := meta.(*Client)
-
-	sview, err := c.GetScheduledView(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	return sview != nil, nil
 }
 
 func resourceToScheduledView(d *schema.ResourceData) ScheduledView {

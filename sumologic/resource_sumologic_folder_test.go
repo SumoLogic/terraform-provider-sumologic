@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccFolderCreate(t *testing.T) {
+func TestAccFolder_create(t *testing.T) {
 	var folder Folder
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
@@ -31,7 +31,7 @@ func TestAccFolderCreate(t *testing.T) {
 	})
 }
 
-func TestAccFolderUpdate(t *testing.T) {
+func TestAccFolder_update(t *testing.T) {
 	var folder Folder
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 

@@ -112,17 +112,6 @@ func resourceSumologicFieldExtractionRuleUpdate(d *schema.ResourceData, meta int
 	return resourceSumologicFieldExtractionRuleRead(d, meta)
 }
 
-func resourceSumologicFieldExtractionRuleExists(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	_, err := c.GetFieldExtractionRule(d.Id())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func resourceToFieldExtractionRule(d *schema.ResourceData) FieldExtractionRule {
 
 	return FieldExtractionRule{
