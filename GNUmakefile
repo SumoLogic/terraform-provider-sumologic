@@ -2,7 +2,7 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
-DIR=~/.terraform.d/plugins
+PLUGIN_DIR=~/.terraform.d/plugins
 
 default: build
 
@@ -14,11 +14,11 @@ build: fmtcheck
 	go install
 
 install: fmtcheck
-	mkdir -vp $(DIR)
-	go build -o $(DIR)/terraform-provider-sumologic
+	mkdir -vp $(PLUGIN_DIR)
+	go build -o $(PLUGIN_DIR)/terraform-provider-sumologic
 
 uninstall:
-	@rm -vf $(DIR)/terraform-provider-sumologic
+	@rm -vf $(PLUGIN_DIR)/terraform-provider-sumologic
 
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
@@ -68,4 +68,4 @@ ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
 endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck lint tools test-compile website website-lint website-test
+.PHONY: build install uninstall test testacc vet fmt fmtcheck errcheck lint tools test-compile website website-lint website-test
