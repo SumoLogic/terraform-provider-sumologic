@@ -119,17 +119,6 @@ func resourceSumologicRoleUpdate(d *schema.ResourceData, meta interface{}) error
 	return resourceSumologicRoleRead(d, meta)
 }
 
-func resourceSumologicRoleExists(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	_, err := c.GetRole(d.Id())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func resourceToRole(d *schema.ResourceData) Role {
 	rawCapabilities := d.Get("capabilities").([]interface{})
 	capabilities := make([]string, len(rawCapabilities))
