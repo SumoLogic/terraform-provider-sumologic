@@ -5,12 +5,10 @@ var FieldsMap = map[string]map[string]string{
 		"firstName":        "Test",
 		"lastName":         "User",
 		"email":            "testterraform@demo.com",
-		"roleIds":          "00000000009AA20F",
 		"isActive":         "true",
 		"updatedFirstName": "TestUpdated",
 		"updatedLastName":  "UserUpdated",
 		"updatedEmail":     "testterraform@demo.com",
-		"updatedRoleIds":   "00000000009AA20F",
 		"updatedIsActive":  "false",
 	},
 
