@@ -31,4 +31,4 @@ Build and install
 
 [0]: https://help.sumologic.com/Manage/Security/Access-Keys
 [1]: https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security
-[10]: docs
+[10]: website/docs/README.md
