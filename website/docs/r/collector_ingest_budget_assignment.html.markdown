@@ -27,12 +27,14 @@ resource "sumologic_collector_ingest_budget_assignment" "assignment" {
 ```
 
 ## Argument reference
+
 The following arguments are supported:
+
 - `collector_id` - (Required) ID of the collector to assign to the ingest budget.
 - `ingest_budget_id` - (Required) ID of the ingest budget to assign the collector to.
 
-## Attributes reference
 The following attributes are exported:
+
 - `id` - The internal ID of the assignment.
 
 [Back to Index][0]

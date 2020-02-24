@@ -33,6 +33,7 @@ Only the common properties are valid.
 ## Attributes reference
 
 The following attributes are exported:
+
 - `id` - The internal ID of the source.
 - `token` - The token to use for sending data to this source.
 
