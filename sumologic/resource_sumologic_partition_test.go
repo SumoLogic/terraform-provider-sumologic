@@ -26,7 +26,7 @@ func TestAccSumoLogicPartition_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "routing_expression", "_sourcecategory=*/Terraform"),
 					resource.TestCheckResourceAttr(
-						"sumologic_partition.foo", "analytics_tier", "enhanced"),
+						"sumologic_partition.foo", "analytics_tier", "continuous"),
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "retention_period", "30"),
 					resource.TestCheckResourceAttr(
@@ -43,7 +43,7 @@ func TestAccSumoLogicPartition_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "routing_expression", "_sourcecategory=*/Terraform"),
 					resource.TestCheckResourceAttr(
-						"sumologic_partition.foo", "analytics_tier", "enhanced"),
+						"sumologic_partition.foo", "analytics_tier", "continuous"),
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "retention_period", "365"),
 					resource.TestCheckResourceAttr(
@@ -89,7 +89,7 @@ func newPartitionConfig(testName string) string {
 resource "sumologic_partition" "foo" {
     name = "terraform_acctest_%s"
     routing_expression = "_sourcecategory=*/Terraform"
-    analytics_tier = "enhanced"
+    analytics_tier = "continuous"
     is_compliant = false
 }
 `, testName)
@@ -100,7 +100,7 @@ func updatePartitionConfig(testName string) string {
 resource "sumologic_partition" "foo" {
     name = "terraform_acctest_%s"
     routing_expression = "_sourcecategory=*/Terraform"
-	analytics_tier = "enhanced"
+	analytics_tier = "continuous"
 	retention_period = 365
 	is_compliant = false
 }
