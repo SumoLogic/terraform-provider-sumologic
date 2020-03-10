@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicCollectorMinimal(t *testing.T) {
+func TestAccSumologicCollector_minimal(t *testing.T) {
 	var collector *Collector
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
@@ -38,7 +38,7 @@ func TestAccSumologicCollectorMinimal(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCollectorSimple(t *testing.T) {
+func TestAccSumologicCollector_simple(t *testing.T) {
 	var collector *Collector
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
@@ -124,7 +124,7 @@ func TestAccSumologicCollectorSimple(t *testing.T) {
 // 	})
 // }
 
-func TestAccSumologicCollectorChangeConfig(t *testing.T) {
+func TestAccSumologicCollector_changeConfig(t *testing.T) {
 	var collector *Collector
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
@@ -165,7 +165,7 @@ func TestAccSumologicCollectorChangeConfig(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCollectorManualDeletion(t *testing.T) {
+func TestAccSumologicCollector_manualDeletion(t *testing.T) {
 	var collector *Collector
 
 	deleteCollector := func() {

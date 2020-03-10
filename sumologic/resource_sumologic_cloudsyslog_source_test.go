@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicCloudsyslogSource(t *testing.T) {
+func TestAccSumologicCloudsyslogSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicHTTPSource(t *testing.T) {
+func TestAccSumologicHTTPSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -23,7 +23,7 @@ func TestAccSumologicHTTPSource(t *testing.T) {
 	})
 }
 
-func TestAccSumologicHTTPSourceUpdate(t *testing.T) {
+func TestAccSumologicHTTPSource_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
