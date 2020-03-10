@@ -274,11 +274,37 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
 	d.Set("use_autoline_matching", source.UseAutolineMatching)
 	d.Set("manual_prefix_regexp", source.ManualPrefixRegexp)
 	d.Set("force_timezone", source.ForceTimeZone)
-	d.Set("default_date_formats", source.DefaultDateFormats)
-	d.Set("filters", source.Filters)
+	d.Set("default_date_formats", flattenDateFormats(source.DefaultDateFormats))
+	d.Set("filters", flattenFilters(source.Filters))
 	d.Set("cutoff_timestamp", source.CutoffTimestamp)
 	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
 	d.Set("fields", source.Fields)
+}
+
+func flattenDateFormats(v []DefaultDateFormat) []map[string]interface{} {
+	var defaultDateDormats []map[string]interface{}
+	for _, d := range v {
+		defaultDateFormat := map[string]interface{}{
+			"format":  d.Format,
+			"locator": d.Locator,
+		}
+		defaultDateDormats = append(defaultDateDormats, defaultDateFormat)
+	}
+	return defaultDateDormats
+}
+
+func flattenFilters(v []Filter) []map[string]interface{} {
+	var filters []map[string]interface{}
+	for _, d := range v {
+		filter := map[string]interface{}{
+			"name":        d.Name,
+			"filter_type": d.FilterType,
+			"regexp":      d.Regexp,
+			"mask":        d.Mask,
+		}
+		filters = append(filters, filter)
+	}
+	return filters
 }
 
 func getDefaultDateFormats(d *schema.ResourceData) []DefaultDateFormat {

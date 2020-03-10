@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccSumologicIngestBudget_basic(t *testing.T) {
+func TestAccSumologicIngestBudget_create(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -25,7 +25,7 @@ func TestAccSumologicIngestBudget_basic(t *testing.T) {
 		}})
 }
 
-func TestAccSumologicIngestBudget_import(t *testing.T) {
+func TestAccSumologicIngestBudget_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
