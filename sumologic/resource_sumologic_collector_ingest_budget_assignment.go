@@ -9,9 +9,10 @@ import (
 
 func resourceSumologicCollectorIngestBudgetAssignment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSumologicCollectorIngestBudgetAssignmentCreate,
-		Read:   resourceSumologicCollectorIngestBudgetAssignmentRead,
-		Delete: resourceSumologicCollectorIngestBudgetAssignmentDelete,
+		DeprecationMessage: "use fields attribute of collector resource instead to assign an ingest budget",
+		Create:             resourceSumologicCollectorIngestBudgetAssignmentCreate,
+		Read:               resourceSumologicCollectorIngestBudgetAssignmentRead,
+		Delete:             resourceSumologicCollectorIngestBudgetAssignmentDelete,
 
 		Schema: map[string]*schema.Schema{
 			"collector_id": {
