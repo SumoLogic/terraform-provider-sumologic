@@ -5,21 +5,23 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSumologicCollector_basic(t *testing.T) {
+	rname := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfigMinimal,
+				Config: testAccSumologicCollectorConfigBasic(rname),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "category", ""),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
@@ -36,18 +38,21 @@ func TestAccSumologicCollector_basic(t *testing.T) {
 }
 
 func TestAccSumologicCollector_create(t *testing.T) {
+	rname := acctest.RandomWithPrefix("tf-acc-test")
+	rdescription := acctest.RandomWithPrefix("tf-acc-test")
+	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
 			},
@@ -56,27 +61,30 @@ func TestAccSumologicCollector_create(t *testing.T) {
 }
 
 func TestAccSumologicCollector_update(t *testing.T) {
+	rname := acctest.RandomWithPrefix("tf-acc-test")
+	rdescription := acctest.RandomWithPrefix("tf-acc-test")
+	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
 			},
 			{
-				Config: testAccSumologicCollectorConfigUpdate,
+				Config: testAccSumologicCollectorConfigUpdate(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector2Updated"),
-					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDescUpdated"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
-					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Europe/Berlin"),
 				),
 			},
 		},
@@ -110,26 +118,29 @@ func testAccCheckCollectorDestroy(s *terraform.State) error {
 	return nil
 }
 
-var testAccSumologicCollectorConfigMinimal = `
+func testAccSumologicCollectorConfigBasic(name string) string {
+	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
-  name = "MyTerraformCollector1"
+	name = "%s"
+}`, name)
 }
-`
 
-var testAccSumologicCollectorConfig = `
+func testAccSumologicCollectorConfig(name, description, category string) string {
+	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
-  name = "MyTerraformCollector2"
-  description = "MyCollectorDesc"
-  category = "Cat"
-  timezone = "Etc/UTC"
+	name = "%s"
+	description = "%s"
+	category = "%s"
+	timezone = "Etc/UTC"
+}`, name, description, category)
 }
-`
 
-var testAccSumologicCollectorConfigUpdate = `
+func testAccSumologicCollectorConfigUpdate(name, description, category string) string {
+	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
-  name = "MyTerraformCollector2Updated"
-  description = "MyCollectorDescUpdated"
-  category = "Cat"
-  timezone = "Etc/UTC"
+	name = "%s"
+	description = "%s"
+	category = "%s"
+	timezone = "Europe/Berlin"
+}`, name, description, category)
 }
-`
