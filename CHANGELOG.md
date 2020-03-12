@@ -13,3 +13,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * resource/sumologic_partition: Fixes decomissioning of partitions [GH-86]
+
+DEPRECATIONS:
+
+* resource/sumologiccollector_ingest_budget_assignment: Deprecated in favor of assigning ingest budgets through the _budget field attribute of collectors [GH-135]
