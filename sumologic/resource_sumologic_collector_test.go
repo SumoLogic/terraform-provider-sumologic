@@ -11,6 +11,7 @@ import (
 )
 
 func TestAccSumologicCollector_basic(t *testing.T) {
+	var collector Collector
 	rname := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
@@ -20,6 +21,8 @@ func TestAccSumologicCollector_basic(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfigBasic(rname),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, "", "", "Etc/UTC"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
@@ -38,6 +41,7 @@ func TestAccSumologicCollector_basic(t *testing.T) {
 }
 
 func TestAccSumologicCollector_create(t *testing.T) {
+	var collector Collector
 	rname := acctest.RandomWithPrefix("tf-acc-test")
 	rdescription := acctest.RandomWithPrefix("tf-acc-test")
 	rcategory := acctest.RandomWithPrefix("tf-acc-test")
@@ -49,6 +53,11 @@ func TestAccSumologicCollector_create(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
+					// query the API to retrieve the collector
+					testAccCheckCollectorExists(resourceName, &collector),
+					// verify remote values
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Etc/UTC"),
+					// verify local values
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
@@ -61,6 +70,7 @@ func TestAccSumologicCollector_create(t *testing.T) {
 }
 
 func TestAccSumologicCollector_update(t *testing.T) {
+	var collector Collector
 	rname := acctest.RandomWithPrefix("tf-acc-test")
 	rdescription := acctest.RandomWithPrefix("tf-acc-test")
 	rcategory := acctest.RandomWithPrefix("tf-acc-test")
@@ -72,6 +82,9 @@ func TestAccSumologicCollector_update(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Etc/UTC"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
 					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
@@ -81,6 +94,9 @@ func TestAccSumologicCollector_update(t *testing.T) {
 			{
 				Config: testAccSumologicCollectorConfigUpdate(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Europe/Berlin"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
 					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
@@ -116,6 +132,51 @@ func testAccCheckCollectorDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func testAccCheckCollectorExists(n string, collector *Collector) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("collector ID is not set")
+		}
+
+		id, err := strconv.Atoi(rs.Primary.ID)
+		if err != nil {
+			return fmt.Errorf("collector id should be int; got %s", rs.Primary.ID)
+		}
+		c := testAccProvider.Meta().(*Client)
+		collectorResp, err := c.GetCollector(id)
+		if err != nil {
+			return err
+		}
+
+		*collector = *collectorResp
+
+		return nil
+	}
+}
+
+func testAccCheckCollectorValues(collector *Collector, name, description, category, timezone string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if collector.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, collector.Name)
+		}
+		if collector.Description != description {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", description, collector.Description)
+		}
+		if collector.Category != category {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", category, collector.Category)
+		}
+		if collector.TimeZone != timezone {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", timezone, collector.TimeZone)
+		}
+		return nil
+	}
 }
 
 func testAccSumologicCollectorConfigBasic(name string) string {

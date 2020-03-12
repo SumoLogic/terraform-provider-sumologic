@@ -27,13 +27,11 @@ func resourceSumologicCollector() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
-				Default:  "",
 			},
 			"category": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
-				Default:  "",
 			},
 			"timezone": {
 				Type:     schema.TypeString,
@@ -48,7 +46,6 @@ func resourceSumologicCollector() *schema.Resource {
 				},
 				Optional: true,
 				ForceNew: false,
-				Default:  "",
 			},
 			"lookup_by_name": {
 				Deprecated: "We are deprecating the lookup_by_name attribute as collectors now have data sources.",
