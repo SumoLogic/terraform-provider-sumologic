@@ -10,6 +10,7 @@ import (
 )
 
 func TestAccSumologicIngestBudget_create(t *testing.T) {
+	var ingestBudget IngestBudget
 	name := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	fieldValue := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	description := fmt.Sprintf("tf-%s", acctest.RandString(10))
@@ -21,6 +22,8 @@ func TestAccSumologicIngestBudget_create(t *testing.T) {
 			{
 				Config: testAccSumologicIngestBudgetConfig(name, fieldValue, description),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIngestBudgetExists("sumologic_ingest_budget.budget", &ingestBudget),
+					testAccCheckIngestBudgetValues(&ingestBudget, name, fieldValue, description, 30000000000),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.budget", "name", name),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.budget", "field_value", fieldValue),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.budget", "capacity_bytes", "30000000000"),
@@ -30,10 +33,17 @@ func TestAccSumologicIngestBudget_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.budget", "action", "keepCollecting"),
 				),
 			},
+			{
+				ResourceName:      "sumologic_ingest_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     name,
+			},
 		}})
 }
 
 func TestAccSumologicIngestBudget_assign(t *testing.T) {
+	var ingestBudget IngestBudget
 	name := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	collectorName := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	fieldValue := fmt.Sprintf("tf-%s", acctest.RandString(5))
@@ -46,6 +56,8 @@ func TestAccSumologicIngestBudget_assign(t *testing.T) {
 			{
 				Config: testAccSumologicIngestBudgetAssignmentConfig(collectorName, name, fieldValue, description),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIngestBudgetExists("sumologic_ingest_budget.testBudget", &ingestBudget),
+					testAccCheckIngestBudgetValues(&ingestBudget, name, fieldValue, description, 2),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "name", name),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "field_value", fieldValue),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "capacity_bytes", "2"),
@@ -55,27 +67,6 @@ func TestAccSumologicIngestBudget_assign(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_collector.testCollector", "name", collectorName),
 					resource.TestCheckResourceAttr("sumologic_collector.testCollector", "fields._budget", fieldValue),
 				),
-			},
-		}})
-}
-
-func TestAccSumologicIngestBudget_basic(t *testing.T) {
-	name := fmt.Sprintf("tf-%s", acctest.RandString(5))
-	fieldValue := fmt.Sprintf("tf-%s", acctest.RandString(5))
-	description := fmt.Sprintf("tf-%s", acctest.RandString(10))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIngestBudgetDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicIngestBudgetConfig(name, fieldValue, description),
-			},
-			{
-				ResourceName:      "sumologic_ingest_budget.budget",
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateId:     name,
 			},
 		}})
 }
@@ -97,6 +88,46 @@ func testAccCheckIngestBudgetDestroy(s *terraform.State) error {
 	}
 	return nil
 
+}
+
+func testAccCheckIngestBudgetExists(n string, ingestBudget *IngestBudget) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// find the corresponding state object
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		// retrieve the configured client from the test setup
+		c := testAccProvider.Meta().(*Client)
+		ingestBudgetResp, err := c.GetIngestBudget(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		// If no error, assign the response ingest budget attribute to the ingest budget pointer
+		*ingestBudget = *ingestBudgetResp
+
+		return nil
+	}
+}
+
+func testAccCheckIngestBudgetValues(ingestBudget *IngestBudget, name, fieldValue, description string, capacity int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ingestBudget.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, ingestBudget.Name)
+		}
+		if ingestBudget.Capacity != capacity {
+			return fmt.Errorf("bad name, expected \"%d\", got: %#v", capacity, ingestBudget.Capacity)
+		}
+		if ingestBudget.FieldValue != fieldValue {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", fieldValue, ingestBudget.FieldValue)
+		}
+		if ingestBudget.Description != description {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", description, ingestBudget.Description)
+		}
+		return nil
+	}
 }
 
 func testAccSumologicIngestBudgetConfig(name, fieldValue, description string) string {
