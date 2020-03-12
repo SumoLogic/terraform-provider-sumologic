@@ -44,6 +44,7 @@ func TestAccSumologicIngestBudget_create(t *testing.T) {
 
 func TestAccSumologicIngestBudget_assign(t *testing.T) {
 	var ingestBudget IngestBudget
+	var collector Collector
 	name := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	collectorName := fmt.Sprintf("tf-%s", acctest.RandString(5))
 	fieldValue := fmt.Sprintf("tf-%s", acctest.RandString(5))
@@ -58,6 +59,8 @@ func TestAccSumologicIngestBudget_assign(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIngestBudgetExists("sumologic_ingest_budget.testBudget", &ingestBudget),
 					testAccCheckIngestBudgetValues(&ingestBudget, name, fieldValue, description, 2),
+					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
+					testAccCheckCollectorValues(&collector, collectorName, "", "", "Etc/UTC", fieldValue),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "name", name),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "field_value", fieldValue),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget.testBudget", "capacity_bytes", "2"),
@@ -118,13 +121,13 @@ func testAccCheckIngestBudgetValues(ingestBudget *IngestBudget, name, fieldValue
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, ingestBudget.Name)
 		}
 		if ingestBudget.Capacity != capacity {
-			return fmt.Errorf("bad name, expected \"%d\", got: %#v", capacity, ingestBudget.Capacity)
+			return fmt.Errorf("bad capacity, expected \"%d\", got: %#v", capacity, ingestBudget.Capacity)
 		}
 		if ingestBudget.FieldValue != fieldValue {
-			return fmt.Errorf("bad name, expected \"%s\", got: %#v", fieldValue, ingestBudget.FieldValue)
+			return fmt.Errorf("bad field value, expected \"%s\", got: %#v", fieldValue, ingestBudget.FieldValue)
 		}
 		if ingestBudget.Description != description {
-			return fmt.Errorf("bad name, expected \"%s\", got: %#v", description, ingestBudget.Description)
+			return fmt.Errorf("bad description, expected \"%s\", got: %#v", description, ingestBudget.Description)
 		}
 		return nil
 	}

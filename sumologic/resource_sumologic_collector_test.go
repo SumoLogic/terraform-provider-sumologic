@@ -5,24 +5,26 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicCollector_minimal(t *testing.T) {
-	var collector *Collector
+func TestAccSumologicCollector_basic(t *testing.T) {
+	var collector Collector
+	rname := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfigMinimal,
+				Config: testAccSumologicCollectorConfigBasic(rname),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists(resourceName, &collector, t),
-					testAccCheckCollectorAttributes(resourceName, &collector),
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, "", "", "Etc/UTC", ""),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "category", ""),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
@@ -38,241 +40,71 @@ func TestAccSumologicCollector_minimal(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCollector_simple(t *testing.T) {
-	var collector *Collector
+func TestAccSumologicCollector_create(t *testing.T) {
+	var collector Collector
+	rname := acctest.RandomWithPrefix("tf-acc-test")
+	rdescription := acctest.RandomWithPrefix("tf-acc-test")
+	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists(resourceName, &collector, t),
-					testAccCheckCollectorAttributes(resourceName, &collector),
+					// query the API to retrieve the collector
+					testAccCheckCollectorExists(resourceName, &collector),
+					// verify remote values
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Etc/UTC", ""),
+					// verify local values
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"lookup_by_name", "destroy"},
 			},
 		},
 	})
 }
 
-// func TestAccSumologicCollectorLookupByName(t *testing.T) {
-// 	var collector *Collector
-// 	resourceName := "sumologic_collector.test"
-// 	resource.Test(t, resource.TestCase{
-// 		Providers:    testAccProviders,
-// 		CheckDestroy: testAccCheckCollectorDestroy,
-// 		// TODO: if we keep lookup_by_name, we need to beef up the tests and have 2 steps
-// 		// TODO: first step creates the resource
-// 		// TODO: second step looks it up by name
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: testAccSumologicCollectorConfigLookupByName,
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckCollectorExists(resourceName, &collector, t),
-// 					testAccCheckCollectorAttributes(resourceName, &collector),
-// 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:            resourceName,
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"lookup_by_name", "destroy"},
-// 			},
-// 		},
-// 	})
-// }
-
-// func TestAccSumologicCollectorAllConfig(t *testing.T) {
-// 	var collector *Collector
-// 	resourceName := "sumologic_collector.test"
-// 	resource.Test(t, resource.TestCase{
-// 		Providers:    testAccProviders,
-// 		CheckDestroy: testAccCheckCollectorDestroy,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: testAccSumologicCollectorConfigAll,
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckCollectorExists(resourceName, &collector, t),
-// 					testAccCheckCollectorAttributes(resourceName, &collector),
-// 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-// 					resource.TestCheckResourceAttr(resourceName, "name", "CollectorName"),
-// 					resource.TestCheckResourceAttr(resourceName, "description", "CollectorDesc"),
-// 					resource.TestCheckResourceAttr(resourceName, "category", "Category"),
-// 					resource.TestCheckResourceAttr(resourceName, "timezone", "Europe/Berlin"),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:            resourceName,
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"lookup_by_name", "destroy"},
-// 			},
-// 		},
-// 	})
-// }
-
-func TestAccSumologicCollector_changeConfig(t *testing.T) {
-	var collector *Collector
+func TestAccSumologicCollector_update(t *testing.T) {
+	var collector Collector
+	rname := acctest.RandomWithPrefix("tf-acc-test")
+	rdescription := acctest.RandomWithPrefix("tf-acc-test")
+	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfig(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists(resourceName, &collector, t),
-					testAccCheckCollectorAttributes(resourceName, &collector),
-					resource.TestCheckResourceAttr(resourceName, "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr(resourceName, "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Cat"),
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Etc/UTC", ""),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Etc/UTC"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"lookup_by_name", "destroy"},
-			},
-			{
-				Config: testAccSumologicCollectorConfigAll,
+				Config: testAccSumologicCollectorConfigUpdate(rname, rdescription, rcategory),
 				Check: resource.ComposeTestCheckFunc(
-					// check the id of this resource is the same as the one in the previous step
-					testAccCheckCollectorId(resourceName, &collector),
-					testAccCheckCollectorExists(resourceName, &collector, t),
-					testAccCheckCollectorAttributes(resourceName, &collector),
-					resource.TestCheckResourceAttr(resourceName, "name", "CollectorName"),
-					resource.TestCheckResourceAttr(resourceName, "description", "CollectorDesc"),
-					resource.TestCheckResourceAttr(resourceName, "category", "Category"),
+					testAccCheckCollectorExists(resourceName, &collector),
+					testAccCheckCollectorValues(&collector, rname, rdescription, rcategory, "Europe/Berlin", ""),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", rname),
+					resource.TestCheckResourceAttr(resourceName, "description", rdescription),
+					resource.TestCheckResourceAttr(resourceName, "category", rcategory),
 					resource.TestCheckResourceAttr(resourceName, "timezone", "Europe/Berlin"),
 				),
 			},
 		},
 	})
-}
-
-func TestAccSumologicCollector_manualDeletion(t *testing.T) {
-	var collector *Collector
-
-	deleteCollector := func() {
-		c := testAccProvider.Meta().(*Client)
-		_, err := c.GetCollector(collector.ID)
-		if err != nil {
-			t.Fatal(fmt.Sprintf("attempted to delete collector %d but it does not exist (%s)", collector.ID, err))
-		}
-		err = c.DeleteCollector(collector.ID)
-		if err != nil {
-			t.Fatal(fmt.Sprintf("failed to delete collector %d (%s)", collector.ID, err))
-		}
-	}
-
-	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicCollectorConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
-				),
-			},
-			{
-				PreConfig: deleteCollector, // simulate a manual deletion by deleting the collector between the 2 applies
-				Config:    testAccSumologicCollectorConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", &collector, t),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyTerraformCollector2"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
-				),
-			},
-		},
-	})
-}
-
-// TODO: if we keep the collector's destroy attribute we need to include a test checking if destroy=false works as expected
-
-// Returns a function checking that the collector with the id from the state file has an expected id.
-// The expected id is specified in the collector passed as parameter
-func testAccCheckCollectorId(name string, collector **Collector) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return fmt.Errorf("not found: %s", name)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("collector ID is not set")
-		}
-
-		id, err := strconv.Atoi(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("collector id should be int; got %s", rs.Primary.ID)
-		}
-
-		expectedId := (**collector).ID
-		if id != expectedId {
-			return fmt.Errorf("incorrect collector id: got %d; expected %d", id, expectedId)
-		}
-		return nil
-	}
-}
-
-// Returns a function checking that the collector with the id from the state exists.
-// If the collecor exists, its attributes are updated in *collector
-func testAccCheckCollectorExists(name string, collector **Collector, t *testing.T) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			return fmt.Errorf("not found: %s", name)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("collector ID is not set")
-		}
-
-		id, err := strconv.Atoi(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("collector id should be int; got %s", rs.Primary.ID)
-		}
-		c := testAccProvider.Meta().(*Client)
-		*collector, err = c.GetCollector(id)
-		if err != nil {
-			return fmt.Errorf("collector %d not found", id)
-		}
-		return nil
-	}
-}
-
-// Returns a function checking that the attributes in the state match that attributes of the actual resource created
-func testAccCheckCollectorAttributes(name string, expected **Collector) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		f := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(name, "name", (**expected).Name),
-			resource.TestCheckResourceAttr(name, "description", (**expected).Description),
-			resource.TestCheckResourceAttr(name, "category", (**expected).Category),
-			resource.TestCheckResourceAttr(name, "timezone", (**expected).TimeZone),
-		)
-		return f(s)
-	}
 }
 
 func testAccCheckCollectorDestroy(s *terraform.State) error {
@@ -302,41 +134,79 @@ func testAccCheckCollectorDestroy(s *terraform.State) error {
 	return nil
 }
 
-var testAccSumologicCollectorConfigMinimal = `
+func testAccCheckCollectorExists(n string, collector *Collector) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
 
-resource "sumologic_collector" "test" {
-  name = "MyTerraformCollector1"
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("collector ID is not set")
+		}
+
+		id, err := strconv.Atoi(rs.Primary.ID)
+		if err != nil {
+			return fmt.Errorf("collector id should be int; got %s", rs.Primary.ID)
+		}
+		c := testAccProvider.Meta().(*Client)
+		collectorResp, err := c.GetCollector(id)
+		if err != nil {
+			return err
+		}
+
+		*collector = *collectorResp
+
+		return nil
+	}
 }
-`
 
-var testAccSumologicCollectorConfig = `
-
-resource "sumologic_collector" "test" {
-  name = "MyTerraformCollector2"
-  description = "MyCollectorDesc"
-  category = "Cat"
-  timezone = "Etc/UTC"
+func testAccCheckCollectorValues(collector *Collector, name, description, category, timezone, budgetValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if collector.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, collector.Name)
+		}
+		if collector.Description != description {
+			return fmt.Errorf("bad description, expected \"%s\", got: %#v", description, collector.Description)
+		}
+		if collector.Category != category {
+			return fmt.Errorf("bad category, expected \"%s\", got: %#v", category, collector.Category)
+		}
+		if collector.TimeZone != timezone {
+			return fmt.Errorf("bad timezone, expected \"%s\", got: %#v", timezone, collector.TimeZone)
+		}
+		if value, ok := collector.Fields["_budget"]; ok {
+			if value != budgetValue {
+				return fmt.Errorf("bad budgetValue, expected \"%s\", got: %#v", budgetValue, collector.Fields["_budget"])
+			}
+		}
+		return nil
+	}
 }
-`
 
-var testAccSumologicCollectorConfigLookupByName = `
-
+func testAccSumologicCollectorConfigBasic(name string) string {
+	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
-  name = "MyOtherCollector"
-  description = "MyCollectorDesc"
-  category = "Cat"
-  timezone = "Europe/Berlin"
-  lookup_by_name=true
+	name = "%s"
+}`, name)
 }
-`
 
-var testAccSumologicCollectorConfigAll = `
+func testAccSumologicCollectorConfig(name, description, category string) string {
+	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
-  name="CollectorName"
-  description="CollectorDesc"
-  category="Category"
-  timezone="Europe/Berlin"
-  lookup_by_name=true
-  destroy=true
+	name = "%s"
+	description = "%s"
+	category = "%s"
+	timezone = "Etc/UTC"
+}`, name, description, category)
 }
-`
+
+func testAccSumologicCollectorConfigUpdate(name, description, category string) string {
+	return fmt.Sprintf(`
+resource "sumologic_collector" "test" {
+	name = "%s"
+	description = "%s"
+	category = "%s"
+	timezone = "Europe/Berlin"
+}`, name, description, category)
+}
