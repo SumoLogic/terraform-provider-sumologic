@@ -16,4 +16,5 @@ BUG FIXES:
 
 DEPRECATIONS:
 
-* resource/sumologiccollector_ingest_budget_assignment: Deprecated in favor of assigning ingest budgets through the _budget field attribute of collectors [GH-135]
+* resource/sumologic_collector_ingest_budget_assignment: Deprecated in favor of assigning ingest budgets through the _budget field attribute of collectors [GH-135]
+* resource/sumologic_collector: Deprecated `lookup_by_name` and `destroy` attributes
