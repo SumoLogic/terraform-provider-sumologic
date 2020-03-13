@@ -15,6 +15,7 @@ func TestAccSumologicCollector_basic(t *testing.T) {
 	rname := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
@@ -47,6 +48,7 @@ func TestAccSumologicCollector_create(t *testing.T) {
 	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
@@ -76,6 +78,7 @@ func TestAccSumologicCollector_update(t *testing.T) {
 	rcategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_collector.test"
 	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCollectorDestroy,
 		Steps: []resource.TestStep{
