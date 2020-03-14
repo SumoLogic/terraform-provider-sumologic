@@ -89,7 +89,6 @@ func newPartitionConfig(testName string) string {
 resource "sumologic_partition" "foo" {
     name = "terraform_acctest_%s"
     routing_expression = "_sourcecategory=*/Terraform"
-    analytics_tier = "enhanced"
     is_compliant = false
 }
 `, testName)
@@ -100,7 +99,6 @@ func updatePartitionConfig(testName string) string {
 resource "sumologic_partition" "foo" {
     name = "terraform_acctest_%s"
     routing_expression = "_sourcecategory=*/Terraform"
-	analytics_tier = "enhanced"
 	retention_period = 365
 	is_compliant = false
 }
