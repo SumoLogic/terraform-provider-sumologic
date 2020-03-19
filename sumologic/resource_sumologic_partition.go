@@ -28,9 +28,11 @@ func resourceSumologicPartition() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 16384),
 			},
 			"analytics_tier": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     false,
+				ValidateFunc: validation.StringInSlice([]string{"enhanced", "basic", "cold"}, false),
+				Default:      "enhanced",
 			},
 			// Terraform does not support reducing the retention period after creation
 			"retention_period": {
@@ -71,7 +73,6 @@ func resourceSumologicPartitionCreate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		d.SetId(createdSpartition.ID)
-		d.Set("retention_period", createdSpartition.RetentionPeriod)
 	}
 
 	return resourceSumologicPartitionUpdate(d, meta)
@@ -98,7 +99,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", spartition.Name)
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
-	d.Set("is_compliant", spartition.RetentionPeriod)
+	d.Set("is_compliant", spartition.IsCompliant)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
 
 	return nil
