@@ -29,7 +29,7 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"url": {
+			"Url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -61,7 +61,7 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	//resourceSumologicSourceRead(d, source.Source)
 	d.SetId(strconv.Itoa(source.ID))
 	d.Set("source_name", source.Name)
-	d.Set("url", source.Url)
+	d.Set("Url", source.Url)
 
 	return nil
 }
