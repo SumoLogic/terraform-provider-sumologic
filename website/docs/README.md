@@ -28,6 +28,7 @@
   + [sumologic_extraction_rule][42]
   + [sumologic_folder][43]
   + [sumologic_content][44]
+  + [sumologic_connection][45]
 
 #### Common Source Properties
 
@@ -70,3 +71,4 @@ The following properties are common to ALL sources and can be used to configure 
 [42]: r/extraction_rule.html.markdown
 [43]: r/folder.html.markdown
 [44]: r/content.html.markdown
+[45]: r/connection.html.markdown
