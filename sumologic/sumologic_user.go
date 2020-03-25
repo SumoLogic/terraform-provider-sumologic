@@ -31,8 +31,8 @@ func (s *Client) CreateUser(user User) (string, error) {
 	return createduser.ID, nil
 }
 
-func (s *Client) DeleteUser(id string) error {
-	_, err := s.Delete(fmt.Sprintf("v1/users/%s", id))
+func (s *Client) DeleteUser(id string, transferTo string) error {
+	_, err := s.Delete(fmt.Sprintf("v1/users/%s?transferTo=%s", id, transferTo))
 	return err
 }
 

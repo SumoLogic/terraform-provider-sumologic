@@ -56,6 +56,11 @@ func resourceSumologicUser() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"transfer_to": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -87,7 +92,7 @@ func resourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSumologicUserDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	return c.DeleteUser(d.Id())
+	return c.DeleteUser(d.Id(), d.Get("transfer_to").(string))
 }
 
 func resourceSumologicUserCreate(d *schema.ResourceData, meta interface{}) error {
