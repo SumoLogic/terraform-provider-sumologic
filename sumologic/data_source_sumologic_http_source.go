@@ -29,7 +29,7 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"Url": {
+			"url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -42,7 +42,6 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
-	//source, err := c.GetHTTPSource(d.Get("collector_id").(int), d.Get("source_id").(int))
 	source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("source_name").(string))
 
 	if err != nil {
@@ -53,15 +52,11 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 		log.Printf("[WARN] HTTP source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return fmt.Errorf("HTTP source not found, removing from state: %v - %v", id, err)
-
-		//return nil
 	}
 
-	//d.Set("message_per_request", source.MessagePerRequest)
-	//resourceSumologicSourceRead(d, source.Source)
 	d.SetId(strconv.Itoa(source.ID))
 	d.Set("source_name", source.Name)
-	d.Set("Url", source.Url)
+	d.Set("url", source.Url)
 
 	return nil
 }
