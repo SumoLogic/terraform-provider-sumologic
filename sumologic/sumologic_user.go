@@ -32,7 +32,11 @@ func (s *Client) CreateUser(user User) (string, error) {
 }
 
 func (s *Client) DeleteUser(id string, transferTo string) error {
-	_, err := s.Delete(fmt.Sprintf("v1/users/%s?transferTo=%s", id, transferTo))
+	path := "v1/users/%s"
+	if transferTo != "" {
+		path += fmt.Sprintf("?transferTo=%s", transferTo)
+	}
+	_, err := s.Delete(fmt.Sprintf(path, id))
 	return err
 }
 
