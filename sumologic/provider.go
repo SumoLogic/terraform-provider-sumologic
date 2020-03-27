@@ -56,6 +56,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
 			"sumologic_collector":       dataSourceSumologicCollector(),
 			"sumologic_personal_folder": dataSourceSumologicPersonalFolder(),
+			"sumologic_my_user_id":      dataSourceSumologicMyUserId(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

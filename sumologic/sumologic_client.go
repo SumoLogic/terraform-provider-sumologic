@@ -321,6 +321,7 @@ type Folder struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	ParentId    string `json:"parentId"`
+	CreatedBy   string `json:"createdBy,omitempty"`
 }
 
 type Content struct {
