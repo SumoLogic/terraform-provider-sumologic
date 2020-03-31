@@ -22,11 +22,27 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 			"collector_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Computed: false,
 			},
-			"source_name": {
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: false,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"category": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"timezone": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"multiline": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"url": {
@@ -42,20 +58,23 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
-	source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("source_name").(string))
+	source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("name").(string))
 
 	if err != nil {
 		return err
 	}
 
 	if source == nil {
-		log.Printf("[WARN] HTTP source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return fmt.Errorf("HTTP source not found, removing from state: %v - %v", id, err)
 	}
 
 	d.SetId(strconv.Itoa(source.ID))
-	d.Set("source_name", source.Name)
+	d.Set("name", source.Name)
+	d.Set("description", source.Description)
+	d.Set("category", source.Category)
+	d.Set("timezone", source.TimeZone)
+	d.Set("multiline", source.MultilineProcessingEnabled)
 	d.Set("url", source.Url)
 
 	return nil
