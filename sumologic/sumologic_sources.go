@@ -28,6 +28,7 @@ type Source struct {
 	CutoffTimestamp            int                    `json:"cutoffTimestamp,omitempty"`
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
+	Url                        string                 `json:"url,omitempty"`
 }
 
 type DefaultDateFormat struct {
@@ -179,18 +180,16 @@ func resourceSumologicSource() *schema.Resource {
 				ForceNew: true,
 			},
 			"lookup_by_name": {
-				Deprecated: "We are deprecating the lookup_by_name attribute as sources can be imported using the format collectorID/sourceID.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    false,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  false,
 			},
 			"destroy": {
-				Deprecated: "We are deprecating the destroy attribute as all resources support lifecycle attribute prevent_destroy",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
 			},
 		},
 	}
