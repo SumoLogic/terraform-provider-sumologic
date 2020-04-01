@@ -20,12 +20,10 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 			"collector_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: false,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
