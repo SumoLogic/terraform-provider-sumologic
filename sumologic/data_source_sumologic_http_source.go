@@ -2,10 +2,8 @@ package sumologic
 
 import (
 	"fmt"
-	"log"
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strconv"
 )
 
 func dataSourceSumologicHTTPSource() *schema.Resource {
