@@ -30,12 +30,12 @@ func TestAccConnection_create(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "connectionType", connectionType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "type", connectionType),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "defaultPayload", defaultPayload),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "webhookType", webhookType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func TestAccConnection_update(t *testing.T) {
 	var connection Connection
 	connectionType := "WebhookConnection"
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
-	url := acctest.RandomWithPrefix("https://")
+	url := "https://example.com"
 	defaultPayload := `{"eventType" : "{{SearchName}}"}`
 	webhookType := "Webhook"
 	fDescription := acctest.RandomWithPrefix("tf-connection-test-description")
@@ -62,24 +62,24 @@ func TestAccConnection_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "connectionType", connectionType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "type", connectionType),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", fDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "defaultPayload", defaultPayload),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "webhookType", webhookType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			}, {
 				Config: createConnectionConfig(name, connectionType, sDescription, url, webhookType, defaultPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "connectionType", connectionType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "type", connectionType),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", sDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "defaultPayload", defaultPayload),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "webhookType", webhookType),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
 		},
@@ -120,11 +120,11 @@ func testAccCheckConnectionAttributes(name string) resource.TestCheckFunc {
 func testAccCheckConnectionDestroy(connection Connection) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
-		_, err := client.GetConnection(connection.ID)
-		if err == nil {
-			return fmt.Errorf("Connection still exists")
+		conn, err := client.GetConnection(connection.ID)
+		if err == nil && conn == nil {
+			return nil
 		}
-		return nil
+		return fmt.Errorf("Connection still exists")
 	}
 }
 

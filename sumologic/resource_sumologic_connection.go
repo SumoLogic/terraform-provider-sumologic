@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"regexp"
@@ -36,6 +37,11 @@ func resourceSumologicConnection() *schema.Resource {
 					validation.StringLenBetween(1, 128),
 					validation.StringMatch(regexp.MustCompile(nameValidation), fmt.Sprintf("Must match regex %s", nameValidation)),
 				),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					newJSON, _ := normalizeJsonString(new)
+					oldJSON, _ := normalizeJsonString(old)
+					return newJSON == oldJSON
+				},
 			},
 			"description": {
 				Type:         schema.TypeString,
@@ -83,6 +89,27 @@ func resourceSumologicConnection() *schema.Resource {
 			},
 		},
 	}
+}
+
+// Takes a value containing JSON string and passes it through
+// the JSON parser to normalize it, returns either a parsing
+// error or normalized JSON string.
+func normalizeJsonString(jsonString interface{}) (string, error) {
+	var j interface{}
+
+	if jsonString == nil || jsonString.(string) == "" {
+		return "", nil
+	}
+
+	s := jsonString.(string)
+
+	err := json.Unmarshal([]byte(s), &j)
+	if err != nil {
+		return s, err
+	}
+
+	bytes, _ := json.Marshal(j)
+	return string(bytes[:]), nil
 }
 
 func resourceSumologicConnectionRead(d *schema.ResourceData, meta interface{}) error {
