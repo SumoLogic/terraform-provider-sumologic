@@ -2,14 +2,16 @@ package sumologic
 
 var FieldsMap = map[string]map[string]string{
 	"User": map[string]string{
-		"firstName":        "Test",
-		"lastName":         "User",
-		"email":            "testterraform@demo.com",
-		"isActive":         "true",
-		"updatedFirstName": "TestUpdated",
-		"updatedLastName":  "UserUpdated",
-		"updatedEmail":     "testterraform@demo.com",
-		"updatedIsActive":  "false",
+		"firstName":           "Test",
+		"lastName":            "User",
+		"email":               "testterraform@demo.com",
+		"isActive":            "true",
+		"transferTo":          "",
+		"updatedFirstName":    "TestUpdated",
+		"updatedLastName":     "UserUpdated",
+		"updatedEmail":        "testterraform@demo.com",
+		"updatedIsActive":     "false",
+		"preUpdateTransferTo": "nonExistentTestId",
 	},
 
 	"Role": map[string]string{
