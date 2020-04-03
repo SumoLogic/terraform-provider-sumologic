@@ -20,18 +20,20 @@ resource "sumologic_role" "example_role" {
 }
 
 resource "sumologic_user" "example_user1" {
-  first_name = "Jon"
-  last_name  = "Doe"
-  email      = "jon.doe@gmail.com"
-  active     = false
-  role_ids   = ["${sumologic_role.example_role.id}"]
+  first_name   = "Jon"
+  last_name    = "Doe"
+  email        = "jon.doe@gmail.com"
+  active       = false
+  role_ids     = ["${sumologic_role.example_role.id}"]
+  transfer_to  = ""
 }
 
 resource "sumologic_user" "example_user2" {
-  first_name = "Jane"
-  last_name  = "Smith"
-  email      = "jane.smith@gmail.com"
-  role_ids   = ["${sumologic_role.example_role.id}"]
+  first_name   = "Jane"
+  last_name    = "Smith"
+  email        = "jane.smith@gmail.com"
+  role_ids     = ["${sumologic_role.example_role.id}"]
+  transfer_to  = "${sumologic_user.example_user1.id}"
 }
 ```
 
@@ -44,6 +46,7 @@ The following arguments are supported:
 - `email` - (Required) Last name of the user.
 - `active` - (Optional) This has the value true if the user is active and false if they have been deactivated..
 - `role_ids` - (Required) List of roleIds associated with the user.
+- `transfer_to` - (Required) UserId of user to transfer this user's content to on deletion, can be empty. Must be applied prior to deletion to take effect.
 
 The following attributes are exported:
 

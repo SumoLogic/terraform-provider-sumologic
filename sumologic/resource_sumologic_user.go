@@ -58,7 +58,7 @@ func resourceSumologicUser() *schema.Resource {
 			},
 			"transfer_to": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
 			},
 		},
