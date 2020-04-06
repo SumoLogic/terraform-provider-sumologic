@@ -14,8 +14,8 @@ func TestAccConnection_create(t *testing.T) {
 	connectionType := "WebhookConnection"
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
 	description := acctest.RandomWithPrefix("tf-connection-test-description")
-	url := acctest.RandomWithPrefix("https://")
-	defaultPayload := `{"eventType" : "{{SearchName}}"}`
+	url := "https://example.com"
+	defaultPayload := "{\"eventType\" : \"{{SearchName}}\"}"
 	webhookType := "Webhook"
 
 	var connection Connection
@@ -23,7 +23,7 @@ func TestAccConnection_create(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckConnectionDestroy(connection),
+		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: createConnectionConfig(name, connectionType, description, url, webhookType, defaultPayload),
@@ -34,7 +34,7 @@ func TestAccConnection_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
@@ -55,7 +55,7 @@ func TestAccConnection_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckConnectionDestroy(connection),
+		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: createConnectionConfig(name, connectionType, fDescription, url, webhookType, defaultPayload),
@@ -66,7 +66,7 @@ func TestAccConnection_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", fDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			}, {
@@ -78,7 +78,7 @@ func TestAccConnection_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", sDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
@@ -117,15 +117,24 @@ func testAccCheckConnectionAttributes(name string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckConnectionDestroy(connection Connection) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		client := testAccProvider.Meta().(*Client)
-		conn, err := client.GetConnection(connection.ID)
-		if err == nil && conn == nil {
-			return nil
+func testAccCheckConnectionDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*Client)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "sumologic_connection" {
+			continue
 		}
-		return fmt.Errorf("Connection still exists")
+
+		id := rs.Primary.ID
+		c, err := client.GetConnection(id)
+		if err != nil {
+			return fmt.Errorf("Encountered an error: " + err.Error())
+		}
+		if c != nil {
+			return fmt.Errorf("Connection still exists")
+		}
 	}
+	return nil
 }
 
 func createConnectionConfig(name, connectionType, desc, url, webhookType, defaultPayload string) string {

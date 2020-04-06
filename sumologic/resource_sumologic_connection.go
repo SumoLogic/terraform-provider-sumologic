@@ -52,7 +52,7 @@ func resourceSumologicConnection() *schema.Resource {
 			},
 			"url": {
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
 			},

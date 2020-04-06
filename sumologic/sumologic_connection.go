@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 )
 
 // GetConnection returns connection information for given id
@@ -15,6 +16,10 @@ func (s *Client) GetConnection(id string) (*Connection, error) {
 
 	rawConnection, _, err := s.Get(url)
 	if err != nil {
+		log.Printf("SSAIN: The err: %s", err.Error())
+		if strings.Contains(err.Error(), "Connection with given ID does not exist.") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
