@@ -28,6 +28,7 @@ type Source struct {
 	CutoffTimestamp            int                    `json:"cutoffTimestamp,omitempty"`
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
+	Url                        string                 `json:"url,omitempty"`
 }
 
 type DefaultDateFormat struct {

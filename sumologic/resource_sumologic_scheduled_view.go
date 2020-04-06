@@ -115,7 +115,7 @@ func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface
 func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
 	var startTimeParsed, err = time.Parse(time.RFC3339, d.Get("start_time").(string))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return ScheduledView{
 		ID:               d.Id(),
