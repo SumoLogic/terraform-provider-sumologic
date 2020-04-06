@@ -27,6 +27,7 @@ func TestAccSumologicUser_basic(t *testing.T) {
 	testLastName := FieldsMap["User"]["lastName"]
 	testEmail := FieldsMap["User"]["email"]
 	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
+	testTransferTo := FieldsMap["User"]["transferTo"]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -34,12 +35,13 @@ func TestAccSumologicUser_basic(t *testing.T) {
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSumologicUserConfigImported(testFirstName, testLastName, testEmail, testIsActive),
+				Config: testAccCheckSumologicUserConfigImported(testFirstName, testLastName, testEmail, testIsActive, testTransferTo),
 			},
 			{
-				ResourceName:      "sumologic_user.foo",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "sumologic_user.foo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"transfer_to"},
 			},
 		},
 	})
@@ -51,13 +53,14 @@ func TestAccUser_create(t *testing.T) {
 	testLastName := FieldsMap["User"]["lastName"]
 	testEmail := FieldsMap["User"]["email"]
 	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
+	testTransferTo := FieldsMap["User"]["transferTo"]
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicUser(testFirstName, testLastName, testEmail, testIsActive),
+				Config: testAccSumologicUser(testFirstName, testLastName, testEmail, testIsActive, testTransferTo),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("sumologic_user.test", &user, t),
 					testAccCheckUserAttributes("sumologic_user.test"),
@@ -65,6 +68,7 @@ func TestAccUser_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_user.test", "last_name", testLastName),
 					resource.TestCheckResourceAttr("sumologic_user.test", "email", testEmail),
 					resource.TestCheckResourceAttr("sumologic_user.test", "is_active", strconv.FormatBool(testIsActive)),
+					resource.TestCheckResourceAttr("sumologic_user.test", "transfer_to", testTransferTo),
 				),
 			},
 		},
@@ -118,11 +122,13 @@ func TestAccUser_update(t *testing.T) {
 	testLastName := FieldsMap["User"]["lastName"]
 	testEmail := FieldsMap["User"]["email"]
 	testIsActive, _ := strconv.ParseBool(FieldsMap["User"]["isActive"])
+	testTransferTo := FieldsMap["User"]["transferTo"]
 
 	testUpdatedFirstName := FieldsMap["User"]["updatedFirstName"]
 	testUpdatedLastName := FieldsMap["User"]["updatedLastName"]
 	testUpdatedEmail := FieldsMap["User"]["updatedEmail"]
 	testUpdatedIsActive, _ := strconv.ParseBool(FieldsMap["User"]["updatedIsActive"])
+	testPreUpdateTransferTo := FieldsMap["User"]["preUpdateTransferTo"]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -130,7 +136,7 @@ func TestAccUser_update(t *testing.T) {
 		CheckDestroy: testAccCheckUserDestroy(user),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicUser(testFirstName, testLastName, testEmail, testIsActive),
+				Config: testAccSumologicUser(testFirstName, testLastName, testEmail, testIsActive, testPreUpdateTransferTo),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("sumologic_user.test", &user, t),
 					testAccCheckUserAttributes("sumologic_user.test"),
@@ -138,10 +144,11 @@ func TestAccUser_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_user.test", "last_name", testLastName),
 					resource.TestCheckResourceAttr("sumologic_user.test", "email", testEmail),
 					resource.TestCheckResourceAttr("sumologic_user.test", "is_active", strconv.FormatBool(testIsActive)),
+					resource.TestCheckResourceAttr("sumologic_user.test", "transfer_to", testPreUpdateTransferTo),
 				),
 			},
 			{
-				Config: testAccSumologicUserUpdate(testUpdatedFirstName, testUpdatedLastName, testUpdatedEmail, testUpdatedIsActive),
+				Config: testAccSumologicUserUpdate(testUpdatedFirstName, testUpdatedLastName, testUpdatedEmail, testUpdatedIsActive, testTransferTo),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("sumologic_user.test", &user, t),
 					testAccCheckUserAttributes("sumologic_user.test"),
@@ -149,13 +156,14 @@ func TestAccUser_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_user.test", "last_name", testUpdatedLastName),
 					resource.TestCheckResourceAttr("sumologic_user.test", "email", testUpdatedEmail),
 					resource.TestCheckResourceAttr("sumologic_user.test", "is_active", strconv.FormatBool(testUpdatedIsActive)),
+					resource.TestCheckResourceAttr("sumologic_user.test", "transfer_to", testTransferTo),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckSumologicUserConfigImported(firstName string, lastName string, email string, isActive bool) string {
+func testAccCheckSumologicUserConfigImported(firstName string, lastName string, email string, isActive bool, transferTo string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
 	name = "testRole Name"
@@ -169,11 +177,12 @@ resource "sumologic_user" "foo" {
       email = "%s"
       role_ids = ["${sumologic_role.testRole.id}"]
       is_active = %t
+      transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive)
+`, firstName, lastName, email, isActive, transferTo)
 }
 
-func testAccSumologicUser(firstName string, lastName string, email string, isActive bool) string {
+func testAccSumologicUser(firstName string, lastName string, email string, isActive bool, transferTo string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
 	name = "testRole Name"
@@ -187,11 +196,12 @@ resource "sumologic_user" "test" {
     email = "%s"
     role_ids = ["${sumologic_role.testRole.id}"]
     is_active = %t
+    transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive)
+`, firstName, lastName, email, isActive, transferTo)
 }
 
-func testAccSumologicUserUpdate(firstName string, lastName string, email string, isActive bool) string {
+func testAccSumologicUserUpdate(firstName string, lastName string, email string, isActive bool, transferTo string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
 	name = "testRole Name"
@@ -205,8 +215,9 @@ resource "sumologic_user" "test" {
       email = "%s"
       role_ids = ["${sumologic_role.testRole.id}"]
       is_active = %t
+      transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive)
+`, firstName, lastName, email, isActive, transferTo)
 }
 
 func testAccCheckUserAttributes(name string) resource.TestCheckFunc {
