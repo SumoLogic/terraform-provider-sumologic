@@ -23,7 +23,4 @@ The following attributes are exported:
 - `access_key` - Sumo Logic access key.
 - `environment` - API endpoint environment.
 
-[Back to Index][0]
-
-[0]: ../README.md
 

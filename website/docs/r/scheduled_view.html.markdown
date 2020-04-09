@@ -38,7 +38,4 @@ The following attributes are exported:
 
 - `id` - The internal ID of the scheduled view.
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Manage/Scheduled-Views

@@ -49,8 +49,5 @@ Ingest budgets can be imported using the name, e.g.:
 terraform import sumologic_collector.test budgetName
 ```
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Manage/Ingestion-and-Volume/Ingest_Budgets
 [2]: https://en.wikipedia.org/wiki/Tz_database

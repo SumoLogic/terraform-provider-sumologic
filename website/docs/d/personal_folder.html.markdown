@@ -23,7 +23,5 @@ The following attributes are exported:
 - `name` - The name of the Personal Folder.
 - `description` - The description of the Personal Folder.
 
-[Back to Index][0]
 
-[0]: ../README.md
 
