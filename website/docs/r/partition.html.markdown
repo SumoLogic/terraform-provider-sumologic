@@ -35,7 +35,4 @@ The following attributes are exported:
 
 - `id` - Unique identifier for the partition.
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Manage/Partitions

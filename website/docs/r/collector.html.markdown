@@ -48,9 +48,6 @@ Collectors can also be imported using the collector name, which is unique per Su
 terraform import sumologic_collector.test my_test_collector
 ```
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Send_Data/Hosted_Collectors
 [2]: https://en.wikipedia.org/wiki/Tz_database
 [3]: https://help.sumologic.com/Manage/Fields

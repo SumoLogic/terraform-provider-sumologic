@@ -69,7 +69,4 @@ The following attributes are exported:
 
 - `id` - Unique identifier for the contnet item.
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/APIs/Content-Management-API

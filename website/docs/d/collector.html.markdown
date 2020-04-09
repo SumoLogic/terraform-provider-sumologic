@@ -39,7 +39,3 @@ The following attributes are exported:
 - `timezone` - The time zone to use for this collector. The value follows the [tzdata][2] naming convention.
 
 
-[Back to Index][0]
-
-[0]: ../README.md
-

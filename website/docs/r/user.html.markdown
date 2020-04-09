@@ -52,8 +52,4 @@ The following attributes are exported:
 
 - `id` - The internal ID of the user.
 
-
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Manage/Users-and-Roles/Manage-Users

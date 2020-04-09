@@ -37,7 +37,4 @@ The following attributes are exported:
 - `id` - The internal ID of the source.
 - `token` - The token to use for sending data to this source.
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/Cloud_Syslog_Source

@@ -33,7 +33,5 @@ The following attributes are exported:
 
 - `id` - Unique identifier for the field extraction rule.
 
-[Back to Index][0]
 
-[0]: ../README.md
 [1]: https://help.sumologic.com/Manage/Field-Extractions

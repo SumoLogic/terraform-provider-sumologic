@@ -49,7 +49,4 @@ terraform import sumologic_http_source.test 123/456
 terraform import sumologic_http_source.test my-test-collector/my-test-source
 ```
 
-[Back to Index][0]
-
-[0]: ../README.md
 [1]: https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/HTTP_Source
