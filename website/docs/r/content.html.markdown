@@ -10,10 +10,12 @@ Provides a way to interact with Sumologic Content.
 
 ## Example Usage
 ```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
 resource "sumologic_content" "test" {
-parent_id = "%s"
-  config = 
-    {
+parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+config = 
+    jsonencode({
         "type": "SavedSearchWithScheduleSyncDefinition",
         "name": "test-333",
         "search": {
@@ -52,7 +54,7 @@ parent_id = "%s"
             "parameters": []
         },
         "description": "Runs every hour with timerange of 15m and sends email notifications"
-    }
+    })
 }
 ```
 

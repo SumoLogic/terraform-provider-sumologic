@@ -10,17 +10,14 @@ Provides the ability to create, read, delete, update, and manage of folders.
 
 ## Example Usage
 ```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
 resource "sumologic_folder" "folder" {
   name        = "test-folder"
-  description = "Just testing this"
-  parent_id   = "<Hexadecimal ID of the parent folder>"
+  description = "A test folder"
+  parent_id   = "${data.sumologic_personal_folder.personalFolder.id}"
 }
 ```
-
-## Finding the parent ID
-Unfortunately, the only way to find the parent folder's hexadecimal ID is by sending the following request `curl -X GET -u {ACCESS_ID}:{ACCESS_KEY} https://api.sumologic.com/api/v2/content/folders/personal` and subsequently getting children's folders (GET `.../api/v2/content/folders/{id}`) until you find the correct parent folder.
-
-In the future, there will be a button in the UI that will reveal the hex ID.
 
 ## Argument reference
 
