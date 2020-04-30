@@ -97,7 +97,7 @@ github.com/googleapis/gax-go/v2
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-cleanhttp v0.5.1
 github.com/hashicorp/go-cleanhttp
-# github.com/hashicorp/go-getter v1.4.1
+# github.com/hashicorp/go-getter v1.4.2-0.20200106182914-9813cbd4eb02
 github.com/hashicorp/go-getter
 github.com/hashicorp/go-getter/helper/url
 # github.com/hashicorp/go-hclog v0.12.0
@@ -137,6 +137,8 @@ github.com/hashicorp/hcl/v2/hclwrite
 github.com/hashicorp/hcl/v2/json
 # github.com/hashicorp/logutils v1.0.0
 github.com/hashicorp/logutils
+# github.com/hashicorp/terraform v0.12.24
+github.com/hashicorp/terraform/helper/acctest
 # github.com/hashicorp/terraform-config-inspect v0.0.0-20200210163047-f7d8399e1194
 github.com/hashicorp/terraform-config-inspect/tfconfig
 # github.com/hashicorp/terraform-json v0.4.0
