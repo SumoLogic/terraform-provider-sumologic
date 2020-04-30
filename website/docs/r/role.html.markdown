@@ -34,11 +34,16 @@ The following arguments are supported:
 - `filter_predicate` - (Optional) A search filter to restrict access to specific logs.
 - `users` - (Optional) List of user identifiers to assign the role to.
 - `capabilities` - (Optional) List of capabilities associated with this role.
-- `lookup_by_name` - (Optional) Configures an existent role using the same 'name' or creates a new one if non existent. Defaults to false.
-- `destroy` - (Optional) Whether or not to delete the role in Sumo when it is removed from Terraform.  Defaults to true.
 
 The following attributes are exported:
 
 - `id` - The internal ID of the role.
+
+## Import
+Roles can be imported using the collector id, e.g.:
+
+```hcl
+terraform import sumologic_role.role id
+```
 
 [1]: https://help.sumologic.com/Manage/Users-and-Roles/Manage-Roles

@@ -19,11 +19,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform/helper/acctest"
 )
 
 func TestAccSumologicRole_basic(t *testing.T) {
 	var role Role
-	testName := FieldsMap["Role"]["name"]
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
 	testFilterPredicate := FieldsMap["Role"]["filterPredicate"]
 	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
@@ -47,7 +48,7 @@ func TestAccSumologicRole_basic(t *testing.T) {
 
 func TestAccRole_create(t *testing.T) {
 	var role Role
-	testName := FieldsMap["Role"]["name"]
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
 	testFilterPredicate := FieldsMap["Role"]["filterPredicate"]
 	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
@@ -114,12 +115,12 @@ func testAccCheckRoleExists(name string, role *Role, t *testing.T) resource.Test
 
 func TestAccRole_update(t *testing.T) {
 	var role Role
-	testName := FieldsMap["Role"]["name"]
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
 	testFilterPredicate := FieldsMap["Role"]["filterPredicate"]
 	testCapabilities := []string{"\"" + FieldsMap["Role"]["capabilities"] + "\""}
 
-	testUpdatedName := FieldsMap["Role"]["updatedName"]
+	testUpdatedName := acctest.RandomWithPrefix("tf-acc-test")
 	testUpdatedDescription := FieldsMap["Role"]["updatedDescription"]
 	testUpdatedFilterPredicate := FieldsMap["Role"]["updatedFilterPredicate"]
 	testUpdatedCapabilities := []string{"\"" + FieldsMap["Role"]["updatedCapabilities"] + "\""}
