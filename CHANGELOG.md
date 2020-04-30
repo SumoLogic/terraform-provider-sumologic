@@ -1,4 +1,9 @@
 ## 2.0.1 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `sumologic_connection` [GH-3]
+
 ## 2.0.0 (April 09, 2020)
 
 FEATURES:
