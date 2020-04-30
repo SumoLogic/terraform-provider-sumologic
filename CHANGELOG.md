@@ -1,8 +1,8 @@
-## 2.0.1 (Unreleased)
+## 2.0.1 (April 30, 2020)
 
 FEATURES:
 
-* **New Resource:** `sumologic_connection` [GH-3]
+* **New Resource:** `sumologic_connection` ([#3](https://github.com/terraform-providers/terraform-provider-github/issues/3))
 
 ## 2.0.0 (April 09, 2020)
 
