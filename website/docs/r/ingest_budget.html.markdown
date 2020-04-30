@@ -45,8 +45,9 @@ The following attributes are exported:
 
 ## Import
 Ingest budgets can be imported using the name, e.g.:
-```bash
-terraform import sumologic_collector.test budgetName
+
+```hcl
+terraform import sumologic_ingest_budget.budget budgetName
 ```
 
 [1]: https://help.sumologic.com/Manage/Ingestion-and-Volume/Ingest_Budgets

@@ -10,7 +10,7 @@ Provides a [Sumologic Field Extraction Rule][1].
 
 ## Example Usage
 ```hcl
-resource "sumologic_field_extraction_rule" "exampleFER" {
+resource "sumologic_field_extraction_rule" "fieldExtractionRule" {
       name = "exampleFieldExtractionRule"
       scope = "_sourceHost=127.0.0.1"
       parse_expression = "csv _raw extract 1 as f1"
@@ -33,5 +33,11 @@ The following attributes are exported:
 
 - `id` - Unique identifier for the field extraction rule.
 
+## Import
+Extraction Rules can be imported using the extraction rule id, e.g.:
+
+```hcl
+terraform import sumologic_field_extraction_rule.fieldExtractionRule id
+```
 
 [1]: https://help.sumologic.com/Manage/Field-Extractions

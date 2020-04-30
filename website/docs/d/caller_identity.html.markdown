@@ -20,7 +20,6 @@ data "sumologic_caller_identity" "current" {}
 The following attributes are exported:
 
 - `access_id` - Sumo Logic access ID.
-- `access_key` - Sumo Logic access key.
 - `environment` - API endpoint environment.
 
 
