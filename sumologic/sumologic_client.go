@@ -335,3 +335,22 @@ type Content struct {
 	Config         string      `json:"-"`
 	ParentId       string      `json:"-"`
 }
+
+// Connection is used to describe a connection.
+type Connection struct {
+	ID             string    `json:"id,omitempty"`
+	Type           string    `json:"type"`
+	Name           string    `json:"name"`
+	Description    string    `json:"description,omitempty"`
+	URL            string    `json:"url"`
+	Headers        []Headers `json:"headers,omitempty"`
+	CustomHeaders  []Headers `json:"customHeaders,omitempty"`
+	DefaultPayload string    `json:"defaultPayload"`
+	WebhookType    string    `json:"webhookType"`
+}
+
+// Headers is used to describe headers for http requests.
+type Headers struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
