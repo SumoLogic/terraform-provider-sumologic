@@ -61,7 +61,3 @@ Connections can be imported using the connection id, e.g.:
 ```hcl
 terraform import sumologic_connection.test 1234567890
 ```
-
-[Back to Index][0]
-
-[0]: ../README.md
