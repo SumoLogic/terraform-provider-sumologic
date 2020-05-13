@@ -12,6 +12,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -84,7 +85,9 @@ func resourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("first_name", user.FirstName)
 	d.Set("last_name", user.LastName)
 	d.Set("email", user.Email)
-	d.Set("role_ids", user.RoleIds)
+	if err := d.Set("role_ids", user.RoleIds); err != nil {
+		return fmt.Errorf("error setting role ids for resource %s: %s", d.Id(), err)
+	}
 	d.Set("is_active", user.IsActive)
 
 	return nil

@@ -135,8 +135,12 @@ func resourceSumologicConnectionRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("name", connection.Name)
 	d.Set("description", connection.Description)
 	d.Set("url", connection.URL)
-	d.Set("headers", headersToMap(connection.Headers))
-	d.Set("custom_headers", headersToMap(connection.CustomHeaders))
+	if err := d.Set("headers", headersToMap(connection.Headers)); err != nil {
+		return fmt.Errorf("error setting headers for resource %s: %s", d.Id(), err)
+	}
+	if err := d.Set("custom_headers", headersToMap(connection.CustomHeaders)); err != nil {
+		return fmt.Errorf("error setting custom headers for resource %s: %s", d.Id(), err)
+	}
 	d.Set("default_payload", connection.DefaultPayload)
 	d.Set("webhook_type", connection.WebhookType)
 	d.SetId(connection.ID)

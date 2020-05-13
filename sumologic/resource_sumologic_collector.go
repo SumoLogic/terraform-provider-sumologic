@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -89,7 +90,9 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("description", collector.Description)
 	d.Set("category", collector.Category)
 	d.Set("timezone", collector.TimeZone)
-	d.Set("fields", collector.Fields)
+	if err := d.Set("fields", collector.Fields); err != nil {
+		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }

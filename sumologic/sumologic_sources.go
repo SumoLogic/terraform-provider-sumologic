@@ -266,7 +266,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	return source
 }
 
-func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
+func resourceSumologicSourceRead(d *schema.ResourceData, source Source) error {
 	d.Set("name", source.Name)
 	d.Set("description", source.Description)
 	d.Set("category", source.Category)
@@ -277,11 +277,18 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) {
 	d.Set("use_autoline_matching", source.UseAutolineMatching)
 	d.Set("manual_prefix_regexp", source.ManualPrefixRegexp)
 	d.Set("force_timezone", source.ForceTimeZone)
-	d.Set("default_date_formats", flattenDateFormats(source.DefaultDateFormats))
-	d.Set("filters", flattenFilters(source.Filters))
+	if err := d.Set("default_date_formats", flattenDateFormats(source.DefaultDateFormats)); err != nil {
+		return fmt.Errorf("error setting default date formats for resource %s: %s", d.Id(), err)
+	}
+	if err := d.Set("filters", flattenFilters(source.Filters)); err != nil {
+		return fmt.Errorf("error setting filters for resource %s: %s", d.Id(), err)
+	}
 	d.Set("cutoff_timestamp", source.CutoffTimestamp)
 	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
-	d.Set("fields", source.Fields)
+	if err := d.Set("fields", source.Fields); err != nil {
+		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
+	}
+	return nil
 }
 
 func flattenDateFormats(v []DefaultDateFormat) []map[string]interface{} {

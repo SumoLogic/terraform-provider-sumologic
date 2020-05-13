@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -103,7 +104,9 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 		return nil
 	}
 
-	resourceSumologicSourceRead(d, source.Source)
+	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.Set("message_per_request", source.MessagePerRequest)
 	d.Set("url", source.URL)
 
