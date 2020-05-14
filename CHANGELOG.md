@@ -1,4 +1,9 @@
-## 2.1.0 (Unreleased)
+## 2.0.2 (Unreleased)
+
+ENHANCEMENTS:
+
+* Check for errors when setting aggregate values on read [GH-8]
+
 ## 2.0.1 (April 30, 2020)
 
 FEATURES:

@@ -12,6 +12,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -74,7 +75,9 @@ func resourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", role.Name)
 	d.Set("description", role.Description)
 	d.Set("filter_predicate", role.FilterPredicate)
-	d.Set("capabilities", role.Capabilities)
+	if err := d.Set("capabilities", role.Capabilities); err != nil {
+		return fmt.Errorf("error setting tags for resource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }

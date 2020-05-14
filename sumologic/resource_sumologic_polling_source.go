@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -160,7 +161,9 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	resourceSumologicSourceRead(d, source.Source)
+	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.Set("content_type", source.ContentType)
 	d.Set("scan_interval", source.ScanInterval)
 	d.Set("paused", source.Paused)

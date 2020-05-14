@@ -3,9 +3,10 @@ package sumologic
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceSumologicCollector() *schema.Resource {
@@ -77,7 +78,9 @@ func dataSourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("description", collector.Description)
 	d.Set("category", collector.Category)
 	d.Set("timezone", collector.TimeZone)
-	d.Set("fields", collector.Fields)
+	if err := d.Set("fields", collector.Fields); err != nil {
+		return fmt.Errorf("error setting fields for datasource %s: %s", d.Id(), err)
+	}
 
 	log.Printf("[DEBUG] data_source_sumologic_collector: retrieved %v", collector)
 	return nil

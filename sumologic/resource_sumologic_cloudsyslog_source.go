@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -92,7 +93,9 @@ func resourceSumologicCloudSyslogSourceRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	resourceSumologicSourceRead(d, source.Source)
+	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.Set("token", source.Token)
 
 	return nil
