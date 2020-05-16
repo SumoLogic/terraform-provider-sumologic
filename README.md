@@ -1,31 +1,31 @@
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/sumologic/sumologic-terraform-provider/issues)
+<a href="https://terraform.io">
+    <img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" alt="Terraform logo" title="Terrafpr," align="right" height="50" />
+</a>
 
-# terraform-provider-sumologic
-This provider is used to manage multiple configuration entities within the Sumo Logic product.
+# Terraform Provider for Sumo Logic
 
-## Support
+- Website: [terraform.io](https://terraform.io)
+- Chat: [gitter](https://gitter.im/hashicorp-terraform/Lobby)
+- Mailing List: [Google Groups](http://groups.google.com/group/terraform-tool)
 
-The code in this repository has been developed in collaboration with the Sumo Logic community and is not supported via standard Sumo Logic Support channels. For any issues or questions please submit an issue within the GitHub repository. The maintainers of this project will work directly with the community to answer any questions, address bugs, or review any requests for new features. 
+The Terraform Sumo Logic provider is a plugin for Terraform that allows for the full lifecycle management of Sumo Logic resources.
 
-## License
-Released under Mozilla Public License 2.0.
+This provider is maintained by Sumo Logic.
 
-# Getting started / usage
+## Getting started
 
-See [docs][10]
+[Using the provider](https://www.terraform.io/docs/providers/sumologic/)
+
+Run `terraform init` to automatically install the latest version of the provider.
 
 Requirements
 ------------
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.11.x or 0.12.x
 - [Go](https://golang.org/doc/install) >= 1.13 (to build the provider plugin)
-- [Sumo Logic](https://www.sumologic.com/pricing/)
+- [Sumo Logic](https://www.sumologic.com/)
 
-# Using the provider
-
-To use the provider run `make install` in the root direcory to install it as a plugin. You can then run `terraform init` to initialize it.
-
-# Developing the provider
+## Developing the provider
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine. You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
 
@@ -44,9 +44,12 @@ $ cd $GOPATH/src/SumoLogic/sumologic-terraform-provider
 $ make build
 ```
 
-# Testing the provider
+## Testing the provider
 
 In order to test the provider, you can run `make test`.
+
+For manual testing, run `make install` in the root direcory to install it as a plugin. 
+Then run `terraform init` to initialize it.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
@@ -54,4 +57,4 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 
 [0]: https://help.sumologic.com/Manage/Security/Access-Keys
 [1]: https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security
-[10]: website/docs/README.md
+[10]: https://www.terraform.io/docs/providers/sumologic/
