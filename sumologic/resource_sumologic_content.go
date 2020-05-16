@@ -3,9 +3,9 @@ package sumologic
 import (
 	"encoding/json"
 	"log"
-	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
 )
 
 func resourceSumologicContent() *schema.Resource {
@@ -13,10 +13,6 @@ func resourceSumologicContent() *schema.Resource {
 		Create: resourceSumologicContentCreate,
 		Read:   resourceSumologicContentRead,
 		Delete: resourceSumologicContentDelete,
-		Update: resourceSumologicContentUpdate,
-		//		Importer: &schema.ResourceImporter{
-		//			State: resourceSumologicContentImport,
-		//		},
 
 		Schema: map[string]*schema.Schema{
 			"parent_id": {
@@ -27,30 +23,15 @@ func resourceSumologicContent() *schema.Resource {
 			"config": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				ForceNew: true,
+				StateFunc: func(v interface{}) string {
+					json, _ := structure.NormalizeJsonString(v)
+					return json
+				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					log.Println("====Begin Config Comparison====")
-					//convert the json strings to content structs for comparison
-					var a Content
-					var b Content
-					err := json.Unmarshal([]byte(old), &a)
-					log.Println("old config:")
-					log.Println(a)
-					log.Println(err)
-
-					err = json.Unmarshal([]byte(new), &b)
-					log.Println("new config:")
-					log.Println(b)
-					log.Println(err)
-
-					//Set the Children element for each content object to an empty array
-					a.Children = []Content{}
-					b.Children = []Content{}
-					//Make the comparison
-					result := reflect.DeepEqual(a, b)
-					log.Printf("Equivalent: %t", result)
-					log.Println("====End Config Comparison====")
-					return result
+					newJSON, _ := structure.NormalizeJsonString(new)
+					oldJSON, _ := structure.NormalizeJsonString(old)
+					return newJSON == oldJSON
 				},
 			},
 		},
@@ -133,33 +114,6 @@ func resourceSumologicContentCreate(d *schema.ResourceData, meta interface{}) er
 	return resourceSumologicContentRead(d, meta)
 }
 
-func resourceSumologicContentUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Println("====Begin Content Update====")
-
-	c := meta.(*Client)
-
-	//Load all data from the schema into a Content Struct
-	content := resourceToContent(d)
-
-	log.Printf("Parent Id: %s", content.ParentId)
-	log.Printf("Content Id: %s", content.ID)
-
-	//Due to API limitations, updating contentobjects means they must be deleted & remade
-	log.Printf("Deleting Content with Id: %s", content.ID)
-	err := c.DeleteContent(content.ID)
-
-	//error during delete operation
-	if err != nil {
-		return err
-	}
-
-	// reset the Id and remake the object with new config
-	d.SetId("")
-
-	log.Println("Remaking Deleted Content...")
-	return resourceSumologicContentCreate(d, meta)
-}
-
 func resourceToContent(d *schema.ResourceData) *Content {
 	log.Println("Loading data from schema to Content struct...")
 	var content Content
@@ -173,10 +127,3 @@ func resourceToContent(d *schema.ResourceData) *Content {
 
 	return &content
 }
-
-//func resourceSumologicContentImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-//	if err := resourceSumologicContentRead(d, m); err != nil {
-//		return nil, err
-//	}
-//	return []*schema.ResourceData{d}, nil
-//}
