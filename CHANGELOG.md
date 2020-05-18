@@ -4,6 +4,10 @@ ENHANCEMENTS:
 
 * Check for errors when setting aggregate values on read [GH-8]
 
+BUG FIXES:
+
+* Fixes updates to content items not being recognized [GH-11]
+
 ## 2.0.1 (April 30, 2020)
 
 FEATURES:
