@@ -29,6 +29,7 @@ type Source struct {
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
 	Url                        string                 `json:"url,omitempty"`
+	ContentType                string                 `json:"contentType,omitempty"`
 }
 
 type DefaultDateFormat struct {
@@ -193,6 +194,11 @@ func resourceSumologicSource() *schema.Resource {
 				ForceNew:   false,
 				Default:    true,
 			},
+			"content_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  nil,
+			},
 		},
 	}
 }
@@ -262,6 +268,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
 	source.Fields = d.Get("fields").(map[string]interface{})
+	source.ContentType = d.Get("content_type").(string)
 
 	return source
 }
@@ -288,6 +295,7 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) error {
 	if err := d.Set("fields", source.Fields); err != nil {
 		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
 	}
+	d.Set("content_type", source.ContentType)
 	return nil
 }
 
