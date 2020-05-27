@@ -34,13 +34,13 @@ Clone repository to: `$GOPATH/src/SumoLogic/sumologic-terraform-provider`
 ```sh
 $ mkdir -p $GOPATH/src/SumoLogic;
 $ cd $GOPATH/src/SumoLogic
-$ git clone git@github.com:SumoLogic/sumologic-terraform-provider.git
+$ git clone https://github.com/terraform-providers/terraform-provider-sumologic.git
 ```
 
 Enter the provider directory and build the provider. To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
 ```sh
-$ cd $GOPATH/src/SumoLogic/sumologic-terraform-provider
+$ cd $GOPATH/src/SumoLogic/terraform-provider-sumologic
 $ make build
 ```
 
