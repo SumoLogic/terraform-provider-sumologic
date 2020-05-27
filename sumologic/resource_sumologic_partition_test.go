@@ -90,6 +90,7 @@ resource "sumologic_partition" "foo" {
     name = "terraform_acctest_%s"
     routing_expression = "_sourcecategory=*/Terraform"
     is_compliant = false
+    retention_period = 30
 }
 `, testName)
 }
