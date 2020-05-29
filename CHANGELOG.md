@@ -1,12 +1,12 @@
-## 2.0.2 (Unreleased)
+## 2.0.2 (May 29, 2020)
 
 ENHANCEMENTS:
 
-* Check for errors when setting aggregate values on read [GH-8]
+* Check for errors when setting aggregate values on read ([#8](https://github.com/terraform-providers/terraform-provider-github/issues/8))
 
 BUG FIXES:
 
-* Fixes updates to content items not being recognized [GH-11]
+* Fixes updates to content items not being recognized ([#11](https://github.com/terraform-providers/terraform-provider-github/issues/11))
 
 ## 2.0.1 (April 30, 2020)
 
