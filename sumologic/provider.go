@@ -81,7 +81,9 @@ func resolveRedirectURL(accessId string, accessKey string) (string, error) {
 	}
 	location := resp.Header.Get("location")
 	if location == "" {
-		return location, fmt.Errorf("location header not found")
+		// location header not found implies there was no redirect needed
+		// i.e, the desired environment is us1
+		return "https://api.sumologic.com/api/", nil
 	}
 	return strings.Split(location, "v1")[0], nil
 }
