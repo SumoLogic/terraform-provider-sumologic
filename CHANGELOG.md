@@ -1,4 +1,9 @@
-## 2.1.0 (Unreleased)
+## 2.0.4 (Unreleased)
+
+DOCS:
+* Fixed usage example for sumologic_content resource.
+
+
 ## 2.0.3 (June 02, 2020)
 
 BUG FIXES:
