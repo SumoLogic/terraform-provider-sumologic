@@ -1,3 +1,9 @@
+## 2.0.3 (Unreleased)
+
+BUG FIXES:
+
+* Fix URL redirection to prod when no base url or deployment is provided [GH-20]
+
 ## 2.0.2 (May 29, 2020)
 
 ENHANCEMENTS:
