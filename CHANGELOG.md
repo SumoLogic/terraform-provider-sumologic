@@ -1,8 +1,8 @@
-## 2.0.3 (Unreleased)
+## 2.0.3 (June 02, 2020)
 
 BUG FIXES:
 
-* Fix URL redirection to prod when no base url or deployment is provided [GH-20]
+* Fix URL redirection to prod when no base url or deployment is provided ([#20](https://github.com/terraform-providers/terraform-provider-github/issues/20))
 
 ## 2.0.2 (May 29, 2020)
 
