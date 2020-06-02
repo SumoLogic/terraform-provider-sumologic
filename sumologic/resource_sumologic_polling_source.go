@@ -19,7 +19,7 @@ func resourceSumologicPollingSource() *schema.Resource {
 		Type:         schema.TypeString,
 		Required:     true,
 		ForceNew:     true,
-		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket"}, false),
+		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -75,19 +75,69 @@ func resourceSumologicPollingSource() *schema.Resource {
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:         schema.TypeString,
+					Required:     true,
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath"}, false),
+				},
 				"bucket_name": {
 					Type:     schema.TypeString,
-					Required: true,
+					Optional: true,
 					ForceNew: false,
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
-					Required: true,
+					Optional: true,
 					ForceNew: false,
+				},
+				"limit_to_regions": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: false,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+				"limit_to_namespaces": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: false,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+
+				"tag_filters": {
+					Type:     schema.TypeList,
+					Optional: true,
+					ForceNew: false,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"type": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: false,
+							},
+							"namespace": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: false,
+							},
+							"tags": {
+								Type:     schema.TypeList,
+								Optional: true,
+								ForceNew: false,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 	}
+
 	return pollingSource
 }
 
@@ -198,15 +248,56 @@ func resourceToPollingSource(d *schema.ResourceData) PollingSource {
 func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string]interface{} {
 
 	var s []map[string]interface{}
+
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"bucket_name":     t.Path.BucketName,
-			"path_expression": t.Path.PathExpression,
+			"bucket_name":         t.Path.BucketName,
+			"path_expression":     t.Path.PathExpression,
+			"limit_to_regions":    t.Path.LimitToRegions,
+			"limit_to_namespaces": t.Path.LimitToNamespaces,
+			"tag_filters":         flattenTagFilters(t.Path.TagFilters),
 		}
 		s = append(s, mapping)
 	}
-
 	return s
+}
+
+func flattenTagFilters(v []TagFilter) []map[string]interface{} {
+	var filters []map[string]interface{}
+	for _, d := range v {
+		filter := map[string]interface{}{
+			"type":      d.Type,
+			"namespace": d.Namespace,
+			"tags":      d.Tags,
+		}
+		filters = append(filters, filter)
+	}
+
+	return filters
+}
+
+func getTagFilters(d *schema.ResourceData) []TagFilter {
+	paths := d.Get("path").([]interface{})
+	path := paths[0].(map[string]interface{})
+	rawTagFilterConfig := path["tag_filters"].([]interface{})
+	var filters []TagFilter
+
+	for _, rawConfig := range rawTagFilterConfig {
+		config := rawConfig.(map[string]interface{})
+		filter := TagFilter{}
+		filter.Type = config["type"].(string)
+		filter.Namespace = config["namespace"].(string)
+
+		rawTags := config["tags"].([]interface{})
+		Tags := make([]string, len(rawTags))
+		for i, v := range rawTags {
+			Tags[i] = v.(string)
+		}
+		filter.Tags = Tags
+		filters = append(filters, filter)
+	}
+
+	return filters
 }
 
 func getAuthentication(d *schema.ResourceData) PollingAuthentication {
@@ -237,9 +328,30 @@ func getPathSettings(d *schema.ResourceData) PollingPath {
 
 	if len(paths) > 0 {
 		path := paths[0].(map[string]interface{})
-		pathSettings.Type = "S3BucketPathExpression"
-		pathSettings.BucketName = path["bucket_name"].(string)
-		pathSettings.PathExpression = path["path_expression"].(string)
+		switch pathType := path["type"].(string); pathType {
+		case "S3BucketPathExpression":
+			pathSettings.Type = "S3BucketPathExpression"
+			pathSettings.BucketName = path["bucket_name"].(string)
+			pathSettings.PathExpression = path["path_expression"].(string)
+		case "CloudWatchPath":
+			pathSettings.Type = "CloudWatchPath"
+			rawLimitToRegions := path["limit_to_regions"].([]interface{})
+			LimitToRegions := make([]string, len(rawLimitToRegions))
+			for i, v := range rawLimitToRegions {
+				LimitToRegions[i] = v.(string)
+			}
+
+			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
+			LimitToNamespaces := make([]string, len(rawLimitToNamespaces))
+			for i, v := range rawLimitToNamespaces {
+				LimitToNamespaces[i] = v.(string)
+			}
+			pathSettings.LimitToRegions = LimitToRegions
+			pathSettings.LimitToNamespaces = LimitToNamespaces
+			pathSettings.TagFilters = getTagFilters(d)
+		default:
+			log.Printf("[ERROR] Unknown resourceType in path: %v", pathType)
+		}
 	}
 
 	return pathSettings
