@@ -24,16 +24,13 @@ func resourceSumologicPollingSource() *schema.Resource {
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
 		Required: true,
-		ForceNew: false,
 	}
 	pollingSource.Schema["paused"] = &schema.Schema{
 		Type:     schema.TypeBool,
 		Required: true,
-		ForceNew: false,
 	}
 	pollingSource.Schema["url"] = &schema.Schema{
 		Type:     schema.TypeString,
-		ForceNew: false,
 		Computed: true,
 	}
 	pollingSource.Schema["authentication"] = &schema.Schema{
@@ -52,17 +49,14 @@ func resourceSumologicPollingSource() *schema.Resource {
 				"access_key": {
 					Type:     schema.TypeString,
 					Optional: true,
-					ForceNew: false,
 				},
 				"secret_key": {
 					Type:     schema.TypeString,
 					Optional: true,
-					ForceNew: false,
 				},
 				"role_arn": {
 					Type:     schema.TypeString,
 					Optional: true,
-					ForceNew: false,
 				},
 			},
 		},
@@ -83,17 +77,14 @@ func resourceSumologicPollingSource() *schema.Resource {
 				"bucket_name": {
 					Type:     schema.TypeString,
 					Optional: true,
-					ForceNew: false,
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
 					Optional: true,
-					ForceNew: false,
 				},
 				"limit_to_regions": {
 					Type:     schema.TypeList,
 					Optional: true,
-					ForceNew: false,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
@@ -101,7 +92,6 @@ func resourceSumologicPollingSource() *schema.Resource {
 				"limit_to_namespaces": {
 					Type:     schema.TypeList,
 					Optional: true,
-					ForceNew: false,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
@@ -110,23 +100,19 @@ func resourceSumologicPollingSource() *schema.Resource {
 				"tag_filters": {
 					Type:     schema.TypeList,
 					Optional: true,
-					ForceNew: false,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"type": {
 								Type:     schema.TypeString,
 								Optional: true,
-								ForceNew: false,
 							},
 							"namespace": {
 								Type:     schema.TypeString,
 								Optional: true,
-								ForceNew: false,
 							},
 							"tags": {
 								Type:     schema.TypeList,
 								Optional: true,
-								ForceNew: false,
 								Elem: &schema.Schema{
 									Type: schema.TypeString,
 								},
