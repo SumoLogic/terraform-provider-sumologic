@@ -13,12 +13,7 @@ Provides a [Sumologic Role][1].
 resource "sumologic_role" "example_role" {
   name        = "TestRole123"
   description = "Testing resource sumologic_role"
-
   filter_predicate = "_sourceCategory=Test"
-  users = [
-    "0000000000000001",
-    "0000000000000002"
-  ]
   capabilities = [
     "manageCollectors"
   ]
@@ -32,7 +27,6 @@ The following arguments are supported:
 - `name` - (Required) The name of the role.
 - `description` - (Optional) The description of the role.
 - `filter_predicate` - (Optional) A search filter to restrict access to specific logs.
-- `users` - (Optional) List of user identifiers to assign the role to.
 - `capabilities` - (Optional) List of capabilities associated with this role.
 
 The following attributes are exported:
