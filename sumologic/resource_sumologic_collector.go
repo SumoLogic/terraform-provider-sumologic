@@ -88,7 +88,7 @@ func resourceSumologicCollectorDelete(d *schema.ResourceData, meta interface{}) 
 
 	id, _ := strconv.Atoi(d.Id())
 	return c.DeleteCollector(id)
-	
+
 }
 
 func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) error {
