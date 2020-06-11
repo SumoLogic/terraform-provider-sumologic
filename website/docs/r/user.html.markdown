@@ -53,10 +53,10 @@ The following attributes are exported:
 - `id` - The internal ID of the user.
 
 ## Import
-Roles can be imported using the collector id, e.g.:
+Users can be imported using the user id, e.g.:
 
 ```hcl
-terraform import sumologic_user.user id
+terraform import sumologic_user.user 1234567890
 ```
 
 [1]: https://help.sumologic.com/Manage/Users-and-Roles/Manage-Users
