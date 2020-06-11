@@ -27,9 +27,7 @@ The following arguments are supported:
   * `description` - (Optional) The description of the collector.
   * `category` - (Optional) The default source category for any source attached to this collector. Can be overridden in the configuration of said sources.
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention.
-  * `fields` - (Optional) Map containing [key/value pairs][3]. 
-  * `lookup_by_name` - DEPRECATED - Use the data source or import the collector - (Optional) Configures an existent collector using the same 'name' or creates a new one if non existent. Defaults to false.
-  * `destroy` - DEPRECATED - Use lifecycle management attribute [`prevent_destroy`][4] - (Optional) Whether or not to delete the collector in Sumo when it is removed from Terraform.  Defaults to true.
+  * `fields` - (Optional) Map containing [key/value pairs][3].
 
 The following attributes are exported:
 
