@@ -50,8 +50,6 @@ The following properties are common to ALL sources and can be used to configure 
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). 
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
 - `fields` - (Optional) Map containing [key/value pairs][3]. 
-- `lookup_by_name` - (Optional) Configures an existent collector using the same 'name' or creates a new one if non existent. Defaults to false.
-- `destroy` - (Optional) Whether or not to delete the collector in Sumo when it is removed from Terraform.  Defaults to true.
 
 [0]: index.html.markdown
 [2]: https://en.wikipedia.org/wiki/Tz_database

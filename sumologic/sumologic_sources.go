@@ -180,20 +180,6 @@ func resourceSumologicSource() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"lookup_by_name": {
-				Deprecated: "We are deprecating the lookup_by_name attribute as sources can be imported using the format collectorID/sourceID.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    false,
-			},
-			"destroy": {
-				Deprecated: "We are deprecating the destroy attribute as all resources support lifecycle attribute prevent_destroy",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    true,
-			},
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
