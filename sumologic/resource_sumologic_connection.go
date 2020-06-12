@@ -84,7 +84,7 @@ func resourceSumologicConnection() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,
-				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie"}, false),
 				Default:      "Webhook",
 			},
 		},
