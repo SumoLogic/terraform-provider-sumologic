@@ -94,16 +94,6 @@ func resourceSumologicCollectorDelete(d *schema.ResourceData, meta interface{}) 
 func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	collector, err := c.GetCollectorName(d.Get("name").(string))
-
-	if err != nil {
-		return err
-	}
-
-	if collector != nil {
-		d.SetId(strconv.Itoa(collector.ID))
-	}
-
 	if d.Id() == "" {
 		id, err := c.CreateCollector(Collector{
 			CollectorType: "Hosted",

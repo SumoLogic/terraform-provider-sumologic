@@ -192,14 +192,11 @@ func resourceSumologicSource() *schema.Resource {
 func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		collectorID, _ := d.Get("collector_id").(int)
+	id, _ := strconv.Atoi(d.Id())
+	collectorID, _ := d.Get("collector_id").(int)
 
-		return c.DestroySource(id, collectorID)
-	}
+	return c.DestroySource(id, collectorID)
 
-	return nil
 }
 
 func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
