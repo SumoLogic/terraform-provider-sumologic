@@ -1,7 +1,9 @@
-## 2.0.4 (Unreleased)
+## 2.1.0 (Unreleased)
 
 DOCS:
 * Fixed usage example for sumologic_content resource.
+* resource/sumologic_collector: Remove deprecated attributes `lookup_by_name` and `destroy` (#https://github.com/terraform-providers/terraform-provider-sumologic/pull/32)
+* resource/sumologic_sources: Remove deprecated attributes `lookup_by_name` and `destroy` (#https://github.com/terraform-providers/terraform-provider-sumologic/pull/32)
 
 
 ## 2.0.3 (June 02, 2020)
