@@ -131,18 +131,6 @@ func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface
 
 	c := meta.(*Client)
 
-	if d.Get("lookup_by_name").(bool) {
-		source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("name").(string))
-
-		if err != nil {
-			return err
-		}
-
-		if source != nil {
-			d.SetId(strconv.Itoa(source.ID))
-		}
-	}
-
 	if d.Id() == "" {
 		source := resourceToPollingSource(d)
 		sourceID, err := c.CreatePollingSource(source, d.Get("collector_id").(int))

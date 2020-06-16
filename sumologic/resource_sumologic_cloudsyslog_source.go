@@ -25,18 +25,6 @@ func resourceSumologicCloudsyslogSource() *schema.Resource {
 func resourceSumologicCloudSyslogSourceCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("lookup_by_name").(bool) {
-		source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("name").(string))
-
-		if err != nil {
-			return err
-		}
-
-		if source != nil {
-			d.SetId(strconv.Itoa(source.ID))
-		}
-	}
-
 	if d.Id() == "" {
 		source := resourceToCloudSyslogSource(d)
 

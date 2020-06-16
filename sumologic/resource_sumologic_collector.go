@@ -48,20 +48,6 @@ func resourceSumologicCollector() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			"lookup_by_name": {
-				Deprecated: "We are deprecating the lookup_by_name attribute as collectors now have data sources.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    false,
-			},
-			"destroy": {
-				Deprecated: "We are deprecating the destroy attribute as all resources support lifecycle attribute prevent_destroy",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    true,
-			},
 		},
 	}
 }
@@ -100,28 +86,13 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 func resourceSumologicCollectorDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		return c.DeleteCollector(id)
-	}
+	id, _ := strconv.Atoi(d.Id())
+	return c.DeleteCollector(id)
 
-	return nil
 }
 
 func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-
-	if d.Get("lookup_by_name").(bool) {
-		collector, err := c.GetCollectorName(d.Get("name").(string))
-
-		if err != nil {
-			return err
-		}
-
-		if collector != nil {
-			d.SetId(strconv.Itoa(collector.ID))
-		}
-	}
 
 	if d.Id() == "" {
 		id, err := c.CreateCollector(Collector{

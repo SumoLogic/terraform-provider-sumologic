@@ -180,20 +180,6 @@ func resourceSumologicSource() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"lookup_by_name": {
-				Deprecated: "We are deprecating the lookup_by_name attribute as sources can be imported using the format collectorID/sourceID.",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    false,
-			},
-			"destroy": {
-				Deprecated: "We are deprecating the destroy attribute as all resources support lifecycle attribute prevent_destroy",
-				Type:       schema.TypeBool,
-				Optional:   true,
-				ForceNew:   false,
-				Default:    true,
-			},
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -206,14 +192,11 @@ func resourceSumologicSource() *schema.Resource {
 func resourceSumologicSourceDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		collectorID, _ := d.Get("collector_id").(int)
+	id, _ := strconv.Atoi(d.Id())
+	collectorID, _ := d.Get("collector_id").(int)
 
-		return c.DestroySource(id, collectorID)
-	}
+	return c.DestroySource(id, collectorID)
 
-	return nil
 }
 
 func resourceSumologicSourceImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
