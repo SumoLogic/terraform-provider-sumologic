@@ -1,4 +1,4 @@
-## 2.1.0 (Unreleased)
+## 2.1.0 (June 22, 2020)
 
 ENHANCEMENTS:
 * Add support for cloud watch metrics in the sumologic polling source (#https://github.com/terraform-providers/terraform-provider-sumologic/pull/24)
