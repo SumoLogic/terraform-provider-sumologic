@@ -37,4 +37,17 @@ The following attributes are exported:
 - `id` - The internal ID of the source.
 - `token` - The token to use for sending data to this source.
 
+## Import
+Cloud Syslog sources can be imported using the collector and source IDs (`collector/source`), e.g.:
+
+```hcl
+terraform import sumologic_cloudsyslog_source.test 123/456
+```
+
+HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
+
+```hcl
+terraform import sumologic_cloudsyslog_source.test my-test-collector/my-test-source
+```
+
 [1]: https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/Cloud_Syslog_Source

@@ -122,4 +122,17 @@ The following attributes are exported:
 - `id` - The internal ID of the source.
 - `url` - The HTTP endpoint to use with [SNS to notify Sumo Logic of new files](https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-S3-Source#Set_up_SNS_in_AWS_(Optional)).
 
+## Import
+Polling sources can be imported using the collector and source IDs (`collector/source`), e.g.:
+
+```hcl
+terraform import sumologic_polling_source.test 123/456
+```
+
+HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
+
+```hcl
+terraform import sumologic_polling_source.test my-test-collector/my-test-source
+```
+
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
