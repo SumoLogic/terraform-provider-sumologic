@@ -12,29 +12,30 @@ import (
 
 func TestAccSumologicCloudsyslogSource_basic(t *testing.T) {
 	var cloudsyslogSource CloudSyslogSource
+	resourceName := "sumologic_cloudsyslog_source.cloudsyslog"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudsyslogSourceDestroy("sumologic_cloudsyslog_source.cloudsyslog", cloudsyslogSource),
+		CheckDestroy: testAccCheckCloudsyslogSourceDestroy(resourceName, cloudsyslogSource),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicCloudsyslogSourceConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudSyslogSourceExists("sumologic_cloudsyslog_source.cloudsyslog", &cloudsyslogSource, t),
-					resource.TestCheckResourceAttrSet("sumologic_cloudsyslog_source.cloudsyslog", "id"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "name", "test_cloudsyslog"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "description", "test_desc"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "category", "source/category"),
+					testAccCheckCloudSyslogSourceExists(resourceName, &cloudsyslogSource, t),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", "test_cloudsyslog"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_desc"),
+					resource.TestCheckResourceAttr(resourceName, "category", "source/category"),
 				),
 			},
 			{
 				Config: testAccSumologicCloudsyslogSourceUpdateConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCloudSyslogSourceExists("sumologic_cloudsyslog_source.cloudsyslog", &cloudsyslogSource, t),
-					resource.TestCheckResourceAttrSet("sumologic_cloudsyslog_source.cloudsyslog", "id"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "name", "test_cloudsyslog_update"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "description", "test_desc_update"),
-					resource.TestCheckResourceAttr("sumologic_cloudsyslog_source.cloudsyslog", "category", "source/category"),
+					testAccCheckCloudSyslogSourceExists(resourceName, &cloudsyslogSource, t),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", "test_cloudsyslog_update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_desc_update"),
+					resource.TestCheckResourceAttr(resourceName, "category", "source/category"),
 				),
 			},
 		}})

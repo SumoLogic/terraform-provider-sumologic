@@ -14,6 +14,9 @@ func resourceSumologicPollingSource() *schema.Resource {
 	pollingSource.Create = resourceSumologicPollingSourceCreate
 	pollingSource.Read = resourceSumologicPollingSourceRead
 	pollingSource.Update = resourceSumologicPollingSourceUpdate
+	pollingSource.Importer = &schema.ResourceImporter{
+		State: resourceSumologicSourceImport,
+	}
 
 	pollingSource.Schema["content_type"] = &schema.Schema{
 		Type:         schema.TypeString,

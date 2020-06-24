@@ -23,6 +23,8 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 	tName := acctest.RandomWithPrefix("tf-acc-test")
 	tDescription := acctest.RandomWithPrefix("tf-acc-test")
 	tCategory := acctest.RandomWithPrefix("tf-acc-test")
+	resourceName := "sumologic_http_source.http"
+	tracingResourceName := "sumologic_http_source.traces"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -31,24 +33,24 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 			{
 				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHTTPSourceExists("sumologic_http_source.http", &httpSource),
+					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sName, sDescription, sCategory),
 					testAccCheckCollectorExists("sumologic_collector.test", &collector),
 					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
-					testAccCheckHTTPSourceExists("sumologic_http_source.traces", &httpTraceSource),
+					testAccCheckHTTPSourceExists(tracingResourceName, &httpTraceSource),
 					testAccCheckHTTPSourceValues(&httpTraceSource, tName, tDescription, tCategory),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "url"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "name", sName),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "description", sDescription),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "message_per_request", "false"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "category", sCategory),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.traces", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.traces", "url"),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "name", tName),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "description", tDescription),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "category", tCategory),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "content_type", "Zipkin"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "url"),
+					resource.TestCheckResourceAttr(resourceName, "name", sName),
+					resource.TestCheckResourceAttr(resourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(resourceName, "message_per_request", "false"),
+					resource.TestCheckResourceAttr(resourceName, "category", sCategory),
+					resource.TestCheckResourceAttrSet(tracingResourceName, "id"),
+					resource.TestCheckResourceAttrSet(tracingResourceName, "url"),
+					resource.TestCheckResourceAttr(tracingResourceName, "name", tName),
+					resource.TestCheckResourceAttr(tracingResourceName, "description", tDescription),
+					resource.TestCheckResourceAttr(tracingResourceName, "category", tCategory),
+					resource.TestCheckResourceAttr(tracingResourceName, "content_type", "Zipkin"),
 				),
 			},
 		},
@@ -70,6 +72,8 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 	sNameUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	sDescriptionUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	sCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
+	resourceName := "sumologic_http_source.http"
+	tracingResourceName := "sumologic_http_source.traces"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -78,35 +82,35 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 			{
 				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHTTPSourceExists("sumologic_http_source.http", &httpSource),
+					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sName, sDescription, sCategory),
-					testAccCheckHTTPSourceExists("sumologic_http_source.traces", &httpTraceSource),
+					testAccCheckHTTPSourceExists(tracingResourceName, &httpTraceSource),
 					testAccCheckHTTPSourceValues(&httpTraceSource, tName, tDescription, tCategory),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "url"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "name", sName),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "description", sDescription),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "message_per_request", "false"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "category", sCategory),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.traces", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.traces", "url"),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "name", tName),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "description", tDescription),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "category", tCategory),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "content_type", "Zipkin"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "url"),
+					resource.TestCheckResourceAttr(resourceName, "name", sName),
+					resource.TestCheckResourceAttr(resourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(resourceName, "message_per_request", "false"),
+					resource.TestCheckResourceAttr(resourceName, "category", sCategory),
+					resource.TestCheckResourceAttrSet(tracingResourceName, "id"),
+					resource.TestCheckResourceAttrSet(tracingResourceName, "url"),
+					resource.TestCheckResourceAttr(tracingResourceName, "name", tName),
+					resource.TestCheckResourceAttr(tracingResourceName, "description", tDescription),
+					resource.TestCheckResourceAttr(tracingResourceName, "category", tCategory),
+					resource.TestCheckResourceAttr(tracingResourceName, "content_type", "Zipkin"),
 				),
 			},
 			{
 				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, tName, tDescription, tCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHTTPSourceExists("sumologic_http_source.http", &httpSource),
+					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "id"),
-					resource.TestCheckResourceAttrSet("sumologic_http_source.http", "url"),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "name", sNameUpdated),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "description", sDescriptionUpdated),
-					resource.TestCheckResourceAttr("sumologic_http_source.http", "category", sCategoryUpdated),
-					resource.TestCheckResourceAttr("sumologic_http_source.traces", "content_type", "Zipkin"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "url"),
+					resource.TestCheckResourceAttr(resourceName, "name", sNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "description", sDescriptionUpdated),
+					resource.TestCheckResourceAttr(resourceName, "category", sCategoryUpdated),
+					resource.TestCheckResourceAttr(tracingResourceName, "content_type", "Zipkin"),
 				),
 			},
 		},
