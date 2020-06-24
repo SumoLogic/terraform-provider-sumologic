@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_polling_source"
 description: |-
-  Provides a Sumologic Polling source. This source is used to import data from  AWS S3 buckets.
+  Provides a Sumologic Polling source. This source is used to import data from various AWS products.
 ---
 
 # sumologic_polling_source
-Provides a Sumologic Polling source. This source is used to import data from  AWS S3 buckets.
+Provides a Sumologic Polling source. This source is used to import data from various AWS products, eg. AWS S3 buckets, Cloudwatch Metrics etc.
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
 
@@ -44,7 +44,7 @@ resource "sumologic_polling_source" "s3_audit" {
   filters       = "${local.filters}"
 
   authentication {
-    type = " S3BucketAuthentication"
+    type = "S3BucketAuthentication"
     access_key = "someKey"
     secret_key = "******"
   }
@@ -57,7 +57,7 @@ resource "sumologic_polling_source" "s3_audit" {
 }
 
 resource "sumologic_polling_source" "terraform_cw_metrics" {
-  name          = "Terraform CW Metrics"
+  name          = "CloudWatch Metrics"
   description   = "My description"
   category      = "aws/terraform_cw"
   content_type  = "AwsCloudWatch"
@@ -73,7 +73,7 @@ resource "sumologic_polling_source" "terraform_cw_metrics" {
   path {
     type = "CloudWatchPath"
     limit_to_regions = ["us-west-2"]
-    limit_to_namespaces = ["AWS/Route53","AWS/S3","customNamepace"]
+    limit_to_namespaces = ["AWS/Route53","AWS/S3","customNamespace"]
   
     dynamic "tag_filters" {
     for_each = local.filters
