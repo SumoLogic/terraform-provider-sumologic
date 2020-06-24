@@ -13,6 +13,9 @@ func resourceSumologicCloudsyslogSource() *schema.Resource {
 	cloudSyslogSource.Create = resourceSumologicCloudSyslogSourceCreate
 	cloudSyslogSource.Read = resourceSumologicCloudSyslogSourceRead
 	cloudSyslogSource.Update = resourceSumologicCloudSyslogSourceUpdate
+	cloudSyslogSource.Importer = &schema.ResourceImporter{
+		State: resourceSumologicSourceImport,
+	}
 
 	cloudSyslogSource.Schema["token"] = &schema.Schema{
 		Type:     schema.TypeString,
