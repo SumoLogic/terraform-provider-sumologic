@@ -76,7 +76,7 @@ resource "sumologic_polling_source" "terraform_cw_metrics" {
     limit_to_namespaces = ["AWS/Route53","AWS/S3","customNamespace"]
   
     dynamic "tag_filters" {
-    for_each = local.filters
+    for_each = local.tagfilters
     content{
       type = tag_filters.value.type
       namespace = tag_filters.value.namespace
