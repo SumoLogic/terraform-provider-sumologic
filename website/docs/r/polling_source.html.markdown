@@ -77,7 +77,7 @@ resource "sumologic_polling_source" "terraform_cw_metrics" {
   
     dynamic "tag_filters" {
     for_each = local.tagfilters
-    content{
+    content {
       type = tag_filters.value.type
       namespace = tag_filters.value.namespace
       tags = tag_filters.value.tags
