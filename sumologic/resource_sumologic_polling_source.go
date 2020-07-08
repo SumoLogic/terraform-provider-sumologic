@@ -228,6 +228,7 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
+			"type":                t.Path.Type,
 			"bucket_name":         t.Path.BucketName,
 			"path_expression":     t.Path.PathExpression,
 			"limit_to_regions":    t.Path.LimitToRegions,
