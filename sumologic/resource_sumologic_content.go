@@ -23,7 +23,7 @@ func resourceSumologicContent() *schema.Resource {
 			},
 			"config": {
 				Type:             schema.TypeString,
-				ValidateFunc:     validation.ValidateJsonString,
+				ValidateFunc:     validation.StringIsJSON,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: structure.SuppressJsonDiff,
