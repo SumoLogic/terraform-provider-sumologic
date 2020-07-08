@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicContent() *schema.Resource {
@@ -21,18 +22,11 @@ func resourceSumologicContent() *schema.Resource {
 				ForceNew: true,
 			},
 			"config": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				StateFunc: func(v interface{}) string {
-					json, _ := structure.NormalizeJsonString(v)
-					return json
-				},
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					newJSON, _ := structure.NormalizeJsonString(new)
-					oldJSON, _ := structure.NormalizeJsonString(old)
-					return newJSON == oldJSON
-				},
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.StringIsJSON,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 		},
 	}
