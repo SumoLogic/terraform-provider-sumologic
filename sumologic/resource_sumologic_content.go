@@ -31,9 +31,9 @@ func resourceSumologicContent() *schema.Resource {
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Read:   schema.DefaultTimeout(time.Duration(1) * time.Minute),
-			Create: schema.DefaultTimeout(time.Duration(10) * time.Minute),
-			Delete: schema.DefaultTimeout(time.Duration(1) * time.Minute),
+			Read:   schema.DefaultTimeout(1 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 	}
 }

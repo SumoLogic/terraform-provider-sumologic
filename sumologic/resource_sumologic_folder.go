@@ -35,7 +35,7 @@ func resourceSumologicFolder() *schema.Resource {
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Delete: schema.DefaultTimeout(time.Duration(1) * time.Minute),
+			Delete: schema.DefaultTimeout(time.Minute),
 		},
 	}
 }
