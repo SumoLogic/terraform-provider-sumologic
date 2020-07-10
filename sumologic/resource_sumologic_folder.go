@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -32,6 +33,9 @@ func resourceSumologicFolder() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Delete: schema.DefaultTimeout(time.Duration(1) * time.Minute),
 		},
 	}
 }
@@ -73,7 +77,7 @@ func resourceSumologicFolderDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("Deleting Folder Id: %s", d.Id())
 	c := meta.(*Client)
 	log.Println("====End Folder Delete====")
-	return c.DeleteFolder(d.Id())
+	return c.DeleteFolder(d.Id(), d.Timeout(schema.TimeoutDelete))
 }
 
 func resourceSumologicFolderCreate(d *schema.ResourceData, meta interface{}) error {

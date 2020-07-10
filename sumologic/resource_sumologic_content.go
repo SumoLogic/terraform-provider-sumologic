@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
@@ -29,6 +30,11 @@ func resourceSumologicContent() *schema.Resource {
 				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Read:   schema.DefaultTimeout(time.Duration(1) * time.Minute),
+			Create: schema.DefaultTimeout(time.Duration(10) * time.Minute),
+			Delete: schema.DefaultTimeout(time.Duration(1) * time.Minute),
+		},
 	}
 }
 
@@ -41,7 +47,7 @@ func resourceSumologicContentRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("Search for Content Id: %s", id)
 
 	log.Println("Looking up content...")
-	content, err := c.GetContent(id)
+	content, err := c.GetContent(id, d.Timeout(schema.TimeoutRead))
 
 	//Error retrieving content
 	if err != nil {
@@ -71,7 +77,7 @@ func resourceSumologicContentDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("Deleting Content Id: %s", d.Id())
 	c := meta.(*Client)
 	log.Println("====End Content Delete====")
-	return c.DeleteContent(d.Id())
+	return c.DeleteContent(d.Id(), d.Timeout(schema.TimeoutDelete))
 }
 
 func resourceSumologicContentCreate(d *schema.ResourceData, meta interface{}) error {
@@ -88,7 +94,7 @@ func resourceSumologicContentCreate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("Config: %s", content.Config)
 
 		//Call create content with our newly populated struct
-		id, err := c.CreateContent(*content)
+		id, err := c.CreateContent(*content, d.Timeout(schema.TimeoutCreate))
 
 		//Error during CreateContent
 		if err != nil {

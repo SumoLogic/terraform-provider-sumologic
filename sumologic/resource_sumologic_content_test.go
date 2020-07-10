@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -66,7 +67,7 @@ func testAccCheckContentExists(name string, content *Content, t *testing.T) reso
 
 		id := rs.Primary.ID
 		c := testAccProvider.Meta().(*Client)
-		newContent, err := c.GetContent(id)
+		newContent, err := c.GetContent(id, time.Minute)
 		if err != nil {
 			return fmt.Errorf("Content %s not found", id)
 		}
@@ -87,7 +88,7 @@ func testAccCheckContentAttributes(name string) resource.TestCheckFunc {
 func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
-		_, err := client.GetContent(content.ID)
+		_, err := client.GetContent(content.ID, time.Minute)
 		if err == nil {
 			return fmt.Errorf("Content still exists")
 		}
