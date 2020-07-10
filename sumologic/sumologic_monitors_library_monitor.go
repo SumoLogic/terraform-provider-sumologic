@@ -22,7 +22,7 @@ import (
 func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor, paramMap map[string]string) (string, error) {
 	urlWithoutParams := "v1/monitors"
 	paramString := ""
-	sprintfArgs := []interface{}{}
+	// sprintfArgs := []interface{}{}
 
 	paramString += "?"
 
@@ -36,17 +36,17 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 		return "", err
 	}
 
-	var createdMonitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var createdMonitorsLibraryMonitor MonitorsLibraryMonitor
 
-	err = json.Unmarshal(data, &createdMonitorsLibraryMonitorResponse)
+	err = json.Unmarshal(data, &createdMonitorsLibraryMonitor)
 	if err != nil {
 		return "", err
 	}
 
-	return createdMonitorsLibraryMonitorResponse.ID, nil
+	return createdMonitorsLibraryMonitor.ID, nil
 }
 
-func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitorResponse, error) {
+func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitor, error) {
 	urlWithoutParams := "v1/monitors/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
@@ -62,15 +62,15 @@ func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitorResponse, e
 		return nil, nil
 	}
 
-	var monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
 
-	err = json.Unmarshal(data, &monitorsLibraryMonitorResponse)
+	err = json.Unmarshal(data, &monitorsLibraryMonitor)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &monitorsLibraryMonitorResponse, nil
+	return &monitorsLibraryMonitor, nil
 }
 
 func (s *Client) DeleteMonitorsLibraryMonitor(id string) error {

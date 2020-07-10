@@ -13,21 +13,23 @@ package sumologic
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
-  "strconv"
-  "strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
+
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testMonitorType := ";[W#Go?..="
-  testName := "9TJ4@nHxl?"
-  testNotifications := []string{"sx>2$\"s3^!"}
-  testTriggers := []string{"F^n_p!zL0."}
-  testType := ",AFAr@z]@}"
-  testQueries := []string{"W)jkGB80z]"}
-  testDescription := "'h[RguO%!E"
+	testName := "9TJ4@nHxl?"
+	testNotifications := []string{"sx>2$\"s3^!"}
+	testTriggers := []string{"F^n_p!zL0."}
+	testType := ",AFAr@z]@}"
+	testQueries := []string{"W)jkGB80z]"}
+	testDescription := "'h[RguO%!E"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -46,50 +48,50 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	})
 }
 func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
-  var monitorsLibraryMonitor MonitorsLibraryMonitor
-  testMonitorType := ".L\i:0g;Mc"
-  testName := "ei('?@%ES]"
-  testNotifications := []string{":?tp+os*7:"}
-  testTriggers := []string{"?\"%,)%Ekd?"}
-  testType := "Eomu:vX4[c"
-  testQueries := []string{"X@t[:y?[UL"}
-  testDescription := "0Hg+L_\/K*"
-  resource.Test(t, resource.TestCase{
-    PreCheck: func() { testAccPreCheck(t) },
-    Providers:    testAccProviders,
-    CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
-    Steps: []resource.TestStep{
-      {
-        Config: testAccSumologicMonitorsLibraryMonitor(testMonitorType, testName, testNotifications, testTriggers, testType, testQueries, testDescription),
-        Check: resource.ComposeTestCheckFunc(
-          testAccCheckMonitorsLibraryMonitorExists("sumologic_monitors_library_monitor.test", &monitorsLibraryMonitor, t),
-          testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitors_library_monitor.test"),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
-        ),
-      },
-    },
-  })
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testMonitorType := ".L:0g;Mc"
+	testName := "ei('?@%ES]"
+	testNotifications := []string{":?tp+os*7:"}
+	testTriggers := []string{"?\"%,)%Ekd?"}
+	testType := "Eomu:vX4[c"
+	testQueries := []string{"X@t[:y?[UL"}
+	testDescription := "0Hg+L_K*"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitor(testMonitorType, testName, testNotifications, testTriggers, testType, testQueries, testDescription),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitors_library_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitors_library_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLibraryMonitor) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
-    for _, r := range s.RootModule().Resources {
-      id := r.Primary.ID
-		  u, err := client.GetMonitorsLibraryMonitor(id)
-		  if err != nil {
-        return fmt.Errorf("Encountered an error: " + err.Error())
-		  }
-      if u != nil {
-        return fmt.Errorf("MonitorsLibraryMonitor still exists")
-      }
-    }
+		for _, r := range s.RootModule().Resources {
+			id := r.Primary.ID
+			u, err := client.MonitorsReadById(id)
+			if err != nil {
+				return fmt.Errorf("Encountered an error: " + err.Error())
+			}
+			if u != nil {
+				return fmt.Errorf("MonitorsLibraryMonitor still exists")
+			}
+		}
 		return nil
 	}
 }
@@ -97,18 +99,18 @@ func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonito
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-      //need this so that we don't get an unused import error for strconv in some cases
+			//need this so that we don't get an unused import error for strconv in some cases
 			return fmt.Errorf("Error = %s. MonitorsLibraryMonitor not found: %s", strconv.FormatBool(ok), name)
 		}
 
-    //need this so that we don't get an unused import error for strings in some cases
+		//need this so that we don't get an unused import error for strings in some cases
 		if strings.EqualFold(rs.Primary.ID, "") {
 			return fmt.Errorf("MonitorsLibraryMonitor ID is not set")
 		}
 
 		id := rs.Primary.ID
 		c := testAccProvider.Meta().(*Client)
-		newMonitorsLibraryMonitor, err := c.GetMonitorsLibraryMonitor(id)
+		newMonitorsLibraryMonitor, err := c.MonitorsReadById(id)
 		if err != nil {
 			return fmt.Errorf("MonitorsLibraryMonitor %s not found", id)
 		}
@@ -118,25 +120,25 @@ func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonito
 }
 
 func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
-  var monitorsLibraryMonitor MonitorsLibraryMonitor
-  testMonitorType := "fOupYckJV+"
-  testName := ">}C\"V7G5DR"
-  testNotifications := []string{"EaN~5EGB|S"}
-  testTriggers := []string{"@Rbyxz)nJ>"}
-  testType := "l!l0@8F/a^"
-  testQueries := []string{"7nK+xr&-x-"}
-  testDescription := "%Cd/yFra]!"
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testMonitorType := "fOupYckJV+"
+	testName := ">}C\"V7G5DR"
+	testNotifications := []string{"EaN~5EGB|S"}
+	testTriggers := []string{"@Rbyxz)nJ>"}
+	testType := "l!l0@8F/a^"
+	testQueries := []string{"7nK+xr&-x-"}
+	testDescription := "%Cd/yFra]!"
 
-  testUpdatedMonitorType := "T`gI6=:V}MUpdate"
-  testUpdatedName := "xC1:,wr}[VUpdate"
-  testUpdatedNotifications := []string{"u@\Paj,K?|"}
-  testUpdatedTriggers := []string{"B3fV7K!-5_"}
-  testUpdatedType := "H\Ur+hlR,wUpdate"
-  testUpdatedQueries := []string{"G\_7sWDka?"}
-  testUpdatedDescription := ",MNO:6_pHbUpdate"
+	testUpdatedMonitorType := "T`gI6=:V}MUpdate"
+	testUpdatedName := "xC1:,wr}[VUpdate"
+	testUpdatedNotifications := []string{"u@aj,K?|"}
+	testUpdatedTriggers := []string{"B3fV7K!-5_"}
+	testUpdatedType := "HUr+hlR,wUpdate"
+	testUpdatedQueries := []string{"G_7sWDka?"}
+	testUpdatedDescription := ",MNO:6_pHbUpdate"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
 		Steps: []resource.TestStep{
@@ -145,25 +147,25 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitors_library_monitor.test", &monitorsLibraryMonitor, t),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitors_library_monitor.test"),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
 				),
 			},
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorUpdate(testUpdatedMonitorType, testUpdatedName, testUpdatedNotifications, testUpdatedTriggers, testUpdatedType, testUpdatedQueries, testUpdatedDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testUpdatedMonitorType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testUpdatedName),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testUpdatedNotifications[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testUpdatedTriggers[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testUpdatedType),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testUpdatedQueries[0], "\"", "", 2)),
-          resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testUpdatedDescription),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testUpdatedName),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testUpdatedNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testUpdatedTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testUpdatedType),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testUpdatedQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testUpdatedDescription),
 				),
 			},
 		},
@@ -212,16 +214,16 @@ resource "sumologic_monitors_library_monitor" "test" {
 }
 
 func testAccCheckMonitorsLibraryMonitorAttributes(name string) resource.TestCheckFunc {
-  return func(s *terraform.State) error {
-      f := resource.ComposeTestCheckFunc(
-        resource.TestCheckResourceAttrSet(name, "monitor_type"),
-        resource.TestCheckResourceAttrSet(name, "name"),
-        resource.TestCheckResourceAttrSet(name, "notifications"),
-        resource.TestCheckResourceAttrSet(name, "triggers"),
-        resource.TestCheckResourceAttrSet(name, "type"),
-        resource.TestCheckResourceAttrSet(name, "queries"),
-        resource.TestCheckResourceAttrSet(name, "description"),
-      )
-      return f(s)
-   }
+	return func(s *terraform.State) error {
+		f := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttrSet(name, "monitor_type"),
+			resource.TestCheckResourceAttrSet(name, "name"),
+			resource.TestCheckResourceAttrSet(name, "notifications"),
+			resource.TestCheckResourceAttrSet(name, "triggers"),
+			resource.TestCheckResourceAttrSet(name, "type"),
+			resource.TestCheckResourceAttrSet(name, "queries"),
+			resource.TestCheckResourceAttrSet(name, "description"),
+		)
+		return f(s)
+	}
 }
