@@ -13,146 +13,113 @@
 package sumologic
 
 import (
-  "encoding/json"
-  "fmt"
+	"encoding/json"
+	"fmt"
 )
 
-// ---------- ENDPOINTS ---------- 
-
+// ---------- ENDPOINTS ----------
 
 func (s *Client) CreateMonitorsLibraryMonitorResponse(monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse, paramMap map[string]string) (string, error) {
-    urlWithoutParams := "v1/monitors"
-    paramString := ""
-sprintfArgs := []interface{}{}
+	urlWithoutParams := "v1/monitors"
+	paramString := ""
+	sprintfArgs := []interface{}{}
 
+	paramString += "?"
 
-paramString += "?"
+	if val, ok := paramMap["parentId"]; ok {
+		queryParam := fmt.Sprintf("parentId=%s&", val)
+		paramString += queryParam
+	}
 
-if val, ok := paramMap["parentId"]; ok {
-queryParam := fmt.Sprintf("parentId=%s&", val)
-paramString += queryParam
-}
-
-
-
-
-
-    
-    
-    
-  data, err := s.Post(urlWithoutParams, monitorsLibraryMonitorResponse)
-  if err != nil {
+	data, err := s.Post(urlWithoutParams, monitorsLibraryMonitorResponse)
+	if err != nil {
 		return "", err
 	}
 
-    var createdMonitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var createdMonitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
 
-    
-    err = json.Unmarshal(data, &createdMonitorsLibraryMonitorResponse)
-    if err != nil {
-        return "", err
-    }
+	err = json.Unmarshal(data, &createdMonitorsLibraryMonitorResponse)
+	if err != nil {
+		return "", err
+	}
 
-    return createdMonitorsLibraryMonitorResponse.ID, nil
+	return createdMonitorsLibraryMonitorResponse.ID, nil
 }
 
-
 func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitorResponse, error) {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, id)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, id)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    
-  data, _, err := s.Get(urlWithParams)
-  if err != nil {
+	data, _, err := s.Get(urlWithParams)
+	if err != nil {
 		return nil, err
 	}
 	if data == nil {
 		return nil, nil
 	}
 
-    var monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
 
-    
-    err = json.Unmarshal(data, &monitorsLibraryMonitorResponse)
+	err = json.Unmarshal(data, &monitorsLibraryMonitorResponse)
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return &monitorsLibraryMonitorResponse, nil
+	return &monitorsLibraryMonitorResponse, nil
 }
-
 
 func (s *Client) DeleteMonitorsLibraryMonitorResponse(id string) error {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, id)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, id)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	_, err := s.Delete(urlWithParams)
 
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    _, err := s.Delete(urlWithParams)
-    
-    return err
+	return err
 }
-
 
 func (s *Client) UpdateMonitorsLibraryMonitorResponse(monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse) error {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, monitorsLibraryMonitorResponse.ID)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, monitorsLibraryMonitorResponse.ID)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	monitorsLibraryMonitorResponse.ID = ""
 
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    
-    
-    
-    monitorsLibraryMonitorResponse.ID = ""
-    
-
-    _, err := s.Put(urlWithParams, monitorsLibraryMonitorResponse)
-    return err
+	_, err := s.Put(urlWithParams, monitorsLibraryMonitorResponse)
+	return err
 }
-
 
 // ---------- TYPES ----------
 type MonitorsLibraryMonitorResponse struct {
-    ID string `json:"id,omitempty"`
-    IsSystem bool `json:"isSystem"`
-    Type string `json:"type"`
-    Queries []string `json:"queries,omitempty"`
-    ParentId string `json:"parentId"`
-    Name string `json:"name"`
-    IsMutable bool `json:"isMutable"`
-    Version int `json:"version"`
-    Notifications []string `json:"notifications,omitempty"`
-    CreatedBy string `json:"createdBy"`
-    MonitorType string `json:"monitorType"`
-    IsLocked bool `json:"isLocked"`
-    Description string `json:"description"`
-    CreatedAt string `json:"createdAt"`
-    Triggers []string `json:"triggers,omitempty"`
-    ModifiedAt string `json:"modifiedAt"`
-    ContentType string `json:"contentType"`
-    ModifiedBy string `json:"modifiedBy"`
+	ID            string   `json:"id,omitempty"`
+	IsSystem      bool     `json:"isSystem"`
+	Type          string   `json:"type"`
+	Queries       []string `json:"queries,omitempty"`
+	ParentId      string   `json:"parentId"`
+	Name          string   `json:"name"`
+	IsMutable     bool     `json:"isMutable"`
+	Version       int      `json:"version"`
+	Notifications []string `json:"notifications,omitempty"`
+	CreatedBy     string   `json:"createdBy"`
+	MonitorType   string   `json:"monitorType"`
+	IsLocked      bool     `json:"isLocked"`
+	Description   string   `json:"description"`
+	CreatedAt     string   `json:"createdAt"`
+	Triggers      []string `json:"triggers,omitempty"`
+	ModifiedAt    string   `json:"modifiedAt"`
+	ContentType   string   `json:"contentType"`
+	ModifiedBy    string   `json:"modifiedBy"`
 }
-
 
 // ---------- END ----------

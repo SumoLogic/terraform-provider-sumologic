@@ -13,136 +13,103 @@
 package sumologic
 
 import (
-  "encoding/json"
-  "fmt"
+	"encoding/json"
+	"fmt"
 )
 
-// ---------- ENDPOINTS ---------- 
-
+// ---------- ENDPOINTS ----------
 
 func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor, paramMap map[string]string) (string, error) {
-    urlWithoutParams := "v1/monitors"
-    paramString := ""
-sprintfArgs := []interface{}{}
+	urlWithoutParams := "v1/monitors"
+	paramString := ""
+	sprintfArgs := []interface{}{}
 
+	paramString += "?"
 
-paramString += "?"
+	if val, ok := paramMap["parentId"]; ok {
+		queryParam := fmt.Sprintf("parentId=%s&", val)
+		paramString += queryParam
+	}
 
-if val, ok := paramMap["parentId"]; ok {
-queryParam := fmt.Sprintf("parentId=%s&", val)
-paramString += queryParam
-}
-
-
-
-
-
-    
-    
-    
-  data, err := s.Post(urlWithoutParams, monitorsLibraryMonitorResponse)
-  if err != nil {
+	data, err := s.Post(urlWithoutParams, monitorsLibraryMonitor)
+	if err != nil {
 		return "", err
 	}
 
-    var createdMonitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var createdMonitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
 
-    
-    err = json.Unmarshal(data, &createdMonitorsLibraryMonitorResponse)
-    if err != nil {
-        return "", err
-    }
+	err = json.Unmarshal(data, &createdMonitorsLibraryMonitorResponse)
+	if err != nil {
+		return "", err
+	}
 
-    return createdMonitorsLibraryMonitorResponse.ID, nil
+	return createdMonitorsLibraryMonitorResponse.ID, nil
 }
 
-
 func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitorResponse, error) {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, id)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, id)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    
-  data, _, err := s.Get(urlWithParams)
-  if err != nil {
+	data, _, err := s.Get(urlWithParams)
+	if err != nil {
 		return nil, err
 	}
 	if data == nil {
 		return nil, nil
 	}
 
-    var monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
+	var monitorsLibraryMonitorResponse MonitorsLibraryMonitorResponse
 
-    
-    err = json.Unmarshal(data, &monitorsLibraryMonitorResponse)
+	err = json.Unmarshal(data, &monitorsLibraryMonitorResponse)
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return &monitorsLibraryMonitorResponse, nil
+	return &monitorsLibraryMonitorResponse, nil
 }
-
 
 func (s *Client) DeleteMonitorsLibraryMonitor(id string) error {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, id)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, id)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	_, err := s.Delete(urlWithParams)
 
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    _, err := s.Delete(urlWithParams)
-    
-    return err
+	return err
 }
-
 
 func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor) error {
-    urlWithoutParams := "v1/monitors/%s"
-    paramString := ""
-sprintfArgs := []interface{}{}
-sprintfArgs = append(sprintfArgs, monitorsLibraryMonitorResponse.ID)
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, monitorsLibraryMonitor.ID)
 
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	monitorsLibraryMonitor.ID = ""
 
-
-
-    urlWithParams := fmt.Sprintf(urlWithoutParams + paramString, sprintfArgs...)
-    
-    
-    
-    
-    monitorsLibraryMonitorResponse.ID = ""
-    
-
-    _, err := s.Put(urlWithParams, monitorsLibraryMonitorResponse)
-    return err
+	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
+	return err
 }
-
 
 // ---------- TYPES ----------
 type MonitorsLibraryMonitor struct {
-    ID string `json:"id,omitempty"`
-    Type string `json:"type"`
-    Queries []string `json:"queries,omitempty"`
-    Name string `json:"name"`
-    Notifications []string `json:"notifications,omitempty"`
-    MonitorType string `json:"monitorType"`
-    Description string `json:"description"`
-    Triggers []string `json:"triggers,omitempty"`
+	ID            string   `json:"id,omitempty"`
+	Type          string   `json:"type"`
+	Queries       []string `json:"queries,omitempty"`
+	Name          string   `json:"name"`
+	Notifications []string `json:"notifications,omitempty"`
+	MonitorType   string   `json:"monitorType"`
+	Description   string   `json:"description"`
+	Triggers      []string `json:"triggers,omitempty"`
 }
-
 
 // ---------- END ----------
