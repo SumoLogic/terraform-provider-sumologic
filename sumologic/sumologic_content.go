@@ -222,6 +222,10 @@ func waitForJob(url string, timeout time.Duration, s *Client) error {
 			log.Println(status.Errors)
 			log.Println("====End Job Status Check====")
 
+			if status.Status == "failed" {
+				return status, status.Status, fmt.Errorf("job failed: %s", status.StatusMessage)
+			}
+
 			return status, status.Status, nil
 		},
 		Timeout:                   timeout,
