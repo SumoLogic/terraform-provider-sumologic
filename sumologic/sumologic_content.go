@@ -228,10 +228,9 @@ func waitForJob(url string, timeout time.Duration, s *Client) error {
 
 			return status, status.Status, nil
 		},
-		Timeout:                   timeout,
-		Delay:                     1 * time.Second,
-		MinTimeout:                1 * time.Second,
-		ContinuousTargetOccurence: 5,
+		Timeout:    timeout,
+		Delay:      1 * time.Second,
+		MinTimeout: 1 * time.Second,
 	}
 
 	_, err := conf.WaitForState()
