@@ -31,6 +31,10 @@ In addition to the common properties, the following arguments are supported:
 
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
 
+### See also
+  * Common Source Properties(https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+
+## Attributes Reference
 The following attributes are exported:
 
 - `id` - The internal ID of the source.
@@ -43,7 +47,7 @@ HTTP sources can be imported using the collector and source IDs (`collector/sour
 terraform import sumologic_http_source.test 123/456
 ```
 
-+HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
+HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
 
 ```hcl
 terraform import sumologic_http_source.test my-test-collector/my-test-source
