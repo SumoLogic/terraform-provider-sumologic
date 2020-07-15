@@ -117,7 +117,7 @@ In addition to the common properties, the following arguments are supported:
           + `tags` - List of key-value pairs of tag filters. Eg: `["k3=v3"]`
 
 ### See also
-  * Common Source Properties(https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+  * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
 
 ## Attributes Reference
 The following attributes are exported:
