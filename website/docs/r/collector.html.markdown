@@ -29,6 +29,10 @@ The following arguments are supported:
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention.
   * `fields` - (Optional) Map containing [key/value pairs][3].
 
+### See also
+  * Common Source Properties(https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+
+## Attributes Reference
 The following attributes are exported:
 
   * `id` - The internal ID of the collector. This can be used to attach sources to the collector.

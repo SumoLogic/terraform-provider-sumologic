@@ -116,7 +116,10 @@ In addition to the common properties, the following arguments are supported:
           + `namespace` - Namespace for which you want to define the tag filters. Use  value as `All` to apply the tag filter for all namespaces.
           + `tags` - List of key-value pairs of tag filters. Eg: `["k3=v3"]`
 
+### See also
+  * Common Source Properties(https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
 
+## Attributes Reference
 The following attributes are exported:
 
 - `id` - The internal ID of the source.
