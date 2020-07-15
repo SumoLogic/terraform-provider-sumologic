@@ -3,6 +3,6 @@
 
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
-# @seansain, @sumovishal, @tkao1000 will be requested for
+# @seansain, @sumovishal will be requested for
 # review when someone opens a pull request.
-*       @seansain @sumovishal @tkao1000
+*       @seansain @sumovishal
