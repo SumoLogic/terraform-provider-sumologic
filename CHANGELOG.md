@@ -1,4 +1,11 @@
 ## 2.2.0 (Unreleased)
+
+DOCS:
+* Add docs for common source properties ([#50](https://github.com/terraform-providers/terraform-provider-sumologic/pull/50))
+
+BUG FIXES:
+* Fix bug for detecting polling source path type changes on polling source ([#44](https://github.com/terraform-providers/terraform-provider-sumologic/pull/44))
+
 ## 2.1.0 (June 22, 2020)
 
 ENHANCEMENTS:
