@@ -36,7 +36,7 @@ func (s *Client) GetFolder(id string) (*Folder, error) {
 }
 
 //DELETE
-func (s *Client) DeleteFolder(id string) error {
+func (s *Client) DeleteFolder(id string, timeout time.Duration) error {
 	log.Println("####Begin DeleteFolder####")
 
 	log.Printf("Deleting Folder Id: %s", id)
@@ -64,41 +64,7 @@ func (s *Client) DeleteFolder(id string) error {
 	url = fmt.Sprintf("v2/content/%s/delete/%s/status", id, jid.ID)
 	log.Printf("Folder delete job status url: %s", url)
 
-	//Ensure the job has completed before proceeding
-	for {
-
-		log.Println("====Start Job Status Check====")
-
-		//check the status of the job
-		rawStatus, _, err := s.Get(url)
-
-		//If there were no errors during the request, proceed
-		if err != nil {
-			return err
-		}
-
-		// Parse the Job Status message
-		var status Status
-		err = json.Unmarshal(rawStatus, &status)
-
-		//Exit here if there was an error parsing the json
-		if err != nil {
-			return err
-		}
-
-		log.Printf("Job Status: %s", status.Status)
-		log.Printf("Job Message: %s", status.StatusMessage)
-		log.Println("Job Errors:")
-		log.Println(status.Errors)
-		log.Println("====End Job Status Check====")
-
-		if status.Status == "Success" {
-			break
-		}
-
-		log.Printf("Sleeping for 1 second before retrying Job Status check...")
-		time.Sleep(1 * time.Second)
-	}
+	waitForJob(url, timeout, s)
 
 	log.Println("####End DeleteFolder####")
 	return err

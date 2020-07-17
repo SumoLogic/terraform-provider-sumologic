@@ -6,10 +6,12 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 //READ
-func (s *Client) GetContent(id string) (*Content, error) {
+func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) {
 	log.Println("####Begin GetContent####")
 
 	url := fmt.Sprintf("v2/content/%s/export", id)
@@ -41,18 +43,9 @@ func (s *Client) GetContent(id string) (*Content, error) {
 
 	//Ensure the job has completed before proceeding
 	log.Printf("Job Id: %s", id)
-	for {
-		jobStatus, err := checkJobStatus(url, s)
-		if err != nil {
-			log.Println("Error occurred during job status check.")
-			return nil, err
-		}
-		if jobStatus {
-			break
-		}
-
-		log.Printf("Sleeping for 1 second before retrying Job Status check...")
-		time.Sleep(1 * time.Second)
+	err = waitForJob(url, timeout, s)
+	if err != nil {
+		return nil, err
 	}
 
 	//Request the results of the job
@@ -88,7 +81,7 @@ func (s *Client) GetContent(id string) (*Content, error) {
 }
 
 //DELETE
-func (s *Client) DeleteContent(id string) error {
+func (s *Client) DeleteContent(id string, timeout time.Duration) error {
 	log.Println("####Begin DeleteContent####")
 
 	log.Printf("Deleting Content Id: %s", id)
@@ -116,27 +109,14 @@ func (s *Client) DeleteContent(id string) error {
 	url = fmt.Sprintf("v2/content/%s/delete/%s/status", id, jid.ID)
 	log.Printf("Content delete job status url: %s", url)
 
-	//Ensure the job has completed before proceeding
-	for {
-		jobStatus, err := checkJobStatus(url, s)
-		if err != nil {
-			log.Println("Error occurred during job status check.")
-			return err
-		}
-		if jobStatus {
-			break
-		}
-
-		log.Printf("Sleeping for 1 second before retrying Job Status check...")
-		time.Sleep(1 * time.Second)
-	}
+	waitForJob(url, timeout, s)
 
 	log.Println("####End DeleteContent####")
 	return err
 }
 
 //CREATE
-func (s *Client) CreateContent(content Content) (string, error) {
+func (s *Client) CreateContent(content Content, timeout time.Duration) (string, error) {
 	log.Println("####Begin CreateContent####")
 
 	url := fmt.Sprintf("v2/content/folders/%s/import", content.ParentId)
@@ -164,20 +144,7 @@ func (s *Client) CreateContent(content Content) (string, error) {
 	url = fmt.Sprintf("v2/content/folders/%s/import/%s/status", content.ParentId, jid.ID)
 	log.Printf("Create content job status url: %s", url)
 
-	//Ensure the job has completed before proceeding
-	for {
-		jobStatus, err := checkJobStatus(url, s)
-		if err != nil {
-			log.Println("Error occurred during job status check.")
-			return "", err
-		}
-		if jobStatus {
-			break
-		}
-
-		log.Printf("Sleeping for 1 second before retrying Job Status check...")
-		time.Sleep(1 * time.Second)
-	}
+	waitForJob(url, timeout, s)
 
 	log.Println("####Begin Folder Read####")
 	log.Printf("Looking up folder with ID: %s", content.ParentId)
@@ -227,37 +194,45 @@ func (s *Client) CreateContent(content Content) (string, error) {
 	return "", nil
 }
 
-func checkJobStatus(url string, s *Client) (bool, error) {
+func waitForJob(url string, timeout time.Duration, s *Client) error {
+	conf := &resource.StateChangeConf{
+		Pending: []string{
+			"InProgress",
+		},
+		Target: []string{
+			"Success",
+		},
+		Refresh: func() (interface{}, string, error) {
+			log.Println("====Start Job Status Check====")
 
-	log.Println("====Start Job Status Check====")
+			var status Status
+			b, _, err := s.Get(url)
+			if err != nil {
+				return nil, "", err
+			}
 
-	//check the status of the job
-	rawStatus, _, err := s.Get(url)
+			err = json.Unmarshal(b, &status)
+			if err != nil {
+				return nil, "", err
+			}
 
-	//If there were no errors during the request, proceed
-	if err != nil {
-		return false, err
+			log.Printf("Job Status: %s", status.Status)
+			log.Printf("Job Message: %s", status.StatusMessage)
+			log.Println("Job Errors:")
+			log.Println(status.Errors)
+			log.Println("====End Job Status Check====")
+
+			if status.Status == "failed" {
+				return status, status.Status, fmt.Errorf("job failed: %s", status.StatusMessage)
+			}
+
+			return status, status.Status, nil
+		},
+		Timeout:    timeout,
+		Delay:      1 * time.Second,
+		MinTimeout: 1 * time.Second,
 	}
 
-	// Parse the Job Status message
-	var status Status
-	err = json.Unmarshal(rawStatus, &status)
-
-	//Exit here if there was an error parsing the json
-	if err != nil {
-		return false, err
-	}
-
-	log.Printf("Job Status: %s", status.Status)
-	log.Printf("Job Message: %s", status.StatusMessage)
-	log.Println("Job Errors:")
-	log.Println(status.Errors)
-	log.Println("====End Job Status Check====")
-
-	if status.Status == "Success" {
-		return true, nil
-	} else {
-		return false, nil
-	}
-
+	_, err := conf.WaitForState()
+	return err
 }

@@ -27,6 +27,12 @@ The following arguments are supported:
 - `parent_id` - (Required) The ID of the folder in which you want to create the new folder.
 - `description` - (Optional) The description of the folder.
 
+### Timeouts
+
+`sumologic_folder` provides the following [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `delete` - (Default `1 minute`) Used for waiting for the deletion job to be successful
+
 Additional data provided in state
 
 - `created_at` - (Computed) When the folder was created.
