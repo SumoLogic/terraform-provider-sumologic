@@ -1,4 +1,4 @@
-## 2.2.0 (Unreleased)
+## 2.1.1 (Unreleased)
 
 DOCS:
 * Add docs for common source properties ([#50](https://github.com/terraform-providers/terraform-provider-sumologic/pull/50))
