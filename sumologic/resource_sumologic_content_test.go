@@ -98,7 +98,7 @@ func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 
 var updateConfigJson = `{
 	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "test-333",
+	"name": "test-121",
 	"search": {
 		"queryText": "\"warn\"",
 		"defaultTimeRange": "-15m",
@@ -106,7 +106,7 @@ var updateConfigJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "Manual"
+		"parsingMode": "AutoParse"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
@@ -134,7 +134,7 @@ var updateConfigJson = `{
 		"muteErrorEmails": false,
 		"parameters": []
 	},
-	"description": "Runs every hour with timerange of 15m and sends email notifications"
+	"description": "Runs every hour with timerange of 15m and sends email notifications updated"
 }`
 
 var configJson = `{
@@ -147,7 +147,7 @@ var configJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "Manual"
+		"parsingMode": "AutoParse"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
