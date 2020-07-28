@@ -14,6 +14,7 @@ func resourceSumologicContent() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicContentCreate,
 		Read:   resourceSumologicContentRead,
+		Update: resourceSumologicContentUpdate,
 		Delete: resourceSumologicContentDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -26,13 +27,13 @@ func resourceSumologicContent() *schema.Resource {
 				Type:             schema.TypeString,
 				ValidateFunc:     validation.StringIsJSON,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Read:   schema.DefaultTimeout(1 * time.Minute),
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
 	}
@@ -94,9 +95,9 @@ func resourceSumologicContentCreate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("Config: %s", content.Config)
 
 		//Call create content with our newly populated struct
-		id, err := c.CreateContent(*content, d.Timeout(schema.TimeoutCreate))
+		id, err := c.CreateOrUpdateContent(*content, d.Timeout(schema.TimeoutCreate), false)
 
-		//Error during CreateContent
+		//Error during CreateOrUpdateContent
 		if err != nil {
 			return err
 		}
@@ -112,6 +113,33 @@ func resourceSumologicContentCreate(d *schema.ResourceData, meta interface{}) er
 
 	//After creating an object, we read it again to make sure the state is properly saved
 	return resourceSumologicContentRead(d, meta)
+}
+
+func resourceSumologicContentUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Println("====Begin Content Update====")
+	c := meta.(*Client)
+
+	//Load all data from the schema into a Content Struct
+	content := resourceToContent(d)
+
+	//Call create content with overwrite set to true
+	id, err := c.CreateOrUpdateContent(*content, d.Timeout(schema.TimeoutUpdate), true)
+
+	//Error during CreateOrUpdateContent
+	if err != nil {
+		return err
+	}
+
+	log.Println("Saving Id to state...")
+	d.SetId(id)
+	log.Printf("ContentId: %s", id)
+	log.Printf("ContentType: %s", content.Type)
+
+	log.Println("====End Content Update====")
+
+	//After updating an object, we read it to make sure the state is properly saved
+	return resourceSumologicContentRead(d, meta)
+
 }
 
 func resourceToContent(d *schema.ResourceData) *Content {

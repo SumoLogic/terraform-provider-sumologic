@@ -1,4 +1,11 @@
-## 2.2.0 (Unreleased)
+## 2.1.3 (Unreleased)
+ENHANCEMENTS:
+* Allow updates to content resources so that dashboard links do not exprie. This creates a known bug - do not update the name of a resource.
+
+## 2.1.2 (July 24, 2020)
+ENHANCEMENTS:
+* Now parrt of the Terraform Registry - compatible with Terraform 0.13
+
 ## 2.1.1 (July 17, 2020)
 
 DOCS:
