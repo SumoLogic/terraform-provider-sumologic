@@ -17,10 +17,10 @@ import (
 
 func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSumologicMonitorsLibraryMonitor().Create,
-		Read:   resourceSumologicMonitorsLibraryMonitor().Read,
-		Update: resourceSumologicMonitorsLibraryMonitor().Update,
-		Delete: resourceSumologicMonitorsLibraryMonitor().Delete,
+		Create: resourceSumologicMonitorsLibraryMonitorCreate,
+		Read:   resourceSumologicMonitorsLibraryMonitorRead,
+		Update: resourceSumologicMonitorsLibraryMonitorUpdate,
+		Delete: resourceSumologicMonitorsLibraryMonitorDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -36,6 +36,23 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 		},
 	}
 }
+
+func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
+	// c := meta.(*Client)
+	// m := resourceToMonitorsLibraryMonitor(d)
+	// monitor, err := c.CreateMonitorsLibraryMonitor(m, nil)
+	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
+}
+
+func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta interface{}) error {
+	return nil
+}
+
+func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
+	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
+}
+
+func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta interface{}) error {}
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
 	rawNotifications := d.Get("notifications").([]interface{})
