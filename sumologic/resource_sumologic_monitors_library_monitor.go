@@ -52,7 +52,9 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
 }
 
-func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta interface{}) error {}
+func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta interface{}) error {
+	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
+}
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
 	rawNotifications := d.Get("notifications").([]interface{})
