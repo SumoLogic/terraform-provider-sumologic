@@ -12,6 +12,8 @@
 package sumologic
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -149,6 +151,59 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+	if d.Id() == "" {
+		monitor := resourceToMonitorsLibraryMonitor(d)
+		paramMap := make(map[string]string)
+		paramMap["parentId"] = "0000000000000001"
+		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
+		if err != nil {
+			return err
+		}
+
+		d.SetId(monitorDefinitionID)
+	}
+	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
+}
+
+func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+
+	// id, _ := strconv.Atoi(d.Id())
+	monitor, err := c.MonitorsRead(d.Id())
+	if err != nil {
+		return err
+	}
+
+	if monitor == nil {
+		log.Printf("[WARN] Monitor not found, removing from state: %v - %v", d.Id(), err)
+		d.SetId("")
+		return nil
+	}
+	return nil
+}
+
+func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+	monitor := resourceToMonitorsLibraryMonitor(d)
+	err := c.UpdateMonitorsLibraryMonitor(monitor)
+	if err != nil {
+		return err
+	}
+	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
+}
+
+func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+	monitor := resourceToMonitorsLibraryMonitor(d)
+	err := c.DeleteMonitorsLibraryMonitor(monitor.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
