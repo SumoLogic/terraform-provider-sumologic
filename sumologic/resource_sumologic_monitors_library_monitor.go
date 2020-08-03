@@ -12,8 +12,6 @@
 package sumologic
 
 import (
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -28,6 +26,120 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+
+			"version": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"modified_at": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"is_system": {
+				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"content_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"queries": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"created_by": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"parent_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"is_mutable": {
+				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"triggers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"notifications": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"monitor_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"is_locked": {
+				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"modified_by": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
 			"post_request_map": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -37,59 +149,6 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-	if d.Id() == "" {
-		monitor := resourceToMonitorsLibraryMonitor(d)
-		paramMap := make(map[string]string)
-		paramMap["parentId"] = "0000000000000001"
-		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
-		if err != nil {
-			return err
-		}
-
-		d.SetId(monitorDefinitionID)
-	}
-	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
-}
-
-func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	// id, _ := strconv.Atoi(d.Id())
-	monitor, err := c.MonitorsReadById(d.Id())
-	if err != nil {
-		return err
-	}
-
-	if monitor == nil {
-		log.Printf("[WARN] Monitor not found, removing from state: %v - %v", d.Id(), err)
-		d.SetId("")
-		return nil
-	}
-	return nil
-}
-
-func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-	monitor := resourceToMonitorsLibraryMonitor(d)
-	err := c.UpdateMonitorsLibraryMonitor(monitor)
-	if err != nil {
-		return err
-	}
-	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
-}
-
-func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-	monitor := resourceToMonitorsLibraryMonitor(d)
-	err := c.DeleteMonitorsLibraryMonitor(monitor.ID)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
@@ -110,13 +169,23 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	}
 
 	return MonitorsLibraryMonitor{
+		CreatedBy:     d.Get("created_by").(string),
 		Name:          d.Get("name").(string),
 		ID:            d.Id(),
+		CreatedAt:     d.Get("created_at").(string),
 		MonitorType:   d.Get("monitor_type").(string),
 		Description:   d.Get("description").(string),
 		Queries:       queries,
+		ModifiedBy:    d.Get("modified_by").(string),
+		IsMutable:     d.Get("is_mutable").(bool),
+		Version:       d.Get("version").(int),
 		Notifications: notifications,
 		Type:          d.Get("type").(string),
+		ParentId:      d.Get("parent_id").(string),
+		ModifiedAt:    d.Get("modified_at").(string),
 		Triggers:      triggers,
+		ContentType:   d.Get("content_type").(string),
+		IsLocked:      d.Get("is_locked").(bool),
+		IsSystem:      d.Get("is_system").(bool),
 	}
 }

@@ -22,7 +22,7 @@ import (
 func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor, paramMap map[string]string) (string, error) {
 	urlWithoutParams := "v1/monitors"
 	paramString := ""
-	// sprintfArgs := []interface{}{}
+	sprintfArgs := []interface{}{}
 
 	paramString += "?"
 
@@ -31,7 +31,9 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 		paramString += queryParam
 	}
 
-	data, err := s.Post(urlWithoutParams, monitorsLibraryMonitor)
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+
+	data, err := s.Post(urlWithParams, monitorsLibraryMonitor)
 	if err != nil {
 		return "", err
 	}
@@ -44,9 +46,10 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	}
 
 	return createdMonitorsLibraryMonitor.ID, nil
+
 }
 
-func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitor, error) {
+func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 	urlWithoutParams := "v1/monitors/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
@@ -71,6 +74,7 @@ func (s *Client) MonitorsReadById(id string) (*MonitorsLibraryMonitor, error) {
 	}
 
 	return &monitorsLibraryMonitor, nil
+
 }
 
 func (s *Client) DeleteMonitorsLibraryMonitor(id string) error {
@@ -97,19 +101,31 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	monitorsLibraryMonitor.ID = ""
 
 	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
+
 	return err
+
 }
 
 // ---------- TYPES ----------
 type MonitorsLibraryMonitor struct {
 	ID            string   `json:"id,omitempty"`
+	IsSystem      bool     `json:"isSystem"`
 	Type          string   `json:"type"`
 	Queries       []string `json:"queries,omitempty"`
+	ParentId      string   `json:"parentId"`
 	Name          string   `json:"name"`
+	IsMutable     bool     `json:"isMutable"`
+	Version       int      `json:"version"`
 	Notifications []string `json:"notifications,omitempty"`
+	CreatedBy     string   `json:"createdBy"`
 	MonitorType   string   `json:"monitorType"`
+	IsLocked      bool     `json:"isLocked"`
 	Description   string   `json:"description"`
+	CreatedAt     string   `json:"createdAt"`
 	Triggers      []string `json:"triggers,omitempty"`
+	ModifiedAt    string   `json:"modifiedAt"`
+	ContentType   string   `json:"contentType"`
+	ModifiedBy    string   `json:"modifiedBy"`
 }
 
 // ---------- END ----------
