@@ -15,6 +15,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 // ---------- ENDPOINTS ----------
@@ -37,6 +38,7 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	if err != nil {
 		return "", err
 	}
+	log.Printf("created monitor response: %v", data)
 
 	var createdMonitorsLibraryMonitor MonitorsLibraryMonitor
 
@@ -108,24 +110,55 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 // ---------- TYPES ----------
 type MonitorsLibraryMonitor struct {
-	ID            string   `json:"id,omitempty"`
-	IsSystem      bool     `json:"isSystem"`
-	Type          string   `json:"type"`
-	Queries       []string `json:"queries,omitempty"`
-	ParentId      string   `json:"parentId"`
-	Name          string   `json:"name"`
-	IsMutable     bool     `json:"isMutable"`
-	Version       int      `json:"version"`
-	Notifications []string `json:"notifications,omitempty"`
-	CreatedBy     string   `json:"createdBy"`
-	MonitorType   string   `json:"monitorType"`
-	IsLocked      bool     `json:"isLocked"`
-	Description   string   `json:"description"`
-	CreatedAt     string   `json:"createdAt"`
-	Triggers      []string `json:"triggers,omitempty"`
-	ModifiedAt    string   `json:"modifiedAt"`
-	ContentType   string   `json:"contentType"`
-	ModifiedBy    string   `json:"modifiedBy"`
+	ID            string                `json:"id,omitempty"`
+	IsSystem      bool                  `json:"isSystem"`
+	Type          string                `json:"type"`
+	Queries       []MonitorQuery        `json:"queries,omitempty"`
+	ParentId      string                `json:"parentId"`
+	Name          string                `json:"name"`
+	IsMutable     bool                  `json:"isMutable"`
+	Version       int                   `json:"version"`
+	Notifications []MonitorNotification `json:"notifications,omitempty"`
+	CreatedBy     string                `json:"createdBy"`
+	MonitorType   string                `json:"monitorType"`
+	IsLocked      bool                  `json:"isLocked"`
+	Description   string                `json:"description"`
+	CreatedAt     string                `json:"createdAt"`
+	Triggers      []TriggerCondition    `json:"triggers,omitempty"`
+	ModifiedAt    string                `json:"modifiedAt"`
+	ContentType   string                `json:"contentType"`
+	ModifiedBy    string                `json:"modifiedBy"`
+	IsDisabled    bool                  `json:"isDisabled"`
+}
+
+type MonitorQuery struct {
+	RowID string `json:"rowId"`
+	Query string `json:"query"`
+}
+
+type TriggerCondition struct {
+	TimeRange       string  `json:"timeRange"`
+	TriggerType     string  `json:"triggerType"`
+	Threshold       float64 `json:"threshold"`
+	ThresholdType   string  `json:"thresholdType"`
+	OccurrenceType  string  `json:"occurrenceType"`
+	TriggerSource   string  `json:"triggerSource"`
+	DetectionMethod string  `json:"detectionMethod"`
+}
+
+type MonitorNotification struct {
+	Notification       string   `json:"notification"`
+	RunForTriggerTypes []string `json:"runForTriggerTypes"`
+}
+
+type EmailNotification struct {
+	subject     string   `json:"subject"`
+	recipients  []string `json:"recipients"`
+	messageBody string   `json:"messageBody"`
+}
+
+type WebhookNotificiation struct {
+	//
 }
 
 // ---------- END ----------
