@@ -57,9 +57,17 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
-
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"row_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"query": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
 				},
 			},
 
@@ -85,9 +93,37 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
-
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"trigger_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"threshold": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"threshold_type": {
+							Type:     schema.TypeFloat,
+							Required: true,
+						},
+						"time_range": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"trigger_source": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"occurrence_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"detection_method": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
 				},
 			},
 
@@ -208,19 +244,19 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
 	rawNotifications := d.Get("notifications").([]interface{})
-	notifications := make([]string, len(rawNotifications))
+	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i, v := range rawNotifications {
-		notifications[i] = v.(string)
+		notifications[i] = v.(MonitorNotification)
 	}
 	rawTriggers := d.Get("triggers").([]interface{})
-	triggers := make([]string, len(rawTriggers))
+	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i, v := range rawTriggers {
-		triggers[i] = v.(string)
+		triggers[i] = v.(TriggerCondition)
 	}
 	rawQueries := d.Get("queries").([]interface{})
-	queries := make([]string, len(rawQueries))
+	queries := make([]MonitorQuery, len(rawQueries))
 	for i, v := range rawQueries {
-		queries[i] = v.(string)
+		queries[i] = v.(MonitorQuery)
 	}
 
 	return MonitorsLibraryMonitor{
