@@ -41,6 +41,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_polling_source":                     resourceSumologicPollingSource(),
+			"sumologic_metadata_source":                    resourceSumologicMetadataSource(),
 			"sumologic_cloudsyslog_source":                 resourceSumologicCloudsyslogSource(),
 			"sumologic_role":                               resourceSumologicRole(),
 			"sumologic_user":                               resourceSumologicUser(),
