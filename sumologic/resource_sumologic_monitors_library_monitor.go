@@ -100,11 +100,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Required: true,
 						},
 						"threshold": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeFloat,
 							Required: true,
 						},
 						"threshold_type": {
-							Type:     schema.TypeFloat,
+							Type:     schema.TypeString,
 							Required: true,
 						},
 						"time_range": {
@@ -245,18 +245,28 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
-	for i, v := range rawNotifications {
-		notifications[i] = v.(MonitorNotification)
+	for i := range rawNotifications {
+		notification_dict := rawNotifications[i].(map[string]interface{})
+		n := MonitorNotification{}
+		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]string)
+		notifications[i] = n
 	}
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
-	for i, v := range rawTriggers {
-		triggers[i] = v.(TriggerCondition)
+	for i := range rawTriggers {
+		trigger_dict := rawTriggers[i].(map[string]interface{})
+		t := TriggerCondition{}
+		t.TriggerType = trigger_dict["trigger_type"].(string)
+		triggers[i] = t
 	}
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
-	for i, v := range rawQueries {
-		queries[i] = v.(MonitorQuery)
+	for i := range rawQueries {
+		query_dict := rawQueries[i].(map[string]interface{})
+		q := MonitorQuery{}
+		q.Query = query_dict["query"].(string)
+		q.RowID = query_dict["row_id"].(string)
+		queries[i] = q
 	}
 
 	return MonitorsLibraryMonitor{
