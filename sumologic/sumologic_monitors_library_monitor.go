@@ -15,6 +15,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 // ---------- ENDPOINTS ----------
@@ -37,6 +38,7 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	if err != nil {
 		return "", err
 	}
+	log.Printf("created monitor response: %v", data)
 
 	var createdMonitorsLibraryMonitor MonitorsLibraryMonitor
 
@@ -126,6 +128,7 @@ type MonitorsLibraryMonitor struct {
 	ModifiedAt    string                `json:"modifiedAt"`
 	ContentType   string                `json:"contentType"`
 	ModifiedBy    string                `json:"modifiedBy"`
+	IsDisabled    bool                  `json:"isDisabled"`
 }
 
 type MonitorQuery struct {
@@ -134,13 +137,13 @@ type MonitorQuery struct {
 }
 
 type TriggerCondition struct {
-	TimeRange       string `json:"timeRange"`
-	TriggerType     string `json:"triggerType"`
-	Threshold       string `json:"threshold"`
-	ThresholdType   string `json:"thresholdType"`
-	OccurrenceType  string `json:"occurrenceType"`
-	TriggerSource   string `json:"triggerSource"`
-	DetectionMethod string `json:"detectionMethod"`
+	TimeRange       string  `json:"timeRange"`
+	TriggerType     string  `json:"triggerType"`
+	Threshold       float64 `json:"threshold"`
+	ThresholdType   string  `json:"thresholdType"`
+	OccurrenceType  string  `json:"occurrenceType"`
+	TriggerSource   string  `json:"triggerSource"`
+	DetectionMethod string  `json:"detectionMethod"`
 }
 
 type MonitorNotification struct {

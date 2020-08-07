@@ -31,19 +31,19 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"version": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
@@ -73,19 +73,25 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"created_by": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"parent_id": {
 				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"is_disabled": {
+				Type:     schema.TypeBool,
 				Required: true,
 				ForceNew: false,
+				// Default:  false,
 			},
 
 			"is_mutable": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
@@ -145,7 +151,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"created_at": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
@@ -157,7 +163,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"is_locked": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
@@ -169,7 +175,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"modified_by": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 
@@ -249,6 +255,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		notification_dict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
 		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]string)
+		n.Notification = notification_dict["notification"].(string)
 		notifications[i] = n
 	}
 	rawTriggers := d.Get("triggers").([]interface{})
@@ -257,6 +264,12 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		trigger_dict := rawTriggers[i].(map[string]interface{})
 		t := TriggerCondition{}
 		t.TriggerType = trigger_dict["trigger_type"].(string)
+		t.Threshold = trigger_dict["threshold"].(float64)
+		t.ThresholdType = trigger_dict["threshold_type"].(string)
+		t.TimeRange = trigger_dict["time_range"].(string)
+		t.OccurrenceType = trigger_dict["occurrence_type"].(string)
+		t.TriggerSource = trigger_dict["trigger_source"].(string)
+		t.DetectionMethod = trigger_dict["detection_method"].(string)
 		triggers[i] = t
 	}
 	rawQueries := d.Get("queries").([]interface{})
@@ -288,5 +301,6 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		ContentType:   d.Get("content_type").(string),
 		IsLocked:      d.Get("is_locked").(bool),
 		IsSystem:      d.Get("is_system").(bool),
+		IsDisabled:    d.Get("is_disabled").(bool),
 	}
 }
