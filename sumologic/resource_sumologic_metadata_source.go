@@ -75,15 +75,7 @@ func resourceSumologicMetadataSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath", "AwsMetadataPath"}, false),
-				},
-				"bucket_name": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-				"path_expression": {
-					Type:     schema.TypeString,
-					Optional: true,
+					ValidateFunc: validation.StringInSlice([]string{"AwsMetadataPath"}, false),
 				},
 				"limit_to_regions": {
 					Type:     schema.TypeList,
@@ -214,8 +206,6 @@ func getMetadataThirdPartyPathAttributes(pollingResource []MetadataResource) []m
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
 			"type":                t.Path.Type,
-			"bucket_name":         t.Path.BucketName,
-			"path_expression":     t.Path.PathExpression,
 			"limit_to_regions":    t.Path.LimitToRegions,
 			"limit_to_namespaces": t.Path.LimitToNamespaces,
 			"tag_filters":         t.Path.TagFilters,
