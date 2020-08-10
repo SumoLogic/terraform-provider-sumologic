@@ -13,11 +13,6 @@ __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This i
 ## Example Usage
 ```hcl
 locals {
-  filters = [{
-    name        = "Exclude Comments"
-    filter_type = "Exclude"
-    regexp      = "#.*"
-  }] 
   tagfilters = [{
           "type" = "TagFilters"
           "namespace" = "All"
@@ -41,7 +36,11 @@ resource "sumologic_polling_source" "s3_audit" {
   scan_interval = 300000
   paused        = false
   collector_id  = "${sumologic_collector.collector.id}"
-  filters       = "${local.filters}"
+  filters {
+    name        = "Exclude Comments"
+    filter_type = "Exclude"
+    regexp      = "#.*"
+  }
 
   authentication {
     type = "S3BucketAuthentication"
