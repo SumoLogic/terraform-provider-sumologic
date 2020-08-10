@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic Metadata (Tag) source. This source allows you to collect tags from EC2 instances running on AWS.
 ---
 
-# sumologic_polling_source
+# sumologic_metadata_source
 Provides a Sumologic Metadata (Tag) source. This source allows you to collect tags from EC2 instances running on AWS.
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
