@@ -40,7 +40,12 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
-			"sumologic_polling_source":                     resourceSumologicPollingSource(),
+			"sumologic_s3_source":                          resourceSumologicPollingSource(),
+			"sumologic_s3_audit_source":                    resourceSumologicPollingSource(),
+			"sumologic_cloudwatch_source":                  resourceSumologicPollingSource(),
+			"sumologic_cloudtrail_source":                  resourceSumologicPollingSource(),
+			"sumologic_elb_source":                         resourceSumologicPollingSource(),
+			"sumologic_cloudfront_source":                  resourceSumologicPollingSource(),
 			"sumologic_cloudsyslog_source":                 resourceSumologicCloudsyslogSource(),
 			"sumologic_role":                               resourceSumologicRole(),
 			"sumologic_user":                               resourceSumologicUser(),
