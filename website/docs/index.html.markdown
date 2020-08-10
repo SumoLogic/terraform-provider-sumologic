@@ -29,15 +29,6 @@ resource "sumologic_http_source" "http_source" {
     collector_id = "${sumologic_collector.collector.id}"
 }
 
-# Create HTTP source / SNS auto-confirm
-resource "sumologic_http_source_sns_autoconfirm" "sns_confirm" {
-  category             = "aws/config/${var.project_name}/${var.env}"
-  confirmation_timeout = 3
-
-  triggers {
-    http_source_url = "${sumologic_http_source.http_source.url}"
-  }
-}
 ```
 
 ## Authentication
