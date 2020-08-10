@@ -33,8 +33,6 @@ type MetadataAuthentication struct {
 
 type MetadataPath struct {
 	Type              string   `json:"type"`
-	BucketName        string   `json:"bucketName,omitempty"`
-	PathExpression    string   `json:"pathExpression,omitempty"`
 	LimitToRegions    []string `json:"limitToRegions,omitempty"`
 	LimitToNamespaces []string `json:"limitToNamespaces,omitempty"`
 	TagFilters        []string `json:"tagFilters,omitempty"`
