@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -115,11 +116,11 @@ func (s *Client) DeleteContent(id string, timeout time.Duration) error {
 	return err
 }
 
-//CREATE
-func (s *Client) CreateContent(content Content, timeout time.Duration) (string, error) {
-	log.Println("####Begin CreateContent####")
+//CREATE or UPDATE
+func (s *Client) CreateOrUpdateContent(content Content, timeout time.Duration, overwrite bool) (string, error) {
+	log.Println("####Begin CreateOrUpdateContent####")
 
-	url := fmt.Sprintf("v2/content/folders/%s/import", content.ParentId)
+	url := fmt.Sprintf("v2/content/folders/%s/import?overwrite=%s", content.ParentId, strconv.FormatBool(overwrite))
 	log.Printf("Create content url: %s", url)
 
 	//Initiate content creation job

@@ -62,7 +62,7 @@ resource "sumologic_content" "test" {
 The following arguments are supported:
 
 - `parent_id` - (Required) The identifier of the folder to import into. Identifiers from the Library in the Sumo user interface are provided in decimal format which is incompatible with Terraform. The identifier needs to be in hexadecimal format.
-- `config` - (Required) JSON block for the content to import.
+- `config` - (Required) JSON block for the content to import. NOTE: Updating the name will create a new object and leave a untracked content item (delete the existing content item and create a new content item if you want to update the name).
 
 ### Timeouts
 
@@ -70,6 +70,7 @@ The following arguments are supported:
 
 - `read` - (Default `1 minute`) Used for waiting for the import job to be successful
 - `create` - (Default `10 minutes`) Used for waiting for the import job to be successful
+- `update` - (Default `10 minutes`) Used for waiting for the import job to be successful
 - `delete` - (Default `1 minute`) Used for waiting for the deletion job to be successful
 
 ## Attributes reference
