@@ -1,4 +1,6 @@
-## 2.1.3 (Unreleased)
+## 2.2.0 (Unreleased)
+
+## 2.1.3 (July 30, 2020)
 ENHANCEMENTS:
 * Allow updates to content resources so that dashboard links do not exprie. This creates a known bug - do not update the name of a resource.
 
