@@ -44,7 +44,7 @@ resource "sumologic_cloudwatch_source" "terraform_cloudwatch_source" {
 
   authentication {
     type = "AWSRoleBasedAuthentication"
-    role_arn = "arn:aws:iam::604066827510:role/cw-role-SumoRole-4AOLS73TGKYI"
+    role_arn = "arn:aws:iam::01234567890:role/sumo-role"
   }
 
   path {
