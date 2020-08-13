@@ -1,8 +1,6 @@
 package sumologic
 
 import (
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -27,7 +25,7 @@ func dataSourceSumologicCallerIdentity() *schema.Resource {
 func dataSourceSumologicCallerIdentityRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	d.SetId(time.Now().UTC().String())
+	d.SetId("access_id")
 	d.Set("access_id", c.AccessID)
 	d.Set("environment", c.Environment)
 
