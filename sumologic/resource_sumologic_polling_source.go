@@ -17,6 +17,8 @@ func resourceSumologicPollingSource() *schema.Resource {
 	pollingSource.Importer = &schema.ResourceImporter{
 		State: resourceSumologicSourceImport,
 	}
+	pollingSource.DeprecationMessage =
+		"We are deprecating the generic sumologic polling source and in turn creating individual sources for each of the content_type currently supported."
 
 	pollingSource.Schema["content_type"] = &schema.Schema{
 		Type:         schema.TypeString,
