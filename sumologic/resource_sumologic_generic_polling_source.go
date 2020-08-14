@@ -9,16 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-func resourceSumologicPollingSource() *schema.Resource {
+func resourceSumologicGenericPollingSource() *schema.Resource {
 	pollingSource := resourceSumologicSource()
-	pollingSource.Create = resourceSumologicPollingSourceCreate
-	pollingSource.Read = resourceSumologicPollingSourceRead
-	pollingSource.Update = resourceSumologicPollingSourceUpdate
+	pollingSource.Create = resourceSumologicGenericPollingSourceCreate
+	pollingSource.Read = resourceSumologicGenericPollingSourceRead
+	pollingSource.Update = resourceSumologicGenericPollingSourceUpdate
 	pollingSource.Importer = &schema.ResourceImporter{
 		State: resourceSumologicSourceImport,
 	}
-	pollingSource.DeprecationMessage =
-		"We are deprecating the generic sumologic polling source and in turn creating individual sources for each of the content_type currently supported."
 
 	pollingSource.Schema["content_type"] = &schema.Schema{
 		Type:         schema.TypeString,
@@ -132,12 +130,12 @@ func resourceSumologicPollingSource() *schema.Resource {
 	return pollingSource
 }
 
-func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicGenericPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
 
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		source := resourceToPollingSource(d)
+		source := resourceToGenericPollingSource(d)
 		sourceID, err := c.CreatePollingSource(source, d.Get("collector_id").(int))
 
 		if err != nil {
@@ -149,13 +147,13 @@ func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface
 		d.SetId(id)
 	}
 
-	return resourceSumologicPollingSourceRead(d, meta)
+	return resourceSumologicGenericPollingSourceRead(d, meta)
 }
 
-func resourceSumologicPollingSourceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicGenericPollingSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	source := resourceToPollingSource(d)
+	source := resourceToGenericPollingSource(d)
 
 	err := c.UpdatePollingSource(source, d.Get("collector_id").(int))
 
@@ -163,10 +161,10 @@ func resourceSumologicPollingSourceUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	return resourceSumologicPollingSourceRead(d, meta)
+	return resourceSumologicGenericPollingSourceRead(d, meta)
 }
 
-func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicGenericPollingSourceRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
@@ -184,7 +182,7 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 	}
 
 	pollingResources := source.ThirdPartyRef.Resources
-	path := getThirdPartyPathAttributes(pollingResources)
+	path := getPollingThirdPartyPathAttributes(pollingResources)
 
 	if err := d.Set("path", path); err != nil {
 		return err
@@ -201,7 +199,7 @@ func resourceSumologicPollingSourceRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceToPollingSource(d *schema.ResourceData) PollingSource {
+func resourceToGenericPollingSource(d *schema.ResourceData) PollingSource {
 	source := resourceToSource(d)
 	source.Type = "Polling"
 
@@ -215,8 +213,8 @@ func resourceToPollingSource(d *schema.ResourceData) PollingSource {
 
 	pollingResource := PollingResource{
 		ServiceType:    d.Get("content_type").(string),
-		Authentication: getAuthentication(d),
-		Path:           getPathSettings(d),
+		Authentication: getPollingAuthentication(d),
+		Path:           getPollingPathSettings(d),
 	}
 
 	pollingSource.ThirdPartyRef.Resources = append(pollingSource.ThirdPartyRef.Resources, pollingResource)
@@ -224,7 +222,7 @@ func resourceToPollingSource(d *schema.ResourceData) PollingSource {
 	return pollingSource
 }
 
-func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string]interface{} {
+func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map[string]interface{} {
 
 	var s []map[string]interface{}
 
@@ -235,14 +233,14 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 			"path_expression":     t.Path.PathExpression,
 			"limit_to_regions":    t.Path.LimitToRegions,
 			"limit_to_namespaces": t.Path.LimitToNamespaces,
-			"tag_filters":         flattenTagFilters(t.Path.TagFilters),
+			"tag_filters":         flattenPollingTagFilters(t.Path.TagFilters),
 		}
 		s = append(s, mapping)
 	}
 	return s
 }
 
-func flattenTagFilters(v []TagFilter) []map[string]interface{} {
+func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
 		filter := map[string]interface{}{
@@ -256,7 +254,7 @@ func flattenTagFilters(v []TagFilter) []map[string]interface{} {
 	return filters
 }
 
-func getTagFilters(d *schema.ResourceData) []TagFilter {
+func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	rawTagFilterConfig := path["tag_filters"].([]interface{})
@@ -280,7 +278,7 @@ func getTagFilters(d *schema.ResourceData) []TagFilter {
 	return filters
 }
 
-func getAuthentication(d *schema.ResourceData) PollingAuthentication {
+func getPollingAuthentication(d *schema.ResourceData) PollingAuthentication {
 	auths := d.Get("authentication").([]interface{})
 	authSettings := PollingAuthentication{}
 
@@ -302,7 +300,7 @@ func getAuthentication(d *schema.ResourceData) PollingAuthentication {
 	return authSettings
 }
 
-func getPathSettings(d *schema.ResourceData) PollingPath {
+func getPollingPathSettings(d *schema.ResourceData) PollingPath {
 	pathSettings := PollingPath{}
 	paths := d.Get("path").([]interface{})
 
@@ -328,7 +326,7 @@ func getPathSettings(d *schema.ResourceData) PollingPath {
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
-			pathSettings.TagFilters = getTagFilters(d)
+			pathSettings.TagFilters = getPollingTagFilters(d)
 		default:
 			log.Printf("[ERROR] Unknown resourceType in path: %v", pathType)
 		}
