@@ -1,4 +1,19 @@
-## 2.1.3 (Unreleased)
+## 2.2.0 (Unreleased)
+DEPRECATIONS:
+
+* resource/sumologic_polling_source: Deprecated in faovur of having individul sources for each content type currently supported. (GH-64)
+
+FEATURES:
+
+* **New Resource:** sumologic_s3_source (GH-64)
+* **New Resource:** sumologic_s3_audit_source (GH-64)
+* **New Resource:** sumologic_cloudwatch_source (GH-64)
+* **New Resource:** sumologic_cloudtrail_source (GH-64)
+* **New Resource:** sumologic_elb_source (GH-64)
+* **New Resource:** sumologic_cloudfront_source (GH-64)
+* **New Resource:** sumologic_metadata_source (GH-61)
+
+## 2.1.3 (July 30, 2020)
 ENHANCEMENTS:
 * Allow updates to content resources so that dashboard links do not exprie. This creates a known bug - do not update the name of a resource.
 
