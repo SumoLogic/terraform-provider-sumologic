@@ -17,6 +17,11 @@ resource "sumologic_http_source" "http_source" {
   description         = "My description"
   category            = "my/source/category"
   collector_id        = "${sumologic_collector.collector.id}"
+  filters       {
+      name = "Test Exclude Debug"
+      filter_type = "Exclude"
+      regexp = ".*DEBUG.*"
+  }
 }
 
 resource "sumologic_collector" "collector" {
