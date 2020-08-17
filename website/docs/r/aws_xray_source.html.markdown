@@ -45,7 +45,7 @@ In addition to the common properties, the following arguments are supported:
  - `content_type` - (Required) The content-type of the collected data. This has to be `AwsXRay` for AWS XRay source.
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The minimum value is 1000 milliseconds. Currently this value is not respected, and collection happens at a default interval of 1 minute.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
- - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
+ - `authentication` - (Required) Authentication details for making `xray:Get*` calls.
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
