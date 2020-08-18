@@ -47,10 +47,8 @@ In addition to the common properties, the following arguments are supported:
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The minimum value is 1000 milliseconds. Currently this value is not respected.
  - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
  - `authentication` - (Required) Authentication details to access AWS `Describe*` APIs.
-     + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`
-     + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
-     + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
-     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
+     + `type` - (Required) Must be `AWSRoleBasedAuthentication`
+     + `role_arn` - (Required) Your AWS role ARN. More details [here](https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/Grant-Access-to-an-AWS-Product#iam-role).
  - `path` - (Required) The location to scan for new data.
      + `type` - (Required) type of polling source. This has to be `AwsInventoryPath` for AWS Inventory source.
      + `limit_to_regions` - (Optional) List of Amazon regions. 
