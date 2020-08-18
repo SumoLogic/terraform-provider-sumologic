@@ -19,10 +19,11 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 	}
 
 	pollingSource.Schema["content_type"] = &schema.Schema{
-		Type:         schema.TypeString,
-		Required:     true,
-		ForceNew:     true,
-		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket", "AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch"}, false),
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsXRay"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -73,9 +74,10 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"type": {
-					Type:         schema.TypeString,
-					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath"}, false),
+					Type:     schema.TypeString,
+					Required: true,
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
+						"AwsXRayPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -327,6 +329,14 @@ func getPollingPathSettings(d *schema.ResourceData) PollingPath {
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
 			pathSettings.TagFilters = getPollingTagFilters(d)
+		case "AwsXRayPath":
+			pathSettings.Type = "AwsXRayPath"
+			rawLimitToRegions := path["limit_to_regions"].([]interface{})
+			LimitToRegions := make([]string, len(rawLimitToRegions))
+			for i, v := range rawLimitToRegions {
+				LimitToRegions[i] = v.(string)
+			}
+			pathSettings.LimitToRegions = LimitToRegions
 		default:
 			log.Printf("[ERROR] Unknown resourceType in path: %v", pathType)
 		}
