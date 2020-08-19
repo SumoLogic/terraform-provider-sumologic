@@ -5,6 +5,8 @@ DEPRECATIONS:
 
 FEATURES:
 
+* **New Resource:** sumologic_aws_inventory_source (GH-69)
+* **New Resource:** sumologic_aws_xray_source (GH-68)
 * **New Resource:** sumologic_s3_source (GH-64)
 * **New Resource:** sumologic_s3_audit_source (GH-64)
 * **New Resource:** sumologic_cloudwatch_source (GH-64)

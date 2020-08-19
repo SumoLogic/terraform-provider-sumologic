@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -23,7 +24,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsXRay"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -77,7 +78,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsXRayPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -133,20 +134,20 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 }
 
 func resourceSumologicGenericPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
-
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		source := resourceToGenericPollingSource(d)
-		sourceID, err := c.CreatePollingSource(source, d.Get("collector_id").(int))
-
+		source, err := resourceToGenericPollingSource(d)
 		if err != nil {
 			return err
 		}
 
-		id := strconv.Itoa(sourceID)
+		sourceID, err := c.CreatePollingSource(source, d.Get("collector_id").(int))
+		if err != nil {
+			return err
+		}
 
-		d.SetId(id)
+		d.SetId(strconv.Itoa(sourceID))
 	}
 
 	return resourceSumologicGenericPollingSourceRead(d, meta)
@@ -155,10 +156,12 @@ func resourceSumologicGenericPollingSourceCreate(d *schema.ResourceData, meta in
 func resourceSumologicGenericPollingSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	source := resourceToGenericPollingSource(d)
+	source, err := resourceToGenericPollingSource(d)
+	if err != nil {
+		return err
+	}
 
-	err := c.UpdatePollingSource(source, d.Get("collector_id").(int))
-
+	err = c.UpdatePollingSource(source, d.Get("collector_id").(int))
 	if err != nil {
 		return err
 	}
@@ -201,7 +204,7 @@ func resourceSumologicGenericPollingSourceRead(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceToGenericPollingSource(d *schema.ResourceData) PollingSource {
+func resourceToGenericPollingSource(d *schema.ResourceData) (PollingSource, error) {
 	source := resourceToSource(d)
 	source.Type = "Polling"
 
@@ -213,15 +216,25 @@ func resourceToGenericPollingSource(d *schema.ResourceData) PollingSource {
 		URL:          d.Get("url").(string),
 	}
 
+	authSettings, errAuthSettings := getPollingAuthentication(d)
+	if errAuthSettings != nil {
+		return pollingSource, errAuthSettings
+	}
+
+	pathSettings, errPathSettings := getPollingPathSettings(d)
+	if errPathSettings != nil {
+		return pollingSource, errPathSettings
+	}
+
 	pollingResource := PollingResource{
 		ServiceType:    d.Get("content_type").(string),
-		Authentication: getPollingAuthentication(d),
-		Path:           getPollingPathSettings(d),
+		Authentication: authSettings,
+		Path:           pathSettings,
 	}
 
 	pollingSource.ThirdPartyRef.Resources = append(pollingSource.ThirdPartyRef.Resources, pollingResource)
 
-	return pollingSource
+	return pollingSource, nil
 }
 
 func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map[string]interface{} {
@@ -280,7 +293,7 @@ func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	return filters
 }
 
-func getPollingAuthentication(d *schema.ResourceData) PollingAuthentication {
+func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
 	auths := d.Get("authentication").([]interface{})
 	authSettings := PollingAuthentication{}
 
@@ -288,6 +301,10 @@ func getPollingAuthentication(d *schema.ResourceData) PollingAuthentication {
 		auth := auths[0].(map[string]interface{})
 		switch authType := auth["type"].(string); authType {
 		case "S3BucketAuthentication":
+			if d.Get("content_type").(string) == "AwsInventory" {
+				return authSettings, errors.New(
+					fmt.Sprintf("[ERROR] Unsupported authType: %v for AwsInventory source", authType))
+			}
 			authSettings.Type = "S3BucketAuthentication"
 			authSettings.AwsID = auth["access_key"].(string)
 			authSettings.AwsKey = auth["secret_key"].(string)
@@ -295,14 +312,16 @@ func getPollingAuthentication(d *schema.ResourceData) PollingAuthentication {
 			authSettings.Type = "AWSRoleBasedAuthentication"
 			authSettings.RoleARN = auth["role_arn"].(string)
 		default:
-			log.Printf("[ERROR] Unknown authType: %v", authType)
+			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
+			log.Print(errorMessage)
+			return authSettings, errors.New(errorMessage)
 		}
 	}
 
-	return authSettings
+	return authSettings, nil
 }
 
-func getPollingPathSettings(d *schema.ResourceData) PollingPath {
+func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 	pathSettings := PollingPath{}
 	paths := d.Get("path").([]interface{})
 
@@ -313,8 +332,8 @@ func getPollingPathSettings(d *schema.ResourceData) PollingPath {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-		case "CloudWatchPath":
-			pathSettings.Type = "CloudWatchPath"
+		case "CloudWatchPath", "AwsInventoryPath":
+			pathSettings.Type = pathType
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
 			LimitToRegions := make([]string, len(rawLimitToRegions))
 			for i, v := range rawLimitToRegions {
@@ -328,7 +347,9 @@ func getPollingPathSettings(d *schema.ResourceData) PollingPath {
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
-			pathSettings.TagFilters = getPollingTagFilters(d)
+			if pathType == "CloudWatchPath" {
+				pathSettings.TagFilters = getPollingTagFilters(d)
+			}
 		case "AwsXRayPath":
 			pathSettings.Type = "AwsXRayPath"
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
@@ -338,9 +359,11 @@ func getPollingPathSettings(d *schema.ResourceData) PollingPath {
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 		default:
-			log.Printf("[ERROR] Unknown resourceType in path: %v", pathType)
+			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
+			log.Print(errorMessage)
+			return pathSettings, errors.New(errorMessage)
 		}
 	}
 
-	return pathSettings
+	return pathSettings, nil
 }

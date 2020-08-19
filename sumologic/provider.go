@@ -44,6 +44,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_s3_source":                          resourceSumologicGenericPollingSource(),
 			"sumologic_s3_audit_source":                    resourceSumologicGenericPollingSource(),
 			"sumologic_cloudwatch_source":                  resourceSumologicGenericPollingSource(),
+			"sumologic_aws_inventory_source":               resourceSumologicGenericPollingSource(),
 			"sumologic_aws_xray_source":                    resourceSumologicGenericPollingSource(),
 			"sumologic_cloudtrail_source":                  resourceSumologicGenericPollingSource(),
 			"sumologic_elb_source":                         resourceSumologicGenericPollingSource(),
