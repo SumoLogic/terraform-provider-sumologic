@@ -138,8 +138,32 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"notification": {
+							Type:     schema.TypeMap,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subject": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"notification_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"run_for_trigger_types": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
 				},
 			},
 
