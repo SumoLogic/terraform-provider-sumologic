@@ -136,10 +136,55 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"notification": {
+							Type:     schema.TypeList,
+							Required: true,
+							MinItems: 1,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"action_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"subject": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"recipients": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"message_body": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"time_zone": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"notification_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"run_for_trigger_types": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
 				},
 			},
 
@@ -165,6 +210,17 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"group_notifications": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
 			},
 
 			"type": {
@@ -249,58 +305,78 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 }
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
+	// handle notifications
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
-		notification_dict := rawNotifications[i].(map[string]interface{})
+		notificationDict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
-		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]string)
-		n.Notification = notification_dict["notification"].(string)
+		notificationAction := EmailNotification{}
+		rawNotificationAction := notificationDict["notification"].([]interface{})
+		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
+		notificationAction.MessageBody = notificationActionDict["message_body"].(string)
+		// var recipients []string
+		notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
+		notificationAction.Subject = notificationActionDict["subject"].(string)
+		notificationAction.ActionType = notificationActionDict["action_type"].(string)
+		n.NotificationType = notificationDict["notification_type"].(string)
+		n.Notification = notificationAction
+		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
+		// n.RunForTriggerTypes = n.RunForTriggerTypes[0].([]string)
+		// n.Notification
+		if n.NotificationType == "EmailAction" {
+			log.Printf("[DEBUG] Found notification type EmailAction")
+		}
+		log.Printf("[DEBUG] Notification %v", n)
 		notifications[i] = n
 	}
+	// handle triggers
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
-		trigger_dict := rawTriggers[i].(map[string]interface{})
+		triggerDict := rawTriggers[i].(map[string]interface{})
 		t := TriggerCondition{}
-		t.TriggerType = trigger_dict["trigger_type"].(string)
-		t.Threshold = trigger_dict["threshold"].(float64)
-		t.ThresholdType = trigger_dict["threshold_type"].(string)
-		t.TimeRange = trigger_dict["time_range"].(string)
-		t.OccurrenceType = trigger_dict["occurrence_type"].(string)
-		t.TriggerSource = trigger_dict["trigger_source"].(string)
-		t.DetectionMethod = trigger_dict["detection_method"].(string)
+		t.TriggerType = triggerDict["trigger_type"].(string)
+		t.Threshold = triggerDict["threshold"].(float64)
+		t.ThresholdType = triggerDict["threshold_type"].(string)
+		t.TimeRange = triggerDict["time_range"].(string)
+		t.OccurrenceType = triggerDict["occurrence_type"].(string)
+		t.TriggerSource = triggerDict["trigger_source"].(string)
+		t.DetectionMethod = triggerDict["detection_method"].(string)
 		triggers[i] = t
 	}
+	// handle queries
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
-		query_dict := rawQueries[i].(map[string]interface{})
+		queryDict := rawQueries[i].(map[string]interface{})
 		q := MonitorQuery{}
-		q.Query = query_dict["query"].(string)
-		q.RowID = query_dict["row_id"].(string)
+		q.Query = queryDict["query"].(string)
+		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
 
 	return MonitorsLibraryMonitor{
-		CreatedBy:     d.Get("created_by").(string),
-		Name:          d.Get("name").(string),
-		ID:            d.Id(),
-		CreatedAt:     d.Get("created_at").(string),
-		MonitorType:   d.Get("monitor_type").(string),
-		Description:   d.Get("description").(string),
-		Queries:       queries,
-		ModifiedBy:    d.Get("modified_by").(string),
-		IsMutable:     d.Get("is_mutable").(bool),
-		Version:       d.Get("version").(int),
-		Notifications: notifications,
-		Type:          d.Get("type").(string),
-		ParentId:      d.Get("parent_id").(string),
-		ModifiedAt:    d.Get("modified_at").(string),
-		Triggers:      triggers,
-		ContentType:   d.Get("content_type").(string),
-		IsLocked:      d.Get("is_locked").(bool),
-		IsSystem:      d.Get("is_system").(bool),
-		IsDisabled:    d.Get("is_disabled").(bool),
+		CreatedBy:          d.Get("created_by").(string),
+		Name:               d.Get("name").(string),
+		ID:                 d.Id(),
+		CreatedAt:          d.Get("created_at").(string),
+		MonitorType:        d.Get("monitor_type").(string),
+		Description:        d.Get("description").(string),
+		Queries:            queries,
+		ModifiedBy:         d.Get("modified_by").(string),
+		IsMutable:          d.Get("is_mutable").(bool),
+		Version:            d.Get("version").(int),
+		Notifications:      notifications,
+		Type:               d.Get("type").(string),
+		ParentId:           d.Get("parent_id").(string),
+		ModifiedAt:         d.Get("modified_at").(string),
+		Triggers:           triggers,
+		ContentType:        d.Get("content_type").(string),
+		IsLocked:           d.Get("is_locked").(bool),
+		IsSystem:           d.Get("is_system").(bool),
+		IsDisabled:         d.Get("is_disabled").(bool),
+		Status:             d.Get("status").(string),
+		GroupNotifications: d.Get("group_notifications").(bool),
 	}
 }
