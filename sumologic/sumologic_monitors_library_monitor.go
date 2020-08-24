@@ -153,9 +153,10 @@ type MonitorNotification struct {
 }
 
 type EmailNotification struct {
-	subject     string   `json:"subject"`
-	recipients  []string `json:"recipients"`
-	messageBody string   `json:"messageBody"`
+	ActionType  string `json:"actionType"`
+	Subject     string `json:"subject"`
+	Recipients  string `json:"recipients"`
+	MessageBody string `json:"messageBody"`
 }
 
 type WebhookNotificiation struct {

@@ -13,11 +13,12 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
@@ -206,7 +207,7 @@ func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLi
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
-			u, err := client.GetMonitorsLibraryMonitor(id)
+			u, err := client.MonitorsRead(id)
 			if err != nil {
 				return fmt.Errorf("Encountered an error: " + err.Error())
 			}
@@ -233,7 +234,7 @@ func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonito
 
 		id := rs.Primary.ID
 		client := testAccProvider.Meta().(*Client)
-		newMonitorsLibraryMonitor, err := client.GetMonitorsLibraryMonitor(id)
+		newMonitorsLibraryMonitor, err := client.MonitorsRead(id)
 		if err != nil {
 			return fmt.Errorf("MonitorsLibraryMonitor %s not found", id)
 		}

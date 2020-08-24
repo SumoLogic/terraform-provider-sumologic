@@ -145,7 +145,19 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"action_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
 									"subject": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"recipients": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"message_body": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
@@ -279,8 +291,14 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	for i := range rawNotifications {
 		notification_dict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
-		n.Notification = notification_dict["notification"].(map[string]interface{})
+		notificationAction := EmailNotification{}
+		notificationActionDict := notification_dict["notification"].(map[string]interface{})
+		notificationAction.MessageBody = notificationActionDict["message_body"].(string)
+		notificationAction.Recipients = notificationActionDict["recipients"].(string)
+		notificationAction.Subject = notificationActionDict["subject"].(string)
+		notificationAction.ActionType = notificationActionDict["action_type"].(string)
 		n.NotificationType = notification_dict["notification_type"].(string)
+		n.Notification = notificationAction
 		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]interface{})
 		// n.Notification
 		if n.NotificationType == "EmailAction" {
