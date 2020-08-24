@@ -147,8 +147,9 @@ type TriggerCondition struct {
 }
 
 type MonitorNotification struct {
-	Notification       string   `json:"notification"`
-	RunForTriggerTypes []string `json:"runForTriggerTypes"`
+	Notification       interface{}   `json:"notification"`
+	NotificationType   string        `json:"notificationType"`
+	RunForTriggerTypes []interface{} `json:"runForTriggerTypes"`
 }
 
 type EmailNotification struct {

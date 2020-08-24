@@ -273,15 +273,22 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 }
 
 func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
+	// handle notifications
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
 		notification_dict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
-		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]string)
-		n.Notification = notification_dict["notification"].(string)
+		n.Notification = notification_dict["notification"].(map[string]interface{})
+		n.NotificationType = notification_dict["notification_type"].(string)
+		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]interface{})
+		// n.Notification
+		if n.NotificationType == "EmailAction" {
+			log.Printf("[DEBUG] Found notification type EmailAction")
+		}
 		notifications[i] = n
 	}
+	// handle triggers
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
@@ -296,6 +303,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		t.DetectionMethod = trigger_dict["detection_method"].(string)
 		triggers[i] = t
 	}
+	// handle queries
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
