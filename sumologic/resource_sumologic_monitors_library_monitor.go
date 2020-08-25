@@ -220,6 +220,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Default:  true,
 			},
 
 			"type": {
