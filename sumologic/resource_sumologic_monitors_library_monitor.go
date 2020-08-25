@@ -154,8 +154,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Required: true,
 									},
 									"recipients": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 									"message_body": {
 										Type:     schema.TypeString,
@@ -170,7 +173,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"run_for_trigger_types": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -289,17 +292,17 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
-		notification_dict := rawNotifications[i].(map[string]interface{})
+		notificationDict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
 		notificationAction := EmailNotification{}
-		notificationActionDict := notification_dict["notification"].(map[string]interface{})
+		notificationActionDict := notificationDict["notification"].(map[string]interface{})
 		notificationAction.MessageBody = notificationActionDict["message_body"].(string)
-		notificationAction.Recipients = notificationActionDict["recipients"].(string)
+		notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
 		notificationAction.Subject = notificationActionDict["subject"].(string)
 		notificationAction.ActionType = notificationActionDict["action_type"].(string)
-		n.NotificationType = notification_dict["notification_type"].(string)
+		n.NotificationType = notificationDict["notification_type"].(string)
 		n.Notification = notificationAction
-		n.RunForTriggerTypes = notification_dict["run_for_trigger_types"].([]interface{})
+		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
 		// n.Notification
 		if n.NotificationType == "EmailAction" {
 			log.Printf("[DEBUG] Found notification type EmailAction")
@@ -310,25 +313,25 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
-		trigger_dict := rawTriggers[i].(map[string]interface{})
+		triggerDict := rawTriggers[i].(map[string]interface{})
 		t := TriggerCondition{}
-		t.TriggerType = trigger_dict["trigger_type"].(string)
-		t.Threshold = trigger_dict["threshold"].(float64)
-		t.ThresholdType = trigger_dict["threshold_type"].(string)
-		t.TimeRange = trigger_dict["time_range"].(string)
-		t.OccurrenceType = trigger_dict["occurrence_type"].(string)
-		t.TriggerSource = trigger_dict["trigger_source"].(string)
-		t.DetectionMethod = trigger_dict["detection_method"].(string)
+		t.TriggerType = triggerDict["trigger_type"].(string)
+		t.Threshold = triggerDict["threshold"].(float64)
+		t.ThresholdType = triggerDict["threshold_type"].(string)
+		t.TimeRange = triggerDict["time_range"].(string)
+		t.OccurrenceType = triggerDict["occurrence_type"].(string)
+		t.TriggerSource = triggerDict["trigger_source"].(string)
+		t.DetectionMethod = triggerDict["detection_method"].(string)
 		triggers[i] = t
 	}
 	// handle queries
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
-		query_dict := rawQueries[i].(map[string]interface{})
+		queryDict := rawQueries[i].(map[string]interface{})
 		q := MonitorQuery{}
-		q.Query = query_dict["query"].(string)
-		q.RowID = query_dict["row_id"].(string)
+		q.Query = queryDict["query"].(string)
+		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
 

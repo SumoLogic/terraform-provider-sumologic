@@ -118,7 +118,7 @@ type MonitorsLibraryMonitor struct {
 	Name          string                `json:"name"`
 	IsMutable     bool                  `json:"isMutable"`
 	Version       int                   `json:"version"`
-	Notifications []MonitorNotification `json:"notifications,omitempty"`
+	Notifications []MonitorNotification `json:"notifications"`
 	CreatedBy     string                `json:"createdBy"`
 	MonitorType   string                `json:"monitorType"`
 	IsLocked      bool                  `json:"isLocked"`
@@ -153,10 +153,11 @@ type MonitorNotification struct {
 }
 
 type EmailNotification struct {
-	ActionType  string `json:"actionType"`
-	Subject     string `json:"subject"`
-	Recipients  string `json:"recipients"`
-	MessageBody string `json:"messageBody"`
+	ActionType  string        `json:"actionType"`
+	Subject     string        `json:"subject"`
+	Recipients  []interface{} `json:"recipients"`
+	MessageBody string        `json:"messageBody"`
+	TimeZone    string        `json:"timeZone"`
 }
 
 type WebhookNotificiation struct {
