@@ -141,8 +141,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"notification": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Required: true,
+							MinItems: 1,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action_type": {
@@ -299,18 +301,22 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		notificationDict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
 		notificationAction := EmailNotification{}
-		notificationActionDict := notificationDict["notification"].(map[string]interface{})
+		rawNotificationAction := notificationDict["notification"].([]interface{})
+		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
 		notificationAction.MessageBody = notificationActionDict["message_body"].(string)
+		// var recipients []string
 		notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
 		notificationAction.Subject = notificationActionDict["subject"].(string)
 		notificationAction.ActionType = notificationActionDict["action_type"].(string)
 		n.NotificationType = notificationDict["notification_type"].(string)
 		n.Notification = notificationAction
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
+		// n.RunForTriggerTypes = n.RunForTriggerTypes[0].([]string)
 		// n.Notification
 		if n.NotificationType == "EmailAction" {
 			log.Printf("[DEBUG] Found notification type EmailAction")
 		}
+		log.Printf("[DEBUG] Notification %v", n)
 		notifications[i] = n
 	}
 	// handle triggers
