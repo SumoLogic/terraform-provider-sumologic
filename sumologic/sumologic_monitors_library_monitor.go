@@ -110,25 +110,27 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 // ---------- TYPES ----------
 type MonitorsLibraryMonitor struct {
-	ID            string                `json:"id,omitempty"`
-	IsSystem      bool                  `json:"isSystem"`
-	Type          string                `json:"type"`
-	Queries       []MonitorQuery        `json:"queries,omitempty"`
-	ParentId      string                `json:"parentId"`
-	Name          string                `json:"name"`
-	IsMutable     bool                  `json:"isMutable"`
-	Version       int                   `json:"version"`
-	Notifications []MonitorNotification `json:"notifications"`
-	CreatedBy     string                `json:"createdBy"`
-	MonitorType   string                `json:"monitorType"`
-	IsLocked      bool                  `json:"isLocked"`
-	Description   string                `json:"description"`
-	CreatedAt     string                `json:"createdAt"`
-	Triggers      []TriggerCondition    `json:"triggers,omitempty"`
-	ModifiedAt    string                `json:"modifiedAt"`
-	ContentType   string                `json:"contentType"`
-	ModifiedBy    string                `json:"modifiedBy"`
-	IsDisabled    bool                  `json:"isDisabled"`
+	ID                 string                `json:"id,omitempty"`
+	IsSystem           bool                  `json:"isSystem"`
+	Type               string                `json:"type"`
+	Queries            []MonitorQuery        `json:"queries,omitempty"`
+	ParentId           string                `json:"parentId"`
+	Name               string                `json:"name"`
+	IsMutable          bool                  `json:"isMutable"`
+	Version            int                   `json:"version"`
+	Notifications      []MonitorNotification `json:"notifications"`
+	CreatedBy          string                `json:"createdBy"`
+	MonitorType        string                `json:"monitorType"`
+	IsLocked           bool                  `json:"isLocked"`
+	Description        string                `json:"description"`
+	CreatedAt          string                `json:"createdAt"`
+	Triggers           []TriggerCondition    `json:"triggers,omitempty"`
+	ModifiedAt         string                `json:"modifiedAt"`
+	ContentType        string                `json:"contentType"`
+	ModifiedBy         string                `json:"modifiedBy"`
+	IsDisabled         bool                  `json:"isDisabled"`
+	Status             string                `json:"status"`
+	GroupNotifications bool                  `json:"groupNotifications"`
 }
 
 type MonitorQuery struct {
