@@ -136,7 +136,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -161,6 +161,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"message_body": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"time_zone": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
