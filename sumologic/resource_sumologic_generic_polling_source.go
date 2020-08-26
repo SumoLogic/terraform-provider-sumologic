@@ -337,13 +337,17 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
 			LimitToRegions := make([]string, len(rawLimitToRegions))
 			for i, v := range rawLimitToRegions {
-				LimitToRegions[i] = v.(string)
+				if v != nil {
+					LimitToRegions[i] = v.(string)
+				}
 			}
 
 			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
 			LimitToNamespaces := make([]string, len(rawLimitToNamespaces))
 			for i, v := range rawLimitToNamespaces {
-				LimitToNamespaces[i] = v.(string)
+				if v != nil {
+					LimitToNamespaces[i] = v.(string)
+				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
@@ -355,7 +359,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
 			LimitToRegions := make([]string, len(rawLimitToRegions))
 			for i, v := range rawLimitToRegions {
-				LimitToRegions[i] = v.(string)
+				if v != nil {
+					LimitToRegions[i] = v.(string)
+				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 		default:
