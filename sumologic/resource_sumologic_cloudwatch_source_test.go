@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,12 +13,8 @@ import (
 func TestAccSumologicCloudWatchSource_create(t *testing.T) {
 	var cloudWatchSource PollingSource
 	var collector Collector
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	cwName := acctest.RandomWithPrefix("tf-acc-test")
-	cwDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cwCategory := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
 	cloudWatchResourceName := "sumologic_cloudwatch_source.cloudwatch"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
@@ -29,16 +24,16 @@ func TestAccSumologicCloudWatchSource_create(t *testing.T) {
 		CheckDestroy: testAccCheckCloudWatchSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, cwName, cwDescription, cwCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
-					testAccCheckCloudWatchSourceValues(&cloudWatchSource, cwName, cwDescription, cwCategory),
+					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sName, sDescription, sCategory),
 					testAccCheckCollectorExists("sumologic_collector.test", &collector),
 					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
 					resource.TestCheckResourceAttrSet(cloudWatchResourceName, "id"),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", cwName),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", cwDescription),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", cwCategory),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", sName),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
@@ -48,15 +43,9 @@ func TestAccSumologicCloudWatchSource_create(t *testing.T) {
 }
 func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 	var cloudWatchSource PollingSource
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	cwName := acctest.RandomWithPrefix("tf-acc-test")
-	cwDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cwCategory := acctest.RandomWithPrefix("tf-acc-test")
-	cwNameUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	cwDescriptionUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	cwCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
+	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	cloudWatchResourceName := "sumologic_cloudwatch_source.cloudwatch"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
@@ -66,27 +55,27 @@ func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, cwName, cwDescription, cwCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
-					testAccCheckCloudWatchSourceValues(&cloudWatchSource, cwName, cwDescription, cwCategory),
+					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sName, sDescription, sCategory),
 					resource.TestCheckResourceAttrSet(cloudWatchResourceName, "id"),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", cwName),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", cwDescription),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", cwCategory),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", sName),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
 			},
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, cwNameUpdated, cwDescriptionUpdated, cwCategoryUpdated, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
-					testAccCheckCloudWatchSourceValues(&cloudWatchSource, cwNameUpdated, cwDescriptionUpdated, cwCategoryUpdated),
+					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
 					resource.TestCheckResourceAttrSet(cloudWatchResourceName, "id"),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", cwNameUpdated),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", cwDescriptionUpdated),
-					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", cwCategoryUpdated),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "name", sNameUpdated),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "description", sDescriptionUpdated),
+					resource.TestCheckResourceAttr(cloudWatchResourceName, "category", sCategoryUpdated),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
@@ -161,7 +150,7 @@ func testAccCheckCloudWatchSourceValues(pollingSource *PollingSource, name, desc
 		return nil
 	}
 }
-func testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, cwName, cwDescription, cwCategory, testAwsId, testAwsKey string) string {
+func testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -198,5 +187,5 @@ resource "sumologic_cloudwatch_source" "cloudwatch" {
 		}
 	  }
 }
-`, cName, cDescription, cCategory, cwName, cwDescription, cwCategory, testAwsId, testAwsKey)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey)
 }

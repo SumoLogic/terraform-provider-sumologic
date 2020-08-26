@@ -11,15 +11,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func getRandomizedParams() (string, string, string) {
+	name := acctest.RandomWithPrefix("tf-acc-test")
+	description := acctest.RandomWithPrefix("tf-acc-test")
+	category := acctest.RandomWithPrefix("tf-acc-test")
+	return name, description, category
+}
 func TestAccSumologicS3Source_create(t *testing.T) {
 	var s3Source PollingSource
 	var collector Collector
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sName := acctest.RandomWithPrefix("tf-acc-test")
-	sDescription := acctest.RandomWithPrefix("tf-acc-test")
-	sCategory := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
 	s3ResourceName := "sumologic_s3_source.s3"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
@@ -49,15 +51,9 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 }
 func TestAccSumologicS3Source_update(t *testing.T) {
 	var s3Source PollingSource
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sName := acctest.RandomWithPrefix("tf-acc-test")
-	sDescription := acctest.RandomWithPrefix("tf-acc-test")
-	sCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sNameUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	sDescriptionUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	sCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
+	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	s3ResourceName := "sumologic_s3_source.s3"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")

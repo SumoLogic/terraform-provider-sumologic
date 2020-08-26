@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,12 +13,8 @@ import (
 func TestAccSumologicCloudTrailSource_create(t *testing.T) {
 	var cloudTrailSource PollingSource
 	var collector Collector
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sName := acctest.RandomWithPrefix("tf-acc-test")
-	sDescription := acctest.RandomWithPrefix("tf-acc-test")
-	sCategory := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
 	cloudTrailResourceName := "sumologic_cloudtrail_source.cloudtrail"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
@@ -49,15 +44,9 @@ func TestAccSumologicCloudTrailSource_create(t *testing.T) {
 }
 func TestAccSumologicCloudTrailSource_update(t *testing.T) {
 	var cloudTrailSource PollingSource
-	cName := acctest.RandomWithPrefix("tf-acc-test")
-	cDescription := acctest.RandomWithPrefix("tf-acc-test")
-	cCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sName := acctest.RandomWithPrefix("tf-acc-test")
-	sDescription := acctest.RandomWithPrefix("tf-acc-test")
-	sCategory := acctest.RandomWithPrefix("tf-acc-test")
-	sNameUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	sDescriptionUpdated := acctest.RandomWithPrefix("tf-acc-test")
-	sCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
+	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	cloudTrailResourceName := "sumologic_cloudtrail_source.cloudtrail"
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
