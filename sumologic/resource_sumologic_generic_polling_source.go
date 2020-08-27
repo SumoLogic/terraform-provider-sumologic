@@ -335,15 +335,19 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
-			LimitToRegions := make([]string, len(rawLimitToRegions))
-			for i, v := range rawLimitToRegions {
-				LimitToRegions[i] = v.(string)
+			LimitToRegions := make([]string, 0, len(rawLimitToRegions))
+			for _, v := range rawLimitToRegions {
+				if v != nil {
+					LimitToRegions = append(LimitToRegions, v.(string))
+				}
 			}
 
 			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
-			LimitToNamespaces := make([]string, len(rawLimitToNamespaces))
-			for i, v := range rawLimitToNamespaces {
-				LimitToNamespaces[i] = v.(string)
+			LimitToNamespaces := make([]string, 0, len(rawLimitToNamespaces))
+			for _, v := range rawLimitToNamespaces {
+				if v != nil {
+					LimitToNamespaces = append(LimitToNamespaces, v.(string))
+				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
@@ -353,9 +357,11 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 		case "AwsXRayPath":
 			pathSettings.Type = "AwsXRayPath"
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
-			LimitToRegions := make([]string, len(rawLimitToRegions))
-			for i, v := range rawLimitToRegions {
-				LimitToRegions[i] = v.(string)
+			LimitToRegions := make([]string, 0, len(rawLimitToRegions))
+			for _, v := range rawLimitToRegions {
+				if v != nil {
+					LimitToRegions = append(LimitToRegions, v.(string))
+				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 		default:
