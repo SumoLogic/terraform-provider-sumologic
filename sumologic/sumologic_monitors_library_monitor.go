@@ -102,7 +102,7 @@ type MonitorsLibraryMonitor struct {
 	IsSystem           bool                  `json:"isSystem"`
 	Type               string                `json:"type"`
 	Queries            []MonitorQuery        `json:"queries,omitempty"`
-	ParentId           string                `json:"parentId"`
+	ParentID           string                `json:"parentId"`
 	Name               string                `json:"name"`
 	IsMutable          bool                  `json:"isMutable"`
 	Version            int                   `json:"version"`
@@ -138,7 +138,6 @@ type TriggerCondition struct {
 
 type MonitorNotification struct {
 	Notification       interface{}   `json:"notification"`
-	NotificationType   string        `json:"notificationType"`
 	RunForTriggerTypes []interface{} `json:"runForTriggerTypes"`
 }
 

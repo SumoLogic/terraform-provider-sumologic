@@ -250,7 +250,7 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
 		paramMap := make(map[string]string)
-		paramMap["parentId"] = monitor.ParentId
+		paramMap["parentId"] = monitor.ParentID
 		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
 		if err != nil {
 			return err
@@ -284,7 +284,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_mutable", monitor.IsMutable)
 	d.Set("version", monitor.Version)
 	// d.Set("type", monitor.Type)
-	d.Set("parent_id", monitor.ParentId)
+	d.Set("parent_id", monitor.ParentID)
 	d.Set("modified_at", monitor.ModifiedAt)
 	d.Set("content_type", monitor.ContentType)
 	d.Set("is_locked", monitor.IsLocked)
@@ -385,7 +385,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		Version:            d.Get("version").(int),
 		Notifications:      notifications,
 		Type:               d.Get("type").(string),
-		ParentId:           d.Get("parent_id").(string),
+		ParentID:           d.Get("parent_id").(string),
 		ModifiedAt:         d.Get("modified_at").(string),
 		Triggers:           triggers,
 		ContentType:        d.Get("content_type").(string),
