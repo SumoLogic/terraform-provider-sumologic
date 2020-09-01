@@ -25,15 +25,14 @@ type Client struct {
 }
 
 var endpoints = map[string]string{
-	"penguin": "https://penguin-api.ephemeral.in/api/",
-	"nite":    "https://nite-api.sumologic.net/api/",
-	"us1":     "https://api.sumologic.com/api/",
-	"us2":     "https://api.us2.sumologic.com/api/",
-	"eu":      "https://api.eu.sumologic.com/api/",
-	"au":      "https://api.au.sumologic.com/api/",
-	"de":      "https://api.de.sumologic.com/api/",
-	"jp":      "https://api.jp.sumologic.com/api/",
-	"ca":      "https://api.ca.sumologic.com/api/",
+	"nite": "https://nite-api.sumologic.net/api/",
+	"us1":  "https://api.sumologic.com/api/",
+	"us2":  "https://api.us2.sumologic.com/api/",
+	"eu":   "https://api.eu.sumologic.com/api/",
+	"au":   "https://api.au.sumologic.com/api/",
+	"de":   "https://api.de.sumologic.com/api/",
+	"jp":   "https://api.jp.sumologic.com/api/",
+	"ca":   "https://api.ca.sumologic.com/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)

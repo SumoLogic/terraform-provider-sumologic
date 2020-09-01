@@ -49,8 +49,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"content_type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Default:  "Monitor",
 			},
 
 			"queries": {
@@ -79,14 +80,13 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"parent_id": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
 			},
 			"is_disabled": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
-				// Default:  false,
 			},
 
 			"is_mutable": {
@@ -107,11 +107,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
-							Required: true,
+							Optional: true,
 						},
 						"threshold_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"time_range": {
 							Type:     schema.TypeString,
@@ -127,7 +127,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 					},
 				},
@@ -136,7 +136,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -153,7 +153,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 									},
 									"subject": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"recipients": {
 										Type:     schema.TypeList,
@@ -164,22 +164,26 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 									},
 									"message_body": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"time_zone": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+									},
+									"connection_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"payload_override": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 								},
 							},
 						},
-						"notification_type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
 						"run_for_trigger_types": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -225,8 +229,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Default:  "MonitorsLibraryMonitor",
 			},
 
 			"modified_by": {
@@ -256,7 +261,7 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
 		paramMap := make(map[string]string)
-		paramMap["parentId"] = "0000000000000001"
+		paramMap["parentId"] = monitor.ParentId
 		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
 		if err != nil {
 			return err
@@ -270,7 +275,6 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	// id, _ := strconv.Atoi(d.Id())
 	monitor, err := c.MonitorsRead(d.Id())
 	if err != nil {
 		return err
@@ -281,12 +285,33 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		d.SetId("")
 		return nil
 	}
+
+	d.Set("created_by", monitor.CreatedBy)
+	d.Set("name", monitor.Name)
+	d.Set("created_at", monitor.CreatedAt)
+	d.Set("monitor_type", monitor.MonitorType)
+	d.Set("description", monitor.Description)
+	d.Set("modified_by", monitor.ModifiedBy)
+	d.Set("is_mutable", monitor.IsMutable)
+	d.Set("version", monitor.Version)
+	// d.Set("type", monitor.Type)
+	d.Set("parent_id", monitor.ParentId)
+	d.Set("modified_at", monitor.ModifiedAt)
+	d.Set("content_type", monitor.ContentType)
+	d.Set("is_locked", monitor.IsLocked)
+	d.Set("is_system", monitor.IsSystem)
+	d.Set("is_disabled", monitor.IsDisabled)
+	d.Set("status", monitor.Status)
+	d.Set("group_notifications", monitor.GroupNotifications)
+
 	return nil
 }
 
 func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	monitor := resourceToMonitorsLibraryMonitor(d)
+	monitor.Type = "MonitorsLibraryMonitorUpdate"
+	monitor.Version = monitor.Version + 1
 	err := c.UpdateMonitorsLibraryMonitor(monitor)
 	if err != nil {
 		return err
@@ -311,23 +336,18 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	for i := range rawNotifications {
 		notificationDict := rawNotifications[i].(map[string]interface{})
 		n := MonitorNotification{}
-		notificationAction := EmailNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		notificationAction.MessageBody = notificationActionDict["message_body"].(string)
-		// var recipients []string
-		notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
-		notificationAction.Subject = notificationActionDict["subject"].(string)
-		notificationAction.ActionType = notificationActionDict["action_type"].(string)
-		n.NotificationType = notificationDict["notification_type"].(string)
-		n.Notification = notificationAction
-		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
-		// n.RunForTriggerTypes = n.RunForTriggerTypes[0].([]string)
-		// n.Notification
-		if n.NotificationType == "EmailAction" {
-			log.Printf("[DEBUG] Found notification type EmailAction")
+		if notificationActionDict["action_type"].(string) == "EmailAction" {
+			notificationAction := EmailNotification{}
+			notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			notificationAction.Subject = notificationActionDict["subject"].(string)
+			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
+			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
+			notificationAction.TimeZone = notificationActionDict["time_zone"].(string)
+			n.Notification = notificationAction
 		}
-		log.Printf("[DEBUG] Notification %v", n)
+		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
 		notifications[i] = n
 	}
 	// handle triggers

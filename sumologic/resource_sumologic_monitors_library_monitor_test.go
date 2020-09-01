@@ -50,7 +50,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 				Config: testAccCheckSumologicMonitorsLibraryMonitorConfigImported(testModifiedAt, testCreatedBy, testIsLocked, testMonitorType, testIsSystem, testName, testParentId, testIsMutable, testNotifications, testType, testVersion, testTriggers, testQueries, testDescription, testModifiedBy, testCreatedAt, testContentType),
 			},
 			{
-				ResourceName:      "sumologic_monitors_library_monitor.foo",
+				ResourceName:      "sumologic_monitor.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -84,25 +84,25 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testModifiedAt, testCreatedBy, testIsLocked, testMonitorType, testIsSystem, testName, testParentId, testIsMutable, testNotifications, testType, testVersion, testTriggers, testQueries, testDescription, testModifiedBy, testCreatedAt, testContentType),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitors_library_monitor.test", &monitorsLibraryMonitor, t),
-					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitors_library_monitor.test"),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_at", testModifiedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_by", testCreatedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "parent_id", testParentId),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "version", strconv.Itoa(testVersion)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_by", testModifiedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_at", testCreatedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "content_type", testContentType),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testModifiedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testCreatedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentId),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 				),
 			},
 		},
@@ -155,47 +155,47 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testModifiedAt, testCreatedBy, testIsLocked, testMonitorType, testIsSystem, testName, testParentId, testIsMutable, testNotifications, testType, testVersion, testTriggers, testQueries, testDescription, testModifiedBy, testCreatedAt, testContentType),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitors_library_monitor.test", &monitorsLibraryMonitor, t),
-					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitors_library_monitor.test"),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_at", testModifiedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_by", testCreatedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testMonitorType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testName),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "parent_id", testParentId),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "version", strconv.Itoa(testVersion)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testDescription),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_by", testModifiedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_at", testCreatedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "content_type", testContentType),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testModifiedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testCreatedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentId),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 				),
 			},
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorUpdate(testUpdatedModifiedAt, testUpdatedCreatedBy, testUpdatedIsLocked, testUpdatedMonitorType, testUpdatedIsSystem, testUpdatedName, testUpdatedParentId, testUpdatedIsMutable, testUpdatedNotifications, testUpdatedType, testUpdatedVersion, testUpdatedTriggers, testUpdatedQueries, testUpdatedDescription, testUpdatedModifiedBy, testUpdatedCreatedAt, testUpdatedContentType),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_at", testUpdatedModifiedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_by", testUpdatedCreatedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_locked", strconv.FormatBool(testUpdatedIsLocked)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "monitor_type", testUpdatedMonitorType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_system", strconv.FormatBool(testUpdatedIsSystem)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "name", testUpdatedName),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "parent_id", testUpdatedParentId),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "is_mutable", strconv.FormatBool(testUpdatedIsMutable)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "notifications.0", strings.Replace(testUpdatedNotifications[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "type", testUpdatedType),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "version", strconv.Itoa(testUpdatedVersion)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "triggers.0", strings.Replace(testUpdatedTriggers[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "queries.0", strings.Replace(testUpdatedQueries[0], "\"", "", 2)),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "description", testUpdatedDescription),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "modified_by", testUpdatedModifiedBy),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "created_at", testUpdatedCreatedAt),
-					resource.TestCheckResourceAttr("sumologic_monitors_library_monitor.test", "content_type", testUpdatedContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testUpdatedModifiedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testUpdatedCreatedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testUpdatedIsLocked)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testUpdatedMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testUpdatedIsSystem)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testUpdatedName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testUpdatedParentId),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testUpdatedIsMutable)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0", strings.Replace(testUpdatedNotifications[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testUpdatedType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testUpdatedVersion)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0", strings.Replace(testUpdatedTriggers[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0", strings.Replace(testUpdatedQueries[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testUpdatedModifiedBy),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testUpdatedCreatedAt),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 				),
 			},
 		},
@@ -244,7 +244,7 @@ func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonito
 }
 func testAccCheckSumologicMonitorsLibraryMonitorConfigImported(modifiedAt string, createdBy string, isLocked bool, monitorType string, isSystem bool, name string, parentId string, isMutable bool, notifications []string, type_field string, version int, triggers []string, queries []string, description string, modifiedBy string, createdAt string, contentType string) string {
 	return fmt.Sprintf(`
-resource "sumologic_monitors_library_monitor" "foo" {
+resource "sumologic_monitor" "foo" {
       modified_at = "%s"
       created_by = "%s"
       is_locked = %t
@@ -268,7 +268,7 @@ resource "sumologic_monitors_library_monitor" "foo" {
 
 func testAccSumologicMonitorsLibraryMonitor(modifiedAt string, createdBy string, isLocked bool, monitorType string, isSystem bool, name string, parentId string, isMutable bool, notifications []string, type_field string, version int, triggers []string, queries []string, description string, modifiedBy string, createdAt string, contentType string) string {
 	return fmt.Sprintf(`
-resource "sumologic_monitors_library_monitor" "test" {
+resource "sumologic_monitor" "test" {
     modified_at = "%s"
     created_by = "%s"
     is_locked = %t
@@ -292,7 +292,7 @@ resource "sumologic_monitors_library_monitor" "test" {
 
 func testAccSumologicMonitorsLibraryMonitorUpdate(modifiedAt string, createdBy string, isLocked bool, monitorType string, isSystem bool, name string, parentId string, isMutable bool, notifications []string, type_field string, version int, triggers []string, queries []string, description string, modifiedBy string, createdAt string, contentType string) string {
 	return fmt.Sprintf(`
-resource "sumologic_monitors_library_monitor" "test" {
+resource "sumologic_monitor" "test" {
       modified_at = "%s"
       created_by = "%s"
       is_locked = %t
