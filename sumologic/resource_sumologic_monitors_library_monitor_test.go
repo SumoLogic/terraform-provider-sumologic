@@ -43,17 +43,55 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 	testIsLocked := false
 	testIsSystem := false
 	testIsMutable := true
-	testIsDisabled := false
+	testVersion := 0
+	//
 	testName := "terraform_test_monitor_" + testNameSuffix
 	testDescription := "terraform_test_monitor_description"
-	testMonitorType := "Logs"
-	testParentID := "0000000000000002"
+	testParentID := "0000000000000001"
 	testType := "MonitorsLibraryMonitor"
 	testContentType := "Monitor"
-	testVersion := 0
-	// testNotifications := []MonitorNotification{}
-	// testTriggers := []TriggerCondition{}
-	// testQueries := []MonitorQuery{}
+	testMonitorType := "Logs"
+	testIsDisabled := false
+	testQueries := []MonitorQuery{
+		{
+			RowID: "A",
+			Query: "_sourceCategory=monitor-manager error",
+		},
+	}
+	testTriggers := []TriggerCondition{
+		{
+			ThresholdType:   "GreaterThan",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "Critical",
+			DetectionMethod: "StaticCondition",
+		},
+	}
+	recipients := []string{"abc@example.com"}
+	testRecipients := make([]interface{}, len(recipients))
+	for i, v := range recipients {
+		testRecipients[i] = v
+	}
+	triggerTypes := []string{"Critical"}
+	testTriggerTypes := make([]interface{}, len(triggerTypes))
+	for i, v := range triggerTypes {
+		testTriggerTypes[i] = v
+	}
+	testNotificationAction := EmailNotification{
+		ActionType:  "EmailAction",
+		Recipients:  testRecipients,
+		Subject:     "test tf monitor",
+		TimeZone:    "PST",
+		MessageBody: "test",
+	}
+	testNotifications := []MonitorNotification{
+		{
+			Notification:       testNotificationAction,
+			RunForTriggerTypes: testTriggerTypes,
+		},
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -74,15 +112,15 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0", strings.Replace(testNotifications[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0", strings.Replace(testTriggers[0], "\"", "", 2)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0", strings.Replace(testQueries[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testNotifications[0].Notification.(EmailNotification).ActionType),
 				),
 			},
 		},
@@ -100,17 +138,55 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 	testIsLocked := false
 	testIsSystem := false
 	testIsMutable := true
-	testIsDisabled := false
+	testVersion := 0
+	//
 	testName := "terraform_test_monitor_" + testNameSuffix
 	testDescription := "terraform_test_monitor_description"
-	testMonitorType := "Logs"
-	testParentID := "0000000000000002"
+	testParentID := "0000000000000001"
 	testType := "MonitorsLibraryMonitor"
 	testContentType := "Monitor"
-	testVersion := 0
-	// testNotifications := []MonitorNotification{}
-	// testTriggers := []TriggerCondition{}
-	// testQueries := []MonitorQuery{}
+	testMonitorType := "Logs"
+	testIsDisabled := false
+	testQueries := []MonitorQuery{
+		{
+			RowID: "A",
+			Query: "_sourceCategory=monitor-manager error",
+		},
+	}
+	testTriggers := []TriggerCondition{
+		{
+			ThresholdType:   "GreaterThan",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "Critical",
+			DetectionMethod: "StaticCondition",
+		},
+	}
+	recipients := []string{"abc@example.com"}
+	testRecipients := make([]interface{}, len(recipients))
+	for i, v := range recipients {
+		testRecipients[i] = v
+	}
+	triggerTypes := []string{"Critical"}
+	testTriggerTypes := make([]interface{}, len(triggerTypes))
+	for i, v := range triggerTypes {
+		testTriggerTypes[i] = v
+	}
+	testNotificationAction := EmailNotification{
+		ActionType:  "EmailAction",
+		Recipients:  testRecipients,
+		Subject:     "test tf monitor",
+		TimeZone:    "PST",
+		MessageBody: "test",
+	}
+	testNotifications := []MonitorNotification{
+		{
+			Notification:       testNotificationAction,
+			RunForTriggerTypes: testTriggerTypes,
+		},
+	}
 
 	testUpdatedCreatedAt := "2020-09-01T23:15:22.735Z"
 	testUpdatedModifiedAt := "2020-09-01T23:15:22.735Z"
@@ -119,18 +195,55 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 	testUpdatedIsLocked := false
 	testUpdatedIsSystem := false
 	testUpdatedIsMutable := true
-	testUpdatedIsDisabled := true
+	testUpdatedVersion := 0
+	//
 	testUpdatedName := "terraform_test_monitor_" + testNameSuffix
 	testUpdatedDescription := "terraform_test_monitor_description"
-	testUpdatedMonitorType := "Logs"
-	testUpdatedParentID := "0000000000000002"
+	testUpdatedParentID := "0000000000000001"
 	testUpdatedType := "MonitorsLibraryMonitor"
 	testUpdatedContentType := "Monitor"
-	testUpdatedVersion := 0
-	// NOTE: updated notifications are webhook instead of email
-	// testUpdatedNotifications := []MonitorNotification{}
-	// testUpdatedTriggers := []TriggerCondition{}
-	// testUpdatedQueries := []MonitorQuery{}
+	testUpdatedMonitorType := "Logs"
+	testUpdatedIsDisabled := true
+	testUpdatedQueries := []MonitorQuery{
+		{
+			RowID: "A",
+			Query: "_sourceCategory=monitor-manager info",
+		},
+	}
+	testUpdatedTriggers := []TriggerCondition{
+		{
+			ThresholdType:   "GreaterThan",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "Critical",
+			DetectionMethod: "StaticCondition",
+		},
+	}
+	updatedRecipients := []string{"abc@example.com"}
+	testUpdatedRecipients := make([]interface{}, len(updatedRecipients))
+	for i, v := range updatedRecipients {
+		testUpdatedRecipients[i] = v
+	}
+	updatedTriggerTypes := []string{"Critical"}
+	testUpdatedTriggerTypes := make([]interface{}, len(updatedTriggerTypes))
+	for i, v := range updatedTriggerTypes {
+		testUpdatedTriggerTypes[i] = v
+	}
+	testUpdatedNotificationAction := EmailNotification{
+		ActionType:  "EmailAction",
+		Recipients:  testUpdatedRecipients,
+		Subject:     "test tf monitor",
+		TimeZone:    "PST",
+		MessageBody: "test",
+	}
+	testUpdatedNotifications := []MonitorNotification{
+		{
+			Notification:       testUpdatedNotificationAction,
+			RunForTriggerTypes: testUpdatedTriggerTypes,
+		},
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -151,15 +264,15 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications", strings.Replace(testNotifications[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers", strings.Replace(testTriggers[0], "\"", "", 2)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "queries", strings.Replace(testQueries[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testNotifications[0].Notification.(EmailNotification).ActionType),
 				),
 			},
 			{
@@ -174,15 +287,15 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testUpdatedParentID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testUpdatedIsMutable)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0", strings.Replace(testUpdatedNotifications[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testUpdatedType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testUpdatedVersion)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0", strings.Replace(testUpdatedTriggers[0], "\"", "", 2)),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0", strings.Replace(testUpdatedQueries[0], "\"", "", 2)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testUpdatedModifiedBy),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testUpdatedCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testUpdatedNotifications[0].Notification.(EmailNotification).ActionType),
 				),
 			},
 		},
@@ -238,6 +351,7 @@ func testAccCheckMonitorsLibraryMonitorAttributes(name string) resource.TestChec
 			resource.TestCheckResourceAttrSet(name, "is_locked"),
 			resource.TestCheckResourceAttrSet(name, "monitor_type"),
 			resource.TestCheckResourceAttrSet(name, "is_system"),
+			resource.TestCheckResourceAttrSet(name, "is_disabled"),
 			resource.TestCheckResourceAttrSet(name, "name"),
 			resource.TestCheckResourceAttrSet(name, "parent_id"),
 			resource.TestCheckResourceAttrSet(name, "is_mutable"),
@@ -261,42 +375,8 @@ resource "sumologic_monitor" "test" {
 	name = "terraform_test_monitor_%s"
 	description = "terraform_test_monitor_description"
 	type = "MonitorsLibraryMonitor"
-	parent_id = "0000000000000002"
+	parent_id = "0000000000000001"
 	is_disabled = false
-	content_type = "Monitor"
-	monitor_type = "Logs"
-	queries {
-		row_id = "A"
-		query = "_sourceCategory=monitor-manager error"
-	}
-	triggers  {
-		threshold_type = "GreaterThan"
-		threshold = 40.0
-		time_range = "15m"
-		occurrence_type = "ResultCount"
-		trigger_source = "AllResults"
-		trigger_type = "Critical"
-		detection_method = "StaticCondition"
-	}
-	notifications {
-		notification {
-			action_type = "NamedConnectionAction"
-			connection_id = "0000000000006A7E"
-			payload_override = "{}"
-		}
-		run_for_trigger_types = ["Critical"]
-	}
-}`, testName)
-}
-
-func testAccSumologicMonitorsLibraryMonitorUpdate(testName string) string {
-	return fmt.Sprintf(`
-resource "sumologic_monitor" "test" {
-	name = "terraform_test_monitor_%s"
-	description = "terraform_test_monitor_description"
-	type = "MonitorsLibraryMonitor"
-	parent_id = "0000000000000002"
-	is_disabled = true
 	content_type = "Monitor"
 	monitor_type = "Logs"
 	queries {
@@ -316,11 +396,47 @@ resource "sumologic_monitor" "test" {
 		notification {
 			action_type = "EmailAction"
 			recipients = ["abc@example.com"]
-			subject = "test tf metrics monitor"
+			subject = "test tf monitor"
 			time_zone = "PST"
-			message_body = "metrics_test"
+			message_body = "test"
 		}
-		run_for_trigger_types = ["Critical","ResolvedCritical"]
+		run_for_trigger_types = ["Critical"]
+	}
+}`, testName)
+}
+
+func testAccSumologicMonitorsLibraryMonitorUpdate(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	parent_id = "0000000000000001"
+	is_disabled = true
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager info"
+	}
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "15m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	}
+	notifications {
+		notification {
+			action_type = "EmailAction"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		}
+		run_for_trigger_types = ["Critical"]
 	}
 }`, testName)
 }

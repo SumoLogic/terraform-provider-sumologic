@@ -106,7 +106,7 @@ type MonitorsLibraryMonitor struct {
 	Name               string                `json:"name"`
 	IsMutable          bool                  `json:"isMutable"`
 	Version            int                   `json:"version"`
-	Notifications      []MonitorNotification `json:"notifications"`
+	Notifications      []MonitorNotification `json:"notifications,omitempty"`
 	CreatedBy          string                `json:"createdBy"`
 	MonitorType        string                `json:"monitorType"`
 	IsLocked           bool                  `json:"isLocked"`

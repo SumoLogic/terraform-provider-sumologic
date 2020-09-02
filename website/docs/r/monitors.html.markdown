@@ -12,17 +12,37 @@ Provides the ability to create, read, delete, update monitors.
 ## Example Usage
 
 ```hcl
-resource "sumologic_monitor" "monitor" {
-  type        = "Monitor"
-  name        = "test-monitor
-  description = "My description"
-  content_type = "MonitorsLibraryMonitor"
-  monitor_type = "Logs"
-  queries = []
-  triggers = []
-  notifications = []
+resource "sumologic_monitor" "tf_logs_monitor_1" {
+  name = "Terraform Monitor"
+  description = "tf logs monitor"
+  type = "MonitorsLibraryMonitor"
   is_disabled = false
-  group_notifications = true
+  content_type = "Monitor"
+  monitor_type = "Logs"
+  queries {
+      row_id = "A"
+      query = "_sourceCategory=event-action info"
+  }
+  triggers  {
+    threshold_type = "GreaterThan"
+    threshold = 40.0
+    time_range = "15m"
+    occurrence_type = "ResultCount"
+    trigger_source = "AllResults"
+    trigger_type = "Critical"
+    detection_method = "StaticCondition"
+  }
+  notifications {
+    notification_type = "EmailAction"
+    notification {
+        action_type = "EmailAction"
+        recipients = ["rohit@sumologic.com"]
+        subject = "Triggered: tf logs monitor"
+        time_zone = "PST"
+        message_body = "testing123"
+    }
+    run_for_trigger_types = ["Critical"]
+  }
 }
 ```
 
@@ -37,6 +57,7 @@ The following arguments are supported:
 Additional data provided in state
 
 - `id` - (Computed) The Id for this monitor.
+- `status` - (Computed) The current status for this monitor. Values are `Critical`, `Warning`, `MissingData`, `Normal`, or `Disabled`
 
 ## Import
 
