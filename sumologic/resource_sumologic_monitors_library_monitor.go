@@ -22,18 +22,21 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"content_type": {
@@ -65,6 +68,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"parent_id": {
@@ -82,6 +86,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"triggers": {
@@ -191,6 +196,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"monitor_type": {
@@ -208,6 +214,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 			"group_notifications": {
 				Type:     schema.TypeBool,
@@ -227,6 +234,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"name": {
@@ -275,14 +283,15 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		return nil
 	}
 
+	log.Printf("[DEBUG] createdBy, createdAt, isSystem, isMutable in read %v, %v, %v, %v", monitor.CreatedBy, monitor.CreatedAt, monitor.IsSystem, monitor.IsMutable)
 	d.Set("created_by", monitor.CreatedBy)
-	d.Set("name", monitor.Name)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
-	d.Set("description", monitor.Description)
 	d.Set("modified_by", monitor.ModifiedBy)
 	d.Set("is_mutable", monitor.IsMutable)
 	d.Set("version", monitor.Version)
+	d.Set("description", monitor.Description)
+	d.Set("name", monitor.Name)
 	// d.Set("type", monitor.Type)
 	d.Set("parent_id", monitor.ParentID)
 	d.Set("modified_at", monitor.ModifiedAt)
@@ -371,6 +380,8 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
+
+	log.Printf("[DEBUG] resource to monitor created_by %v", d.Get("created_by"))
 
 	return MonitorsLibraryMonitor{
 		CreatedBy:          d.Get("created_by").(string),
