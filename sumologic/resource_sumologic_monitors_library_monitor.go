@@ -292,7 +292,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("version", monitor.Version)
 	d.Set("description", monitor.Description)
 	d.Set("name", monitor.Name)
-	// d.Set("type", monitor.Type)
 	d.Set("parent_id", monitor.ParentID)
 	d.Set("modified_at", monitor.ModifiedAt)
 	d.Set("content_type", monitor.ContentType)
@@ -309,7 +308,6 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 	c := meta.(*Client)
 	monitor := resourceToMonitorsLibraryMonitor(d)
 	monitor.Type = "MonitorsLibraryMonitorUpdate"
-	// monitor.Version = monitor.Version + 1
 	err := c.UpdateMonitorsLibraryMonitor(monitor)
 	if err != nil {
 		return err

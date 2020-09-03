@@ -7,16 +7,17 @@ description: |-
 
 # sumologic_monitor
 
-Provides the ability to create, read, delete, update monitors.
+Provides the ability to create, read, delete, update [Monitors (New)][1].
 
-## Example Usage
+## Example Logs Monitor
 
 ```hcl
 resource "sumologic_monitor" "tf_logs_monitor_1" {
-  name = "Terraform Monitor"
+  name = "Terraform Logs Monitor"
   description = "tf logs monitor"
   type = "MonitorsLibraryMonitor"
   is_disabled = false
+  parent_id = "0000000000000001"
   content_type = "Monitor"
   monitor_type = "Logs"
   queries {
@@ -33,15 +34,61 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     detection_method = "StaticCondition"
   }
   notifications {
-    notification_type = "EmailAction"
     notification {
         action_type = "EmailAction"
-        recipients = ["rohit@sumologic.com"]
+        recipients = ["abc@example.com"]
         subject = "Triggered: tf logs monitor"
         time_zone = "PST"
         message_body = "testing123"
     }
     run_for_trigger_types = ["Critical"]
+  }
+}
+```
+
+## Example Metrics Monitor
+
+```hcl
+resource "sumologic_monitor" "tf_metrics_monitor_1" {
+  name = "Terraform Metrics Monitor"
+  description = "tf metrics monitor"
+  type = "MonitorsLibraryMonitor"
+  is_disabled = false
+  parent_id = "0000000000000001"
+  content_type = "Monitor"
+  monitor_type = "Metrics"
+  queries {
+      row_id = "A"
+      query = "metric=CPU_Idle _sourceCategory=event-action"
+  }
+  triggers  {
+      threshold_type = "GreaterThanOrEqual"
+      threshold = 40.0
+      time_range = "15m"
+      occurrence_type = "Always"
+      trigger_source = "AllTimeSeries"
+      trigger_type = "Critical"
+      detection_method = "StaticCondition"
+    }
+  triggers {
+    threshold_type = "LessThan"
+    threshold = 30.0
+    time_range = "15m"
+    occurrence_type = "Always"
+    trigger_source = "AllTimeSeries"
+    trigger_type = "ResolvedCritical"
+    detection_method = "StaticCondition"
+    }
+  notifications {
+    notification_type = "EmailAction"
+    notification {
+        action_type = "EmailAction"
+        recipients = ["abc@example.com"]
+        subject = "Triggered: tf metrics monitor"
+        time_zone = "PST"
+        message_body = "testing123"
+    }
+    run_for_trigger_types = ["Critical","ResolvedCritical"]
   }
 }
 ```
@@ -59,6 +106,11 @@ Additional data provided in state
 - `id` - (Computed) The Id for this monitor.
 - `status` - (Computed) The current status for this monitor. Values are `Critical`, `Warning`, `MissingData`, `Normal`, or `Disabled`
 
+<!-- - created_at
+- created_by
+- modified_at
+- modified_by -->
+
 ## Import
 
 Monitors can be imported using the monitor id, e.g.:
@@ -66,3 +118,5 @@ Monitors can be imported using the monitor id, e.g.:
 ```hcl
 terraform import sumologic_monitor.test 1234567890
 ```
+
+[1]: https://help.sumologic.com/Beta/Monitors
