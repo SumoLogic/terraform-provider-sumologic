@@ -73,8 +73,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"parent_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 			"is_disabled": {
 				Type:     schema.TypeBool,
@@ -258,6 +259,14 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
 		paramMap := make(map[string]string)
+		if monitor.ParentID == "" {
+			rootFolder, err := c.GetMonitorsLibraryFolder("root")
+			if err != nil {
+				return err
+			}
+
+			monitor.ParentID = rootFolder.ID
+		}
 		paramMap["parentId"] = monitor.ParentID
 		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
 		if err != nil {
@@ -283,7 +292,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		return nil
 	}
 
-	log.Printf("[DEBUG] createdBy, createdAt, isSystem, isMutable in read %v, %v, %v, %v", monitor.CreatedBy, monitor.CreatedAt, monitor.IsSystem, monitor.IsMutable)
 	d.Set("created_by", monitor.CreatedBy)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
@@ -378,8 +386,6 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
-
-	log.Printf("[DEBUG] resource to monitor created_by %v", d.Get("created_by"))
 
 	return MonitorsLibraryMonitor{
 		CreatedBy:          d.Get("created_by").(string),

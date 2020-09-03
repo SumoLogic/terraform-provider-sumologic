@@ -17,7 +17,6 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   description = "tf logs monitor"
   type = "MonitorsLibraryMonitor"
   is_disabled = false
-  parent_id = "0000000000000001"
   content_type = "Monitor"
   monitor_type = "Logs"
   queries {
@@ -105,11 +104,6 @@ Additional data provided in state
 
 - `id` - (Computed) The Id for this monitor.
 - `status` - (Computed) The current status for this monitor. Values are `Critical`, `Warning`, `MissingData`, `Normal`, or `Disabled`
-
-<!-- - created_at
-- created_by
-- modified_at
-- modified_by -->
 
 ## Import
 

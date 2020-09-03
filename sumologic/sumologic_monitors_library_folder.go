@@ -100,18 +100,18 @@ func (s *Client) UpdateMonitorsLibraryFolder(monitorsLibraryFolder MonitorsLibra
 type MonitorsLibraryFolder struct {
 	ID          string `json:"id,omitempty"`
 	Type        string `json:"type"`
+	ContentType string `json:"contentType"`
 	ParentID    string `json:"parentId"`
 	Name        string `json:"name"`
-	Version     int    `json:"version"`
+	Description string `json:"description"`
 	CreatedBy   string `json:"createdBy"`
+	CreatedAt   string `json:"createdAt"`
+	ModifiedBy  string `json:"modifiedBy"`
+	ModifiedAt  string `json:"modifiedAt"`
 	IsLocked    bool   `json:"isLocked"`
 	IsMutable   bool   `json:"isMutable"`
 	IsSystem    bool   `json:"isSystem"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"createdAt"`
-	ModifiedAt  string `json:"modifiedAt"`
-	ContentType string `json:"contentType"`
-	ModifiedBy  string `json:"modifiedBy"`
+	Version     int    `json:"version"`
 }
 
 // ---------- END ----------

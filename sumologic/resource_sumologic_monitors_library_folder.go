@@ -22,18 +22,21 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"content_type": {
@@ -47,18 +50,21 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"parent_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"is_mutable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"description": {
@@ -71,6 +77,7 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"is_locked": {
@@ -90,6 +97,7 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"name": {
@@ -111,10 +119,18 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 func resourceSumologicMonitorsLibraryFolderCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	if d.Id() == "" {
-		monitor := resourceToMonitorsLibraryFolder(d)
+		folder := resourceToMonitorsLibraryFolder(d)
 		paramMap := make(map[string]string)
-		paramMap["parentId"] = monitor.ParentID
-		monitorDefinitionID, err := c.CreateMonitorsLibraryFolder(monitor, paramMap)
+		if folder.ParentID == "" {
+			rootFolder, err := c.GetMonitorsLibraryFolder("root")
+			if err != nil {
+				return err
+			}
+
+			folder.ParentID = rootFolder.ID
+		}
+		paramMap["parentId"] = folder.ParentID
+		monitorDefinitionID, err := c.CreateMonitorsLibraryFolder(folder, paramMap)
 		if err != nil {
 			return err
 		}
@@ -127,31 +143,29 @@ func resourceSumologicMonitorsLibraryFolderCreate(d *schema.ResourceData, meta i
 func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	monitor, err := c.MonitorsRead(d.Id())
+	folder, err := c.GetMonitorsLibraryFolder(d.Id())
 	if err != nil {
 		return err
 	}
 
-	if monitor == nil {
-		log.Printf("[WARN] Monitor not found, removing from state: %v - %v", d.Id(), err)
+	if folder == nil {
+		log.Printf("[WARN] Monitor Folder not found, removing from state: %v - %v", d.Id(), err)
 		d.SetId("")
 		return nil
 	}
 
-	d.Set("created_by", monitor.CreatedBy)
-	d.Set("name", monitor.Name)
-	d.Set("created_at", monitor.CreatedAt)
-	d.Set("monitor_type", monitor.MonitorType)
-	d.Set("description", monitor.Description)
-	d.Set("modified_by", monitor.ModifiedBy)
-	d.Set("is_mutable", monitor.IsMutable)
-	d.Set("version", monitor.Version)
-	// d.Set("type", monitor.Type)
-	d.Set("parent_id", monitor.ParentID)
-	d.Set("modified_at", monitor.ModifiedAt)
-	d.Set("content_type", monitor.ContentType)
-	d.Set("is_locked", monitor.IsLocked)
-	d.Set("is_system", monitor.IsSystem)
+	d.Set("created_by", folder.CreatedBy)
+	d.Set("created_at", folder.CreatedAt)
+	d.Set("modified_by", folder.ModifiedBy)
+	d.Set("is_mutable", folder.IsMutable)
+	d.Set("version", folder.Version)
+	d.Set("name", folder.Name)
+	d.Set("description", folder.Description)
+	d.Set("parent_id", folder.ParentID)
+	d.Set("modified_at", folder.ModifiedAt)
+	d.Set("content_type", folder.ContentType)
+	d.Set("is_locked", folder.IsLocked)
+	d.Set("is_system", folder.IsSystem)
 
 	return nil
 }
@@ -160,7 +174,6 @@ func resourceSumologicMonitorsLibraryFolderUpdate(d *schema.ResourceData, meta i
 	c := meta.(*Client)
 	monitor := resourceToMonitorsLibraryFolder(d)
 	monitor.Type = "MonitorsLibraryFolderUpdate"
-	// monitor.Version = monitor.Version + 1
 	err := c.UpdateMonitorsLibraryFolder(monitor)
 	if err != nil {
 		return err

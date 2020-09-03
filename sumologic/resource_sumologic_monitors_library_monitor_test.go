@@ -14,7 +14,6 @@ import (
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testName := "name-JMH7N"
-	// testName := acctest.RandString(16)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,17 +35,8 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
-	// testCreatedAt := "2020-09-01T23:15:22.735Z"
-	// testModifiedAt := "2020-09-01T23:15:22.735Z"
-	// testCreatedBy := "000000000AD5976D"
-	// testModifiedBy := "000000000AD5976D"
-	// testIsLocked := false
-	// testIsSystem := false
-	// testIsMutable := true
-	// testVersion := 0
 	testName := "terraform_test_monitor_" + testNameSuffix
 	testDescription := "terraform_test_monitor_description"
-	testParentID := "0000000000000001"
 	testType := "MonitorsLibraryMonitor"
 	testContentType := "Monitor"
 	testMonitorType := "Logs"
@@ -102,20 +92,11 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testModifiedAt),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testCreatedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentID),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -130,17 +111,8 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
-	// testCreatedAt := "2020-09-01T23:15:22.735Z"
-	// testModifiedAt := "2020-09-01T23:15:22.735Z"
-	// testCreatedBy := "000000000AD5976D"
-	// testModifiedBy := "000000000AD5976D"
-	// testIsLocked := false
-	// testIsSystem := false
-	// testIsMutable := true
-	// testVersion := 0
 	testName := "terraform_test_monitor_" + testNameSuffix
 	testDescription := "terraform_test_monitor_description"
-	testParentID := "0000000000000001"
 	testType := "MonitorsLibraryMonitor"
 	testContentType := "Monitor"
 	testMonitorType := "Logs"
@@ -187,17 +159,8 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 	}
 
 	// updated fields
-	// testUpdatedCreatedAt := "2020-09-01T23:15:22.735Z"
-	// testUpdatedModifiedAt := "2020-09-01T23:15:22.735Z"
-	// testUpdatedCreatedBy := "000000000AD5976D"
-	// testUpdatedModifiedBy := "000000000AD5976D"
-	// testUpdatedIsLocked := false
-	// testUpdatedIsSystem := false
-	// testUpdatedIsMutable := true
-	// testUpdatedVersion := 0
 	testUpdatedName := "terraform_test_monitor_" + testNameSuffix
 	testUpdatedDescription := "terraform_test_monitor_description"
-	testUpdatedParentID := "0000000000000001"
 	testUpdatedType := "MonitorsLibraryMonitor"
 	testUpdatedContentType := "Monitor"
 	testUpdatedMonitorType := "Logs"
@@ -253,20 +216,11 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testModifiedAt),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testCreatedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testIsLocked)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testIsSystem)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testParentID),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testIsMutable)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testVersion)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testModifiedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -276,20 +230,11 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorUpdate(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_at", testUpdatedModifiedAt),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_by", testUpdatedCreatedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_locked", strconv.FormatBool(testUpdatedIsLocked)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testUpdatedMonitorType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_system", strconv.FormatBool(testUpdatedIsSystem)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testUpdatedIsDisabled)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testUpdatedName),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "parent_id", testUpdatedParentID),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "is_mutable", strconv.FormatBool(testUpdatedIsMutable)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testUpdatedType),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "version", strconv.Itoa(testUpdatedVersion)),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "modified_by", testUpdatedModifiedBy),
-					// resource.TestCheckResourceAttr("sumologic_monitor.test", "created_at", testUpdatedCreatedAt),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
@@ -355,9 +300,6 @@ func testAccCheckMonitorsLibraryMonitorAttributes(name string) resource.TestChec
 			resource.TestCheckResourceAttrSet(name, "is_mutable"),
 			resource.TestCheckResourceAttrSet(name, "type"),
 			resource.TestCheckResourceAttrSet(name, "version"),
-			// resource.TestCheckResourceAttrSet(name, "triggers"),
-			// resource.TestCheckResourceAttrSet(name, "queries"),
-			// resource.TestCheckResourceAttrSet(name, "notifications"),
 			resource.TestCheckResourceAttrSet(name, "description"),
 			resource.TestCheckResourceAttrSet(name, "modified_by"),
 			resource.TestCheckResourceAttrSet(name, "created_at"),
@@ -373,7 +315,6 @@ resource "sumologic_monitor" "test" {
 	name = "terraform_test_monitor_%s"
 	description = "terraform_test_monitor_description"
 	type = "MonitorsLibraryMonitor"
-	parent_id = "0000000000000001"
 	is_disabled = false
 	content_type = "Monitor"
 	monitor_type = "Logs"
@@ -409,7 +350,6 @@ resource "sumologic_monitor" "test" {
 	name = "terraform_test_monitor_%s"
 	description = "terraform_test_monitor_description"
 	type = "MonitorsLibraryMonitor"
-	parent_id = "0000000000000001"
 	is_disabled = true
 	content_type = "Monitor"
 	monitor_type = "Logs"
