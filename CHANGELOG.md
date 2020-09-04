@@ -1,4 +1,11 @@
-## 2.2.0 (Unreleased)
+## 2.2.1 (September 8, 2020)
+
+FEATURES:
+
+* **New Resource:** sumologic_monitor (GH-74)
+* **New Resource:** sumologic_monitor_folder (GH-74)
+
+## 2.2.0 (September 1, 2020)
 DEPRECATIONS:
 
 * resource/sumologic_polling_source: Deprecated in faovur of having individul sources for each content type currently supported. (GH-64)
