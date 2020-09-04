@@ -92,22 +92,50 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 }
 ```
 
+## Example Monitor Folder
+
+NOTE: Monitors folders are considered a different resource from other content folders.
+
+```hcl
+resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
+  name = "test terraform folder"
+  description = "a folder for monitors"
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
 
-- `type` - (Required) Type of monitor. Valid values are `Logs` or `Metrics`
+- `type` - (Optional) Type of the object model. Valid values:
+  - `MonitorsLibraryMonitor`
 - `name` - (Required) Name of monitor. Name should be a valid alphanumeric value.
-- `description` - (Optional) Description of the monitor.
+- `description` - (Required) Description of the monitor.
+- `is_disabled` - (Optional) Whether or not the monitor is disabled. Disabled monitors will not run, and will not generate or send notifications.
+- `parent_id` - (Optional) The ID of the Monitor Folder that contains this monitor. Defaults to the root folder.
+- `content_type` - (Optional) Type of the content object. Valid values:
+  - `Monitor`
+- `monitor_type` - (Required) The type of monitor. Valid values:
+  - `Logs`: A logs query monitor.
+  - `Metrics`: A metrics query monitor.
+- `queries` - (Required) All queries from the monitor.
+- `triggers` - (Required) Defines the conditions of when to send notifications.
+- `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
+- `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 
 Additional data provided in state
 
 - `id` - (Computed) The Id for this monitor.
-- `status` - (Computed) The current status for this monitor. Values are `Critical`, `Warning`, `MissingData`, `Normal`, or `Disabled`
+- `status` - (Computed) The current status for this monitor. Values are:
+  - `Critical`
+  - `Warning`
+  - `MissingData`
+  - `Normal`
+  - `Disabled`
 
 ## Import
 
-Monitors can be imported using the monitor id, e.g.:
+Monitors can be imported using the monitor ID, e.g.:
 
 ```hcl
 terraform import sumologic_monitor.test 1234567890
