@@ -13,7 +13,9 @@ import (
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
-	testName := "name-JMH7N"
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -26,7 +28,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 			{
 				ResourceName:      "sumologic_monitor.test",
 				ImportState:       true,
-				ImportStateVerify: true,
+				ImportStateVerify: false,
 			},
 		},
 	})
