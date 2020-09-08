@@ -2,12 +2,12 @@
 layout: 'sumologic'
 page_title: 'SumoLogic: sumologic_monitor'
 description: |-
-  Provides the ability to create, read, delete, update monitors.
+  Provides the ability to create, read, delete, and update monitors.
 ---
 
 # sumologic_monitor
 
-Provides the ability to create, read, delete, update [Monitors (New)][1].
+Provides the ability to create, read, delete, and update [Monitors][1].
 
 ## Example Logs Monitor
 
@@ -94,7 +94,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 
 ## Example Monitor Folder
 
-NOTE: Monitors folders are considered a different resource from other content folders.
+NOTE: Monitor folders are considered a different resource from Library content folders.
 
 ```hcl
 resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
@@ -107,13 +107,13 @@ resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
 
 The following arguments are supported:
 
-- `type` - (Optional) Type of the object model. Valid values:
+- `type` - (Optional) The type of object model. Valid value:
   - `MonitorsLibraryMonitor`
-- `name` - (Required) Name of monitor. Name should be a valid alphanumeric value.
-- `description` - (Required) Description of the monitor.
-- `is_disabled` - (Optional) Whether or not the monitor is disabled. Disabled monitors will not run, and will not generate or send notifications.
+- `name` - (Required) The name of the monitor. The name must be alphanumeric.
+- `description` - (Required) The description of the monitor.
+- `is_disabled` - (Optional) Whether or not the monitor is disabled. Disabled monitors will not run and will not generate or send notifications.
 - `parent_id` - (Optional) The ID of the Monitor Folder that contains this monitor. Defaults to the root folder.
-- `content_type` - (Optional) Type of the content object. Valid values:
+- `content_type` - (Optional) The type of the content object. Valid value:
   - `Monitor`
 - `monitor_type` - (Required) The type of monitor. Valid values:
   - `Logs`: A logs query monitor.
@@ -123,9 +123,9 @@ The following arguments are supported:
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 
-Additional data provided in state
+Additional data provided in state:
 
-- `id` - (Computed) The Id for this monitor.
+- `id` - (Computed) The ID for this monitor.
 - `status` - (Computed) The current status for this monitor. Values are:
   - `Critical`
   - `Warning`
@@ -135,7 +135,7 @@ Additional data provided in state
 
 ## Import
 
-Monitors can be imported using the monitor ID, e.g.:
+Monitors can be imported using the monitor ID, such as:
 
 ```hcl
 terraform import sumologic_monitor.test 1234567890
