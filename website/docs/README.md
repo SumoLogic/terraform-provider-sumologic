@@ -30,6 +30,9 @@
   + [sumologic_content][44]
   + [sumologic_connection][45]
 
+##### Monitors
+  + [sumologic_monitor][46]
+
 #### Common Source Properties
 
 The following properties are common to ALL sources and can be used to configure each source.
@@ -70,3 +73,4 @@ The following properties are common to ALL sources and can be used to configure 
 [43]: r/folder.html.markdown
 [44]: r/content.html.markdown
 [45]: r/connection.html.markdown
+[46]: r/monitors.html.markdown
