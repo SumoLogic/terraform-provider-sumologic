@@ -95,7 +95,7 @@ func TestAccIngestBudgetV2_update(t *testing.T) {
 
 	testUpdatedName := "Developer BudgetUpdate"
 	testUpdatedScope := "_sourceCategory=*prod*nginx*Update"
-	testUpdatedTimezone := "America/Los_AngelesUpdate"
+	testUpdatedTimezone := "America/Lima"
 	testUpdatedResetTime := "22:05"
 	testUpdatedAuditThreshold := 86
 	testUpdatedDescription := "description-pY8kDUpdate"
