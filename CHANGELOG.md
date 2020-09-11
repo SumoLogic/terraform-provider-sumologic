@@ -1,3 +1,9 @@
+## 2.3.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** sumologic_ingest_budget_v2 (GH-78)
+
 ## 2.2.1 (September 8, 2020)
 
 FEATURES:
