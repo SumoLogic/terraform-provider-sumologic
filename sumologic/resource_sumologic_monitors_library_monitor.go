@@ -291,6 +291,15 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_disabled", monitor.IsDisabled)
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
+	if err := d.Set("notifications", monitor.Notifications); err != nil {
+		return err
+	}
+	if err := d.Set("triggers", monitor.Triggers); err != nil {
+		return err
+	}
+	if err := d.Set("queries", monitor.Queries); err != nil {
+		return err
+	}
 
 	return nil
 }
