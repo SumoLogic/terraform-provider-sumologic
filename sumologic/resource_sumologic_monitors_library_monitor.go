@@ -316,8 +316,7 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
-	// handle notifications
+func getNotifications(d *schema.ResourceData) []MonitorNotification {
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
@@ -325,7 +324,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		if notificationActionDict["action_type"].(string) == "EmailAction" {
+		if notificationActionDict["action_type"].(string) == "EmailAction" || notificationActionDict["action_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.Subject = notificationActionDict["subject"].(string)
@@ -333,8 +332,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
 			notificationAction.TimeZone = notificationActionDict["time_zone"].(string)
 			n.Notification = notificationAction
-		}
-		if notificationActionDict["action_type"].(string) == "NamedConnectionAction" {
+		} else {
 			notificationAction := WebhookNotificiation{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
@@ -344,7 +342,10 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
 		notifications[i] = n
 	}
-	// handle triggers
+	return notifications
+}
+
+func getTriggers(d *schema.ResourceData) []TriggerCondition {
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
@@ -359,7 +360,10 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		t.DetectionMethod = triggerDict["detection_method"].(string)
 		triggers[i] = t
 	}
-	// handle queries
+	return triggers
+}
+
+func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
@@ -369,6 +373,13 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
+	return queries
+}
+
+func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
+	notifications := getNotifications(d)
+	triggers := getTriggers(d)
+	queries := getQueries(d)
 	rawStatus := d.Get("status").([]interface{})
 	status := make([]string, len(rawStatus))
 	for i := range rawStatus {
