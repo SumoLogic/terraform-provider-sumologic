@@ -2,7 +2,8 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
-PLUGIN_DIR=~/.terraform.d/plugins
+#PLUGIN_DIR=~/.terraform.d/plugins
+PLUGIN_DIR=~/.terraform.d/plugins/registry.terraform.io/sumologic/sumologic/2.2.3/darwin_amd64
 
 default: build
 
