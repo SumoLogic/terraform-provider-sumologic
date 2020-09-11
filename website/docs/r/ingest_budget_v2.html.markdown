@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_ingest_budget_v2
-Provides a [Sumologic Ingest Budget v2][1].
+Provides a [Sumologic Ingest Budget v2][1].This API is in private beta and is not available until given access. To participate in the beta program contact your Sumo Logic account representative.
 
 ## Example Usage
 ```hcl
