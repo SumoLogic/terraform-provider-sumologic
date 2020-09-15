@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -143,8 +144,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action_type": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateActionType,
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -410,4 +412,16 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		Status:             d.Get("status").(string),
 		GroupNotifications: d.Get("group_notifications").(bool),
 	}
+}
+
+func validateActionType(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	switch v {
+	case
+		"EmailAction",
+		"NamedConnectionAction":
+		return
+	}
+	errs = append(errs, fmt.Errorf("%q must be one of [EmailAction, NamedConnectionAction], got [%s]", key, v))
+	return
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
@@ -33,6 +34,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 		},
 	})
 }
+
 func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
@@ -107,6 +109,20 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccMonitorsLibraryMonitor_validateActionType(t *testing.T) {
+	assert := assert.New(t)
+
+	warns, errs := validateActionType("InvalidAction", "notifications.0.notification.0.action_type")
+	assert.Len(warns, 0)
+	assert.Len(errs, 1)
+
+	assert.Equal("\"notifications.0.notification.0.action_type\" must be one of [EmailAction, NamedConnectionAction], got [InvalidAction]", errs[0].(error).Error())
+
+	warns, errs = validateActionType("EmailAction", "notifications.0.notification.0.action_type")
+	assert.Len(warns, 0)
+	assert.Len(errs, 0)
 }
 
 func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
