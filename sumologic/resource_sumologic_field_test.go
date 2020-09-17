@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 	"testing"
