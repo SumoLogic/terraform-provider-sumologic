@@ -26,12 +26,10 @@ func resourceSumologicFolder() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{

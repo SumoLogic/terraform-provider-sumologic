@@ -55,66 +55,55 @@ func resourceSumologicSource() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "",
 			},
 			"category": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "",
 			},
 			"host_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "",
 			},
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "Etc/UTC",
 			},
 			"automatic_date_parsing": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Default:  true,
 			},
 			"multiline_processing_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Default:  true,
 			},
 			"use_autoline_matching": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Default:  true,
 			},
 			"manual_prefix_regexp": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  nil,
 			},
 			"force_timezone": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Default:  false,
 			},
 			"default_date_formats": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"format": {
@@ -131,7 +120,6 @@ func resourceSumologicSource() *schema.Resource {
 			"filters": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -157,7 +145,6 @@ func resourceSumologicSource() *schema.Resource {
 			"cutoff_timestamp": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Default:  0,
 			},
 			"cutoff_relative_time": {
@@ -172,7 +159,6 @@ func resourceSumologicSource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: false,
 				Default:  nil,
 			},
 			"collector_id": {

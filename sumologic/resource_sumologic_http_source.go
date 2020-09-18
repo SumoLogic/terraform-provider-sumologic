@@ -20,7 +20,6 @@ func resourceSumologicHTTPSource() *schema.Resource {
 	httpSource.Schema["message_per_request"] = &schema.Schema{
 		Type:     schema.TypeBool,
 		Optional: true,
-		ForceNew: false,
 		Default:  false,
 	}
 	httpSource.Schema["url"] = &schema.Schema{

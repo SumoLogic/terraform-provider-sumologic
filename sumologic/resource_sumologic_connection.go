@@ -32,7 +32,6 @@ func resourceSumologicConnection() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 128),
 					validation.StringMatch(regexp.MustCompile(nameValidation), fmt.Sprintf("Must match regex %s", nameValidation)),
@@ -46,14 +45,12 @@ func resourceSumologicConnection() *schema.Resource {
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 				Default:      "",
 			},
 			"url": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
 			},
 			"headers": {
@@ -62,7 +59,6 @@ func resourceSumologicConnection() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: false,
 				Default:  map[string]interface{}{},
 			},
 			"custom_headers": {
@@ -71,19 +67,16 @@ func resourceSumologicConnection() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: false,
 				Default:  map[string]interface{}{},
 			},
 			"default_payload": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringIsJSON,
 			},
 			"webhook_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie"}, false),
 				Default:      "Webhook",
 			},
