@@ -116,16 +116,6 @@ resource "sumologic_field" "test" {
 `, fieldName, dataType, state)
 }
 
-func testAccSumologicFieldUpdate(fieldName string, dataType string, state string) string {
-	return fmt.Sprintf(`
-resource "sumologic_field" "test" {
-      field_name = "%s"
-      data_type = "%s"
-      state = "%s"
-}
-`, fieldName, dataType, state)
-}
-
 func testAccCheckFieldAttributes(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		f := resource.ComposeTestCheckFunc(
