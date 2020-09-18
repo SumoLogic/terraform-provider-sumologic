@@ -10,7 +10,6 @@ func resourceSumologicField() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicFieldCreate,
 		Read:   resourceSumologicFieldRead,
-		Update: resourceSumologicFieldUpdate,
 		Delete: resourceSumologicFieldDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSumologicFieldImport,
@@ -21,7 +20,7 @@ func resourceSumologicField() *schema.Resource {
 			"field_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 
 			"field_id": {
@@ -33,13 +32,13 @@ func resourceSumologicField() *schema.Resource {
 			"data_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 
 			"state": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 		},
 	}
@@ -91,10 +90,6 @@ func resourceSumologicFieldDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return c.DeleteField(id)
-}
-
-func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) error {
-	return nil
 }
 
 func resourceSumologicFieldCreate(d *schema.ResourceData, meta interface{}) error {
