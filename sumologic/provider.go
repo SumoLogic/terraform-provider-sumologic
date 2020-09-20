@@ -66,6 +66,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_monitor_folder":                     resourceSumologicMonitorsLibraryFolder(),
 			"sumologic_ingest_budget_v2":                   resourceSumologicIngestBudgetV2(),
 			"sumologic_field":                              resourceSumologicField(),
+			"sumologic_lookup_table":                       resourceSumologicLookupTable(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
