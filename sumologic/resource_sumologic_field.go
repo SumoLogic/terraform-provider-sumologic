@@ -31,13 +31,13 @@ func resourceSumologicField() *schema.Resource {
 
 			"data_type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
 			"state": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 		},
