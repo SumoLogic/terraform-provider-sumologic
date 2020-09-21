@@ -32,22 +32,18 @@ func resourceSumologicUser() *schema.Resource {
 			"first_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"last_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"email": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"role_ids": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -55,12 +51,10 @@ func resourceSumologicUser() *schema.Resource {
 			"is_active": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 			"transfer_to": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 		},
 	}

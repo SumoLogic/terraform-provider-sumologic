@@ -24,13 +24,11 @@ func resourceSumologicPartition() *schema.Resource {
 			"routing_expression": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringLenBetween(0, 16384),
 			},
 			"analytics_tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringInSlice([]string{"enhanced", "basic", "cold"}, false),
 				Default:      "enhanced",
 			},
@@ -38,7 +36,6 @@ func resourceSumologicPartition() *schema.Resource {
 			"retention_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.IntAtLeast(-1),
 				Default:      -1,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -51,12 +48,10 @@ func resourceSumologicPartition() *schema.Resource {
 			"is_compliant": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 		},
 	}

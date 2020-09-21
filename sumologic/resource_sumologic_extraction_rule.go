@@ -31,22 +31,18 @@ func resourceSumologicFieldExtractionRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"scope": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"parse_expression": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 		},
 	}

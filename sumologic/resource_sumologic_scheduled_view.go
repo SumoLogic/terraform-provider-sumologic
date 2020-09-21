@@ -24,19 +24,16 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"index_name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"start_time": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.IsRFC3339Time,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: validation.IntAtLeast(-1),
 				Default:      -1,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
@@ -47,7 +44,6 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 		},
 	}

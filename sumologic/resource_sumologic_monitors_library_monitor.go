@@ -21,35 +21,30 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"version": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "Monitor",
 			},
 
 			"queries": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"row_id": {
@@ -67,33 +62,28 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"created_by": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"parent_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"is_disabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 
 			"is_mutable": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"triggers": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
@@ -131,7 +121,6 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -190,58 +179,49 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 
 			"created_at": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"monitor_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 
 			"is_locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"group_notifications": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Default:  true,
 			},
 
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "MonitorsLibraryMonitor",
 			},
 
 			"modified_by": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"post_request_map": {
 				Type:     schema.TypeMap,

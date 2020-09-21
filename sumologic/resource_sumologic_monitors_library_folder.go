@@ -21,89 +21,76 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 			"version": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "Folder",
 			},
 
 			"created_by": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"parent_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"is_mutable": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"description": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 
 			"created_at": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"is_locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "MonitorsLibraryFolder",
 			},
 
 			"modified_by": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"post_request_map": {
 				Type:     schema.TypeMap,
