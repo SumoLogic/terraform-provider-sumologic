@@ -1,4 +1,8 @@
-## 2.2.3 (Unreleased)
+## 2.3.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** sumologic_field (GH-82)
 
 ## 2.2.2 (September 11, 2020)
 
