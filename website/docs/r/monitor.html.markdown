@@ -79,7 +79,6 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     detection_method = "StaticCondition"
     }
   notifications {
-    notification_type = "EmailAction"
     notification {
         action_type = "EmailAction"
         recipients = ["abc@example.com"]

@@ -197,9 +197,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional: true,
 			},
 			"status": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"group_notifications": {
 				Type:     schema.TypeBool,
