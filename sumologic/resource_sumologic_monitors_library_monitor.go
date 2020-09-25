@@ -389,7 +389,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		IsLocked:           d.Get("is_locked").(bool),
 		IsSystem:           d.Get("is_system").(bool),
 		IsDisabled:         d.Get("is_disabled").(bool),
-		Status:             d.Get("status").(string),
+		Status:             d.Get("status").([]string),
 		GroupNotifications: d.Get("group_notifications").(bool),
 	}
 }
