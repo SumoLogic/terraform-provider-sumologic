@@ -117,7 +117,7 @@ type MonitorsLibraryMonitor struct {
 	ContentType        string                `json:"contentType"`
 	ModifiedBy         string                `json:"modifiedBy"`
 	IsDisabled         bool                  `json:"isDisabled"`
-	Status             string                `json:"status"`
+	Status             []string              `json:"status"`
 	GroupNotifications bool                  `json:"groupNotifications"`
 }
 

@@ -197,9 +197,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional: true,
 			},
 			"status": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"group_notifications": {
 				Type:     schema.TypeBool,
@@ -366,6 +369,11 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
+	rawStatus := d.Get("status").([]interface{})
+	status := make([]string, len(rawStatus))
+	for i := range rawStatus {
+		status[i] = rawStatus[i].(string)
+	}
 
 	return MonitorsLibraryMonitor{
 		CreatedBy:          d.Get("created_by").(string),
@@ -387,7 +395,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		IsLocked:           d.Get("is_locked").(bool),
 		IsSystem:           d.Get("is_system").(bool),
 		IsDisabled:         d.Get("is_disabled").(bool),
-		Status:             d.Get("status").(string),
+		Status:             status,
 		GroupNotifications: d.Get("group_notifications").(bool),
 	}
 }
