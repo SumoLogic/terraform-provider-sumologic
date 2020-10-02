@@ -291,15 +291,26 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_disabled", monitor.IsDisabled)
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
-	if err := d.Set("notifications", monitor.Notifications); err != nil {
+	log.Printf("[DEBUG] monitor notifications: %v", monitor.Notifications)
+	log.Printf("[DEBUG] monitor triggers: %v", monitor.Triggers)
+	log.Printf("[DEBUG] monitor queries: %v", monitor.Queries)
+	// set notifications
+	notifications := make([]MonitorNotification, len(monitor.Notifications))
+	for i := range monitor.Notifications {
+		n := MonitorNotification{}
+		n.Notification = monitor.Notifications[i].Notification
+		n.RunForTriggerTypes = monitor.Notifications[i].RunForTriggerTypes
+		notifications[i] = n
+	}
+	if err := d.Set("notifications", notifications); err != nil {
 		return err
 	}
-	if err := d.Set("triggers", monitor.Triggers); err != nil {
-		return err
-	}
-	if err := d.Set("queries", monitor.Queries); err != nil {
-		return err
-	}
+	// if err := d.Set("triggers", monitor.Triggers); err != nil {
+	// 	return err
+	// }
+	// if err := d.Set("queries", monitor.Queries); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
