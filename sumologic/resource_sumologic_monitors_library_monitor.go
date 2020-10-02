@@ -298,7 +298,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	notifications := make([]MonitorNotification, len(monitor.Notifications))
 	for i := range monitor.Notifications {
 		n := MonitorNotification{}
+		log.Printf("notifications.notification: %v", monitor.Notifications[i].Notification)
 		n.Notification = monitor.Notifications[i].Notification
+		log.Printf("notifications.triggerTypes: %v", monitor.Notifications[i].RunForTriggerTypes)
 		n.RunForTriggerTypes = monitor.Notifications[i].RunForTriggerTypes
 		notifications[i] = n
 	}
