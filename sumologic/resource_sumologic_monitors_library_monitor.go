@@ -104,11 +104,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"trigger_source": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"occurrence_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
@@ -133,7 +133,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"action_type": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+									},
+									"connection_type": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -295,14 +299,23 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] monitor triggers: %v", monitor.Triggers)
 	log.Printf("[DEBUG] monitor queries: %v", monitor.Queries)
 	// set notifications
-	notifications := make([]MonitorNotification, len(monitor.Notifications))
-	for i := range monitor.Notifications {
-		n := MonitorNotification{}
-		log.Printf("notifications.notification: %v", monitor.Notifications[i].Notification)
-		n.Notification = monitor.Notifications[i].Notification
-		log.Printf("notifications.triggerTypes: %v", monitor.Notifications[i].RunForTriggerTypes)
-		n.RunForTriggerTypes = monitor.Notifications[i].RunForTriggerTypes
-		notifications[i] = n
+	notifications := make([]interface{}, len(monitor.Notifications))
+	for i, n := range monitor.Notifications {
+		schemaNotification := make(map[string]interface{})
+		// notification in schema is a list of length 1
+		schemaInternalNotification := make([]interface{}, 1)
+		internalNotification := make(map[string]interface{})
+		internalNotificationDict := n.Notification.(map[string]interface{})
+		internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
+		internalNotification["subject"] = internalNotificationDict["subject"].(string)
+		internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
+		internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
+		internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+		schemaInternalNotification[0] = internalNotification
+
+		schemaNotification["notification"] = schemaInternalNotification
+		schemaNotification["run_for_trigger_types"] = n.RunForTriggerTypes
+		notifications[i] = schemaNotification
 	}
 	if err := d.Set("notifications", notifications); err != nil {
 		return err
