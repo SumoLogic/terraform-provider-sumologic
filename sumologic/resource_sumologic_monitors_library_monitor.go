@@ -340,7 +340,8 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	queries := make([]interface{}, len(monitor.Queries))
 	for i, q := range monitor.Queries {
 		schemaQuery := make(map[string]interface{})
-		schemaQuery["row_id"]
+		schemaQuery["row_id"] = q.RowID
+		schemaQuery["query"] = q.Query
 		queries[i] = schemaQuery
 	}
 	if err := d.Set("queries", queries); err != nil {
