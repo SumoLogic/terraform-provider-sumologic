@@ -302,7 +302,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
 		schemaNotification := make(map[string]interface{})
-		// notification in schema is a list of length 1
+		// notification in schema should be a list of length exactly 1
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
@@ -320,12 +320,32 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	if err := d.Set("notifications", notifications); err != nil {
 		return err
 	}
-	// if err := d.Set("triggers", monitor.Triggers); err != nil {
-	// 	return err
-	// }
-	// if err := d.Set("queries", monitor.Queries); err != nil {
-	// 	return err
-	// }
+	// set triggers
+	triggers := make([]interface{}, len(monitor.Triggers))
+	for i, t := range monitor.Triggers {
+		schemaTrigger := make(map[string]interface{})
+		schemaTrigger["trigger_type"] = t.TriggerType
+		schemaTrigger["threshold"] = t.Threshold
+		schemaTrigger["threshold_type"] = t.ThresholdType
+		schemaTrigger["time_range"] = t.TimeRange
+		schemaTrigger["occurrence_type"] = t.OccurrenceType
+		schemaTrigger["trigger_source"] = t.TriggerSource
+		schemaTrigger["detection_method"] = t.DetectionMethod
+		triggers[i] = schemaTrigger
+	}
+	if err := d.Set("triggers", triggers); err != nil {
+		return err
+	}
+	// set queries
+	queries := make([]interface{}, len(monitor.Queries))
+	for i, q := range monitor.Queries {
+		schemaQuery := make(map[string]interface{})
+		schemaQuery["row_id"]
+		queries[i] = schemaQuery
+	}
+	if err := d.Set("queries", queries); err != nil {
+		return err
+	}
 
 	return nil
 }
