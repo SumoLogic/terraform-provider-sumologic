@@ -88,7 +88,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
@@ -100,7 +100,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"time_range": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"trigger_source": {
 							Type:     schema.TypeString,
@@ -199,6 +199,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"is_locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeList,
@@ -306,11 +307,24 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
+		if internalNotificationDict["connectionType"] != nil {
+			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
+		}
 		internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
-		internalNotification["subject"] = internalNotificationDict["subject"].(string)
-		internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
-		internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
-		internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+		if internalNotification["action_type"].(string) == "EmailAction" ||
+			internalNotification["action_type"].(string) == "Email" ||
+			internalNotification["connection_type"].(string) == "EmailAction" ||
+			internalNotification["connection_type"].(string) == "Email" {
+			internalNotification["subject"] = internalNotificationDict["subject"].(string)
+			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
+			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
+			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+		} else {
+			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
+			if internalNotificationDict["payloadOverride"] != nil {
+				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
+			}
+		}
 		schemaInternalNotification[0] = internalNotification
 
 		schemaNotification["notification"] = schemaInternalNotification
@@ -327,7 +341,8 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaTrigger["trigger_type"] = t.TriggerType
 		schemaTrigger["threshold"] = t.Threshold
 		schemaTrigger["threshold_type"] = t.ThresholdType
-		schemaTrigger["time_range"] = t.TimeRange
+		// we don't read the TimeRange because it overwrites our local timerange and leads to errors
+		// schemaTrigger["time_range"] = t.TimeRange
 		schemaTrigger["occurrence_type"] = t.OccurrenceType
 		schemaTrigger["trigger_source"] = t.TriggerSource
 		schemaTrigger["detection_method"] = t.DetectionMethod
@@ -380,7 +395,10 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		if notificationActionDict["action_type"].(string) == "EmailAction" || notificationActionDict["action_type"].(string) == "Email" {
+		if notificationActionDict["action_type"].(string) == "EmailAction" ||
+			notificationActionDict["action_type"].(string) == "Email" ||
+			notificationActionDict["connection_type"].(string) == "EmailAction" ||
+			notificationActionDict["connection_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.Subject = notificationActionDict["subject"].(string)

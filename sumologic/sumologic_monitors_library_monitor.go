@@ -129,8 +129,8 @@ type MonitorQuery struct {
 type TriggerCondition struct {
 	TimeRange       string  `json:"timeRange"`
 	TriggerType     string  `json:"triggerType"`
-	Threshold       float64 `json:"threshold"`
-	ThresholdType   string  `json:"thresholdType"`
+	Threshold       float64 `json:"threshold,omitempty"`
+	ThresholdType   string  `json:"thresholdType,omitempty"`
 	OccurrenceType  string  `json:"occurrenceType"`
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
@@ -142,17 +142,19 @@ type MonitorNotification struct {
 }
 
 type EmailNotification struct {
-	ActionType  string        `json:"actionType"`
-	Subject     string        `json:"subject"`
-	Recipients  []interface{} `json:"recipients"`
-	MessageBody string        `json:"messageBody"`
-	TimeZone    string        `json:"timeZone"`
+	ActionType     string        `json:"actionType,omitempty"`
+	ConnectionType string        `json:"connectionType,omitempty"`
+	Subject        string        `json:"subject"`
+	Recipients     []interface{} `json:"recipients"`
+	MessageBody    string        `json:"messageBody"`
+	TimeZone       string        `json:"timeZone"`
 }
 
 type WebhookNotificiation struct {
-	ActionType      string `json:"actionType"`
+	ActionType      string `json:"actionType,omitempty"`
+	ConnectionType  string `json:"connectionType,omitempty"`
 	ConnectionID    string `json:"connectionId"`
-	PayloadOverride string `json:"payloadOverride"`
+	PayloadOverride string `json:"payloadOverride,omitempty"`
 }
 
 // ---------- END ----------
