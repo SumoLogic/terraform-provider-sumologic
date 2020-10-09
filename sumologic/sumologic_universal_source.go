@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 type UniversalSource struct {
@@ -19,8 +18,6 @@ type SchemaReference struct {
 
 func (s *Client) CreateUniversalSource(source UniversalSource, collectorID int) (int, error) {
 
-	// log.Printf("Initial Source Received %s", source)
-
 	type UniversalSourceMessage struct {
 		Source UniversalSource `json:"source"`
 	}
@@ -29,15 +26,9 @@ func (s *Client) CreateUniversalSource(source UniversalSource, collectorID int) 
 		Source: source,
 	}
 
-	requestBody, err := json.Marshal(request)
-
-	if err != nil {
-		return -1, err
-	}
-
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
-	log.Printf("Universal Source Req: %s", requestBody)
-	body, err := s.Post(urlPath, requestBody)
+
+	body, err := s.Post(urlPath, request)
 
 	if err != nil {
 		return -1, err

@@ -28,22 +28,10 @@ func resourceSumologicUniversalSource() *schema.Resource {
 	}
 
 	universalSource.Schema["schema_ref"] = &schema.Schema{
-		Type:     schema.TypeList,
+		Type:     schema.TypeMap,
 		Required: true,
-		MinItems: 1,
-		MaxItems: 1,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-				"type": {
-					Type:         schema.TypeString,
-					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"Okta", "CrowdStrike", "Netskope", "Carbon Black Defense", "Azure Event Hubs"}, false),
-				},
-				"version": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-			},
+		Elem: &schema.Schema{
+			Type: schema.TypeString,
 		},
 	}
 
@@ -96,10 +84,9 @@ func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
 
 	err := json.Unmarshal(conf, &jsonRawConf)
 	if err != nil {
-		panic(err)
+		log.Println("Unable to unmarshal the Json configuration")
+		return nil
 	}
-
-	// _ = json.Unmarshal([]byte(d.Get("config").(string)), &universalSource)
 
 	universalSource.Source = source
 	universalSource.Config = jsonRawConf
@@ -134,34 +121,15 @@ func resourceSumologicUniversalSourceRead(d *schema.ResourceData, meta interface
 	return nil
 }
 func getSourceSchemaRef(d *schema.ResourceData) SchemaReference {
-	sourceSchemas := d.Get("schema_ref").([]interface{})
+	sourceSchema := d.Get("schema_ref").(map[string]interface{})
 	schemaR := SchemaReference{}
 
-	if len(sourceSchemas) > 0 {
-		sourceSchema := sourceSchemas[0].(map[string]interface{})
+	if len(sourceSchema) > 0 {
 		schemaR.Type = sourceSchema["type"].(string)
-		if len(sourceSchema["version"].(string)) > 0 {
+		if sourceSchema["version"] != nil {
 			schemaR.Version = sourceSchema["version"].(string)
 		}
 	}
 
 	return schemaR
 }
-
-// func mapToConfig(in map[string]interface{}) []Headers {
-// 	headers := []Headers{}
-// 	for k, v := range in {
-// 		headers = append(headers, Headers{Name: k, Value: v.(string)})
-// 	}
-
-// 	return headers
-// }
-
-// func ConfigToMap(in []Headers) map[string]interface{} {
-// 	headerMap := map[string]interface{}{}
-// 	for _, header := range in {
-// 		headerMap[header.Name] = header.Value
-// 	}
-
-// 	return headerMap
-// }
