@@ -297,9 +297,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_disabled", monitor.IsDisabled)
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
-	log.Printf("[DEBUG] monitor notifications: %v", monitor.Notifications)
-	log.Printf("[DEBUG] monitor triggers: %v", monitor.Triggers)
-	log.Printf("[DEBUG] monitor queries: %v", monitor.Queries)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
