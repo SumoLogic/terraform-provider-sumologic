@@ -6,7 +6,8 @@ import (
 )
 
 type UniversalSource struct {
-	Source
+	ID        int             `json:"id,omitempty"`
+	Type      string          `json:"sourceType"`
 	Config    json.RawMessage `json:"config"`
 	SchemaRef SchemaReference `json:"schemaRef"`
 }

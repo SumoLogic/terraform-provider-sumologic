@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -12,30 +11,35 @@ import (
 )
 
 func resourceSumologicUniversalSource() *schema.Resource {
-	universalSource := resourceSumologicSource()
-	universalSource.Create = resourceSumologicUniversalSourceCreate
-	universalSource.Read = resourceSumologicUniversalSourceRead
-	universalSource.Update = resourceSumologicUniversalSourceUpdate
-	universalSource.Importer = &schema.ResourceImporter{
-		State: resourceSumologicSourceImport,
-	}
-
-	universalSource.Schema["config"] = &schema.Schema{
-		Type:             schema.TypeString,
-		ValidateFunc:     validation.StringIsJSON,
-		Required:         true,
-		DiffSuppressFunc: structure.SuppressJsonDiff,
-	}
-
-	universalSource.Schema["schema_ref"] = &schema.Schema{
-		Type:     schema.TypeMap,
-		Required: true,
-		Elem: &schema.Schema{
-			Type: schema.TypeString,
+	return &schema.Resource{
+		Create: resourceSumologicUniversalSourceCreate,
+		Read:   resourceSumologicUniversalSourceRead,
+		Update: resourceSumologicUniversalSourceUpdate,
+		Delete: resourceSumologicUniversalSourceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceSumologicSourceImport,
+		},
+		Schema: map[string]*schema.Schema{
+			"config": {
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.StringIsJSON,
+				Required:         true,
+				DiffSuppressFunc: structure.SuppressJsonDiff,
+			},
+			"schema_ref": {
+				Type:     schema.TypeMap,
+				Required: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"collector_id": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
 		},
 	}
-
-	return universalSource
 }
 
 func resourceSumologicUniversalSourceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -73,12 +77,22 @@ func resourceSumologicUniversalSourceUpdate(d *schema.ResourceData, meta interfa
 	return resourceSumologicUniversalSourceRead(d, meta)
 }
 
-func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
-	source := resourceToSource(d)
-	source.Type = "Universal"
+func resourceSumologicUniversalSourceDelete(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 
+	id, _ := strconv.Atoi(d.Id())
+	collectorID, _ := d.Get("collector_id").(int)
+
+	return c.DestroySource(id, collectorID)
+
+}
+
+func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
+	id, _ := strconv.Atoi(d.Id())
 	var universalSource UniversalSource
 	var jsonRawConf json.RawMessage
+
+	universalSource.Type = "Universal"
 
 	conf := []byte(d.Get("config").(string))
 
@@ -88,7 +102,7 @@ func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
 		return nil
 	}
 
-	universalSource.Source = source
+	universalSource.ID = id
 	universalSource.Config = jsonRawConf
 	universalSource.SchemaRef = getSourceSchemaRef(d)
 
@@ -112,9 +126,6 @@ func resourceSumologicUniversalSourceRead(d *schema.ResourceData, meta interface
 		return nil
 	}
 
-	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
-		return fmt.Errorf("%s", err)
-	}
 	d.Set("config", source.Config)
 	d.Set("schema_ref", source.SchemaRef)
 
