@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -88,7 +89,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
@@ -100,15 +101,15 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						},
 						"time_range": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"trigger_source": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"occurrence_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
@@ -133,7 +134,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"action_type": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+									},
+									"connection_type": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -195,6 +200,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"is_locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeList,
@@ -291,6 +297,69 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_disabled", monitor.IsDisabled)
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
+	// set notifications
+	notifications := make([]interface{}, len(monitor.Notifications))
+	for i, n := range monitor.Notifications {
+		schemaNotification := make(map[string]interface{})
+		// notification in schema should be a list of length exactly 1
+		schemaInternalNotification := make([]interface{}, 1)
+		internalNotification := make(map[string]interface{})
+		internalNotificationDict := n.Notification.(map[string]interface{})
+		if internalNotificationDict["connectionType"] != nil {
+			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
+		}
+		internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
+		if internalNotification["action_type"].(string) == "EmailAction" ||
+			internalNotification["action_type"].(string) == "Email" ||
+			internalNotification["connection_type"].(string) == "EmailAction" ||
+			internalNotification["connection_type"].(string) == "Email" {
+			internalNotification["subject"] = internalNotificationDict["subject"].(string)
+			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
+			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
+			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+		} else {
+			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
+			if internalNotificationDict["payloadOverride"] != nil {
+				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
+			}
+		}
+		schemaInternalNotification[0] = internalNotification
+
+		schemaNotification["notification"] = schemaInternalNotification
+		schemaNotification["run_for_trigger_types"] = n.RunForTriggerTypes
+		notifications[i] = schemaNotification
+	}
+	if err := d.Set("notifications", notifications); err != nil {
+		return err
+	}
+	// set triggers
+	triggers := make([]interface{}, len(monitor.Triggers))
+	for i, t := range monitor.Triggers {
+		schemaTrigger := make(map[string]interface{})
+		schemaTrigger["trigger_type"] = t.TriggerType
+		schemaTrigger["threshold"] = t.Threshold
+		schemaTrigger["threshold_type"] = t.ThresholdType
+		// we don't read the TimeRange because it overwrites our local timerange and leads to errors
+		schemaTrigger["time_range"] = d.Get(fmt.Sprintf("triggers.%d.time_range", i))
+		schemaTrigger["occurrence_type"] = t.OccurrenceType
+		schemaTrigger["trigger_source"] = t.TriggerSource
+		schemaTrigger["detection_method"] = t.DetectionMethod
+		triggers[i] = schemaTrigger
+	}
+	if err := d.Set("triggers", triggers); err != nil {
+		return err
+	}
+	// set queries
+	queries := make([]interface{}, len(monitor.Queries))
+	for i, q := range monitor.Queries {
+		schemaQuery := make(map[string]interface{})
+		schemaQuery["row_id"] = q.RowID
+		schemaQuery["query"] = q.Query
+		queries[i] = schemaQuery
+	}
+	if err := d.Set("queries", queries); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -316,8 +385,7 @@ func resourceSumologicMonitorsLibraryMonitorDelete(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
-	// handle notifications
+func getNotifications(d *schema.ResourceData) []MonitorNotification {
 	rawNotifications := d.Get("notifications").([]interface{})
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
@@ -325,7 +393,10 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		if notificationActionDict["action_type"].(string) == "EmailAction" {
+		if notificationActionDict["action_type"].(string) == "EmailAction" ||
+			notificationActionDict["action_type"].(string) == "Email" ||
+			notificationActionDict["connection_type"].(string) == "EmailAction" ||
+			notificationActionDict["connection_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.Subject = notificationActionDict["subject"].(string)
@@ -333,8 +404,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
 			notificationAction.TimeZone = notificationActionDict["time_zone"].(string)
 			n.Notification = notificationAction
-		}
-		if notificationActionDict["action_type"].(string) == "NamedConnectionAction" {
+		} else {
 			notificationAction := WebhookNotificiation{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
@@ -344,7 +414,10 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
 		notifications[i] = n
 	}
-	// handle triggers
+	return notifications
+}
+
+func getTriggers(d *schema.ResourceData) []TriggerCondition {
 	rawTriggers := d.Get("triggers").([]interface{})
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
@@ -359,7 +432,10 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		t.DetectionMethod = triggerDict["detection_method"].(string)
 		triggers[i] = t
 	}
-	// handle queries
+	return triggers
+}
+
+func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
@@ -369,6 +445,13 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		q.RowID = queryDict["row_id"].(string)
 		queries[i] = q
 	}
+	return queries
+}
+
+func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMonitor {
+	notifications := getNotifications(d)
+	triggers := getTriggers(d)
+	queries := getQueries(d)
 	rawStatus := d.Get("status").([]interface{})
 	status := make([]string, len(rawStatus))
 	for i := range rawStatus {

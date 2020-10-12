@@ -59,6 +59,15 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 			TriggerType:     "Critical",
 			DetectionMethod: "StaticCondition",
 		},
+		{
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
+		},
 	}
 	recipients := []string{"abc@example.com"}
 	testRecipients := make([]interface{}, len(recipients))
@@ -135,6 +144,15 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 			TriggerType:     "Critical",
 			DetectionMethod: "StaticCondition",
 		},
+		{
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
+		},
 	}
 	recipients := []string{"abc@example.com"}
 	testRecipients := make([]interface{}, len(recipients))
@@ -181,6 +199,15 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "Critical",
+			DetectionMethod: "StaticCondition",
+		},
+		{
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
 			DetectionMethod: "StaticCondition",
 		},
 	}
@@ -333,6 +360,15 @@ resource "sumologic_monitor" "test" {
 		trigger_type = "Critical"
 		detection_method = "StaticCondition"
 	  }
+	triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "15m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
+		detection_method = "StaticCondition"
+	  }
 	notifications {
 		notification {
 			action_type = "EmailAction"
@@ -366,6 +402,15 @@ resource "sumologic_monitor" "test" {
 		occurrence_type = "ResultCount"
 		trigger_source = "AllResults"
 		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	  }
+	  triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "15m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
 		detection_method = "StaticCondition"
 	  }
 	notifications {
