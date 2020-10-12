@@ -55,20 +55,28 @@ func resourceSumologicCollector() *schema.Resource {
 func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	id, err := strconv.Atoi(d.Id())
-
 	var collector *Collector
+	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		collector, _ = c.GetCollectorName(d.Id())
+		collector, err = c.GetCollectorName(d.Id())
+		if err != nil {
+			log.Printf("[WARN] Collector not found when looking by name: %s, err: %v", d.Id(), err)
+			d.SetId("")
+			return err
+		}
 		d.SetId(strconv.Itoa(collector.ID))
 	} else {
-		collector, _ = c.GetCollector(id)
+		collector, err = c.GetCollector(id)
+		if err != nil {
+			log.Printf("[WARN] Collector not found when looking by id: %d, err: %v", id, err)
+			d.SetId("")
+			return err
+		}
 	}
 
 	if collector == nil {
 		log.Printf("[WARN] Collector not found, removing from state: %v - %v", id, err)
 		d.SetId("")
-
 		return nil
 	}
 
