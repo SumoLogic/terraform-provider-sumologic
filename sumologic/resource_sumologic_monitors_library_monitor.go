@@ -308,7 +308,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		if internalNotificationDict["connectionType"] != nil {
 			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
 		}
-		internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
+		if internalNotificationDict["actionType"] != nil {
+			internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
+		}
 		if internalNotification["action_type"].(string) == "EmailAction" ||
 			internalNotification["action_type"].(string) == "Email" ||
 			internalNotification["connection_type"].(string) == "EmailAction" ||
@@ -398,7 +400,8 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			notificationActionDict["connection_type"].(string) == "EmailAction" ||
 			notificationActionDict["connection_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			// notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
 			notificationAction.Subject = notificationActionDict["subject"].(string)
 			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
 			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
@@ -406,7 +409,8 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			n.Notification = notificationAction
 		} else {
 			notificationAction := WebhookNotificiation{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			// notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
 			notificationAction.PayloadOverride = notificationActionDict["payload_override"].(string)
 			n.Notification = notificationAction

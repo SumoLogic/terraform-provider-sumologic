@@ -141,6 +141,12 @@ type MonitorNotification struct {
 	RunForTriggerTypes []interface{} `json:"runForTriggerTypes"`
 }
 
+type Notification struct {
+	ActionType     string `json:"actionType,omitempty"`
+	ConnectionType string `json:"connectionType,omitempty"`
+	ConnectionID   string `json:"connectionId"`
+}
+
 type EmailNotification struct {
 	ActionType     string        `json:"actionType,omitempty"`
 	ConnectionType string        `json:"connectionType,omitempty"`
