@@ -13,6 +13,7 @@ package sumologic
 
 import (
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -39,6 +40,12 @@ func resourceSumologicFieldExtractionRule() *schema.Resource {
 			"parse_expression": {
 				Type:     schema.TypeString,
 				Required: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.Trim(old, "\n ") == strings.Trim(new, "\n ") {
+						return true
+					}
+					return false
+				},
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
