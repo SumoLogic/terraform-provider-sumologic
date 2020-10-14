@@ -305,7 +305,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
-		log.Printf("internalNotificationDict before: %v", internalNotificationDict)
+		log.Printf("[ROHIT DEBUG] internalNotificationDict before: %v", internalNotificationDict)
 		// log.Printf("monitor.Notification %v", n.Notification)
 		if internalNotificationDict["connectionType"] != nil {
 			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
@@ -320,7 +320,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 				internalNotification["connection_type"] = "Webhook"
 			}
 		}
-		log.Printf("internalNotification after fixing: %v", internalNotification)
+		log.Printf("[ROHIT DEBUG] internalNotification after fixing: %v", internalNotification)
 		if internalNotification["connection_type"].(string) == "Email" {
 			// for backwards compatibility
 			internalNotification["action_type"] = "EmailAction"
@@ -405,11 +405,27 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
+		var connectionType string
+		var actionType string
 		log.Printf("[ROHIT DEBUG] notificationActionDict: %v", notificationActionDict)
-		if notificationActionDict["connection_type"].(string) == "Email" {
+		if notificationActionDict["connection_type"] != nil {
+			connectionType = notificationActionDict["connection_type"].(string)
+		} else {
+			// for backwards compatibility
+			actionType = notificationActionDict["action_type"].(string)
+			connectionType = actionType
+			// convert from old action_type name to new connection_type name if applicable
+			if connectionType == "EmailAction" {
+				connectionType = "Email"
+			}
+			if connectionType == "NamedConnectionAction" {
+				connectionType = "Webhook"
+			}
+		}
+		if connectionType == "Email" {
 			notificationAction := EmailNotification{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
-			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
+			notificationAction.ActionType = actionType
+			notificationAction.ConnectionType = connectionType
 			notificationAction.Subject = notificationActionDict["subject"].(string)
 			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
 			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
@@ -417,13 +433,14 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			n.Notification = notificationAction
 		} else {
 			notificationAction := WebhookNotificiation{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
-			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
+			notificationAction.ActionType = actionType
+			notificationAction.ConnectionType = connectionType
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
 			notificationAction.PayloadOverride = notificationActionDict["payload_override"].(string)
 			n.Notification = notificationAction
 		}
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
+		log.Printf("[ROHIT DEBUG] Notification object: %v", n.Notification)
 		notifications[i] = n
 	}
 	return notifications
