@@ -305,23 +305,31 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
-		log.Printf("internalNotificationDict %v", internalNotificationDict)
-		log.Printf("monitor.Notification %v", n.Notification)
+		log.Printf("internalNotificationDict before: %v", internalNotificationDict)
+		// log.Printf("monitor.Notification %v", n.Notification)
 		if internalNotificationDict["connectionType"] != nil {
 			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
+		} else {
+			// for backwards compatibility
+			internalNotification["connection_type"] = internalNotificationDict["actionType"].(string)
+			// convert from old action_type name to new connection_type name if applicable
+			if internalNotification["connection_type"].(string) == "EmailAction" {
+				internalNotification["connection_type"] = "Email"
+			}
+			if internalNotification["connection_type"].(string) == "NamedConnectionAction" {
+				internalNotification["connection_type"] = "Webhook"
+			}
 		}
-		if internalNotificationDict["actionType"] != nil {
-			internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
-		}
-		if internalNotification["action_type"].(string) == "EmailAction" ||
-			internalNotification["action_type"].(string) == "Email" ||
-			internalNotification["connection_type"].(string) == "EmailAction" ||
-			internalNotification["connection_type"].(string) == "Email" {
+		log.Printf("internalNotification after fixing: %v", internalNotification)
+		if internalNotification["connection_type"].(string) == "Email" {
+			// for backwards compatibility
+			internalNotification["action_type"] = "EmailAction"
 			internalNotification["subject"] = internalNotificationDict["subject"].(string)
 			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
 			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
 			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
 		} else {
+			internalNotification["action_type"] = "NamedConnectionAction"
 			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
 			if internalNotificationDict["payloadOverride"] != nil {
 				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
@@ -398,10 +406,7 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
 		log.Printf("[ROHIT DEBUG] notificationActionDict: %v", notificationActionDict)
-		if notificationActionDict["action_type"].(string) == "EmailAction" ||
-			notificationActionDict["action_type"].(string) == "Email" ||
-			notificationActionDict["connection_type"].(string) == "EmailAction" ||
-			notificationActionDict["connection_type"].(string) == "Email" {
+		if notificationActionDict["connection_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
 			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
