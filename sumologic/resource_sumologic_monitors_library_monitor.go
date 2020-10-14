@@ -135,10 +135,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 									"action_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 									"connection_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -183,7 +185,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"created_at": {
@@ -405,14 +407,19 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		var connectionType string
-		var actionType string
+		connectionType := ""
+		actionType := ""
 		log.Printf("[ROHIT DEBUG] notificationActionDict: %v", notificationActionDict)
-		if notificationActionDict["connection_type"] != nil {
+		if notificationActionDict["connection_type"] != nil &&
+			notificationActionDict["connection_type"] != "" {
 			connectionType = notificationActionDict["connection_type"].(string)
+			actionType = connectionType
+			log.Printf("[ROHIT DEBUG] actionType in if: %v", actionType)
+			log.Printf("[ROHIT DEBUG] connectionType in if: %v", connectionType)
 		} else {
 			// for backwards compatibility
 			actionType = notificationActionDict["action_type"].(string)
+			log.Printf("[ROHIT DEBUG] actionType in else: %v", actionType)
 			connectionType = actionType
 			// convert from old action_type name to new connection_type name if applicable
 			if connectionType == "EmailAction" {
@@ -421,9 +428,13 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			if connectionType == "NamedConnectionAction" {
 				connectionType = "Webhook"
 			}
+			log.Printf("[ROHIT DEBUG] connectionType in else: %v", connectionType)
 		}
+		log.Printf("[ROHIT DEBUG] actionType: %v", actionType)
+		log.Printf("[ROHIT DEBUG] connectionType: %v", connectionType)
 		if connectionType == "Email" {
 			notificationAction := EmailNotification{}
+			actionType = "EmailAction"
 			notificationAction.ActionType = actionType
 			notificationAction.ConnectionType = connectionType
 			notificationAction.Subject = notificationActionDict["subject"].(string)
@@ -433,6 +444,7 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			n.Notification = notificationAction
 		} else {
 			notificationAction := WebhookNotificiation{}
+			actionType = "NamedConnectionAction"
 			notificationAction.ActionType = actionType
 			notificationAction.ConnectionType = connectionType
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
