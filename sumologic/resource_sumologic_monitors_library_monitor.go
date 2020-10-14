@@ -305,6 +305,8 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
+		log.Printf("internalNotificationDict %v", internalNotificationDict)
+		log.Printf("monitor.Notification %v", n.Notification)
 		if internalNotificationDict["connectionType"] != nil {
 			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
 		}
@@ -395,12 +397,13 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
+		log.Printf("[ROHIT DEBUG] notificationActionDict: %v", notificationActionDict)
 		if notificationActionDict["action_type"].(string) == "EmailAction" ||
 			notificationActionDict["action_type"].(string) == "Email" ||
 			notificationActionDict["connection_type"].(string) == "EmailAction" ||
 			notificationActionDict["connection_type"].(string) == "Email" {
 			notificationAction := EmailNotification{}
-			// notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
 			notificationAction.Subject = notificationActionDict["subject"].(string)
 			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
@@ -409,7 +412,7 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			n.Notification = notificationAction
 		} else {
 			notificationAction := WebhookNotificiation{}
-			// notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			notificationAction.ActionType = notificationActionDict["action_type"].(string)
 			notificationAction.ConnectionType = notificationActionDict["connection_type"].(string)
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
 			notificationAction.PayloadOverride = notificationActionDict["payload_override"].(string)
