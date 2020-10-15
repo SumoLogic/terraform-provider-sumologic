@@ -1,3 +1,13 @@
+## 2.3.2 (October 15, 2020)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `action_type` in notifications in favor of `connection_type`. (GH-94)
+
+DOCS:
+
+* Improved docs for sumologic_monitor resources with webhook connection example
+
 ## 2.3.1 (October 15, 2020)
 
 ENHANCEMENTS:

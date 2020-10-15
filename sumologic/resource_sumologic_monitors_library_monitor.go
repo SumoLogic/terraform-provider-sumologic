@@ -133,12 +133,15 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action_type": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:       schema.TypeString,
+										Optional:   true,
+										Computed:   true,
+										Deprecated: "The field `action_type` is deprecated and will be removed in a future release of the provider - please use `connection_type` instead.",
 									},
 									"connection_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -183,7 +186,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 
 			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"created_at": {
@@ -305,19 +308,29 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
+		// log.Printf("monitor.Notification %v", n.Notification)
 		if internalNotificationDict["connectionType"] != nil {
 			internalNotification["connection_type"] = internalNotificationDict["connectionType"].(string)
+		} else {
+			// for backwards compatibility
+			internalNotification["connection_type"] = internalNotificationDict["actionType"].(string)
+			// convert from old action_type name to new connection_type name if applicable
+			if internalNotification["connection_type"].(string) == "EmailAction" {
+				internalNotification["connection_type"] = "Email"
+			}
+			if internalNotification["connection_type"].(string) == "NamedConnectionAction" {
+				internalNotification["connection_type"] = "Webhook"
+			}
 		}
-		internalNotification["action_type"] = internalNotificationDict["actionType"].(string)
-		if internalNotification["action_type"].(string) == "EmailAction" ||
-			internalNotification["action_type"].(string) == "Email" ||
-			internalNotification["connection_type"].(string) == "EmailAction" ||
-			internalNotification["connection_type"].(string) == "Email" {
+		if internalNotification["connection_type"].(string) == "Email" {
+			// for backwards compatibility
+			internalNotification["action_type"] = "EmailAction"
 			internalNotification["subject"] = internalNotificationDict["subject"].(string)
 			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
 			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
 			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
 		} else {
+			internalNotification["action_type"] = "NamedConnectionAction"
 			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
 			if internalNotificationDict["payloadOverride"] != nil {
 				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
@@ -393,12 +406,29 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
-		if notificationActionDict["action_type"].(string) == "EmailAction" ||
-			notificationActionDict["action_type"].(string) == "Email" ||
-			notificationActionDict["connection_type"].(string) == "EmailAction" ||
-			notificationActionDict["connection_type"].(string) == "Email" {
+		connectionType := ""
+		actionType := ""
+		if notificationActionDict["connection_type"] != nil &&
+			notificationActionDict["connection_type"] != "" {
+			connectionType = notificationActionDict["connection_type"].(string)
+			actionType = connectionType
+		} else {
+			// for backwards compatibility
+			actionType = notificationActionDict["action_type"].(string)
+			connectionType = actionType
+			// convert from old action_type name to new connection_type name if applicable
+			if connectionType == "EmailAction" {
+				connectionType = "Email"
+			}
+			if connectionType == "NamedConnectionAction" {
+				connectionType = "Webhook"
+			}
+		}
+		if connectionType == "Email" {
 			notificationAction := EmailNotification{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			actionType = "EmailAction"
+			notificationAction.ActionType = actionType
+			notificationAction.ConnectionType = connectionType
 			notificationAction.Subject = notificationActionDict["subject"].(string)
 			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
 			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
@@ -406,7 +436,9 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			n.Notification = notificationAction
 		} else {
 			notificationAction := WebhookNotificiation{}
-			notificationAction.ActionType = notificationActionDict["action_type"].(string)
+			actionType = "NamedConnectionAction"
+			notificationAction.ActionType = actionType
+			notificationAction.ConnectionType = connectionType
 			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
 			notificationAction.PayloadOverride = notificationActionDict["payload_override"].(string)
 			n.Notification = notificationAction
