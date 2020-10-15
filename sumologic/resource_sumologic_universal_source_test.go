@@ -64,6 +64,7 @@ func TestAccSumologicUniversalSource_update(t *testing.T) {
 // wait function for waiting before perfroming an update to universal source as updates are blocked when the source is in pending state
 func testAccWaitUniversalSource() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		//lintignore:R018
 		time.Sleep(30 * time.Second)
 		return nil
 	}

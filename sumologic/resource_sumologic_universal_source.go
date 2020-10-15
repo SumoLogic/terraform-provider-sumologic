@@ -47,7 +47,6 @@ func resourceSumologicUniversalSourceCreate(d *schema.ResourceData, meta interfa
 
 	if d.Id() == "" {
 		source := resourceToUniversalSource(d)
-		// log.Printf("Source %s", source.Source)
 		log.Printf("SchemaRef %s", source.SchemaRef)
 		log.Printf("Config: %s", source.Config)
 
