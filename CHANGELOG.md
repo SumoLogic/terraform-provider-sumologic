@@ -1,3 +1,14 @@
+## 2.3.1 (October 15, 2020)
+
+ENHANCEMENTS:
+
+* Added `in` and `fed` to `environment` section (GH-96)
+
+BUG FIXES:
+
+* Fix a bug where `parse_expression` would present a diff without any changes (GH-95)
+* Check for erros when getting collector from client (GF-92)
+
 ## 2.3.0 (September 29, 2020)
 
 FEATURES:
