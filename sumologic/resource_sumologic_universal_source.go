@@ -126,9 +126,6 @@ func resourceSumologicUniversalSourceRead(d *schema.ResourceData, meta interface
 		return nil
 	}
 
-	d.Set("config", source.Config)
-	d.Set("schema_ref", source.SchemaRef)
-
 	return nil
 }
 func getSourceSchemaRef(d *schema.ResourceData) SchemaReference {
