@@ -74,17 +74,17 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 	for i, v := range recipients {
 		testRecipients[i] = v
 	}
-	triggerTypes := []string{"Critical"}
+	triggerTypes := []string{"Critical", "ResolvedCritical"}
 	testTriggerTypes := make([]interface{}, len(triggerTypes))
 	for i, v := range triggerTypes {
 		testTriggerTypes[i] = v
 	}
 	testNotificationAction := EmailNotification{
-		ActionType:  "EmailAction",
-		Recipients:  testRecipients,
-		Subject:     "test tf monitor",
-		TimeZone:    "PST",
-		MessageBody: "test",
+		ConnectionType: "Email",
+		Recipients:     testRecipients,
+		Subject:        "test tf monitor",
+		TimeZone:       "PST",
+		MessageBody:    "test",
 	}
 	testNotifications := []MonitorNotification{
 		{
@@ -111,7 +111,7 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testNotifications[0].Notification.(EmailNotification).ActionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
 		},
@@ -165,11 +165,11 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 		testTriggerTypes[i] = v
 	}
 	testNotificationAction := EmailNotification{
-		ActionType:  "EmailAction",
-		Recipients:  testRecipients,
-		Subject:     "test tf monitor",
-		TimeZone:    "PST",
-		MessageBody: "test",
+		ConnectionType: "Email",
+		Recipients:     testRecipients,
+		Subject:        "test tf monitor",
+		TimeZone:       "PST",
+		MessageBody:    "test",
 	}
 	testNotifications := []MonitorNotification{
 		{
@@ -216,17 +216,17 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 	for i, v := range updatedRecipients {
 		testUpdatedRecipients[i] = v
 	}
-	updatedTriggerTypes := []string{"Critical"}
+	updatedTriggerTypes := []string{"Critical", "ResolvedCritical"}
 	testUpdatedTriggerTypes := make([]interface{}, len(updatedTriggerTypes))
 	for i, v := range updatedTriggerTypes {
 		testUpdatedTriggerTypes[i] = v
 	}
 	testUpdatedNotificationAction := EmailNotification{
-		ActionType:  "EmailAction",
-		Recipients:  testUpdatedRecipients,
-		Subject:     "test tf monitor",
-		TimeZone:    "PST",
-		MessageBody: "test",
+		ConnectionType: "Email",
+		Recipients:     testUpdatedRecipients,
+		Subject:        "test tf monitor",
+		TimeZone:       "PST",
+		MessageBody:    "test",
 	}
 	testUpdatedNotifications := []MonitorNotification{
 		{
@@ -253,7 +253,7 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testNotifications[0].Notification.(EmailNotification).ActionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
 			{
@@ -267,7 +267,7 @@ func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.action_type", testUpdatedNotifications[0].Notification.(EmailNotification).ActionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
 		},
@@ -371,13 +371,13 @@ resource "sumologic_monitor" "test" {
 	  }
 	notifications {
 		notification {
-			action_type = "EmailAction"
+			connection_type = "Email"
 			recipients = ["abc@example.com"]
 			subject = "test tf monitor"
 			time_zone = "PST"
 			message_body = "test"
 		  }
-		run_for_trigger_types = ["Critical"]
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 }`, testName)
 }
@@ -415,13 +415,13 @@ resource "sumologic_monitor" "test" {
 	  }
 	notifications {
 		notification {
-			action_type = "EmailAction"
+			connection_type = "Email"
 			recipients = ["abc@example.com"]
 			subject = "test tf monitor"
 			time_zone = "PST"
 			message_body = "test"
 		}
-		run_for_trigger_types = ["Critical"]
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 }`, testName)
 }

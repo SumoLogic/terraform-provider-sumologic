@@ -133,9 +133,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
+										Type:       schema.TypeString,
+										Optional:   true,
+										Computed:   true,
+										Deprecated: "The field `action_type` is deprecated and will be removed in a future release of the provider - please use `connection_type` instead.",
 									},
 									"connection_type": {
 										Type:     schema.TypeString,
