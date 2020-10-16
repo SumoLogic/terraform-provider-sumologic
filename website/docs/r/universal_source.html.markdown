@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_universal_source"
 description: |-
-  Provides a Sumologic Universal source.
+  Provides a Sumologic Cloud-to-Cloud source.
 ---
 
 # sumologic_universal_source
-Provides a [Sumologic Universal source][1].
+Provides a [Sumologic Cloud-to-Cloud source][1].
 
 __IMPORTANT:__ The API credentials are stored in plain-text in the state. This is a potential security issue.
 
@@ -49,10 +49,10 @@ The following attributes are exported:
 - `id` - The internal ID of the source.
 
 ## Import
-Universal sources can be imported using the collector and source IDs (`collector/source`), e.g.:
+Cloud-to-Cloud sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_universal_source.test 123/456
+terraform import sumologic_universal_source.test 100000001/100000001
 ```
 
 Universal sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
