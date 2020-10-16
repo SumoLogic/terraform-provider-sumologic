@@ -10,59 +10,59 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicUniversalSource_create(t *testing.T) {
-	var universalSource UniversalSource
+func TestAccSumologicCloudToCloudSource_create(t *testing.T) {
+	var cloudToCloudSource CloudToCloudSource
 	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
-	universalResourceName := "sumologic_universal_source.universal"
+	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.universal"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckUniversalSourceDestroy,
+		CheckDestroy: testAccCheckCloudToCloudSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicUniversalSourceConfig(cName, cDescription, cCategory, configJSON),
+				Config: testAccSumologicCloudToCloudSourceConfig(cName, cDescription, cCategory, configJSON),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUniversalSourceExists(universalResourceName, &universalSource),
+					testAccCheckCloudToCloudSourceExists(cloudToCloudResourceName, &cloudToCloudSource),
 					testAccCheckCollectorExists("sumologic_collector.test", &collector),
 					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
-					resource.TestCheckResourceAttrSet(universalResourceName, "id"),
+					resource.TestCheckResourceAttrSet(cloudToCloudResourceName, "id"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccSumologicUniversalSource_update(t *testing.T) {
-	var universalSource UniversalSource
+func TestAccSumologicCloudToCloudSource_update(t *testing.T) {
+	var cloudToCloudSource CloudToCloudSource
 	cName, cDescription, cCategory := getRandomizedParams()
-	universalResourceName := "sumologic_universal_source.universal"
+	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.universal"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicUniversalSourceConfig(cName, cDescription, cCategory, configJSON),
+				Config: testAccSumologicCloudToCloudSourceConfig(cName, cDescription, cCategory, configJSON),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUniversalSourceExists(universalResourceName, &universalSource),
-					resource.TestCheckResourceAttrSet(universalResourceName, "id"),
-					testAccWaitUniversalSource(),
+					testAccCheckCloudToCloudSourceExists(cloudToCloudResourceName, &cloudToCloudSource),
+					resource.TestCheckResourceAttrSet(cloudToCloudResourceName, "id"),
+					testAccWaitCloudToCloudSource(),
 				),
 			},
 			{
-				Config: testAccSumologicUniversalSourceConfig(cName, cDescription, cCategory, updatedConfigJSON),
+				Config: testAccSumologicCloudToCloudSourceConfig(cName, cDescription, cCategory, updatedConfigJSON),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUniversalSourceExists(universalResourceName, &universalSource),
-					resource.TestCheckResourceAttrSet(universalResourceName, "id"),
+					testAccCheckCloudToCloudSourceExists(cloudToCloudResourceName, &cloudToCloudSource),
+					resource.TestCheckResourceAttrSet(cloudToCloudResourceName, "id"),
 				),
 			},
 		},
 	})
 }
 
-// wait function for waiting before perfroming an update to universal source as updates are blocked when the source is in pending state
-func testAccWaitUniversalSource() resource.TestCheckFunc {
+// wait function for waiting before perfroming an update to cloud-to-cloud source as updates are blocked when the source is in pending state
+func testAccWaitCloudToCloudSource() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//lintignore:R018
 		time.Sleep(30 * time.Second)
@@ -70,15 +70,15 @@ func testAccWaitUniversalSource() resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckUniversalSourceDestroy(s *terraform.State) error {
+func testAccCheckCloudToCloudSourceDestroy(s *terraform.State) error {
 
 	client := testAccProvider.Meta().(*Client)
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "sumologic_universal_source" {
+		if rs.Type != "sumologic_cloud_to_cloud_source" {
 			continue
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Universal Source destruction check: Universal Source ID is not set")
+			return fmt.Errorf("Cloud-to-Cloud Source destruction check: Cloud-to-Cloud Source ID is not set")
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
@@ -88,44 +88,44 @@ func testAccCheckUniversalSourceDestroy(s *terraform.State) error {
 		if err != nil {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
-		s, err := client.GetUniversalSource(collectorID, id)
+		s, err := client.GetCloudToCloudSource(collectorID, id)
 		if err != nil {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
 		if s != nil {
-			return fmt.Errorf("Universal Source still exists")
+			return fmt.Errorf("Cloud-to-Cloud Source still exists")
 		}
 	}
 	return nil
 }
-func testAccCheckUniversalSourceExists(n string, universalSource *UniversalSource) resource.TestCheckFunc {
+func testAccCheckCloudToCloudSourceExists(n string, cloudToCloudSource *CloudToCloudSource) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("not found: %s", n)
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Universal Source ID is not set")
+			return fmt.Errorf("Cloud-to-Cloud Source ID is not set")
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Universal Source id should be int; got %s", rs.Primary.ID)
+			return fmt.Errorf("Cloud-to-Cloud Source id should be int; got %s", rs.Primary.ID)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
 		c := testAccProvider.Meta().(*Client)
-		universalSourceResp, err := c.GetUniversalSource(collectorID, id)
+		cloudToCloudSourceResp, err := c.GetCloudToCloudSource(collectorID, id)
 		if err != nil {
 			return err
 		}
-		*universalSource = *universalSourceResp
+		*cloudToCloudSource = *cloudToCloudSourceResp
 		return nil
 	}
 }
 
-func testAccSumologicUniversalSourceConfig(cName, cDescription, cCategory, sConfig string) string {
+func testAccSumologicCloudToCloudSourceConfig(cName, cDescription, cCategory, sConfig string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -133,7 +133,7 @@ resource "sumologic_collector" "test" {
 	category = "%s"
 }
 
-resource "sumologic_universal_source" "universal" {
+resource "sumologic_cloud_to_cloud_source" "universal" {
 	collector_id    = sumologic_collector.test.id
 	schema_ref = {
 	  type = "Okta"

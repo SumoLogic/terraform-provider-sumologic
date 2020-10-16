@@ -10,12 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-func resourceSumologicUniversalSource() *schema.Resource {
+func resourceSumologicCloudToCloudSource() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSumologicUniversalSourceCreate,
-		Read:   resourceSumologicUniversalSourceRead,
-		Update: resourceSumologicUniversalSourceUpdate,
-		Delete: resourceSumologicUniversalSourceDelete,
+		Create: resourceSumologicCloudToCloudSourceCreate,
+		Read:   resourceSumologicCloudToCloudSourceRead,
+		Update: resourceSumologicCloudToCloudSourceUpdate,
+		Delete: resourceSumologicCloudToCloudSourceDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSumologicSourceImport,
 		},
@@ -42,15 +42,15 @@ func resourceSumologicUniversalSource() *schema.Resource {
 	}
 }
 
-func resourceSumologicUniversalSourceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudToCloudSourceCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		source := resourceToUniversalSource(d)
+		source := resourceToCloudToCloudSource(d)
 		log.Printf("SchemaRef %s", source.SchemaRef)
 		log.Printf("Config: %s", source.Config)
 
-		id, err := c.CreateUniversalSource(*source, d.Get("collector_id").(int))
+		id, err := c.CreateCloudToCloudSource(*source, d.Get("collector_id").(int))
 
 		if err != nil {
 			return err
@@ -59,24 +59,24 @@ func resourceSumologicUniversalSourceCreate(d *schema.ResourceData, meta interfa
 		d.SetId(strconv.Itoa(id))
 	}
 
-	return resourceSumologicUniversalSourceRead(d, meta)
+	return resourceSumologicCloudToCloudSourceRead(d, meta)
 }
 
-func resourceSumologicUniversalSourceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudToCloudSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	source := resourceToUniversalSource(d)
+	source := resourceToCloudToCloudSource(d)
 
-	err := c.UpdateUniversalSource(*source, d.Get("collector_id").(int))
+	err := c.UpdateCloudToCloudSource(*source, d.Get("collector_id").(int))
 
 	if err != nil {
 		return err
 	}
 
-	return resourceSumologicUniversalSourceRead(d, meta)
+	return resourceSumologicCloudToCloudSourceRead(d, meta)
 }
 
-func resourceSumologicUniversalSourceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudToCloudSourceDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
@@ -86,12 +86,12 @@ func resourceSumologicUniversalSourceDelete(d *schema.ResourceData, meta interfa
 
 }
 
-func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
+func resourceToCloudToCloudSource(d *schema.ResourceData) *CloudToCloudSource {
 	id, _ := strconv.Atoi(d.Id())
-	var universalSource UniversalSource
+	var cloudToCloudSource CloudToCloudSource
 	var jsonRawConf json.RawMessage
 
-	universalSource.Type = "Universal"
+	cloudToCloudSource.Type = "Universal"
 
 	conf := []byte(d.Get("config").(string))
 
@@ -101,25 +101,25 @@ func resourceToUniversalSource(d *schema.ResourceData) *UniversalSource {
 		return nil
 	}
 
-	universalSource.ID = id
-	universalSource.Config = jsonRawConf
-	universalSource.SchemaRef = getSourceSchemaRef(d)
+	cloudToCloudSource.ID = id
+	cloudToCloudSource.Config = jsonRawConf
+	cloudToCloudSource.SchemaRef = getSourceSchemaRef(d)
 
-	return &universalSource
+	return &cloudToCloudSource
 }
 
-func resourceSumologicUniversalSourceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicCloudToCloudSourceRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
-	source, err := c.GetUniversalSource(d.Get("collector_id").(int), id)
+	source, err := c.GetCloudToCloudSource(d.Get("collector_id").(int), id)
 
 	if err != nil {
 		return err
 	}
 
 	if source == nil {
-		log.Printf("[WARN] Universal source not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] Cloud-to-Cloud source not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
