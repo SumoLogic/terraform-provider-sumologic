@@ -1,3 +1,9 @@
+## 2.3.3 (October 16, 2020)
+
+BUG FIXES:
+
+* resource/sumologic_collector: Log when collector is nil. (GH-99)
+
 ## 2.3.2 (October 15, 2020)
 
 DEPRECATIONS:
