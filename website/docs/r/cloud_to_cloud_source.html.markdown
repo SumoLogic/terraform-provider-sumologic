@@ -1,6 +1,6 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_universal_source"
+page_title: "SumoLogic: sumologic_cloud_to_cloud_source"
 description: |-
   Provides a Sumologic Cloud-to-Cloud source.
 ---
@@ -13,7 +13,7 @@ __IMPORTANT:__ The API credentials are stored in plain-text in the state. This i
 ## Example Usage
 ```hcl
 
-resource "sumologic_universal_source" "universal_okta_source" {
+resource "sumologic_cloud_to_cloud_source" "universal_okta_source" {
  collector_id    = sumologic_collector.collector.id
  schema_ref = {
    type = "Okta"
@@ -36,8 +36,7 @@ resource "sumologic_collector" "collector" {
 ```
 
 ## Argument reference
-
-In addition to the common properties, the following arguments are supported:
+The following arguments are supported:
 
  - `config` - (Required) This is a JSON object which contains the configuration parameters for the Source.
  - `schema_ref` - (Required) Source schema details. 
@@ -52,13 +51,13 @@ The following attributes are exported:
 Cloud-to-Cloud sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_universal_source.test 100000001/100000001
+terraform import sumologic_cloud_to_cloud_source.test 100000001/100000001
 ```
 
 Universal sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
 
 ```hcl
-terraform import sumologic_universal_source.test my-test-collector/my-test-source
+terraform import sumologic_cloud_to_cloud_source.test my-test-collector/my-test-source
 ```
 
 [1]: https://help.sumologic.com/Beta/Cloud-to-Cloud_Integration_Framework
