@@ -14,7 +14,7 @@ func TestAccSumologicCloudToCloudSource_create(t *testing.T) {
 	var cloudToCloudSource CloudToCloudSource
 	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
-	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.universal"
+	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.okta"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -36,7 +36,7 @@ func TestAccSumologicCloudToCloudSource_create(t *testing.T) {
 func TestAccSumologicCloudToCloudSource_update(t *testing.T) {
 	var cloudToCloudSource CloudToCloudSource
 	cName, cDescription, cCategory := getRandomizedParams()
-	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.universal"
+	cloudToCloudResourceName := "sumologic_cloud_to_cloud_source.okta"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -133,7 +133,7 @@ resource "sumologic_collector" "test" {
 	category = "%s"
 }
 
-resource "sumologic_cloud_to_cloud_source" "universal" {
+resource "sumologic_cloud_to_cloud_source" "okta" {
 	collector_id    = sumologic_collector.test.id
 	schema_ref = {
 	  type = "Okta"

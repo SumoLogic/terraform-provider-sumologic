@@ -13,7 +13,7 @@ __IMPORTANT:__ The API credentials are stored in plain-text in the state. This i
 ## Example Usage
 ```hcl
 
-resource "sumologic_cloud_to_cloud_source" "universal_okta_source" {
+resource "sumologic_cloud_to_cloud_source" "okta_source" {
  collector_id    = sumologic_collector.collector.id
  schema_ref = {
    type = "Okta"
@@ -40,7 +40,7 @@ The following arguments are supported:
 
  - `config` - (Required) This is a JSON object which contains the configuration parameters for the Source.
  - `schema_ref` - (Required) Source schema details. 
-     + `type` - (Required) Schema type for the universal source.
+     + `type` - (Required) Schema type for the Cloud-to-Cloud source.
 
 ## Attributes Reference
 The following attributes are exported:
