@@ -11,10 +11,14 @@ Provides a [Sumologic Ingest Budget v2][1].This API is in private beta and is no
 ## Example Usage
 ```hcl
 resource "sumologic_ingest_budget_v2" "budget" {
-  name           = "testBudget"
-  scope          = "_sourceCategory=*prod*nginx*"
-  capacity_bytes = 30000000000
-  description    = "For testing purposes"
+  name            = "testBudget"
+  scope           = "_sourceCategory=*prod*nginx*"
+  capacity_bytes  = 30000000000
+  description     = "For testing purposes"
+  timezone        = "Etc/UTC"
+  action          = "keepCollecting"
+  reset_time      = "00:00"
+  audit_threshold = 85
 }
 ```
 
@@ -28,13 +32,12 @@ The following arguments are supported:
   * `description` - (Optional) The description of the collector.
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention. Defaults to `Etc/UTC`
   * `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
-  * `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
   * `description` - (Optional) Description of the ingest budget.
   * `action` - (Optional) Action to take when ingest budget's capacity is reached. All actions are audited. Supported values are `stopCollecting` and `keepCollecting`.
 
 The following attributes are exported:
 
-  * `id` - The internal ID of the ingest budget. This can be used to assign collectors to the ingest budget.
+  * `id` - The internal ID of the ingest budget. 
 
 ## Import
 Ingest budgets can be imported using the name, e.g.:
