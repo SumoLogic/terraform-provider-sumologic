@@ -14,7 +14,7 @@ Provides the ability to create, read, delete, update connections.
 ```hcl
 resource "sumologic_connection" "connection" {
   type        = "WebhookConnection"
-  name        = "test-connection
+  name        = "test-connection"
   description = "My description"
   url         = "https://connection-endpoint.com"
   headers = {
