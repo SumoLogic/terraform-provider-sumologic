@@ -31,10 +31,10 @@ The following arguments are supported:
   * `capacity_bytes` - (Required) Capacity of the ingest budget, in bytes.
   * `description` - (Optional) The description of the collector.
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention. Defaults to `Etc/UTC`
-  * `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
-  * `description` - (Optional) Description of the ingest budget.
   * `action` - (Optional) Action to take when ingest budget's capacity is reached. All actions are audited. Supported values are `stopCollecting` and `keepCollecting`.
-
+  * `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
+  * `audit_threshold` - (Optional) The threshold as a percentage of when an ingest budget's capacity usage is logged in the Audit Index.
+  
 The following attributes are exported:
 
   * `id` - The internal ID of the ingest budget. 
