@@ -92,7 +92,7 @@ func (s *Client) UpdateIngestBudgetV2(ingestBudgetV2 IngestBudgetV2) error {
 }
 
 type IngestBudgetV2 struct {
-	AuditThreshold int    `json:"auditThreshold"`
+	AuditThreshold int    `json:"auditThreshold,omitempty"`
 	Action         string `json:"action"`
 	ResetTime      string `json:"resetTime"`
 	Name           string `json:"name"`
