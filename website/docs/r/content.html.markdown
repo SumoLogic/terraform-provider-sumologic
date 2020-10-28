@@ -77,6 +77,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `id` - Unique identifier for the contnet item.
+- `id` - Unique identifier for the content item.
 
 [1]: https://help.sumologic.com/APIs/Content-Management-API
