@@ -44,7 +44,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/2.1.3")
+	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/2.3.4")
 	req.SetBasicAuth(accessID, accessKey)
 	return req, nil
 }
