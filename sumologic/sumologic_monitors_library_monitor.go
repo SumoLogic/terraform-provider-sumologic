@@ -64,7 +64,6 @@ func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 	}
 
 	return &monitorsLibraryMonitor, nil
-
 }
 
 func (s *Client) DeleteMonitorsLibraryMonitor(id string) error {
@@ -93,7 +92,25 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
 
 	return err
+}
 
+func (s *Client) MoveMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor) error {
+	urlWithoutParams := "v1/monitors/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, monitorsLibraryMonitor.ID)
+
+	paramString += "?"
+	queryParam := fmt.Sprintf("parentId=%s&", monitorsLibraryMonitor.ParentID)
+	paramString += queryParam
+
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+
+	monitorsLibraryMonitor.ID = ""
+
+	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
+
+	return err
 }
 
 // ---------- TYPES ----------
