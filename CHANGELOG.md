@@ -1,3 +1,9 @@
+## 2.4.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** sumologic_cloud_to_cloud_source (GH-93)
+
 ## 2.3.3 (October 16, 2020)
 
 BUG FIXES:
