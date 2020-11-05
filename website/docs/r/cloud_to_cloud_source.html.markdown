@@ -60,4 +60,4 @@ Cloud-to-Cloud sources can be imported using the collector name and source name 
 terraform import sumologic_cloud_to_cloud_source.test my-test-collector/my-test-source
 ```
 
-[1]: https://help.sumologic.com/Beta/Cloud-to-Cloud_Integration_Framework
+[1]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Cloud-to-Cloud_Integration_Framework
