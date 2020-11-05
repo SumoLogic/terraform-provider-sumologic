@@ -1,3 +1,10 @@
+## 2.4.1 (November 5, 2020)
+
+BUG FIXES:
+
+* Updated docs for sumologic_cloud_to_cloud_source (GH-111)
+* Monitors moving between folders (GH-107)
+
 ## 2.4.0 (November 3, 2020)
 
 FEATURES:
