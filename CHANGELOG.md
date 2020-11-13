@@ -1,3 +1,9 @@
+## 2.5.0 (November 13, 2020)
+
+FEATURES:
+
+* **New Resource:** sumologic_lookup_table (GH-87)
+
 ## 2.4.1 (November 5, 2020)
 
 BUG FIXES:
