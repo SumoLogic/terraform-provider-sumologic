@@ -16,6 +16,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicLookupTable() *schema.Resource {
@@ -37,25 +38,26 @@ func resourceSumologicLookupTable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				ForceNew: true,
 			},
 
 			"parent_folder_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringLenBetween(0, 1000),
+				Required:     true,
 			},
 
 			"size_limit_action": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "StopIncomingMessages",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"StopIncomingMessages", "DeleteOldData"}, false),
+				Default:      "StopIncomingMessages",
 			},
 
 			"fields": {
@@ -72,25 +74,26 @@ func resourceSumologicLookupTable() *schema.Resource {
 						},
 
 						"field_type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: false,
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     false,
+							ValidateFunc: validation.StringInSlice([]string{"boolean", "int", "long", "double", "string"}, false),
 						},
 					},
 				},
+				ForceNew: true,
 			},
 
 			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Default:  0,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 		},
 	}
@@ -109,8 +112,8 @@ func resourceSumologicLookupTableCreate(d *schema.ResourceData, meta interface{}
 		d.SetId(id)
 	}
 
-	fmt.Printf("##DEBUG## created lookup: %+v\n", d)
-	fmt.Printf("##DEBUG## lookup id: %v\n", d.Id())
+	log.Printf("created lookup: %+v\n", d)
+	log.Printf("lookup id: %v\n", d.Id())
 	return resourceSumologicLookupTableRead(d, meta)
 }
 
@@ -119,7 +122,7 @@ func resourceSumologicLookupTableRead(d *schema.ResourceData, meta interface{}) 
 
 	id := d.Id()
 	lookupTable, err := c.GetLookupTable(id)
-	fmt.Printf("##DEBUG## read lookup: %+v\n", lookupTable)
+	log.Printf("##DEBUG## read lookup: %+v\n", lookupTable)
 	if err != nil {
 		return err
 	}
@@ -131,7 +134,9 @@ func resourceSumologicLookupTableRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("name", lookupTable.Name)
-	d.Set("fields", lookupTable.Fields)
+	if err := d.Set("fields", fieldsToList(lookupTable.Fields)); err != nil {
+		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
+	}
 	d.Set("ttl", lookupTable.Ttl)
 	d.Set("primary_keys", lookupTable.PrimaryKeys)
 	d.Set("parent_folder_id", lookupTable.ParentFolderId)
@@ -144,7 +149,7 @@ func resourceSumologicLookupTableRead(d *schema.ResourceData, meta interface{}) 
 func resourceSumologicLookupTableDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	fmt.Println("##DEBUG## resourceSumologicLookupTableDelete: ", d.Id())
+	log.Printf("##DEBUG## resourceSumologicLookupTableDelete: %s", d.Id())
 	return c.DeleteLookupTable(d.Id())
 }
 
@@ -197,4 +202,18 @@ func resourceToLookupTableField(data interface{}) LookupTableField {
 	}
 
 	return lookupTableField
+}
+
+func fieldsToList(lookupTableField []LookupTableField) []map[string]interface{} {
+	var s []map[string]interface{}
+
+	for _, t := range lookupTableField {
+		mapping := map[string]interface{}{
+			"field_name": t.FieldName,
+			"field_type": t.FieldType,
+		}
+		s = append(s, mapping)
+	}
+
+	return s
 }

@@ -72,7 +72,7 @@ func (s *Client) DeleteLookupTable(id string) error {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	fmt.Println("##DEBUG## deleting lookuptable: ", id)
+	log.Printf("deleting lookuptable: %s", id)
 	_, err := s.Delete(urlWithParams)
 
 	return err
