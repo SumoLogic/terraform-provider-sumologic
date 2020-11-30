@@ -1,3 +1,9 @@
+## 2.6.0 (November 23, 2020)
+
+FEATURES:
+
+* **New Resource:** sumologic_subdomain (GH-114)
+
 ## 2.5.0 (November 13, 2020)
 
 FEATURES:
