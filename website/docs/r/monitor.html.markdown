@@ -82,7 +82,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
       threshold = 40.0
       time_range = "15m"
       occurrence_type = "Always"
-      trigger_source = "AllTimeSeries"
+      trigger_source = "AnyTimeSeries"
       trigger_type = "Critical"
       detection_method = "StaticCondition"
     }
@@ -91,7 +91,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     threshold = 30.0
     time_range = "15m"
     occurrence_type = "Always"
-    trigger_source = "AllTimeSeries"
+    trigger_source = "AnyTimeSeries"
     trigger_type = "ResolvedCritical"
     detection_method = "StaticCondition"
     }

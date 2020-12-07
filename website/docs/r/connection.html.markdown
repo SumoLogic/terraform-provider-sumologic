@@ -41,7 +41,7 @@ JSON
 
 The following arguments are supported:
 
-- `type` - (Required) Type of connection. Only `WebhookDefinition` is implimented right now.
+- `type` - (Required) Type of connection. Only `WebhookDefinition` is implemented right now.
 - `name` - (Required) Name of connection. Name should be a valid alphanumeric value.
 - `description` - (Optional) Description of the connection.
 - `url` - (Required) URL for the webhook connection.
