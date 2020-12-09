@@ -26,7 +26,7 @@ func TestAccSumoLogicPartition_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "routing_expression", "_sourcecategory=*/Terraform"),
 					resource.TestCheckResourceAttr(
-						"sumologic_partition.foo", "analytics_tier", "enhanced"),
+						"sumologic_partition.foo", "analytics_tier", "continuous"),
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "retention_period", "30"),
 					resource.TestCheckResourceAttr(
@@ -43,7 +43,7 @@ func TestAccSumoLogicPartition_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "routing_expression", "_sourcecategory=*/Terraform"),
 					resource.TestCheckResourceAttr(
-						"sumologic_partition.foo", "analytics_tier", "enhanced"),
+						"sumologic_partition.foo", "analytics_tier", "continuous"),
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "retention_period", "365"),
 					resource.TestCheckResourceAttr(
