@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_gcp_source"
 description: |-
-  Provides a Sumologic GCP Source.
+  Provides a Sumo Logic Google Cloud Platform Source.
 ---
 
 # sumologic_gcp_source
-Provides a [Sumologic GCP Source][2].
+Provides a [Sumo Logic Google Cloud Platform Source][2].
 
 ## Example Usage
 ```hcl
@@ -34,13 +34,13 @@ The following attributes are exported:
 - `url` - The HTTP endpoint to use for sending data to this source.
 
 ## Import
-GCP sources can be imported using the collector and source IDs (`collector/source`), e.g.:
+Sumo Logic Google Cloud Platform sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
 terraform import sumologic_gcp_source.test 100000001/100000001
 ```
 
-GCP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
+Sumo Logic Google Cloud Platform sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
 
 ```hcl
 terraform import sumologic_gcp_source.test my-test-collector/my-test-source
