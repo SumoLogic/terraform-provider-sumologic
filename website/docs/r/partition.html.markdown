@@ -34,5 +34,13 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - Unique identifier for the partition.
+## Import
+Partitions can can be imported using the id. The list of partitions and their ids can be obtained using the Sumologic [partions api][2].
+
+```hcl
+terraform import sumologic_partition.partition 1234567890
+```
 
 [1]: https://help.sumologic.com/Manage/Partitions
+[2]: https://api.sumologic.com/docs/#operation/listPartitions
+
