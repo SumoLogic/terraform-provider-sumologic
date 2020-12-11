@@ -11,7 +11,7 @@ import (
 
 func TestAccFolder_create(t *testing.T) {
 	var folder Folder
-	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -33,7 +33,7 @@ func TestAccFolder_create(t *testing.T) {
 
 func TestAccFolder_update(t *testing.T) {
 	var folder Folder
-	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
