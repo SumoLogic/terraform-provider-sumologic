@@ -59,11 +59,18 @@ func (s *Client) DeleteSubdomain() error {
 	return err
 }
 
-func (s *Client) UpdateSubdomain(subdomain Subdomain) error {
+func (s *Client) UpdateSubdomain(subdomain Subdomain) (string, error) {
 	urlWithoutParams := "v1/account/subdomain"
 
-	_, err := s.Put(urlWithoutParams, subdomain)
-	return err
+	data, err := s.Put(urlWithoutParams, subdomain)
+
+	var updatedSubdomain Subdomain
+	err = json.Unmarshal(data, &updatedSubdomain)
+	if err != nil {
+		return "", err
+	}
+
+	return updatedSubdomain.Subdomain, err
 }
 
 type Subdomain struct {
