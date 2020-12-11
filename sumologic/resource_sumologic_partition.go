@@ -13,6 +13,9 @@ func resourceSumologicPartition() *schema.Resource {
 		Read:   resourceSumologicPartitionRead,
 		Delete: resourceSumologicPartitionDelete,
 		Update: resourceSumologicPartitionUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
