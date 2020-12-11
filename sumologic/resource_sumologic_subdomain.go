@@ -13,6 +13,7 @@ package sumologic
 
 import (
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -66,7 +67,19 @@ func resourceSumologicSubdomainCreate(d *schema.ResourceData, meta interface{}) 
 		id, err := c.CreateSubdomain(subdomain)
 
 		if err != nil {
-			return err
+			if strings.Contains(err.Error(), "subdomain:already_configured") {
+				updatedID, updateErr := c.UpdateSubdomain(subdomain)
+				if updateErr != nil {
+					if updatedID == "" {
+						id = subdomain.Subdomain
+					} else {
+						return updateErr
+					}
+				}
+				id = updatedID
+			} else {
+				return err
+			}
 		}
 
 		d.SetId(id)
@@ -86,7 +99,7 @@ func resourceSumologicSubdomainUpdate(d *schema.ResourceData, meta interface{}) 
 
 	subdomain := resourceToSubdomain(d)
 
-	err := c.UpdateSubdomain(subdomain)
+	_, err := c.UpdateSubdomain(subdomain)
 	if err != nil {
 		return err
 	}
