@@ -1,3 +1,9 @@
+## 2.6.1 (Unreleased)
+
+ENHANCEMENTS:
+
+* partitions now support import (GH-126)
+
 ## 2.6.0 (November 23, 2020)
 
 FEATURES:
