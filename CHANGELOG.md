@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 * partitions now support import (GH-126)
+* adds a new GCP source (GH-120)
 
 ## 2.6.0 (November 23, 2020)
 
