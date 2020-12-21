@@ -91,6 +91,7 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 	sCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_http_source.http"
 	tracingResourceName := "sumologic_http_source.traces"
+	kinesisResourceName := "sumologic_http_source.kinesisLog"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
