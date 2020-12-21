@@ -63,7 +63,7 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(kinesisResourceName, "name", tName),
 					resource.TestCheckResourceAttr(kinesisResourceName, "description", tDescription),
 					resource.TestCheckResourceAttr(kinesisResourceName, "category", tCategory),
-					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "kinesisLog"),
+					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
 				),
 			},
 		},
@@ -123,7 +123,7 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(kinesisResourceName, "name", tName),
 					resource.TestCheckResourceAttr(kinesisResourceName, "description", tDescription),
 					resource.TestCheckResourceAttr(kinesisResourceName, "category", tCategory),
-					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "kinesisLog"),
+					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
 				),
 			},
 			{
@@ -137,7 +137,7 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", sDescriptionUpdated),
 					resource.TestCheckResourceAttr(resourceName, "category", sCategoryUpdated),
 					resource.TestCheckResourceAttr(tracingResourceName, "content_type", "Zipkin"),
-					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "kinesisLog"),
+					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
 				),
 			},
 		},
@@ -253,7 +253,7 @@ resource "sumologic_http_source" "kinesisLog" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
-	content_type = "kinesisLog"
+	content_type = "KinesisLog"
 	collector_id = "${sumologic_collector.test.id}"
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory)
