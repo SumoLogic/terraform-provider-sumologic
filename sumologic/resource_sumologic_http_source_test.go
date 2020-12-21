@@ -29,7 +29,7 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 	kCategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_http_source.http"
 	tracingResourceName := "sumologic_http_source.traces"
-	kinesisResourceName := "sumologic_kinesis_source.kinesisLog"
+	kinesisResourceName := "sumologic_http_source.kinesisLog"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
