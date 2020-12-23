@@ -1,4 +1,6 @@
-## 2.6.2 (Unreleased)
+## 2.6.3 (Unreleased)
+
+## 2.6.2 (December 23, 2020)
 
 ENHANCEMENTS:
 
