@@ -26,6 +26,8 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 	err = json.Unmarshal(data, &spartition)
 	if err != nil {
 		return nil, err
+	} else if spartition.IsActive == false {
+		return nil, nil
 	}
 
 	return &spartition, nil
@@ -70,4 +72,5 @@ type Partition struct {
 	RetentionPeriod   int    `json:"retentionPeriod"`
 	IsCompliant       bool   `json:"isCompliant"`
 	DataForwardingId  string `json:"dataForwardingId"`
+	IsActive          bool   `json:"isActive"`
 }
