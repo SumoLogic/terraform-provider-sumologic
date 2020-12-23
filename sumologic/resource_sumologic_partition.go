@@ -56,6 +56,10 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_active": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -99,6 +103,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("retention_period", spartition.RetentionPeriod)
 	d.Set("is_compliant", spartition.IsCompliant)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
+	d.Set("is_active", spartition.IsActive)
 
 	return nil
 }
@@ -128,5 +133,6 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		RetentionPeriod:   d.Get("retention_period").(int),
 		IsCompliant:       d.Get("is_compliant").(bool),
 		DataForwardingId:  d.Get("data_forwarding_id").(string),
+		IsActive:          d.Get("is_active").(bool),
 	}
 }
