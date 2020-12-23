@@ -1,5 +1,9 @@
 ## 2.6.2 (Unreleased)
 
+ENHANCEMENTS:
+
+* Partitions now use isActive field to handle decommissioned partitions (GH-131)
+
 ## 2.6.1 (December 14, 2020)
 
 ENHANCEMENTS:
