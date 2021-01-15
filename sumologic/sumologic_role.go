@@ -54,8 +54,7 @@ func (s *Client) GetRole(id string) (*Role, error) {
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	// TODO: check default limit count of 1000 and paginate
-	data, _, err := s.Get(fmt.Sprintf("v1/roles"))
+	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", name))
 	if err != nil {
 		return nil, err
 	}
@@ -64,19 +63,13 @@ func (s *Client) GetRoleName(name string) (*Role, error) {
 		return nil, fmt.Errorf("role with name '%s' does not exist", name)
 	}
 
-	var response RoleList
+	var response RoleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, r := range response.Roles {
-		if r.Name == name {
-			return &r, nil
-		}
-	}
-
-	return nil, nil
+	return &response.Roles[0], nil
 }
 
 func (s *Client) UpdateRole(role Role) error {
@@ -88,7 +81,7 @@ func (s *Client) UpdateRole(role Role) error {
 	return err
 }
 
-type RoleList struct {
+type RoleResponse struct {
 	Roles []Role `json:"data"`
 }
 
