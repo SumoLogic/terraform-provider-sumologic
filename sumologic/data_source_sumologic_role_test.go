@@ -34,8 +34,8 @@ func testAccDataSourceRoleCheck(name, reference string) resource.TestCheckFunc {
 
 var testDataSourceAccSumologicRoleConfig = `
 resource "sumologic_role" "test" {
-  name = "MySumologicRole"
-  description = "MyRoleDesc"
+  name = "MySumoRole"
+  description = "MySumoRoleDesc"
   filter_predicate = "_sourceCategory=Test"
   capabilities = ["manageCollectors"]
 }

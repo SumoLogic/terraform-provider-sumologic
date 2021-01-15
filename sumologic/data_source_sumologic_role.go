@@ -14,7 +14,7 @@ func dataSourceSumologicRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
