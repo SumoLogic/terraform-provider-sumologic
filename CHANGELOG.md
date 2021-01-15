@@ -1,4 +1,10 @@
-## 2.6.3 (Unreleased)
+## 2.6.4 (Unreleased)
+
+## 2.6.3 (January 15, 2021)
+
+FEATURES:
+
+* Roles Data Source (GH-136)
 
 ## 2.6.2 (December 23, 2020)
 
