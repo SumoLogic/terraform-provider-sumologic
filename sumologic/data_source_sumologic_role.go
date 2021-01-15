@@ -51,7 +51,7 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 		id := rid.(string)
 		role, err = c.GetRole(id)
 		if err != nil {
-			return fmt.Errorf("role with id %d not found: %v", id, err)
+			return fmt.Errorf("role with id %v not found: %v", id, err)
 		}
 	} else {
 		if rname, ok := d.GetOk("name"); ok {
