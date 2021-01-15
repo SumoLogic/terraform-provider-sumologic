@@ -16,6 +16,13 @@ resource "sumologic_gcp_source" "terraform_gcp_source" {
   description   = "My description"
   category      = "gcp"
   collector_id  = "${sumologic_collector.collector.id}"
+  authentication {
+    type = "NoAuthentication"
+  }
+
+  path {
+    type = "NoPathExpression"
+  }
 }
 
 resource "sumologic_collector" "collector" {
