@@ -6,6 +6,7 @@
   + [sumologic_caller_identity][10]
   + [sumologic_collector][11]
   + [sumologic_personal_folder][12]
+  + [sumologic_role][13]
 
 #### Resources
 ##### Sources
@@ -59,6 +60,7 @@ The following properties are common to ALL sources and can be used to configure 
 [10]: d/caller_identity.html.markdown
 [11]: d/collector.html.markdown
 [12]: d/personal_folder.html.markdown
+[13]: d/role.html.markdown
 [20]: r/collector.html.markdown
 [21]: r/http_source.html.markdown
 [22]: r/polling_source.html.markdown
