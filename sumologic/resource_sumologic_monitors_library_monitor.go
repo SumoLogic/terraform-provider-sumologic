@@ -250,7 +250,6 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 	c := meta.(*Client)
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
-		paramMap := make(map[string]string)
 		if monitor.ParentID == "" {
 			rootFolder, err := c.GetMonitorsLibraryFolder("root")
 			if err != nil {
@@ -259,7 +258,9 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 
 			monitor.ParentID = rootFolder.ID
 		}
-		paramMap["parentId"] = monitor.ParentID
+		paramMap := map[string]string{
+			"parentId": monitor.ParentID,
+		}
 		monitorDefinitionID, err := c.CreateMonitorsLibraryMonitor(monitor, paramMap)
 		if err != nil {
 			return err
@@ -303,9 +304,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
-		schemaNotification := make(map[string]interface{})
 		// notification in schema should be a list of length exactly 1
-		schemaInternalNotification := make([]interface{}, 1)
 		internalNotification := make(map[string]interface{})
 		internalNotificationDict := n.Notification.(map[string]interface{})
 		// log.Printf("monitor.Notification %v", n.Notification)
@@ -336,11 +335,15 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
 			}
 		}
-		schemaInternalNotification[0] = internalNotification
 
-		schemaNotification["notification"] = schemaInternalNotification
-		schemaNotification["run_for_trigger_types"] = n.RunForTriggerTypes
-		notifications[i] = schemaNotification
+		schemaInternalNotification := []interface{}{
+			internalNotification,
+		}
+
+		notifications[i] = map[string]interface{}{
+			"notification":          schemaInternalNotification,
+			"run_for_trigger_types": n.RunForTriggerTypes,
+		}
 	}
 	if err := d.Set("notifications", notifications); err != nil {
 		return err
@@ -348,16 +351,16 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	// set triggers
 	triggers := make([]interface{}, len(monitor.Triggers))
 	for i, t := range monitor.Triggers {
-		schemaTrigger := make(map[string]interface{})
-		schemaTrigger["trigger_type"] = t.TriggerType
-		schemaTrigger["threshold"] = t.Threshold
-		schemaTrigger["threshold_type"] = t.ThresholdType
-		// we don't read the TimeRange because it overwrites our local timerange and leads to errors
-		schemaTrigger["time_range"] = d.Get(fmt.Sprintf("triggers.%d.time_range", i))
-		schemaTrigger["occurrence_type"] = t.OccurrenceType
-		schemaTrigger["trigger_source"] = t.TriggerSource
-		schemaTrigger["detection_method"] = t.DetectionMethod
-		triggers[i] = schemaTrigger
+		triggers[i] = map[string]interface{}{
+			"trigger_type":   t.TriggerType,
+			"threshold":      t.Threshold,
+			"threshold_type": t.ThresholdType,
+			// we don't read the TimeRange because it overwrites our local timerange and leads to errors
+			"time_range":       d.Get(fmt.Sprintf("triggers.%d.time_range", i)),
+			"occurrence_type":  t.OccurrenceType,
+			"trigger_source":   t.TriggerSource,
+			"detection_method": t.DetectionMethod,
+		}
 	}
 	if err := d.Set("triggers", triggers); err != nil {
 		return err
@@ -365,10 +368,10 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	// set queries
 	queries := make([]interface{}, len(monitor.Queries))
 	for i, q := range monitor.Queries {
-		schemaQuery := make(map[string]interface{})
-		schemaQuery["row_id"] = q.RowID
-		schemaQuery["query"] = q.Query
-		queries[i] = schemaQuery
+		queries[i] = map[string]interface{}{
+			"row_id": q.RowID,
+			"query":  q.Query,
+		}
 	}
 	if err := d.Set("queries", queries); err != nil {
 		return err
@@ -412,7 +415,6 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 	notifications := make([]MonitorNotification, len(rawNotifications))
 	for i := range rawNotifications {
 		notificationDict := rawNotifications[i].(map[string]interface{})
-		n := MonitorNotification{}
 		rawNotificationAction := notificationDict["notification"].([]interface{})
 		notificationActionDict := rawNotificationAction[0].(map[string]interface{})
 		connectionType := ""
@@ -433,24 +435,24 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 				connectionType = "Webhook"
 			}
 		}
+
+		var n MonitorNotification
 		if connectionType == "Email" {
-			notificationAction := EmailNotification{}
-			actionType = "EmailAction"
-			notificationAction.ActionType = actionType
-			notificationAction.ConnectionType = connectionType
-			notificationAction.Subject = notificationActionDict["subject"].(string)
-			notificationAction.Recipients = notificationActionDict["recipients"].([]interface{})
-			notificationAction.MessageBody = notificationActionDict["message_body"].(string)
-			notificationAction.TimeZone = notificationActionDict["time_zone"].(string)
-			n.Notification = notificationAction
+			n.Notification = EmailNotification{
+				ActionType:     "EmailAction",
+				ConnectionType: connectionType,
+				Subject:        notificationActionDict["subject"].(string),
+				Recipients:     notificationActionDict["recipients"].([]interface{}),
+				MessageBody:    notificationActionDict["message_body"].(string),
+				TimeZone:       notificationActionDict["time_zone"].(string),
+			}
 		} else {
-			notificationAction := WebhookNotificiation{}
-			actionType = "NamedConnectionAction"
-			notificationAction.ActionType = actionType
-			notificationAction.ConnectionType = connectionType
-			notificationAction.ConnectionID = notificationActionDict["connection_id"].(string)
-			notificationAction.PayloadOverride = notificationActionDict["payload_override"].(string)
-			n.Notification = notificationAction
+			n.Notification = WebhookNotificiation{
+				ActionType:      "NamedConnectionAction",
+				ConnectionType:  connectionType,
+				ConnectionID:    notificationActionDict["connection_id"].(string),
+				PayloadOverride: notificationActionDict["payload_override"].(string),
+			}
 		}
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
 		notifications[i] = n
@@ -463,15 +465,15 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 	triggers := make([]TriggerCondition, len(rawTriggers))
 	for i := range rawTriggers {
 		triggerDict := rawTriggers[i].(map[string]interface{})
-		t := TriggerCondition{}
-		t.TriggerType = triggerDict["trigger_type"].(string)
-		t.Threshold = triggerDict["threshold"].(float64)
-		t.ThresholdType = triggerDict["threshold_type"].(string)
-		t.TimeRange = triggerDict["time_range"].(string)
-		t.OccurrenceType = triggerDict["occurrence_type"].(string)
-		t.TriggerSource = triggerDict["trigger_source"].(string)
-		t.DetectionMethod = triggerDict["detection_method"].(string)
-		triggers[i] = t
+		triggers[i] = TriggerCondition{
+			TriggerType:     triggerDict["trigger_type"].(string),
+			Threshold:       triggerDict["threshold"].(float64),
+			ThresholdType:   triggerDict["threshold_type"].(string),
+			TimeRange:       triggerDict["time_range"].(string),
+			OccurrenceType:  triggerDict["occurrence_type"].(string),
+			TriggerSource:   triggerDict["trigger_source"].(string),
+			DetectionMethod: triggerDict["detection_method"].(string),
+		}
 	}
 	return triggers
 }
@@ -481,10 +483,10 @@ func getQueries(d *schema.ResourceData) []MonitorQuery {
 	queries := make([]MonitorQuery, len(rawQueries))
 	for i := range rawQueries {
 		queryDict := rawQueries[i].(map[string]interface{})
-		q := MonitorQuery{}
-		q.Query = queryDict["query"].(string)
-		q.RowID = queryDict["row_id"].(string)
-		queries[i] = q
+		queries[i] = MonitorQuery{
+			Query: queryDict["query"].(string),
+			RowID: queryDict["row_id"].(string),
+		}
 	}
 	return queries
 }
