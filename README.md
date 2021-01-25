@@ -21,7 +21,7 @@ Run `terraform init` to automatically install the latest version of the provider
 Requirements
 ------------
 
-- [Terraform](https://www.terraform.io/downloads.html) 0.11.x or 0.12.x
+- [Terraform](https://www.terraform.io/downloads.html) 0.12.x, 0.13x, or 0.14x
 - [Go](https://golang.org/doc/install) >= 1.13 (to build the provider plugin)
 - [Sumo Logic](https://www.sumologic.com/)
 
