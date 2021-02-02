@@ -50,7 +50,7 @@ func resourceSumologicUser() *schema.Resource {
 			},
 			"is_active": {
 				Type:     schema.TypeBool,
-				Optional: true,
+				Required: true,
 			},
 			"transfer_to": {
 				Type:     schema.TypeString,

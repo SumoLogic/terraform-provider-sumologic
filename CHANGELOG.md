@@ -1,4 +1,8 @@
-## 2.6.4 (Unreleased)
+## 2.7.0 (Unreleased)
+
+BUG FIXES:
+
+* is_active is now required in sumologic_user, doc fixes
 
 ## 2.6.3 (January 15, 2021)
 
