@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -78,4 +79,27 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] data_source_sumologic_role: retrieved %v", role)
 	return nil
+}
+
+func (s *Client) GetRoleName(name string) (*Role, error) {
+	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", name))
+	if err != nil {
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, fmt.Errorf("role with name '%s' does not exist", name)
+	}
+
+	var response RoleResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.Roles[0], nil
+}
+
+type RoleResponse struct {
+	Roles []Role `json:"data"`
 }
