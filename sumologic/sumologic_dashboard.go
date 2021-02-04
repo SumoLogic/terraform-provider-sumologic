@@ -79,12 +79,12 @@ type BeginBoundedTimeRange struct {
 
 type RelativeTimeRangeBoundary struct {
 	Type         string `json:"type"`
-	RelativeTime string `json:"rangeName"`
+	RelativeTime string `json:"relativeTime"`
 }
 
 type EpochTimeRangeBoundary struct {
 	Type        string `json:"type"`
-	EpochMillis int64  `json:"epochMillis,omitempty"`
+	EpochMillis int64  `json:"epochMillis"`
 }
 
 type Iso8601TimeRangeBoundary struct {
@@ -94,7 +94,7 @@ type Iso8601TimeRangeBoundary struct {
 
 type LiteralTimeRangeBoundary struct {
 	Type      string `json:"type"`
-	RangeName string `json:"relativeTime"`
+	RangeName string `json:"rangeName"`
 }
 
 // Panel related structs
@@ -102,8 +102,8 @@ type ContainerPanel struct {
 	Id                                     string `json:"id,omitempty"`
 	Key                                    string `json:"key"`
 	Title                                  string `json:"title"`
-	VisualSettings                         string `json:"visual_settings"`
-	KeepVisualSettingsConsistentWithParent bool   `json:"keep_visual_settings_consistent_with_parent"`
+	VisualSettings                         string `json:"visualSettings"`
+	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
 	PanelType                              string `json:"panelType"`
 	// Container panel related properties
 	Layout        interface{}    `json:"layout"`
@@ -116,8 +116,8 @@ type TextPanel struct {
 	Id                                     string `json:"id,omitempty"`
 	Key                                    string `json:"key"`
 	Title                                  string `json:"title"`
-	VisualSettings                         string `json:"visual_settings"`
-	KeepVisualSettingsConsistentWithParent bool   `json:"keep_visual_settings_consistent_with_parent"`
+	VisualSettings                         string `json:"visualSettings"`
+	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
 	PanelType                              string `json:"panelType"`
 	// Text panel related properties
 	Text string `json:"text"`
@@ -127,8 +127,8 @@ type SumoSearchPanel struct {
 	Id                                     string `json:"id,omitempty"`
 	Key                                    string `json:"key"`
 	Title                                  string `json:"title"`
-	VisualSettings                         string `json:"visual_settings"`
-	KeepVisualSettingsConsistentWithParent bool   `json:"keep_visual_settings_consistent_with_parent"`
+	VisualSettings                         string `json:"visualSettings"`
+	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
 	PanelType                              string `json:"panelType"`
 	// Search panel related properties
 	Queries          []SearchPanelQuery `json:"queries"`

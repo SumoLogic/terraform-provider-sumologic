@@ -429,9 +429,10 @@ func getGridLayoutSchema() map[string]*schema.Schema {
 
 func getVariablesSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
+		// TODO should we remove this field?
 		"id": {
 			Type:     schema.TypeString,
-			Optional: true,
+			Computed: true,
 		},
 		"name": {
 			Type:         schema.TypeString,
@@ -640,7 +641,7 @@ func getTimeRangeBoundarySchema() map[string]*schema.Schema {
 					"iso8601_time": {
 						Type:         schema.TypeString,
 						Required:     true,
-						ValidateFunc: validation.ValidateRFC3339TimeString,
+						ValidateFunc: validation.IsRFC3339Time,
 					},
 				},
 			},
@@ -1190,22 +1191,330 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 		return err
 	}
 
+	timeRange := getTerraformTimeRange(dashboard.TimeRange.(map[string]interface{}))
+	if err := d.Set("time_range", timeRange); err != nil {
+		return err
+	}
+
+	panels := getTerraformPanels(dashboard.Panels)
+	if err := d.Set("panel", panels); err != nil {
+		return err
+	}
+
+	layout := getTerraformLayout(dashboard.Layout.(map[string]interface{}))
+	if err := d.Set("layout", layout); err != nil {
+		return err
+	}
+
+	variables := getTerraformVariables(dashboard.Variables)
+	if err := d.Set("variable", variables); err != nil {
+		return err
+	}
+
+	coloringRules := getTerraformColoringRules(dashboard.ColoringRules)
+	if err := d.Set("coloring_rule", coloringRules); err != nil {
+		return err
+	}
+
 	// TODO: Set rest of the fields
-	log.Printf("=====================================================================n")
+	log.Println("=====================================================================")
 	log.Printf("title: %+v\n", d.Get("title"))
 	log.Printf("description: %+v\n", d.Get("description"))
 	log.Printf("folder_id: %+v\n", d.Get("folder_id"))
-	log.Printf("=====================================================================n")
+	log.Printf("time_range: %+v\n", d.Get("time_range"))
+	log.Printf("panel: %+v\n", d.Get("panel"))
+	log.Printf("layout: %+v\n", d.Get("layout"))
+	log.Printf("variable: %+v\n", d.Get("variable"))
+	log.Printf("coloring_rule: %+v\n", d.Get("coloring_rule"))
+	log.Println("=====================================================================")
 	return nil
+}
+
+type TerraformObject [1]map[string]interface{}
+
+func makeTerraformObject() TerraformObject {
+	terraformObject := [1]map[string]interface{}{}
+	terraformObject[0] = make(map[string]interface{})
+	return terraformObject
+}
+
+func getTerraformTimeRange(timeRange map[string]interface{}) TerraformObject {
+	tfTimeRange := makeTerraformObject()
+
+	if timeRange["type"] == "BeginBoundedTimeRange" {
+		boundedTimeRange := makeTerraformObject()
+
+		from := timeRange["from"].(map[string]interface{})
+		rangeBoundary := getTerraformTimeRangeBoundary(from)
+		boundedTimeRange[0]["from"] = rangeBoundary
+
+		if to := timeRange["to"]; to != nil {
+			rangeBoundary := getTerraformTimeRangeBoundary(to.(map[string]interface{}))
+			boundedTimeRange[0]["to"] = rangeBoundary
+		}
+
+		tfTimeRange[0]["begin_bounded_time_range"] = boundedTimeRange
+	} else if timeRange["type"] == "CompleteLiteralTimeRange" {
+		rangeName := timeRange["rangeName"]
+
+		completeLiteralTimeRange := makeTerraformObject()
+		completeLiteralTimeRange[0]["range_name"] = rangeName
+		tfTimeRange[0]["complete_literal_time_range"] = completeLiteralTimeRange
+	}
+
+	return tfTimeRange
+}
+
+func getTerraformTimeRangeBoundary(
+	timeRangeBoundary map[string]interface{}) TerraformObject {
+	tfTimeRangeBoundary := makeTerraformObject()
+
+	if timeRangeBoundary["type"] == "RelativeTimeRangeBoundary" {
+		relativeRange := makeTerraformObject()
+		relativeRange[0]["relative_time"] = timeRangeBoundary["relativeTime"]
+		tfTimeRangeBoundary[0]["relative_time_range"] = relativeRange
+	} else if timeRangeBoundary["type"] == "EpochTimeRangeBoundary" {
+		epochRange := makeTerraformObject()
+		epochRange[0]["epoch_millis"] = timeRangeBoundary["epochMillis"]
+		tfTimeRangeBoundary[0]["epoch_time_range"] = epochRange
+	} else if timeRangeBoundary["type"] == "Iso8601TimeRangeBoundary" {
+		iso8601Range := makeTerraformObject()
+		iso8601Range[0]["iso8601_time"] = timeRangeBoundary["iso8601Time"]
+		tfTimeRangeBoundary[0]["iso8601_time_range"] = iso8601Range
+	} else if timeRangeBoundary["type"] == "LiteralTimeRangeBoundary" {
+		literalRange := makeTerraformObject()
+		literalRange[0]["range_name"] = timeRangeBoundary["rangeName"]
+		tfTimeRangeBoundary[0]["literal_time_range"] = literalRange
+	}
+
+	return tfTimeRangeBoundary
+}
+
+func getTerraformPanels(panels []interface{}) []map[string]interface{} {
+	tfPanels := make([]map[string]interface{}, len(panels))
+
+	for i, val := range panels {
+		panel := val.(map[string]interface{})
+
+		tfPanel := map[string]interface{}{}
+		tfPanel["key"] = panel["key"]
+		if title, ok := panel["title"]; ok {
+			tfPanel["title"] = title
+		}
+		if visualSettings, ok := panel["visualSettings"]; ok {
+			tfPanel["visual_settings"] = visualSettings
+		}
+		if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
+			tfPanel["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+		}
+
+		if panel["panelType"] == "TextPanel" {
+			textPanel := makeTerraformObject()
+			textPanel[0]["text"] = panel["text"]
+			tfPanel["text_panel"] = textPanel
+		} else if panel["panelType"] == "SumoSearchPanel" {
+			tfPanel["sumo_search_panel"] = getTerraformSearchPanel(panel)
+		}
+
+		tfPanels[i] = tfPanel
+	}
+	return tfPanels
+}
+
+func getTerraformSearchPanel(searchPanel map[string]interface{}) TerraformObject {
+	tfSearchPanel := makeTerraformObject()
+
+	tfSearchPanel[0]["query"] = getTerraformSearchPanelQuery(searchPanel["queries"].([]interface{}))
+	if description, ok := searchPanel["description"]; ok {
+		tfSearchPanel[0]["description"] = description
+	}
+	if timeRange := searchPanel["timeRange"]; timeRange != nil {
+		tfSearchPanel[0]["time_range"] = getTerraformTimeRange(timeRange.(map[string]interface{}))
+	}
+	if coloringRules := searchPanel["coloringRules"]; coloringRules != nil {
+		tfSearchPanel[0]["coloring_rule"] = getTerraformTimeRange(coloringRules.(map[string]interface{}))
+	}
+	if linkedDashboards := searchPanel["linkedDashboards"]; linkedDashboards != nil {
+		tfSearchPanel[0]["linked_dashboard"] = getTerraformLinkedDashboards(linkedDashboards.([]interface{}))
+	}
+
+	return tfSearchPanel
+}
+
+func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{} {
+	tfPanelQueries := make([]map[string]interface{}, len(queries))
+
+	for i, val := range queries {
+		query := val.(map[string]interface{})
+		tfPanelQueries[i] = make(map[string]interface{})
+		tfPanelQueries[i]["query_string"] = query["queryString"]
+		tfPanelQueries[i]["query_type"] = query["queryType"]
+		tfPanelQueries[i]["query_key"] = query["queryKey"]
+		if metricsQueryMode, ok := query["metricsQueryMode"]; ok {
+			tfPanelQueries[i]["metrics_query_mode"] = metricsQueryMode
+		}
+		if metricsQueryData, ok := query["metricsQueryData"]; ok && metricsQueryData != nil {
+			tfPanelQueries[i]["metrics_query_data"] =
+				getTerraformMetricsQueryDataScheme(metricsQueryData.(map[string]interface{}))
+		}
+	}
+	return tfPanelQueries
+}
+
+func getTerraformMetricsQueryDataScheme(queryData map[string]interface{}) TerraformObject {
+	tfMetricsQueryData := makeTerraformObject()
+
+	tfMetricsQueryData[0]["metric"] = queryData["metric"]
+	if aggregationType, ok := queryData["aggregationType"]; ok {
+		tfMetricsQueryData[0]["aggregation_type"] = aggregationType
+	}
+	if groupBy, ok := queryData["groupBy"]; ok {
+		tfMetricsQueryData[0]["group_by"] = groupBy
+	}
+
+	filters := queryData["filters"].([]interface{})
+	tfFilters := make([]map[string]interface{}, len(filters))
+	for i, val := range filters {
+		filter := val.(map[string]interface{})
+		tfFilters[i] = make(map[string]interface{})
+		tfFilters[i]["key"] = filter["key"]
+		tfFilters[i]["value"] = filter["value"]
+		tfFilters[i]["negation"] = filter["negation"]
+	}
+	tfMetricsQueryData[0]["filter"] = tfFilters
+
+	if val, ok := queryData["operators"]; ok && val != nil {
+		operators := val.([]interface{})
+		tfOperators := make([]map[string]interface{}, len(operators))
+		for i, val := range operators {
+			operator := val.(map[string]interface{})
+			tfOperators[i] = getTerraformMetricsQueryOperator(operator)
+		}
+		tfMetricsQueryData[0]["operator"] = tfOperators
+	}
+
+	return tfMetricsQueryData
+}
+
+func getTerraformMetricsQueryOperator(operator map[string]interface{}) map[string]interface{} {
+	tfOperator := make(map[string]interface{})
+	tfOperator["operator_name"] = operator["operatorName"]
+
+	parameters := operator["parameters"].([]interface{})
+	tfParameters := make([]map[string]interface{}, len(parameters))
+	for i, val := range parameters {
+		parameter := val.(map[string]interface{})
+		tfParameters[i] = make(map[string]interface{})
+		tfParameters[i]["key"] = parameter["key"]
+		tfParameters[i]["value"] = parameter["value"]
+	}
+	tfOperator["parameter"] = tfParameters
+
+	return tfOperator
+}
+
+func getTerraformLinkedDashboards(dashboards []interface{}) []map[string]interface{} {
+	tfLinkedDashboards := make([]map[string]interface{}, len(dashboards))
+
+	for i, val := range dashboards {
+		dashboard := val.(map[string]interface{})
+		tfLinkedDashboards[i] = make(map[string]interface{})
+		tfLinkedDashboards[i]["id"] = dashboard["id"]
+		tfLinkedDashboards[i]["relative_path"] = dashboard["relativePath"]
+		tfLinkedDashboards[i]["include_time_range"] = dashboard["includeTimeRange"]
+		tfLinkedDashboards[i]["include_variables"] = dashboard["includeVariables"]
+	}
+
+	return tfLinkedDashboards
+}
+
+func getTerraformLayout(layout map[string]interface{}) TerraformObject {
+	tfLayout := makeTerraformObject()
+
+	if layout["layoutType"] == "Grid" {
+		gridLayout := makeTerraformObject()
+
+		layoutStructures := layout["layoutStructures"].([]interface{})
+		tfLayoutStructures := make([]map[string]interface{}, len(layoutStructures))
+		for i, structure := range layoutStructures {
+			tfLayoutStructures[i] = structure.(map[string]interface{})
+		}
+		gridLayout[0]["layout_structures"] = tfLayoutStructures
+		tfLayout[0]["grid"] = gridLayout
+	}
+
+	return tfLayout
+}
+
+func getTerraformVariables(variables []Variable) []map[string]interface{} {
+	tfVariables := make([]map[string]interface{}, len(variables))
+
+	for i, variable := range variables {
+		tfVariables[i] = make(map[string]interface{})
+		tfVariables[i]["name"] = variable.Name
+		tfVariables[i]["display_name"] = variable.DisplayName
+		tfVariables[i]["default_value"] = variable.DefaultValue
+		tfVariables[i]["allow_multi_select"] = variable.AllowMultiSelect
+		tfVariables[i]["include_all_option"] = variable.IncludeAllOption
+		tfVariables[i]["hide_from_ui"] = variable.HideFromUI
+		tfVariables[i]["source_definition"] =
+			getTerraformVariableSourceDefinition(variable.SourceDefinition.(map[string]interface{}))
+	}
+
+	return tfVariables
+}
+
+func getTerraformVariableSourceDefinition(sourceDefinition map[string]interface{}) TerraformObject {
+	tfSourceDefinition := makeTerraformObject()
+
+	if sourceDefinition["variableSourceType"] == "MetadataVariableSourceDefinition" {
+		metadataDefinition := makeTerraformObject()
+		metadataDefinition[0]["filter"] = sourceDefinition["filter"]
+		metadataDefinition[0]["key"] = sourceDefinition["key"]
+		tfSourceDefinition[0]["metadata_variable_source_definition"] = metadataDefinition
+	} else if sourceDefinition["variableSourceType"] == "CsvVariableSourceDefinition" {
+		csvDefinition := makeTerraformObject()
+		csvDefinition[0]["values"] = sourceDefinition["values"]
+		tfSourceDefinition[0]["csv_variable_source_definition"] = csvDefinition
+	} else if sourceDefinition["variableSourceType"] == "LogQueryVariableSourceDefinition" {
+		logQueryDefinition := makeTerraformObject()
+		logQueryDefinition[0]["query"] = sourceDefinition["query"]
+		logQueryDefinition[0]["field"] = sourceDefinition["field"]
+		tfSourceDefinition[0]["log_query_variable_source_definition"] = logQueryDefinition
+	}
+
+	return tfSourceDefinition
+}
+
+func getTerraformColoringRules(coloringRules []ColoringRule) []map[string]interface{} {
+	tfColoringRules := make([]map[string]interface{}, len(coloringRules))
+
+	for i, rule := range coloringRules {
+		tfColoringRules[i] = make(map[string]interface{})
+		tfColoringRules[i]["scope"] = rule.Scope
+		tfColoringRules[i]["single_series_aggregate_function"] = rule.SingleSeriesAggregateFunction
+		tfColoringRules[i]["multiple_series_aggregate_function"] = rule.MultipleSeriesAggregateFunction
+
+		tfColorThresholds := make([]map[string]interface{}, len(rule.ColorThresholds))
+		for j, threshold := range rule.ColorThresholds {
+			tfColorThresholds[j] = make(map[string]interface{})
+			tfColorThresholds[j]["color"] = threshold.Color
+			tfColorThresholds[j]["min"] = threshold.Max
+			tfColorThresholds[j]["max"] = threshold.Min
+		}
+		tfColoringRules[i]["color_thresholds"] = tfColorThresholds
+	}
+
+	return tfColoringRules
 }
 
 func resourceSumologicDashboardCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	if d.Id() == "" {
 		dashboard := resourceToDashboard(d)
-		log.Printf("=====================================================================n")
+		log.Println("=====================================================================")
 		log.Printf("Creating dashboard: %+v\n", dashboard)
-		log.Printf("=====================================================================n")
+		log.Println("=====================================================================")
 
 		createdDashboard, err := c.CreateDashboard(dashboard)
 		if err != nil {
@@ -1222,9 +1531,9 @@ func resourceSumologicDashboardRead(d *schema.ResourceData, meta interface{}) er
 
 	id := d.Id()
 	dashboard, err := c.GetDashboard(id)
-	log.Printf("=====================================================================n")
+	log.Println("=====================================================================")
 	log.Printf("Read dashboard: %+v\n", dashboard)
-	log.Printf("=====================================================================n")
+	log.Println("=====================================================================")
 	if err != nil {
 		return err
 	}
@@ -1235,7 +1544,8 @@ func resourceSumologicDashboardRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	return setDashboard(d, dashboard)
+	err = setDashboard(d, dashboard)
+	return err
 }
 
 func resourceSumologicDashboardDelete(d *schema.ResourceData, meta interface{}) error {
@@ -1245,9 +1555,9 @@ func resourceSumologicDashboardDelete(d *schema.ResourceData, meta interface{}) 
 
 func resourceSumologicDashboardUpdate(d *schema.ResourceData, meta interface{}) error {
 	dashboard := resourceToDashboard(d)
-	log.Printf("=====================================================================n")
+	log.Println("=====================================================================")
 	log.Printf("Updating dashboard: %+v\n", dashboard)
-	log.Printf("=====================================================================n")
+	log.Println("=====================================================================")
 
 	c := meta.(*Client)
 	err := c.UpdateDashboard(dashboard)
