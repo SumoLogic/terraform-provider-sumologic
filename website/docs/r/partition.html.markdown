@@ -24,7 +24,7 @@ The following arguments are supported:
 
 - `name` - (Required) The name of the partition.
 - `routing_expression` - (Required) The query that defines the data to be included in the partition.
-- `analytics_tier` - (Required) The Cloud Flex analytics tier for your data; only relevant if your account has basic analytics enabled. Possible values are: `enhanced`, `basic`, `cold`
+- `analytics_tier` - (Required) The Cloud Flex analytics tier for your data; only relevant if your account has basic analytics enabled. Possible values are: `enhanced`, `basic`, `cold`, `continuous`, `frequent`, `infrequent`
 - `retention_period` - (Optional) The number of days to retain data in the partition, or -1 to use the default value for your account. Only relevant if your account has variable retention enabled.
 - `is_compliant` - (Required) Whether the partition is compliant or not. Mark a partition as compliant if it contains data used for compliance or audit purpose. Retention for a compliant partition can only be increased and cannot be reduced after the partition is marked compliant. A partition once marked compliant, cannot be marked non-compliant later.
 - `data_forwarding_id` - (Optional) An optional ID of a data forwarding configuration to be used by the partition.
