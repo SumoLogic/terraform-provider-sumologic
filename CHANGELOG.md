@@ -1,4 +1,6 @@
-## 2.7.0 (Unreleased)
+## 2.7.1 (Unreleased)
+
+## 2.7.0 (Febuary 5, 2021)
 
 BUG FIXES:
 
