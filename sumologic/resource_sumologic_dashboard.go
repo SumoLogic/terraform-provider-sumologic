@@ -542,7 +542,7 @@ func getColoringRulesSchema() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		"color_thresholds": {
+		"color_threshold": {
 			Type:     schema.TypeList,
 			Optional: true,
 			Elem: &schema.Resource{
@@ -973,25 +973,26 @@ func getMetricsQueryOperator(tfQueryOperator map[string]interface{}) MetricsQuer
 }
 
 func getTimeRange(tfTimeRange map[string]interface{}) interface{} {
-	if val, ok := tfTimeRange["complete_literal_time_range"].([]interface{}); ok {
+	if val := tfTimeRange["complete_literal_time_range"].([]interface{}); len(val) == 1 {
 		if literalRange, ok := val[0].(map[string]interface{}); ok {
 			return CompleteLiteralTimeRange{
 				Type:      "CompleteLiteralTimeRange",
 				RangeName: literalRange["range_name"].(string),
 			}
 		}
-	} else if val, ok := tfTimeRange["bounded_time_range"].([]interface{}); ok {
+	} else if val := tfTimeRange["begin_bounded_time_range"].([]interface{}); len(val) == 1 {
 		if boundedRange, ok := val[0].(map[string]interface{}); ok {
-			boundaryStart := boundedRange["from"].([]interface{})[0]
-			var boundaryEnd interface{}
-			if val, ok := boundedRange["to"].([]interface{}); ok {
-				boundaryEnd = val[0]
+			from := boundedRange["from"].([]interface{})
+			boundaryStart := from[0].(map[string]interface{})
+			var boundaryEnd map[string]interface{}
+			if to := boundedRange["to"].([]interface{}); len(to) == 1 {
+				boundaryEnd = to[0].(map[string]interface{})
 			}
 
 			return BeginBoundedTimeRange{
 				Type: "BeginBoundedTimeRange",
-				From: getTimeRangeBoundary(boundaryStart.(map[string]interface{})),
-				To:   getTimeRangeBoundary(boundaryEnd.(map[string]interface{})),
+				From: getTimeRangeBoundary(boundaryStart),
+				To:   getTimeRangeBoundary(boundaryEnd),
 			}
 		}
 	}
@@ -1000,28 +1001,32 @@ func getTimeRange(tfTimeRange map[string]interface{}) interface{} {
 }
 
 func getTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
-	if val, ok := tfRangeBoundary["epoch_time_range"].([]interface{}); ok {
+	if len(tfRangeBoundary) == 0 {
+		return nil
+	}
+
+	if val := tfRangeBoundary["epoch_time_range"].([]interface{}); len(val) == 1 {
 		if epochBoundary, ok := val[0].(map[string](interface{})); ok {
 			return EpochTimeRangeBoundary{
 				Type:        "EpochTimeRangeBoundary",
 				EpochMillis: epochBoundary["epoch_millis"].(int64),
 			}
 		}
-	} else if val, ok := tfRangeBoundary["iso8601_time_range"].([]interface{}); ok {
+	} else if val := tfRangeBoundary["iso8601_time_range"].([]interface{}); len(val) == 1 {
 		if iso8601Boundary, ok := val[0].(map[string](interface{})); ok {
 			return Iso8601TimeRangeBoundary{
 				Type:        "Iso8601TimeRangeBoundary",
 				Iso8601Time: iso8601Boundary["iso8601_time"].(string),
 			}
 		}
-	} else if val, ok := tfRangeBoundary["literal_time_range"].([]interface{}); ok {
+	} else if val := tfRangeBoundary["literal_time_range"].([]interface{}); len(val) == 1 {
 		if literalBoundary, ok := val[0].(map[string](interface{})); ok {
 			return LiteralTimeRangeBoundary{
 				Type:      "LiteralTimeRangeBoundary",
 				RangeName: literalBoundary["range_name"].(string),
 			}
 		}
-	} else if val, ok := tfRangeBoundary["relative_time_range"].([]interface{}); ok {
+	} else if val := tfRangeBoundary["relative_time_range"].([]interface{}); len(val) == 1 {
 		if relativeBoundary, ok := val[0].(map[string](interface{})); ok {
 			return RelativeTimeRangeBoundary{
 				Type:         "RelativeTimeRangeBoundary",
@@ -1048,7 +1053,7 @@ func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
 }
 
 func getLayout(tfLayout map[string]interface{}) interface{} {
-	if val, ok := tfLayout["grid"].([]interface{}); ok {
+	if val := tfLayout["grid"].([]interface{}); len(val) == 1 {
 		if gridLayout, ok := val[0].(map[string]interface{}); ok {
 			if tfStructures, ok := gridLayout["layout_structures"].([]interface{}); ok {
 				var structures []LayoutStructure
@@ -1103,24 +1108,21 @@ func getVariable(tfVariable map[string]interface{}) Variable {
 }
 
 func getSourceDefinition(tfSourceDef map[string]interface{}) interface{} {
-	if len(tfSourceDef["log_query_variable_source_definition"].([]interface{})) == 1 {
-		val := tfSourceDef["log_query_variable_source_definition"].([]interface{})
+	if val := tfSourceDef["log_query_variable_source_definition"].([]interface{}); len(val) == 1 {
 		logQuerySourceDef := val[0].(map[string]interface{})
 		return LogQueryVariableSourceDefinition{
 			VariableSourceType: "LogQueryVariableSourceDefinition",
 			Query:              logQuerySourceDef["query"].(string),
 			Field:              logQuerySourceDef["field"].(string),
 		}
-	} else if len(tfSourceDef["metadata_variable_source_definition"].([]interface{})) == 1 {
-		val := tfSourceDef["metadata_variable_source_definition"].([]interface{})
+	} else if val := tfSourceDef["metadata_variable_source_definition"].([]interface{}); len(val) == 1 {
 		metadataSourceDef := val[0].(map[string]interface{})
 		return MetadataVariableSourceDefinition{
 			VariableSourceType: "MetadataVariableSourceDefinition",
 			Filter:             metadataSourceDef["filter"].(string),
 			Key:                metadataSourceDef["key"].(string),
 		}
-	} else if len(tfSourceDef["csv_variable_source_definition"].([]interface{})) == 1 {
-		val := tfSourceDef["csv_variable_source_definition"].([]interface{})
+	} else if val := tfSourceDef["csv_variable_source_definition"].([]interface{}); len(val) == 1 {
 		csvSourceDef := val[0].(map[string]interface{})
 		return CsvVariableSourceDefinition{
 			VariableSourceType: "CsvVariableSourceDefinition",
@@ -1137,7 +1139,7 @@ func getColoringRule(tfColoringRule map[string]interface{}) ColoringRule {
 	coloringRule.SingleSeriesAggregateFunction = tfColoringRule["single_series_aggregate_function"].(string)
 	coloringRule.MultipleSeriesAggregateFunction = tfColoringRule["multiple_series_aggregate_function"].(string)
 
-	tfColorThresholds := tfColoringRule["color_thresholds"].([]interface{})
+	tfColorThresholds := tfColoringRule["color_threshold"].([]interface{})
 	var colorThresholds []ColorThreshold
 	for _, val := range tfColorThresholds {
 		tfColorThreshold := val.(map[string]interface{})
@@ -1499,10 +1501,10 @@ func getTerraformColoringRules(coloringRules []ColoringRule) []map[string]interf
 		for j, threshold := range rule.ColorThresholds {
 			tfColorThresholds[j] = make(map[string]interface{})
 			tfColorThresholds[j]["color"] = threshold.Color
-			tfColorThresholds[j]["min"] = threshold.Max
-			tfColorThresholds[j]["max"] = threshold.Min
+			tfColorThresholds[j]["min"] = threshold.Min
+			tfColorThresholds[j]["max"] = threshold.Max
 		}
-		tfColoringRules[i]["color_thresholds"] = tfColorThresholds
+		tfColoringRules[i]["color_threshold"] = tfColorThresholds
 	}
 
 	return tfColoringRules
@@ -1550,6 +1552,7 @@ func resourceSumologicDashboardRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceSumologicDashboardDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
+	log.Printf("Deleting dashboard: %+v\n", d.Id())
 	return c.DeleteDashboard(d.Id())
 }
 
