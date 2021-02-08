@@ -1,11 +1,11 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_extraction_rule"
+page_title: "SumoLogic: sumologic_field_extraction_rule"
 description: |-
   Provides a Sumologic Field Extraction Rule
 ---
 
-# sumologic_extraction_rule
+# sumologic_field_extraction_rule
 Provides a [Sumologic Field Extraction Rule][1].
 
 ## Example Usage
