@@ -28,11 +28,13 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"index_name": {
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"start_time": {
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.IsRFC3339Time,
 			},
 			"retention_period": {
@@ -41,12 +43,22 @@ func resourceSumologicScheduledView() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(-1),
 				Default:      -1,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					// taken from https://stackoverflow.com/a/57785476/118587
-					return old == "-1"
+					return new == "-1" && old != ""
 				},
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"parsing_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "Manual",
+				ValidateFunc: validation.StringInSlice([]string{"AutoParse", "Manual"}, false),
+			},
+			"reduce_retention_period_immediately": {
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 		},
@@ -92,6 +104,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 	d.Set("start_time", sview.StartTime.Format(time.RFC3339))
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
+	d.Set("parsing_mode", sview.ParsingMode)
 
 	return nil
 }
@@ -118,11 +131,13 @@ func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
 		log.Fatal(err)
 	}
 	return ScheduledView{
-		ID:               d.Id(),
-		Query:            d.Get("query").(string),
-		IndexName:        d.Get("index_name").(string),
-		StartTime:        startTimeParsed,
-		RetentionPeriod:  d.Get("retention_period").(int),
-		DataForwardingId: d.Get("data_forwarding_id").(string),
+		ID:                               d.Id(),
+		Query:                            d.Get("query").(string),
+		IndexName:                        d.Get("index_name").(string),
+		StartTime:                        startTimeParsed,
+		RetentionPeriod:                  d.Get("retention_period").(int),
+		DataForwardingId:                 d.Get("data_forwarding_id").(string),
+		ParsingMode:                      d.Get("parsing_mode").(string),
+		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
 	}
 }
