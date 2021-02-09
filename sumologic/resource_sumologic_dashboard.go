@@ -408,7 +408,7 @@ func getLayoutSchema() map[string]*schema.Schema {
 
 func getGridLayoutSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"layout_structures": {
+		"layout_structure": {
 			Type:     schema.TypeList,
 			Required: true,
 			Elem: &schema.Resource{
@@ -1009,7 +1009,7 @@ func getTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 		if epochBoundary, ok := val[0].(map[string](interface{})); ok {
 			return EpochTimeRangeBoundary{
 				Type:        "EpochTimeRangeBoundary",
-				EpochMillis: epochBoundary["epoch_millis"].(int64),
+				EpochMillis: int64(epochBoundary["epoch_millis"].(int)),
 			}
 		}
 	} else if val := tfRangeBoundary["iso8601_time_range"].([]interface{}); len(val) == 1 {
@@ -1055,7 +1055,7 @@ func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
 func getLayout(tfLayout map[string]interface{}) interface{} {
 	if val := tfLayout["grid"].([]interface{}); len(val) == 1 {
 		if gridLayout, ok := val[0].(map[string]interface{}); ok {
-			if tfStructures, ok := gridLayout["layout_structures"].([]interface{}); ok {
+			if tfStructures, ok := gridLayout["layout_structure"].([]interface{}); ok {
 				var structures []LayoutStructure
 				for _, v := range tfStructures {
 					if tfStructure, ok := v.(map[string]interface{}); ok {
@@ -1441,7 +1441,7 @@ func getTerraformLayout(layout map[string]interface{}) TerraformObject {
 		for i, structure := range layoutStructures {
 			tfLayoutStructures[i] = structure.(map[string]interface{})
 		}
-		gridLayout[0]["layout_structures"] = tfLayoutStructures
+		gridLayout[0]["layout_structure"] = tfLayoutStructures
 		tfLayout[0]["grid"] = gridLayout
 	}
 
