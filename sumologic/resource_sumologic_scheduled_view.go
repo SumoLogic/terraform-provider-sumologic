@@ -1,10 +1,11 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicScheduledView() *schema.Resource {
@@ -13,6 +14,9 @@ func resourceSumologicScheduledView() *schema.Resource {
 		Read:   resourceSumologicScheduledViewRead,
 		Delete: resourceSumologicScheduledViewDelete,
 		Update: resourceSumologicScheduledViewUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"query": {

@@ -1,5 +1,9 @@
 ## 2.7.1 (Unreleased)
 
+FEATURES:
+
+* Import Scheduled Vies (GH-152)
+
 ## 2.7.0 (Febuary 5, 2021)
 
 BUG FIXES:
