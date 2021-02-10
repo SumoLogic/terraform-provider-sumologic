@@ -282,16 +282,6 @@ func testAccCheckDashboardDestroy(dashboard Dashboard) resource.TestCheckFunc {
 		if err == nil {
 			return fmt.Errorf("Dashboard (id=%s) still exists", dashboard.ID)
 		}
-		// for _, r := range s.RootModule().Resources {
-		// 	id := r.Primary.ID
-		// 	u, err := client.GetDashboard(id)
-		// 	if err != nil {
-		// 		return fmt.Errorf("Encountered an error: " + err.Error())
-		// 	}
-		// 	if u != nil {
-		// 		return fmt.Errorf("Dashboard %s still exists", id)
-		// 	}
-		// }
 		return nil
 	}
 }

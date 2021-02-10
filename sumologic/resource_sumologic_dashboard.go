@@ -119,7 +119,7 @@ func resourceSumologicDashboard() *schema.Resource {
 			"theme": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Light", "Dark"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Light", "Dark"}, true),
 				Default:      "Light",
 			},
 			// TODO Do we need this field in terraform?
@@ -151,7 +151,6 @@ func getPanelSchema() map[string]*schema.Schema {
 
 func getPanelBaseSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		// TODO what is use of "id" field in panel?
 		"id": {
 			Type:     schema.TypeString,
 			Optional: true,
@@ -347,8 +346,7 @@ func getMetricsQueryDataSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"key": {
-						Type: schema.TypeString,
-						// TODO why is key not a required param but value is?
+						Type:     schema.TypeString,
 						Required: true,
 					},
 					"value": {
@@ -429,7 +427,6 @@ func getGridLayoutSchema() map[string]*schema.Schema {
 
 func getVariablesSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		// TODO should we remove this field?
 		"id": {
 			Type:     schema.TypeString,
 			Computed: true,
@@ -1218,7 +1215,6 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 		return err
 	}
 
-	// TODO: Set rest of the fields
 	log.Println("=====================================================================")
 	log.Printf("title: %+v\n", d.Get("title"))
 	log.Printf("description: %+v\n", d.Get("description"))
@@ -1240,8 +1236,9 @@ func makeTerraformObject() TerraformObject {
 	return terraformObject
 }
 
-func getTerraformTimeRange(timeRange map[string]interface{}) TerraformObject {
-	tfTimeRange := makeTerraformObject()
+func getTerraformTimeRange(timeRange map[string]interface{}) []map[string]interface{} {
+	tfTimeRange := []map[string]interface{}{}
+	tfTimeRange = append(tfTimeRange, make(map[string]interface{}))
 
 	if timeRange["type"] == "BeginBoundedTimeRange" {
 		boundedTimeRange := makeTerraformObject()
@@ -1267,8 +1264,7 @@ func getTerraformTimeRange(timeRange map[string]interface{}) TerraformObject {
 	return tfTimeRange
 }
 
-func getTerraformTimeRangeBoundary(
-	timeRangeBoundary map[string]interface{}) TerraformObject {
+func getTerraformTimeRangeBoundary(timeRangeBoundary map[string]interface{}) TerraformObject {
 	tfTimeRangeBoundary := makeTerraformObject()
 
 	if timeRangeBoundary["type"] == "RelativeTimeRangeBoundary" {
@@ -1430,8 +1426,9 @@ func getTerraformLinkedDashboards(dashboards []interface{}) []map[string]interfa
 	return tfLinkedDashboards
 }
 
-func getTerraformLayout(layout map[string]interface{}) TerraformObject {
-	tfLayout := makeTerraformObject()
+func getTerraformLayout(layout map[string]interface{}) []map[string]interface{} {
+	tfLayout := []map[string]interface{}{}
+	tfLayout = append(tfLayout, make(map[string]interface{}))
 
 	if layout["layoutType"] == "Grid" {
 		gridLayout := makeTerraformObject()
