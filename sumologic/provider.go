@@ -69,6 +69,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_field":                              resourceSumologicField(),
 			"sumologic_lookup_table":                       resourceSumologicLookupTable(),
 			"sumologic_subdomain":                          resourceSumologicSubdomain(),
+			"sumologic_dashboard":                          resourceSumologicDashboard(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
