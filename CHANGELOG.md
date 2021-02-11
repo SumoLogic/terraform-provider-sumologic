@@ -2,7 +2,8 @@
 
 FEATURES:
 
-* Import Scheduled Vies (GH-152)
+* Import Scheduled Views (GH-152)
+* Partitions now use `continuous` as default value for `analytics_tier` (GH-154)
 
 ## 2.7.0 (Febuary 5, 2021)
 
