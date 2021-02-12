@@ -57,10 +57,12 @@ func (s *Client) UpdateScheduledView(sview ScheduledView) error {
 }
 
 type ScheduledView struct {
-	ID               string    `json:"id,omitempty"`
-	Query            string    `json:"query"`
-	IndexName        string    `json:"indexName"`
-	StartTime        time.Time `json:"startTime"`
-	RetentionPeriod  int       `json:"retentionPeriod"`
-	DataForwardingId string    `json:"dataForwardingId"`
+	ID                               string    `json:"id,omitempty"`
+	Query                            string    `json:"query"`
+	IndexName                        string    `json:"indexName"`
+	StartTime                        time.Time `json:"startTime"`
+	RetentionPeriod                  int       `json:"retentionPeriod"`
+	DataForwardingId                 string    `json:"dataForwardingId"`
+	ParsingMode                      string    `json:"parsingMode"`
+	ReduceRetentionPeriodImmediately bool      `json:"reduceRetentionPeriodImmediately"`
 }
