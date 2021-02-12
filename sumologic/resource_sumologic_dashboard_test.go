@@ -94,7 +94,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.#", "1"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"panel.0.key", textPanel.Key),
+						"panel.0.text_panel.0.key", textPanel.Key),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.0.text_panel.0.text", textPanel.Text),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -213,7 +213,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.#", "1"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"panel.0.key", textPanel.Key),
+						"panel.0.text_panel.0.key", textPanel.Key),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"layout.0.grid.0.layout_structure.#", "1"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -241,9 +241,9 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.#", "2"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"panel.0.key", textPanel.Key),
+						"panel.0.text_panel.0.key", textPanel.Key),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"panel.1.key", searchPanel.Key),
+						"panel.1.sumo_search_panel.0.key", searchPanel.Key),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.1.sumo_search_panel.0.description", searchPanel.Description),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -332,12 +332,12 @@ func dashboardImportConfig(title string) string {
 				}
 			}
 			panel {
-				key = "tf-text-panel-001"
-				title = "What does wsb say?"
-				visual_settings = "{\"general\":{\"type\":\"column\"}}"
-				keep_visual_settings_consistent_with_parent = true
 				text_panel {
-				text = "Buy AMC!"
+					key = "tf-text-panel-001"
+					title = "What does wsb say?"
+					visual_settings = "{\"general\":{\"type\":\"column\"}}"
+					keep_visual_settings_consistent_with_parent = true
+					text = "Buy AMC!"
 				}
 			}
 			layout {
@@ -397,11 +397,11 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 				}
 			}
 			panel {
-				key = "%s"
-				title = "%s"
-				visual_settings = "{\"general\":{\"type\":\"column\"}}"
-				keep_visual_settings_consistent_with_parent = true
 				text_panel {
+					key = "%s"
+					title = "%s"
+					visual_settings = "{\"general\":{\"type\":\"column\"}}"
+					keep_visual_settings_consistent_with_parent = true
 					text = "%s"
 				}
 			}
@@ -458,28 +458,28 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 				}
 			}
 			panel {
-				key = "%s"
-				title = "%s"
-				visual_settings = "{\"general\":{\"type\":\"column\"}}"
-				keep_visual_settings_consistent_with_parent = true
 				text_panel {
+					key = "%s"
+					title = "%s"
+					visual_settings = "{\"general\":{\"type\":\"column\"}}"
+					keep_visual_settings_consistent_with_parent = true
 					text = "%s"
 				}
 			}
 
 			panel {
-				key = "%s"
-				title = "%s"
-				visual_settings = "{\"general\":{\"type\":\"column\"}}"
-				keep_visual_settings_consistent_with_parent = true
 				sumo_search_panel {
-					  description = "%s"
-					 query {
+					key = "%s"
+					title = "%s"
+					visual_settings = "{\"general\":{\"type\":\"column\"}}"
+					keep_visual_settings_consistent_with_parent = true
+					description = "%s"
+					query {
 						query_string = "%s"
 						query_type = "Logs"
 						query_key = "%s"
-					  }
-					  time_range {
+					}
+					time_range {
 						begin_bounded_time_range {
 							from {
 								relative_time_range {
@@ -487,7 +487,7 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 								}
 							}
 						}
-					  }
+					}
 				}
 			}
 
