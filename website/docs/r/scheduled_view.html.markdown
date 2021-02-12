@@ -31,7 +31,7 @@ QUERY
 
 The following arguments are supported:
 
-Note: For attributes that force a new resource, if the value is updated, it will destroy the resource and recreate it which may incur significant costs. We advise customers to set the `lifecycle` attribute `prevent_destroy` to `true` to avoid accidentally destroying and recreating expensive resources.
+~> For attributes that force a new resource, if the value is updated, it will destroy the resource and recreate it which may incur significant costs. We advise customers to set the `lifecycle` attribute `prevent_destroy` to `true` to avoid accidentally destroying and recreating expensive resources.
 
 - `index_name` - (Required, Forces new resource) Name of the index (scheduled view).
 - `query` - (Required, Forces new resource) Log query defining the scheduled view.
