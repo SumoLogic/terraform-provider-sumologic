@@ -32,8 +32,8 @@ func resourceSumologicPartition() *schema.Resource {
 			"analytics_tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"continuous", "frequent", "infrequent", "enhanced", "basic", "cold"}, false),
-				Default:      "enhanced",
+				ValidateFunc: validation.StringInSlice([]string{"continuous", "frequent", "infrequent"}, false),
+				Default:      "continuous",
 			},
 			// Terraform does not support reducing the retention period after creation
 			"retention_period": {
