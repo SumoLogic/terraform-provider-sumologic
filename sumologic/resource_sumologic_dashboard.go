@@ -135,21 +135,6 @@ func resourceSumologicDashboard() *schema.Resource {
 }
 
 func getPanelSchema() map[string]*schema.Schema {
-	panelSchema := getPanelBaseSchema()
-
-	panelSchema["container_panel"] = &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
-		Elem: &schema.Resource{
-			Schema: getContainerPanelSchema(),
-		},
-	}
-
-	return panelSchema
-}
-
-func getPanelBaseSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"id": {
 			Type:     schema.TypeString,
@@ -196,40 +181,6 @@ func getPanelBaseSchema() map[string]*schema.Schema {
 						Optional: true,
 					},
 				},
-			},
-		},
-	}
-}
-
-func getContainerPanelSchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
-		"layout": {
-			Type:     schema.TypeList,
-			Required: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: getLayoutSchema(),
-			},
-		},
-		"panel": {
-			Type:     schema.TypeList,
-			Required: true,
-			Elem: &schema.Resource{
-				Schema: getPanelBaseSchema(),
-			},
-		},
-		"variable": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: getVariablesSchema(),
-			},
-		},
-		"coloring_rule": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: getColoringRulesSchema(),
 			},
 		},
 	}
@@ -736,74 +687,12 @@ func resourceToDashboard(d *schema.ResourceData) Dashboard {
 }
 
 func getPanel(tfPanel map[string]interface{}) interface{} {
-	// container_panel is not part of base panel schema to avoid infinite recursion.
-	if val, ok := tfPanel["container_panel"].([]interface{}); ok && len(val) == 1 {
-		return getContainerPanel(tfPanel)
-	} else if len(tfPanel["text_panel"].([]interface{})) == 1 {
+	if len(tfPanel["text_panel"].([]interface{})) == 1 {
 		return getTextPanel(tfPanel)
 	} else if len(tfPanel["sumo_search_panel"].([]interface{})) == 1 {
 		return getSumoSearchPanel(tfPanel)
 	}
 	return nil
-}
-
-func getContainerPanel(tfPanel map[string]interface{}) interface{} {
-	var containerPanel ContainerPanel
-	containerPanel.PanelType = "ContainerPanel"
-
-	if key, ok := tfPanel["key"].(string); ok {
-		containerPanel.Key = key
-	}
-	if title, ok := tfPanel["title"].(string); ok {
-		containerPanel.Title = title
-	}
-	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
-		containerPanel.VisualSettings = visualSettings
-	}
-	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
-		containerPanel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
-	}
-
-	// container panel specific properties
-	tfContainerPanel := tfPanel["container_panel"].([]interface{})[0].(map[string]interface{})
-	var panels []interface{}
-	if val, ok := tfContainerPanel["panel"]; ok {
-		tfPanels := val.([]interface{})
-		for _, val := range tfPanels {
-			panel := getPanel(val.(map[string]interface{}))
-			panels = append(panels, panel)
-		}
-	}
-	containerPanel.Panels = panels
-
-	var layout interface{}
-	if val, ok := tfContainerPanel["layout"]; ok {
-		tfLayout := val.([]interface{})[0]
-		layout = getLayout(tfLayout.(map[string]interface{}))
-	}
-	containerPanel.Layout = layout
-
-	var variables []Variable
-	if val, ok := tfContainerPanel["variable"]; ok {
-		tfVariables := val.([]interface{})
-		for _, tfVariable := range tfVariables {
-			variable := getVariable(tfVariable.(map[string]interface{}))
-			variables = append(variables, variable)
-		}
-	}
-	containerPanel.Variables = variables
-
-	var coloringRules []ColoringRule
-	if val, ok := tfContainerPanel["coloring_rule"]; ok {
-		tfColoringRules := val.([]interface{})
-		for _, tfColoringRule := range tfColoringRules {
-			coloringRule := getColoringRule(tfColoringRule.(map[string]interface{}))
-			coloringRules = append(coloringRules, coloringRule)
-		}
-	}
-	containerPanel.ColoringRules = coloringRules
-
-	return containerPanel
 }
 
 func getTextPanel(tfPanel map[string]interface{}) interface{} {
