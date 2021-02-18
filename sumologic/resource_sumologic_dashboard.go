@@ -62,6 +62,7 @@ func resourceSumologicDashboard() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			// FIXME: topology_label_map doesn't work. Don't use it!
 			"topology_label_map": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -135,25 +136,31 @@ func resourceSumologicDashboard() *schema.Resource {
 }
 
 func getPanelSchema() map[string]*schema.Schema {
-	panelSchema := getPanelBaseSchema()
-
-	panelSchema["container_panel"] = &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
-		Elem: &schema.Resource{
-			Schema: getContainerPanelSchema(),
+	return map[string]*schema.Schema{
+		"sumo_search_panel": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: getSumoSearchPanelSchema(),
+			},
+		},
+		"text_panel": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: getTextPanelSchema(),
+			},
 		},
 	}
-
-	return panelSchema
 }
 
 func getPanelBaseSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"id": {
 			Type:     schema.TypeString,
-			Optional: true,
+			Computed: true,
 		},
 		"key": {
 			Type:     schema.TypeString,
@@ -172,71 +179,29 @@ func getPanelBaseSchema() map[string]*schema.Schema {
 			Optional: true,
 			Default:  true,
 		},
-		// Need to be set for EventsOfInterestScatterPanel only
-		"panel_type": {
+	}
+}
+
+func getTextPanelSchema() map[string]*schema.Schema {
+	panelSchema := getPanelBaseSchema()
+
+	textPanelSchema := map[string]*schema.Schema{
+		"text": {
 			Type:     schema.TypeString,
 			Optional: true,
 		},
-		"sumo_search_panel": {
-			Type:     schema.TypeList,
-			Optional: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: getSumoSearchPanelSchema(),
-			},
-		},
-		"text_panel": {
-			Type:     schema.TypeList,
-			Optional: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"text": {
-						Type:     schema.TypeString,
-						Optional: true,
-					},
-				},
-			},
-		},
 	}
-}
+	for k, v := range textPanelSchema {
+		panelSchema[k] = v
+	}
 
-func getContainerPanelSchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
-		"layout": {
-			Type:     schema.TypeList,
-			Required: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: getLayoutSchema(),
-			},
-		},
-		"panel": {
-			Type:     schema.TypeList,
-			Required: true,
-			Elem: &schema.Resource{
-				Schema: getPanelBaseSchema(),
-			},
-		},
-		"variable": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: getVariablesSchema(),
-			},
-		},
-		"coloring_rule": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem: &schema.Resource{
-				Schema: getColoringRulesSchema(),
-			},
-		},
-	}
+	return panelSchema
 }
 
 func getSumoSearchPanelSchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
+	panelSchema := getPanelBaseSchema()
+
+	searchPanelSchema := map[string]*schema.Schema{
 		"query": {
 			Type:     schema.TypeList,
 			Optional: true,
@@ -292,6 +257,12 @@ func getSumoSearchPanelSchema() map[string]*schema.Schema {
 			},
 		},
 	}
+
+	for k, v := range searchPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
 }
 
 func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
@@ -736,154 +707,86 @@ func resourceToDashboard(d *schema.ResourceData) Dashboard {
 }
 
 func getPanel(tfPanel map[string]interface{}) interface{} {
-	// container_panel is not part of base panel schema to avoid infinite recursion.
-	if val, ok := tfPanel["container_panel"].([]interface{}); ok && len(val) == 1 {
-		return getContainerPanel(tfPanel)
-	} else if len(tfPanel["text_panel"].([]interface{})) == 1 {
-		return getTextPanel(tfPanel)
-	} else if len(tfPanel["sumo_search_panel"].([]interface{})) == 1 {
-		return getSumoSearchPanel(tfPanel)
+	if val := tfPanel["text_panel"].([]interface{}); len(val) == 1 {
+		if tfTextPanel, ok := val[0].(map[string]interface{}); ok {
+			return getTextPanel(tfTextPanel)
+		}
+	} else if val := tfPanel["sumo_search_panel"].([]interface{}); len(val) == 1 {
+		if tfSearchPanel, ok := val[0].(map[string]interface{}); ok {
+			return getSumoSearchPanel(tfSearchPanel)
+		}
 	}
 	return nil
 }
 
-func getContainerPanel(tfPanel map[string]interface{}) interface{} {
-	var containerPanel ContainerPanel
-	containerPanel.PanelType = "ContainerPanel"
-
-	if key, ok := tfPanel["key"].(string); ok {
-		containerPanel.Key = key
-	}
-	if title, ok := tfPanel["title"].(string); ok {
-		containerPanel.Title = title
-	}
-	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
-		containerPanel.VisualSettings = visualSettings
-	}
-	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
-		containerPanel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
-	}
-
-	// container panel specific properties
-	tfContainerPanel := tfPanel["container_panel"].([]interface{})[0].(map[string]interface{})
-	var panels []interface{}
-	if val, ok := tfContainerPanel["panel"]; ok {
-		tfPanels := val.([]interface{})
-		for _, val := range tfPanels {
-			panel := getPanel(val.(map[string]interface{}))
-			panels = append(panels, panel)
-		}
-	}
-	containerPanel.Panels = panels
-
-	var layout interface{}
-	if val, ok := tfContainerPanel["layout"]; ok {
-		tfLayout := val.([]interface{})[0]
-		layout = getLayout(tfLayout.(map[string]interface{}))
-	}
-	containerPanel.Layout = layout
-
-	var variables []Variable
-	if val, ok := tfContainerPanel["variable"]; ok {
-		tfVariables := val.([]interface{})
-		for _, tfVariable := range tfVariables {
-			variable := getVariable(tfVariable.(map[string]interface{}))
-			variables = append(variables, variable)
-		}
-	}
-	containerPanel.Variables = variables
-
-	var coloringRules []ColoringRule
-	if val, ok := tfContainerPanel["coloring_rule"]; ok {
-		tfColoringRules := val.([]interface{})
-		for _, tfColoringRule := range tfColoringRules {
-			coloringRule := getColoringRule(tfColoringRule.(map[string]interface{}))
-			coloringRules = append(coloringRules, coloringRule)
-		}
-	}
-	containerPanel.ColoringRules = coloringRules
-
-	return containerPanel
-}
-
-func getTextPanel(tfPanel map[string]interface{}) interface{} {
+func getTextPanel(tfTextPanel map[string]interface{}) interface{} {
 	var textPanel TextPanel
 	textPanel.PanelType = "TextPanel"
 
-	if key, ok := tfPanel["key"].(string); ok {
-		textPanel.Key = key
-	}
-	if title, ok := tfPanel["title"].(string); ok {
+	textPanel.Key = tfTextPanel["key"].(string)
+	if title, ok := tfTextPanel["title"].(string); ok {
 		textPanel.Title = title
 	}
-	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
+	if visualSettings, ok := tfTextPanel["visual_settings"].(string); ok {
 		textPanel.VisualSettings = visualSettings
 	}
-	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+	if consistentVisualSettings, ok := tfTextPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
 		textPanel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
 	}
 
 	// text panel specific properties
-	if val, ok := tfPanel["text_panel"].([]interface{}); ok {
-		if tfTextPanel, ok := val[0].(map[string]interface{}); ok {
-			textPanel.Text = tfTextPanel["text"].(string)
-		}
-	}
+	textPanel.Text = tfTextPanel["text"].(string)
 	return textPanel
 }
 
-func getSumoSearchPanel(tfPanel map[string]interface{}) interface{} {
+func getSumoSearchPanel(tfSearchPanel map[string]interface{}) interface{} {
 	var searchPanel SumoSearchPanel
 	searchPanel.PanelType = "SumoSearchPanel"
 
-	if key, ok := tfPanel["key"].(string); ok {
-		searchPanel.Key = key
-	}
-	if title, ok := tfPanel["title"].(string); ok {
+	searchPanel.Key = tfSearchPanel["key"].(string)
+	if title, ok := tfSearchPanel["title"].(string); ok {
 		searchPanel.Title = title
 	}
-	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
+	if visualSettings, ok := tfSearchPanel["visual_settings"].(string); ok {
 		searchPanel.VisualSettings = visualSettings
 	}
-	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+	if consistentVisualSettings, ok := tfSearchPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
 		searchPanel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
 	}
 
 	// search panel specific properties
-	if val, ok := tfPanel["sumo_search_panel"].([]interface{}); ok {
-		tfSearchPanel := val[0].(map[string]interface{})
-		if description, ok := tfSearchPanel["description"].(string); ok {
-			searchPanel.Description = description
-		}
-		if val, ok := tfSearchPanel["time_range"]; ok {
-			tfTimeRange := val.([]interface{})[0]
-			searchPanel.TimeRange = getTimeRange(tfTimeRange.(map[string]interface{}))
-		}
-
-		tfQueries := tfSearchPanel["query"].([]interface{})
-		var queries []SearchPanelQuery
-		for _, tfQuery := range tfQueries {
-			query := getSearchPanelQuery(tfQuery.(map[string]interface{}))
-			queries = append(queries, query)
-		}
-		searchPanel.Queries = queries
-
-		tfColoringRules := tfSearchPanel["coloring_rule"].([]interface{})
-		var rules []ColoringRule
-		for _, tfQuery := range tfColoringRules {
-			rule := getColoringRule(tfQuery.(map[string]interface{}))
-			rules = append(rules, rule)
-		}
-		searchPanel.ColoringRules = rules
-
-		tfLinkedDashboards := tfSearchPanel["linked_dashboard"].([]interface{})
-		var linkedDashboards []LinkedDashboard
-		for _, tfLinkedDashboard := range tfLinkedDashboards {
-			linkedDashboard := getLinkedDashboard(tfLinkedDashboard.(map[string]interface{}))
-			linkedDashboards = append(linkedDashboards, linkedDashboard)
-		}
-		searchPanel.LinkedDashboards = linkedDashboards
+	if description, ok := tfSearchPanel["description"].(string); ok {
+		searchPanel.Description = description
 	}
+	if val, ok := tfSearchPanel["time_range"]; ok {
+		tfTimeRange := val.([]interface{})[0]
+		searchPanel.TimeRange = getTimeRange(tfTimeRange.(map[string]interface{}))
+	}
+
+	tfQueries := tfSearchPanel["query"].([]interface{})
+	var queries []SearchPanelQuery
+	for _, tfQuery := range tfQueries {
+		query := getSearchPanelQuery(tfQuery.(map[string]interface{}))
+		queries = append(queries, query)
+	}
+	searchPanel.Queries = queries
+
+	tfColoringRules := tfSearchPanel["coloring_rule"].([]interface{})
+	var rules []ColoringRule
+	for _, tfQuery := range tfColoringRules {
+		rule := getColoringRule(tfQuery.(map[string]interface{}))
+		rules = append(rules, rule)
+	}
+	searchPanel.ColoringRules = rules
+
+	tfLinkedDashboards := tfSearchPanel["linked_dashboard"].([]interface{})
+	var linkedDashboards []LinkedDashboard
+	for _, tfLinkedDashboard := range tfLinkedDashboards {
+		linkedDashboard := getLinkedDashboard(tfLinkedDashboard.(map[string]interface{}))
+		linkedDashboards = append(linkedDashboards, linkedDashboard)
+	}
+	searchPanel.LinkedDashboards = linkedDashboards
+
 	return searchPanel
 }
 
@@ -1295,21 +1198,8 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 		panel := val.(map[string]interface{})
 
 		tfPanel := map[string]interface{}{}
-		tfPanel["key"] = panel["key"]
-		if title, ok := panel["title"]; ok {
-			tfPanel["title"] = title
-		}
-		if visualSettings, ok := panel["visualSettings"]; ok {
-			tfPanel["visual_settings"] = visualSettings
-		}
-		if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
-			tfPanel["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
-		}
-
 		if panel["panelType"] == "TextPanel" {
-			textPanel := makeTerraformObject()
-			textPanel[0]["text"] = panel["text"]
-			tfPanel["text_panel"] = textPanel
+			tfPanel["text_panel"] = getTerraformTextPanel(panel)
 		} else if panel["panelType"] == "SumoSearchPanel" {
 			tfPanel["sumo_search_panel"] = getTerraformSearchPanel(panel)
 		}
@@ -1319,8 +1209,37 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 	return tfPanels
 }
 
+func getTerraformTextPanel(textPanel map[string]interface{}) TerraformObject {
+	tfTextPanel := makeTerraformObject()
+
+	tfTextPanel[0]["key"] = textPanel["key"]
+	if title, ok := textPanel["title"]; ok {
+		tfTextPanel[0]["title"] = title
+	}
+	if visualSettings, ok := textPanel["visualSettings"]; ok {
+		tfTextPanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := textPanel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfTextPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
+	tfTextPanel[0]["text"] = textPanel["text"]
+
+	return tfTextPanel
+}
+
 func getTerraformSearchPanel(searchPanel map[string]interface{}) TerraformObject {
 	tfSearchPanel := makeTerraformObject()
+
+	tfSearchPanel[0]["key"] = searchPanel["key"]
+	if title, ok := searchPanel["title"]; ok {
+		tfSearchPanel[0]["title"] = title
+	}
+	if visualSettings, ok := searchPanel["visualSettings"]; ok {
+		tfSearchPanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := searchPanel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfSearchPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
 
 	tfSearchPanel[0]["query"] = getTerraformSearchPanelQuery(searchPanel["queries"].([]interface{}))
 	if description, ok := searchPanel["description"]; ok {

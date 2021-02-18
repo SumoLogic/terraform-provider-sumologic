@@ -98,20 +98,6 @@ type LiteralTimeRangeBoundary struct {
 }
 
 // Panel related structs
-type ContainerPanel struct {
-	Id                                     string `json:"id,omitempty"`
-	Key                                    string `json:"key"`
-	Title                                  string `json:"title"`
-	VisualSettings                         string `json:"visualSettings"`
-	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
-	PanelType                              string `json:"panelType"`
-	// Container panel related properties
-	Layout        interface{}    `json:"layout"`
-	Panels        []interface{}  `json:"panels"`
-	Variables     []Variable     `json:"variables"`
-	ColoringRules []ColoringRule `json:"coloringRules"`
-}
-
 type TextPanel struct {
 	Id                                     string `json:"id,omitempty"`
 	Key                                    string `json:"key"`
