@@ -58,7 +58,6 @@ func (s *Client) DecommissionPartition(id string) error {
 
 func (s *Client) UpdatePartition(spartition Partition) error {
 	url := fmt.Sprintf("v1/partitions/%s", spartition.ID)
-
 	_, err := s.Put(url, spartition)
 
 	return err
@@ -67,7 +66,7 @@ func (s *Client) UpdatePartition(spartition Partition) error {
 type Partition struct {
 	ID                               string `json:"id,omitempty"`
 	Name                             string `json:"name"`
-	RoutingExpression                string `json:"routingExpression"`
+	RoutingExpression                string `json:"routingExpression,omitempty"`
 	AnalyticsTier                    string `json:"analyticsTier"`
 	RetentionPeriod                  int    `json:"retentionPeriod"`
 	IsCompliant                      bool   `json:"isCompliant"`
@@ -75,5 +74,5 @@ type Partition struct {
 	IsActive                         bool   `json:"isActive"`
 	TotalBytes                       int    `json:"totalBytes"`
 	IndexType                        string `json:"indexType"`
-	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately"`
+	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately,omitempty"`
 }
