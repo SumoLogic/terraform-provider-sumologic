@@ -26,8 +26,8 @@ func resourceSumologicPartition() *schema.Resource {
 			},
 			"routing_expression": {
 				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(0, 16384),
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 16384),
 			},
 			"analytics_tier": {
 				Type:         schema.TypeString,
@@ -106,7 +106,9 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	d.Set("routing_expression", spartition.RoutingExpression)
+	if spartition.RoutingExpression != "" {
+		d.Set("routing_expression", spartition.RoutingExpression)
+	}
 	d.Set("name", spartition.Name)
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
