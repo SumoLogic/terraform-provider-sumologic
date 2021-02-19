@@ -1,4 +1,10 @@
-## 2.7.2 (Unreleased)
+## 2.8.1 (Unreleased)
+
+## 2.8.0 (February 19, 2021)
+
+FEATURES:
+
+* Dashboard (New) Native Terraform Support (GH-146)
 
 ## 2.7.1 (Febuary 11, 2021)
 
