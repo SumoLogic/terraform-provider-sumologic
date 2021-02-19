@@ -106,9 +106,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	if spartition.RoutingExpression != "" {
-		d.Set("routing_expression", spartition.RoutingExpression)
-	}
+	d.Set("routing_expression", spartition.RoutingExpression)
 	d.Set("name", spartition.Name)
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
