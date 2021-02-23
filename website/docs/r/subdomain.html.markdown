@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic Subdomain
 ---
 
-# sumologic_lookup_table
+# sumologic_subdomain
 Provides a [Sumologic Subdomain][1].
 
 ## Example Usage
