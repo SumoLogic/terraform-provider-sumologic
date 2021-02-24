@@ -14,55 +14,68 @@ func resourceSumologicPasswordPolicy() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"min_length": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  8,
 			},
 			"max_length": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  128,
 			},
 			"must_contain_lowercase": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  true,
 			},
 			"must_contain_uppercase": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  true,
 			},
 			"must_contain_digits": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  true,
 			},
 			"must_contain_special_chars": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  true,
 			},
 			"max_password_age_in_days": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  365,
 			},
 			"min_unique_passwords": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  10,
 			},
 			"account_lockout_threshold": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  6,
 			},
 			"failed_login_reset_duration_in_mins": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  10,
 			},
 			"account_lockout_duration_in_mins": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Default:  30,
 			},
 			"require_mfa": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  false,
 			},
 			"remember_mfa": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Default:  true,
 			},
 		},
 	}

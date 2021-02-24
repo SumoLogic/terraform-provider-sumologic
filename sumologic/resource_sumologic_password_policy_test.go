@@ -99,7 +99,7 @@ func TestAccPasswordPolicy_update(t *testing.T) {
 }
 
 func testAccCheckPasswordPolicyDestroy() resource.TestCheckFunc {
-	// This check will break if we change the default values for password policy
+	// This check will break if we change the default values for password policy in the API
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
 		for _, rs := range s.RootModule().Resources {
