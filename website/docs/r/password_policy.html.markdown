@@ -47,7 +47,4 @@ The following arguments are supported:
 - `require_mfa` - (Optional) If MFA should be required to log in. Defaults to false.
 - `remember_mfa` - (Optional) If MFA should be remembered on the browser. Defaults to true.
 
-The default values for these arguments are described in [Password Policy API][2].
-
 [1]: https://help.sumologic.com/Manage/Security/Set-the-Password-Policy
-[2]: https://api.sumologic.com/docs/#operation/setPasswordPolicy
