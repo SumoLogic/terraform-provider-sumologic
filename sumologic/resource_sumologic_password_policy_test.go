@@ -112,7 +112,7 @@ func testAccCheckPasswordPolicyDestroy() resource.TestCheckFunc {
 				return fmt.Errorf("Encountered an error: " + err.Error())
 			}
 
-			if (*passwordPolicy) != newDefaultPasswordPolicy() {
+			if (*passwordPolicy) != DefaultPasswordPolicy {
 				return fmt.Errorf("Password policy wasn't reset properly")
 			}
 		}
@@ -181,22 +181,4 @@ resource "sumologic_password_policy" "%s" {
 		passwordPolicy.AccountLockoutDurationInMins,
 		passwordPolicy.RequireMfa,
 		passwordPolicy.RememberMfa)
-}
-
-func newDefaultPasswordPolicy() PasswordPolicy {
-	return PasswordPolicy{
-		MinLength:                      8,
-		MaxLength:                      128,
-		MustContainLowercase:           true,
-		MustContainUppercase:           true,
-		MustContainDigits:              true,
-		MustContainSpecialChars:        true,
-		MaxPasswordAgeInDays:           365,
-		MinUniquePasswords:             10,
-		AccountLockoutThreshold:        6,
-		FailedLoginResetDurationInMins: 10,
-		AccountLockoutDurationInMins:   30,
-		RequireMfa:                     false,
-		RememberMfa:                    true,
-	}
 }

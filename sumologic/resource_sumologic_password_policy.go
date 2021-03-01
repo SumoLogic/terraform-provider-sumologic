@@ -4,6 +4,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+var DefaultPasswordPolicy = PasswordPolicy{
+	MinLength:                      8,
+	MaxLength:                      128,
+	MustContainLowercase:           true,
+	MustContainUppercase:           true,
+	MustContainDigits:              true,
+	MustContainSpecialChars:        true,
+	MaxPasswordAgeInDays:           365,
+	MinUniquePasswords:             10,
+	AccountLockoutThreshold:        6,
+	FailedLoginResetDurationInMins: 10,
+	AccountLockoutDurationInMins:   30,
+	RequireMfa:                     false,
+	RememberMfa:                    true,
+}
+
 func resourceSumologicPasswordPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicPasswordPolicyCreate,
@@ -15,67 +31,67 @@ func resourceSumologicPasswordPolicy() *schema.Resource {
 			"min_length": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  8,
+				Default:  DefaultPasswordPolicy.MinLength,
 			},
 			"max_length": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  128,
+				Default:  DefaultPasswordPolicy.MaxLength,
 			},
 			"must_contain_lowercase": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  DefaultPasswordPolicy.MustContainLowercase,
 			},
 			"must_contain_uppercase": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  DefaultPasswordPolicy.MustContainUppercase,
 			},
 			"must_contain_digits": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  DefaultPasswordPolicy.MustContainDigits,
 			},
 			"must_contain_special_chars": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  DefaultPasswordPolicy.MustContainSpecialChars,
 			},
 			"max_password_age_in_days": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  365,
+				Default:  DefaultPasswordPolicy.MaxPasswordAgeInDays,
 			},
 			"min_unique_passwords": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  10,
+				Default:  DefaultPasswordPolicy.MinUniquePasswords,
 			},
 			"account_lockout_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  6,
+				Default:  DefaultPasswordPolicy.AccountLockoutThreshold,
 			},
 			"failed_login_reset_duration_in_mins": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  10,
+				Default:  DefaultPasswordPolicy.FailedLoginResetDurationInMins,
 			},
 			"account_lockout_duration_in_mins": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  30,
+				Default:  DefaultPasswordPolicy.AccountLockoutDurationInMins,
 			},
 			"require_mfa": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  DefaultPasswordPolicy.RequireMfa,
 			},
 			"remember_mfa": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  DefaultPasswordPolicy.RememberMfa,
 			},
 		},
 	}
@@ -106,7 +122,7 @@ func resourceSumologicPasswordPolicyCreate(d *schema.ResourceData, meta interfac
 
 func resourceSumologicPasswordPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	return c.DeletePasswordPolicy()
+	return c.ResetPasswordPolicy()
 }
 
 func resourceSumologicPasswordPolicyUpdate(d *schema.ResourceData, meta interface{}) error {

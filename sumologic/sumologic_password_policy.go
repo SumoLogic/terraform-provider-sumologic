@@ -21,7 +21,7 @@ func (s *Client) GetPasswordPolicy() (*PasswordPolicy, error) {
 	return &passwordPolicy, nil
 }
 
-func (s *Client) DeletePasswordPolicy() error {
+func (s *Client) ResetPasswordPolicy() error {
 	url := "v1/passwordPolicy"
 
 	// Since password policy cannot be deleted, we just reset it back to the default by passing an empty request body.
