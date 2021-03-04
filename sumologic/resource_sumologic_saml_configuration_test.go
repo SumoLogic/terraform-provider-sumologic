@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-var dummyCertificate = `
+var testCertificate = `
 -----BEGIN CERTIFICATE-----
 MIIDYDCCAkgCCQDR6L3N+0qMNjANBgkqhkiG9w0BAQUFADByMQswCQYDVQQGEwJ1
 czELMAkGA1UECAwCY2ExDTALBgNVBAoMBHRlc3QxDTALBgNVBAsMBHRlc3QxDTAL
@@ -40,7 +40,7 @@ func TestAccSumologicSamlConfiguration_basic(t *testing.T) {
 		Issuer:                  "test",
 		SpInitiatedLoginEnabled: false,
 		AuthnRequestUrl:         "",
-		X509cert1:               dummyCertificate,
+		X509cert1:               testCertificate,
 		X509cert2:               "",
 		X509cert3:               "",
 		OnDemandProvisioningEnabled: &OnDemandProvisioningEnabled{
@@ -82,7 +82,7 @@ func TestAccSumologicSamlConfiguration_create(t *testing.T) {
 		Issuer:                  "tf_test",
 		SpInitiatedLoginEnabled: false,
 		AuthnRequestUrl:         "https://myurl.com",
-		X509cert1:               dummyCertificate,
+		X509cert1:               testCertificate,
 		X509cert2:               "",
 		X509cert3:               "",
 		OnDemandProvisioningEnabled: &OnDemandProvisioningEnabled{
@@ -123,7 +123,7 @@ func TestAccSumologicSamlConfiguration_update(t *testing.T) {
 		Issuer:                  "tf_test2",
 		SpInitiatedLoginEnabled: false,
 		AuthnRequestUrl:         "https://myurl.com",
-		X509cert1:               dummyCertificate,
+		X509cert1:               testCertificate,
 		X509cert2:               "",
 		X509cert3:               "",
 		OnDemandProvisioningEnabled: &OnDemandProvisioningEnabled{
@@ -148,7 +148,7 @@ resource "sumologic_saml_configuration" "update_test" {
   x509cert1 = <<EOT
 %s
 EOT
-}`, dummyCertificate)
+}`, testCertificate)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
