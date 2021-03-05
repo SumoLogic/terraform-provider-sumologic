@@ -290,7 +290,7 @@ In addition to all arguments above, the following attributes are exported:
 - `id` - The ID of the dashboard.
 
 ### Schema for `topology_label_map`
-- `data` - (Block List, Required) A block containing label and it's values.
+- `data` - (Block List, Required) A list of blocks containing label and it's values.
 	- `label` - (Required) The name of the topology label.
 	- `values` - (Required) The values for the topology label.
 
