@@ -71,6 +71,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_subdomain":                          resourceSumologicSubdomain(),
 			"sumologic_dashboard":                          resourceSumologicDashboard(),
 			"sumologic_password_policy":                    resourceSumologicPasswordPolicy(),
+			"sumologic_saml_configuration":                 resourceSumologicSamlConfiguration(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),

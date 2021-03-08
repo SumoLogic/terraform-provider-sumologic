@@ -263,11 +263,11 @@ The following arguments are supported:
 personal folder.
 - `refresh_interval` - (Optional) Interval of time (in seconds) to automatically refresh the dashboard.
 - `theme` - (Optional) Theme of the dashboard.
-- `time_range` - (Block List, Max: 1, Required) Time range of the dashboard. See [time range schema](schema-for-time_range)
+- `time_range` - (Block List, Max: 1, Required) Time range of the dashboard. See [time range schema](#schema-for-time_range)
 for details.
-- `panel` - (Block List, Optional) A list of panels in the dashboard. See [panel schema](schema-for-panel) for details.
-- `layout` - (Block List, Max: 1, Optional) Layout of the dashboard. See [layout schema](schema-for-layout) for details.
-- `variable` - (Block List, Optional) A list of variables for the dashboard. See [variable schema](schema-for-variable)
+- `panel` - (Block List, Optional) A list of panels in the dashboard. See [panel schema](#schema-for-panel) for details.
+- `layout` - (Block List, Max: 1, Optional) Layout of the dashboard. See [layout schema](#schema-for-layout) for details.
+- `variable` - (Block List, Optional) A list of variables for the dashboard. See [variable schema](#schema-for-variable)
 for details.
 
 ## Attributes reference
@@ -277,9 +277,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ### Schema for `time_range`
 - `complete_literal_time_range` - (Block List, Max: 1, Optional) Literal time range. See
-[complete_literal_time_range schema](schema-for-complete_literal_time_range) for details.
+[complete_literal_time_range schema](#schema-for-complete_literal_time_range) for details.
 - `begin_bounded_time_range` - (Block List, Max: 1, Optional) Bounded time range. See
-[begin_bounded_time_range schema](schema-for-begin_bounded_time_range) schema for details.
+[begin_bounded_time_range schema](#schema-for-begin_bounded_time_range) schema for details.
 schema for details.
 
 ### Schema for `complete_literal_time_range`
@@ -287,9 +287,9 @@ schema for details.
 
 ### Schema for `begin_bounded_time_range`
 - `from` - (Block List, Max: 1, Required) Start boundary of bounded time range. See
-[time_range_boundary schema](schema-for-time_range_boundary) for details.
+[time_range_boundary schema](#schema-for-time_range_boundary) for details.
 - `to` - (Block List, Max: 1, Optional) End boundary of bounded time range. See
-[time_range_boundary schema](schema-for-time_range_boundary) for details.
+[time_range_boundary schema](#schema-for-time_range_boundary) for details.
 
 ### Schema for `time_range_boundary`
 - `epoch_time_range` - (Block List, Optional) Time since the epoch.
@@ -311,8 +311,8 @@ schema for details.
     - `range_name` - (Required) One of `now`, `second`, `minute`, `hour`, `day`, `today`, `week`, `month`, `year`.
 
 ### Schema for `panel`
-- `text_panel` - (Block List, Max: 1, Optional) A text panel. See [text_panel schema](schema-for-text_panel) for details.
-- `sumo_search_panel` - (Block List, Max: 1, Optional) A search panel. See [sumo_search_panel schema](schema-for-sumo_search_panel)
+- `text_panel` - (Block List, Max: 1, Optional) A text panel. See [text_panel schema](#schema-for-text_panel) for details.
+- `sumo_search_panel` - (Block List, Max: 1, Optional) A search panel. See [sumo_search_panel schema](#schema-for-sumo_search_panel)
 for details.
 
 ### Schema for `text_panel`
@@ -332,14 +332,14 @@ of the panel in the dashboard.
 - `keep_visual_settings_consistent_with_parent` - (Optional) Keeps the visual settings, like series colors, consistent
 with the settings of the parent panel.
 - `query` - (Block List, Required) A list of queries for the panel. Can be log or metric query. See
-[query schema](schema-for-query) for details.
+[query schema](#schema-for-query) for details.
 - `description` - (Optional) Description of the panel.
-- `time_range` - (Block List, Max: 1, Optional) Time range of the panel. See [time_range schema](schema-for-time_range)
+- `time_range` - (Block List, Max: 1, Optional) Time range of the panel. See [time_range schema](#schema-for-time_range)
 for details.
-- `coloring_rule` - (Block List, Optional) Coloring rules for the panel. See [coloring_rule schema](schema-for-coloring_rule)
+- `coloring_rule` - (Block List, Optional) Coloring rules for the panel. See [coloring_rule schema](#schema-for-coloring_rule)
 for details.
 - `linked_dashboard` - (Block List, Optional) A list of linked dashboards. See
-[linked_dashboard schema](schema-for-linked_dashboard) for details.
+[linked_dashboard schema](#schema-for-linked_dashboard) for details.
 
 ### Schema for `query`
 - `query_string` - (Required) The metrics or logs query.
@@ -348,7 +348,7 @@ for details.
 - `metric_query_mode` - (Optional) _Should only be specified for metric query_. The mode of the metric query.
 One of `Basic` or `Advanced`.
 - `metric_query_data` - (Optional) _Should only be specified for metric query_. Data format for the metric query. See
-[metric_query_data schema](schema-for-metric_query_data) for details.
+[metric_query_data schema](#schema-for-metric_query_data) for details.
 
 ### Schema for `metric_query_data`
 - `metric` - (Required) The metric of the query.
@@ -395,7 +395,7 @@ into one single value.
 - `display_name` - (Optional) Display name of the variable shown in the UI. If this field is empty, the name field will be used.
 - `default_value` - (Optional) Default value of the variable.
 - `source_definition` - (Required) Source definition for variable values. See
-[source_definition schema](schema-for-source_definition) for details.
+[source_definition schema](#schema-for-source_definition) for details.
 - `allow_multi_select` - (Optional) Allow multiple selections in the values dropdown.
 - `include_all_option` - (Optional) Include an "All" option at the top of the variable's values dropdown. _Defaults to true._
 - `hide_from_ui` - (Optional) Hide the variable in the dashboard UI.
