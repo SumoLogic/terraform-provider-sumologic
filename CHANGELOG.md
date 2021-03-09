@@ -145,22 +145,22 @@ ENHANCEMENTS:
 ## 2.1.1 (July 17, 2020)
 
 DOCS:
-* Add docs for common source properties ([#50](https://github.com/terraform-providers/terraform-provider-sumologic/pull/50))
+* Add docs for common source properties ([#50](https://github.com/SumoLogic/terraform-provider-sumologic/pull/50))
 
 BUG FIXES:
-* Fix bug for detecting polling source path type changes on polling source ([#44](https://github.com/terraform-providers/terraform-provider-sumologic/pull/44))
+* Fix bug for detecting polling source path type changes on polling source ([#44](https://github.com/SumoLogic/terraform-provider-sumologic/pull/44))
 
 ## 2.1.0 (June 22, 2020)
 
 ENHANCEMENTS:
-* Add support for cloud watch metrics in the sumologic polling source ([#24](https://github.com/terraform-providers/terraform-provider-sumologic/pull/24))
+* Add support for cloud watch metrics in the sumologic polling source ([#24](https://github.com/SumoLogic/terraform-provider-sumologic/pull/24))
 
 DOCS:
 * Fixed usage example for sumologic_content resource.
 
 DEPRECATIONS:
-* resource/sumologic_collector: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/terraform-providers/terraform-provider-sumologic/pull/32))
-* resource/sumologic_sources: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/terraform-providers/terraform-provider-sumologic/pull/32))
+* resource/sumologic_collector: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/SumoLogic/terraform-provider-sumologic/pull/32))
+* resource/sumologic_sources: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/SumoLogic/terraform-provider-sumologic/pull/32))
 
 
 ## 2.0.3 (June 02, 2020)
