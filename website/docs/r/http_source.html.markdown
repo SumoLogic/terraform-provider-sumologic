@@ -37,7 +37,7 @@ In addition to the common properties, the following arguments are supported:
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
 
 ### See also
-  * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+  * [Common Source Properties](https://github.com/SumoLogic/terraform-provider-sumologic/tree/master/website#common-source-properties)
 
 ## Attributes Reference
 The following attributes are exported:

@@ -59,7 +59,7 @@ In addition to the common properties, the following arguments are supported:
      + `path_expression` - (Required) The path to the data. This is needed if using type `S3BucketPathExpression`.
 
 ### See also
-  * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+  * [Common Source Properties](https://github.com/SumoLogic/terraform-provider-sumologic/tree/master/website#common-source-properties)
 
 ## Attributes Reference
 The following attributes are exported:
