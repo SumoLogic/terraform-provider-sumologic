@@ -29,6 +29,17 @@ resource "sumologic_dashboard" "api-dashboard" {
         }
 	}
 
+	topology_label_map {
+		data {
+			label = "cluster"
+			values = ["api-prod"]
+		}
+		data {
+			label = "namespace"
+			values = ["default"]
+		}
+	}
+
 	## text panel
 	panel {
 		text_panel {
@@ -263,6 +274,9 @@ The following arguments are supported:
 personal folder.
 - `refresh_interval` - (Optional) Interval of time (in seconds) to automatically refresh the dashboard.
 - `theme` - (Optional) Theme of the dashboard.
+- `topology_label_map` - (Block List, Max: 1, Optional) Topology labels for the dashboard. See
+[topology label map schema](#schema-for-topology_label_map)
+for details.
 - `time_range` - (Block List, Max: 1, Required) Time range of the dashboard. See [time range schema](#schema-for-time_range)
 for details.
 - `panel` - (Block List, Optional) A list of panels in the dashboard. See [panel schema](#schema-for-panel) for details.
@@ -274,6 +288,12 @@ for details.
 In addition to all arguments above, the following attributes are exported:
 
 - `id` - The ID of the dashboard.
+
+### Schema for `topology_label_map`
+- `data` - (Block List, Required) A list of blocks containing label and it's values.
+	- `label` - (Required) The name of the topology label.
+	- `values` - (Required) The values for the topology label.
+
 
 ### Schema for `time_range`
 - `complete_literal_time_range` - (Block List, Max: 1, Optional) Literal time range. See

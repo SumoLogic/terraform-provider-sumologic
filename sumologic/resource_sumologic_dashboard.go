@@ -62,7 +62,6 @@ func resourceSumologicDashboard() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			// FIXME: topology_label_map doesn't work. Don't use it!
 			"topology_label_map": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -70,12 +69,22 @@ func resourceSumologicDashboard() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeList,
-								Elem: &schema.Schema{
-									Type: schema.TypeString,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"label": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Required: true,
+										MinItems: 1,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
@@ -939,11 +948,17 @@ func getTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 }
 
 func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
-	// data is a map from string to list of strings
-	if val, ok := tfTopologyLabel["data"].(map[string]interface{}); ok {
+	if items := tfTopologyLabel["data"].([]interface{}); len(items) == 1 {
 		labelMap := make(map[string][]string)
-		for k, v := range val {
-			labelMap[k] = v.([]string)
+		for _, item := range items {
+			dataItem := item.(map[string]interface{})
+			key := dataItem["label"].(string)
+			itemValues := dataItem["values"].([]interface{})
+			values := make([]string, len(itemValues))
+			for i := range itemValues {
+				values[i] = itemValues[i].(string)
+			}
+			labelMap[key] = values
 		}
 		return &TopologyLabel{
 			Data: labelMap,
@@ -1093,6 +1108,11 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 		return err
 	}
 
+	topologyLabel := getTerraformTopologyLabel(dashboard.TopologyLabelMap)
+	if err := d.Set("topology_label_map", topologyLabel); err != nil {
+		return err
+	}
+
 	timeRange := getTerraformTimeRange(dashboard.TimeRange.(map[string]interface{}))
 	if err := d.Set("time_range", timeRange); err != nil {
 		return err
@@ -1122,6 +1142,7 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 	log.Printf("title: %+v\n", d.Get("title"))
 	log.Printf("description: %+v\n", d.Get("description"))
 	log.Printf("folder_id: %+v\n", d.Get("folder_id"))
+	log.Printf("topology_label_map: %+v\n", d.Get("topology_label_map"))
 	log.Printf("time_range: %+v\n", d.Get("time_range"))
 	log.Printf("panel: %+v\n", d.Get("panel"))
 	log.Printf("layout: %+v\n", d.Get("layout"))
@@ -1137,6 +1158,27 @@ func makeTerraformObject() TerraformObject {
 	terraformObject := [1]map[string]interface{}{}
 	terraformObject[0] = make(map[string]interface{})
 	return terraformObject
+}
+
+func getTerraformTopologyLabel(topologyLabel *TopologyLabel) []map[string]interface{} {
+	// API returns an empty data map if we don't set topologyLabelMap.
+	if len(topologyLabel.Data) == 0 {
+		return nil
+	}
+
+	tfTopologyLabel := make([]map[string]interface{}, 0)
+	tfTopologyLabel = append(tfTopologyLabel, make(map[string]interface{}))
+
+	data := topologyLabel.Data
+	tfDataItems := make([]map[string]interface{}, 0)
+	for label, values := range data {
+		tfDataItem := make(map[string]interface{})
+		tfDataItem["label"] = label
+		tfDataItem["values"] = values
+		tfDataItems = append(tfDataItems, tfDataItem)
+	}
+	tfTopologyLabel[0]["data"] = tfDataItems
+	return tfTopologyLabel
 }
 
 func getTerraformTimeRange(timeRange map[string]interface{}) []map[string]interface{} {
