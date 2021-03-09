@@ -1,4 +1,9 @@
-## 2.8.1 (Unreleased)
+## 2.9.0 (March 9, 2021)
+
+FEATURES:
+
+* Password Policy Resource (GH-161)
+* SAML Resource (GH-163)
 
 ## 2.8.0 (February 19, 2021)
 
