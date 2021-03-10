@@ -65,7 +65,7 @@ func TestAccSumologicCloudToCloudSource_update(t *testing.T) {
 func testAccWaitCloudToCloudSource() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//lintignore:R018
-		time.Sleep(90 * time.Second)
+		time.Sleep(120 * time.Second)
 		return nil
 	}
 }
