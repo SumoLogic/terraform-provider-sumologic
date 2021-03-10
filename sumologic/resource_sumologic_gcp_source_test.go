@@ -177,6 +177,13 @@ resource "sumologic_gcp_source" "gcp" {
 	message_per_request = false
 	category = "%s"
 	collector_id = "${sumologic_collector.test.id}"
+	authentication {
+	  type = "NoAuthentication"
+	}
+	
+	path {
+	  type = "NoPathExpression"
+	}
 }
 
 `, cName, cDescription, cCategory, sName, sDescription, sCategory)
