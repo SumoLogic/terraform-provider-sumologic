@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_http_source
-Provides a [Sumologic HTTP source][1].
+Provides a [Sumologic HTTP source][1] or [Sumologic HTTP Traces source][2]. To start using Traces contact your Sumo account representative to activate.
 
 __IMPORTANT:__ The endpoint is stored in plain-text in the state. This is a potential security issue.
 
@@ -24,6 +24,14 @@ resource "sumologic_http_source" "http_source" {
   }
 }
 
+resource "sumologic_http_source" "http_traces_source" {
+  name                = "HTTP Traces"
+  description         = "My description"
+  category            = "my/source/category"
+  collector_id        = "${sumologic_collector.collector.id}"
+  content_type        = "Zipkin"
+}
+
 resource "sumologic_collector" "collector" {
   name        = "my-collector"
   description = "Just testing this"
@@ -35,6 +43,7 @@ resource "sumologic_collector" "collector" {
 In addition to the common properties, the following arguments are supported:
 
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
+- `content_type`        - (Optional) When configuring a HTTP Traces Source, set this property to `Zipkin`. This should only be used when creating a Traces source.
 
 ### See also
   * [Common Source Properties](https://github.com/SumoLogic/terraform-provider-sumologic/tree/master/website#common-source-properties)
@@ -59,3 +68,4 @@ terraform import sumologic_http_source.test my-test-collector/my-test-source
 ```
 
 [1]: https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/HTTP_Source
+[2]: https://help.sumologic.com/Traces/HTTP_Traces_Source
