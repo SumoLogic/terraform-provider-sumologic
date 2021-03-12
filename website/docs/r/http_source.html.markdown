@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_http_source
-Provides a [Sumologic HTTP source][1] or [Sumologic HTTP Traces source][2].
+Provides a [Sumologic HTTP source][1] or [Sumologic HTTP Traces source][2]. To start using Traces contact your Sumo account representative to activate.
 
 __IMPORTANT:__ The endpoint is stored in plain-text in the state. This is a potential security issue.
 
@@ -24,7 +24,7 @@ resource "sumologic_http_source" "http_source" {
   }
 }
 
-resource "sumologic_http_traces_source" "http_traces_source" {
+resource "sumologic_http_source" "http_traces_source" {
   name                = "HTTP Traces"
   description         = "My description"
   category            = "my/source/category"
