@@ -6,7 +6,7 @@ import (
 )
 
 var version string // provider version is passed as compile time argument
-var defaultVersion = "unknown"
+var defaultVersion = "dev"
 
 func main() {
 	if version == "" {
