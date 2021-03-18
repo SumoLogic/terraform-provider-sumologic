@@ -24,6 +24,8 @@ type Client struct {
 	httpClient  HttpClient
 }
 
+var ProviderVersion string
+
 var endpoints = map[string]string{
 	"us1": "https://api.sumologic.com/api/",
 	"us2": "https://api.us2.sumologic.com/api/",
@@ -44,7 +46,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/2.3.4")
+	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/"+ProviderVersion)
 	req.SetBasicAuth(accessID, accessKey)
 	return req, nil
 }
