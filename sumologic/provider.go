@@ -14,6 +14,7 @@ import (
 )
 
 func Provider() terraform.ResourceProvider {
+	log.Printf("Sumo Logic Terraform Provider Version=%s\n", ProviderVersion)
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_id": {
