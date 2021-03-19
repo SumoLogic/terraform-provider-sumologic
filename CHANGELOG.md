@@ -1,4 +1,14 @@
-## 2.9.1 (Unreleased)
+## 2.9.2 (Unreleased)
+
+## 2.9.1 (March 19, 2021)
+
+BUG FIXES:
+
+* Role Data Source now supports names with spaces (GH-172)
+
+ENHANCEMENTS:
+
+* Trace Source Docs (GH-170)
 
 ## 2.9.0 (March 9, 2021)
 
