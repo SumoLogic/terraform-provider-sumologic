@@ -8,6 +8,9 @@ description: |-
 # sumologic_cloud_to_cloud_source
 Provides a [Sumologic Cloud-to-Cloud source][1].
 
+## Supported Integrations
+List of available integrations along with their corresponding `JSON` templates is present [here][2] 
+
 __IMPORTANT:__ The API credentials are stored in plain-text in the state. This is a potential security issue.
 
 ## Example Usage
@@ -61,3 +64,4 @@ terraform import sumologic_cloud_to_cloud_source.test my-test-collector/my-test-
 ```
 
 [1]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Cloud-to-Cloud_Integration_Framework
+[2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Cloud-to-Cloud_Integration_Framework#Integrations
