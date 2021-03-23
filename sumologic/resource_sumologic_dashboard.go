@@ -767,8 +767,8 @@ func getSumoSearchPanel(tfSearchPanel map[string]interface{}) interface{} {
 	if description, ok := tfSearchPanel["description"].(string); ok {
 		searchPanel.Description = description
 	}
-	if val, ok := tfSearchPanel["time_range"]; ok {
-		tfTimeRange := val.([]interface{})[0]
+	if val := tfSearchPanel["time_range"].([]interface{}); len(val) == 1 {
+		tfTimeRange := val[0]
 		searchPanel.TimeRange = getTimeRange(tfTimeRange.(map[string]interface{}))
 	}
 
