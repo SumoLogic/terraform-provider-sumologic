@@ -49,7 +49,7 @@ func (s *Client) DeleteCollector(id int) error {
 	return err
 }
 
-func (s *Client) CreateCollector(collector Collector) (int, error) {
+func (s *Client) CreateCollector(collector Collector) (int64, error) {
 
 	request := CollectorRequest{
 		Collector: collector,
@@ -101,7 +101,7 @@ type CollectorLink struct {
 }
 
 type Collector struct {
-	ID               int                    `json:"id,omitempty"`
+	ID               int64                  `json:"id,omitempty"`
 	CollectorType    string                 `json:"collectorType,omitempty"`
 	Name             string                 `json:"name"`
 	Description      string                 `json:"description,omitempty"`
@@ -110,6 +110,6 @@ type Collector struct {
 	Fields           map[string]interface{} `json:"fields,omitempty"`
 	Links            []CollectorLink        `json:"links,omitempty"`
 	CollectorVersion string                 `json:"collectorVersion,omitempty"`
-	LastSeenAlive    int                    `json:"lastSeenAlive,omitempty"`
+	LastSeenAlive    int64                  `json:"lastSeenAlive,omitempty"`
 	Alive            bool                   `json:"alive,omitempty"`
 }

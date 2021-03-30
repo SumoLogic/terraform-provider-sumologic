@@ -64,7 +64,7 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 		} else if collector == nil {
 			log.Printf("[WARN] Got a nil Collector when looking by name: %s", d.Id())
 		} else {
-			d.SetId(strconv.Itoa(collector.ID))
+			d.SetId(strconv.FormatInt(collector.ID, 10))
 		}
 	} else {
 		collector, err = c.GetCollector(id)
@@ -111,28 +111,31 @@ func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		d.SetId(strconv.Itoa(id))
+		d.SetId(strconv.FormatInt(id, 10))
 	}
 
 	return resourceSumologicCollectorUpdate(d, meta)
 }
 
 func resourceSumologicCollectorUpdate(d *schema.ResourceData, meta interface{}) error {
-
-	collector := resourceToCollector(d)
+	collector, err := resourceToCollector(d)
+	if err != nil {
+		return err
+	}
 
 	c := meta.(*Client)
-	err := c.UpdateCollector(collector)
-
-	if err != nil {
+	if err = c.UpdateCollector(collector); err != nil {
 		return err
 	}
 
 	return resourceSumologicCollectorRead(d, meta)
 }
 
-func resourceToCollector(d *schema.ResourceData) Collector {
-	id, _ := strconv.Atoi(d.Id())
+func resourceToCollector(d *schema.ResourceData) (Collector, error) {
+	id, err := strconv.ParseInt(d.Id(), 10, 64)
+	if err != nil {
+		return Collector{}, err
+	}
 
 	return Collector{
 		ID:            id,
@@ -142,5 +145,5 @@ func resourceToCollector(d *schema.ResourceData) Collector {
 		Category:      d.Get("category").(string),
 		TimeZone:      d.Get("timezone").(string),
 		Fields:        d.Get("fields").(map[string]interface{}),
-	}
+	}, nil
 }
