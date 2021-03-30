@@ -46,7 +46,7 @@ func TestAccSumologicRole_basic(t *testing.T) {
 	})
 }
 
-func TestAccRole_create(t *testing.T) {
+func TestAccSumologicRole_create(t *testing.T) {
 	var role Role
 	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
@@ -113,7 +113,7 @@ func testAccCheckRoleExists(name string, role *Role, t *testing.T) resource.Test
 	}
 }
 
-func TestAccRole_update(t *testing.T) {
+func TestAccSumologicRole_update(t *testing.T) {
 	var role Role
 	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]

@@ -48,7 +48,7 @@ func TestAccSumologicLookupTable_basic(t *testing.T) {
 	})
 }
 
-func TestAccLookupTable_create(t *testing.T) {
+func TestAccSumologicLookupTable_create(t *testing.T) {
 	var lookupTable LookupTable
 	testName := "SampleLookupTable"
 	testFieldName := "FieldName1"
@@ -81,7 +81,7 @@ func TestAccLookupTable_create(t *testing.T) {
 	})
 }
 
-func TestAccLookupTable_update(t *testing.T) {
+func TestAccSumologicLookupTable_update(t *testing.T) {
 	var lookupTable LookupTable
 	testName := "SampleLookupTable"
 	testFieldName := "FieldName1"

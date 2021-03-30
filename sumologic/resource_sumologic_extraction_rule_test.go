@@ -45,7 +45,7 @@ func TestAccSumologicFieldExtractionRule_basic(t *testing.T) {
 	})
 }
 
-func TestAccFieldExtractionRule_create(t *testing.T) {
+func TestAccSumologicFieldExtractionRule_create(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
 	testName := FieldsMap["FieldExtractionRule"]["name"]
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
@@ -112,7 +112,7 @@ func testAccCheckFieldExtractionRuleExists(name string, fieldextractionrule *Fie
 	}
 }
 
-func TestAccFieldExtractionRule_update(t *testing.T) {
+func TestAccSumologicFieldExtractionRule_update(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
 	testName := FieldsMap["FieldExtractionRule"]["name"]
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
