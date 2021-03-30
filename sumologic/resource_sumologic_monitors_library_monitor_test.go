@@ -33,7 +33,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 		},
 	})
 }
-func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
@@ -118,7 +118,7 @@ func TestAccMonitorsLibraryMonitor_create(t *testing.T) {
 	})
 }
 
-func TestAccMonitorsLibraryMonitor_update(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
