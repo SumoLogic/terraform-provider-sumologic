@@ -48,7 +48,7 @@ func TestAccSumologicIngestBudgetV2_basic(t *testing.T) {
 		},
 	})
 }
-func TestAccIngestBudgetV2_create(t *testing.T) {
+func TestAccSumologicIngestBudgetV2_create(t *testing.T) {
 	var ingestBudgetV2 IngestBudgetV2
 	testName := "Developer Budget"
 	testScope := "_sourceCategory=*prod*nginx*"
@@ -82,7 +82,7 @@ func TestAccIngestBudgetV2_create(t *testing.T) {
 	})
 }
 
-func TestAccIngestBudgetV2_update(t *testing.T) {
+func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 	var ingestBudgetV2 IngestBudgetV2
 	testName := "Developer Budget"
 	testScope := "_sourceCategory=*prod*nginx*"

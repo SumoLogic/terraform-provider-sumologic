@@ -32,7 +32,7 @@ func TestAccSumologicField_basic(t *testing.T) {
 	})
 }
 
-func TestAccField_create(t *testing.T) {
+func TestAccSumologicField_create(t *testing.T) {
 	var field Field
 	testFieldName := "fields_provider_test"
 	testDataType := "String"
