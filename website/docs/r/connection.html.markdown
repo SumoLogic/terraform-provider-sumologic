@@ -26,9 +26,9 @@ resource "sumologic_connection" "connection" {
   default_payload = <<JSON
 {
   "client" : "Sumo Logic",
-  "eventType" : "{{SearchName}}",
-  "description" : "{{SearchDescription}}",
-  "search_url" : "{{SearchQueryUrl}}",
+  "eventType" : "{{Name}}",
+  "description" : "{{Description}}",
+  "search_url" : "{{QueryUrl}}",
   "num_records" : "{{NumRawResults}}",
   "search_results" : "{{AggregateResultsJson}}"
 }
