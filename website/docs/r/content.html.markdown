@@ -42,7 +42,7 @@ resource "sumologic_content" "test" {
             "notification": {
                 "taskType": "EmailSearchNotificationSyncDefinition",
                 "toList": ["ops@acme.org"],
-                "subjectTemplate": "Search Results: {{SearchName}}",
+                "subjectTemplate": "Search Results: {{Name}}",
                 "includeQuery": true,
                 "includeResultSet": true,
                 "includeHistogram": false,
