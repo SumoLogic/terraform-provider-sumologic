@@ -19,22 +19,18 @@ func resourceSumologicInstalledCollector() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"category": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Default:  "Etc/UTC",
 			},
 			"fields": {
@@ -43,7 +39,6 @@ func resourceSumologicInstalledCollector() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
-				ForceNew: false,
 			},
 		},
 	}
