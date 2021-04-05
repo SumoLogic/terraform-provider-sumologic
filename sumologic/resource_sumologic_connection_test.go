@@ -15,7 +15,7 @@ func TestAccConnection_create(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
 	description := acctest.RandomWithPrefix("tf-connection-test-description")
 	url := "https://example.com"
-	defaultPayload := "{\"eventType\" : \"{{SearchName}}\"}"
+	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
 	webhookType := "Webhook"
 
 	var connection Connection
@@ -47,7 +47,7 @@ func TestAccConnection_update(t *testing.T) {
 	connectionType := "WebhookConnection"
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
 	url := "https://example.com"
-	defaultPayload := `{"eventType" : "{{SearchName}}"}`
+	defaultPayload := `{"eventType" : "{{Name}}"}`
 	webhookType := "Webhook"
 	fDescription := acctest.RandomWithPrefix("tf-connection-test-description")
 	sDescription := acctest.RandomWithPrefix("tf-connection-test-description")
