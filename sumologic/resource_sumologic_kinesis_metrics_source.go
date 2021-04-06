@@ -161,14 +161,9 @@ func resourceSumologicKinesisMetricsSourceRead(d *schema.ResourceData, meta inte
 	}
 
 	kinesisMetricsResources := source.ThirdPartyRef.Resources
-	auth := getKinesisMetricsThirdPartyAuth(kinesisMetricsResources)
 	path := getKinesisMetricsThirdPartyPathAttributes(kinesisMetricsResources)
 
 	if err := d.Set("path", path); err != nil {
-		return err
-	}
-
-	if err := d.Set("authentication", auth); err != nil {
 		return err
 	}
 
@@ -239,24 +234,4 @@ func getKinesisMetricsThirdPartyPathAttributes(pollingResource []PollingResource
 		s = append(s, mapping)
 	}
 	return s
-}
-
-func getKinesisMetricsThirdPartyAuth(pollingResource []PollingResource) []map[string]interface{} {
-	auth := make(map[string]interface{})
-	pr := pollingResource[0]
-	auth["type"] = pr.Authentication.Type
-
-	if pr.Authentication.AwsID != "" {
-		auth["access_key"] = pr.Authentication.AwsID
-	}
-	if pr.Authentication.AwsKey != "" {
-		auth["secret_key"] = pr.Authentication.AwsKey
-	}
-	if pr.Authentication.RoleARN != "" {
-		auth["role_arn"] = pr.Authentication.RoleARN
-	}
-
-	var authArrary []map[string]interface{}
-	authArrary = append(authArrary, auth)
-	return authArrary
 }
