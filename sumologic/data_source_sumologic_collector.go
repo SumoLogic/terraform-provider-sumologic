@@ -73,7 +73,7 @@ func dataSourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	d.SetId(strconv.Itoa(collector.ID))
+	d.SetId(strconv.FormatInt(collector.ID, 10))
 	d.Set("name", collector.Name)
 	d.Set("description", collector.Description)
 	d.Set("category", collector.Category)
