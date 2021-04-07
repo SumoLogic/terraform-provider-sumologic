@@ -37,7 +37,6 @@ func resourceSumologicKinesisMetricsSource() *schema.Resource {
 	kinesisMetricsSource.Schema["authentication"] = &schema.Schema{
 		Type:     schema.TypeList,
 		Required: true,
-		ForceNew: true,
 		MinItems: 1,
 		MaxItems: 1,
 		Elem: &schema.Resource{
@@ -66,7 +65,6 @@ func resourceSumologicKinesisMetricsSource() *schema.Resource {
 	kinesisMetricsSource.Schema["path"] = &schema.Schema{
 		Type:     schema.TypeList,
 		Required: true,
-		ForceNew: true,
 		MinItems: 1,
 		MaxItems: 1,
 		Elem: &schema.Resource{
