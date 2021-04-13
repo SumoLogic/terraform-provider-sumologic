@@ -119,7 +119,7 @@ The following attributes are exported:
 Kinesis Metrics sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_kinesis_metrics_source_source.test 123/456
+terraform import sumologic_kinesis_metrics_source.test 123/456
 ```
 
 HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
