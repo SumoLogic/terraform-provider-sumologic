@@ -1,4 +1,14 @@
-## 2.9.2 (Unreleased)
+## 2.9.3 (Unreleased)
+
+## 2.9.2 (April 13, 2021)
+
+FEATURES:
+
+* Kinesis Metrics Source (GH-176)
+
+BUG FIXES:
+
+* Handle optional time range in Panel (GH-175)
 
 ## 2.9.1 (March 19, 2021)
 
