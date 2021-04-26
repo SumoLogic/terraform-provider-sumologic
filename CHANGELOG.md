@@ -1,4 +1,10 @@
-## 2.9.3 (Unreleased)
+## 2.9.4 (Unreleased)
+
+## 2.9.3 (April 26, 2021)
+
+FEATURES:
+
+* Add support Microsoft Teams as Connection Type (GH-186)
 
 ## 2.9.2 (April 13, 2021)
 
