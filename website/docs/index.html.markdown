@@ -20,7 +20,7 @@ terraform {
     required_version = ">= 0.13"
 }
 
-# Setup authentication variables. See "Authentication" for more details.
+# Setup authentication variables. See "Authentication" section for more details.
 variable "sumologic_access_id" {
     type = string
     description = "Sumo Logic Access ID"
