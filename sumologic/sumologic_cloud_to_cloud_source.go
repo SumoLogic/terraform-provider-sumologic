@@ -13,8 +13,7 @@ type CloudToCloudSource struct {
 }
 
 type SchemaReference struct {
-	Type    string `json:"type"`
-	Version string `json:"version,omitempty"`
+	Type string `json:"type"`
 }
 
 func (s *Client) CreateCloudToCloudSource(source CloudToCloudSource, collectorID int) (int, error) {

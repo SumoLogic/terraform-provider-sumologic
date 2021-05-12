@@ -133,9 +133,6 @@ func getSourceSchemaRef(d *schema.ResourceData) SchemaReference {
 
 	if len(sourceSchema) > 0 {
 		schemaR.Type = sourceSchema["type"].(string)
-		if sourceSchema["version"] != nil {
-			schemaR.Version = sourceSchema["version"].(string)
-		}
 	}
 
 	return schemaR
