@@ -34,8 +34,8 @@ resource "sumologic_http_source" "http_traces_source" {
 
 resource "sumologic_http_source" "kinesisLog" {
   name = "demo-name"
-  description = demo-desc"
-  category = "demo-desc"
+  description = "demo-desc"
+  category = "demo-category"
   content_type = "KinesisLog"
   collector_id = "${sumologic_collector.test.id}"
 }
@@ -51,7 +51,7 @@ resource "sumologic_collector" "collector" {
 In addition to the common properties, the following arguments are supported:
 
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
-- `content_type`        - (Optional) When configuring a HTTP Traces Source, set this property to `Zipkin` and `KinesisLog` for Kinesis Log source. This should only be used when creating a Traces or Kinesis Log source.
+- `content_type`        - (Optional) When configuring a HTTP Traces Source, set this property to `Zipkin`. When configuring a Kinesis Logs Source, set this property to `KinesisLog`. This should only be used when creating a Traces or Kinesis Log source.
 
 ### See also
   * [Common Source Properties](https://github.com/SumoLogic/terraform-provider-sumologic/tree/master/website#common-source-properties)
