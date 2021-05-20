@@ -126,13 +126,6 @@ func resourceSumologicGCPSourceRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	GCPResources := source.ThirdPartyRef.Resources
-	path := getGCPThirdPartyPathAttributes(GCPResources)
-
-	if err := d.Set("path", path); err != nil {
-		return err
-	}
-
 	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
 		return fmt.Errorf("%s", err)
 	}
