@@ -38,7 +38,11 @@ resource "sumologic_content" "test" {
                 "to": null
             },
             "timeZone": "America/Los_Angeles",
-            "threshold": null,
+            "threshold": {
+                "thresholdType": "message",
+                "operator": "gt",
+                "count": 0
+            },
             "notification": {
                 "taskType": "EmailSearchNotificationSyncDefinition",
                 "toList": ["ops@acme.org"],
