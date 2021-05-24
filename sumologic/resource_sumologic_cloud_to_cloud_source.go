@@ -27,10 +27,18 @@ func resourceSumologicCloudToCloudSource() *schema.Resource {
 				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 			"schema_ref": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
 				Required: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				ForceNew: true,
+				MinItems: 1,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
 				},
 			},
 			"collector_id": {
@@ -128,10 +136,11 @@ func resourceSumologicCloudToCloudSourceRead(d *schema.ResourceData, meta interf
 	return nil
 }
 func getSourceSchemaRef(d *schema.ResourceData) SchemaReference {
-	sourceSchema := d.Get("schema_ref").(map[string]interface{})
+	sourceSchemas := d.Get("schema_ref").([]interface{})
 	schemaR := SchemaReference{}
 
-	if len(sourceSchema) > 0 {
+	if len(sourceSchemas) > 0 {
+		sourceSchema := sourceSchemas[0].(map[string]interface{})
 		schemaR.Type = sourceSchema["type"].(string)
 	}
 
