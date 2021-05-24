@@ -135,7 +135,7 @@ resource "sumologic_collector" "test" {
 
 resource "sumologic_cloud_to_cloud_source" "okta" {
 	collector_id    = sumologic_collector.test.id
-	schema_ref = {
+	schema_ref {
 	  type = "Okta"
 	  }
 	config = <<JSON
