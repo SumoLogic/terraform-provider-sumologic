@@ -18,7 +18,7 @@ __IMPORTANT:__ The API credentials are stored in plain-text in the state. This i
 
 resource "sumologic_cloud_to_cloud_source" "okta_source" {
  collector_id    = sumologic_collector.collector.id
- schema_ref {
+ schema_ref = {
    type = "Okta"
    }
  config = jsonencode({"name":"okta source",
