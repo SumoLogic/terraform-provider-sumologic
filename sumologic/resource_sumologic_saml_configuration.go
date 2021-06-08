@@ -249,7 +249,7 @@ func resourceToSamlConfiguration(d *schema.ResourceData) SamlConfiguration {
 	samlConfiguration.SignAuthnRequest = d.Get("sign_authn_request").(bool)
 	samlConfiguration.DisableRequestedAuthnContext = d.Get("disable_requested_authn_context").(bool)
 	samlConfiguration.IsRedirectBinding = d.Get("is_redirect_binding").(bool)
-	samlConfiguration.AssertionConsumerUrl = d.Get("assertion_consumer_url")
+	samlConfiguration.AssertionConsumerUrl = d.Get("assertion_consumer_url").(string)
 	return samlConfiguration
 }
 
