@@ -56,7 +56,6 @@ func TestAccSumologicSamlConfiguration_basic(t *testing.T) {
 		SignAuthnRequest:             false,
 		DisableRequestedAuthnContext: false,
 		IsRedirectBinding:            false,
-		AssertionConsumerUrl:         "",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -99,7 +98,6 @@ func TestAccSumologicSamlConfiguration_create(t *testing.T) {
 		SignAuthnRequest:             false,
 		DisableRequestedAuthnContext: true,
 		IsRedirectBinding:            true,
-		AssertionConsumerUrl:         "",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -141,7 +139,6 @@ func TestAccSumologicSamlConfiguration_update(t *testing.T) {
 		SignAuthnRequest:             false,
 		DisableRequestedAuthnContext: false,
 		IsRedirectBinding:            false,
-		AssertionConsumerUrl:         "",
 	}
 
 	updatedSamlConfigurationConfig := fmt.Sprintf(`
@@ -241,7 +238,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 			resource.TestCheckResourceAttr(resourceName, "sign_authn_request", strconv.FormatBool(samlConfiguration.SignAuthnRequest)),
 			resource.TestCheckResourceAttr(resourceName, "disable_requested_authn_context", strconv.FormatBool(samlConfiguration.DisableRequestedAuthnContext)),
 			resource.TestCheckResourceAttr(resourceName, "is_redirect_binding", strconv.FormatBool(samlConfiguration.IsRedirectBinding)),
-			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", samlConfiguration.AssertionConsumerUrl),
+			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url"),
 		)
 		return f(s)
 	}
@@ -273,7 +270,6 @@ EOT
   sign_authn_request = %t
   disable_requested_authn_context = %t
   is_redirect_binding = %t
-  assertion_consumer_url = %s
 }`, label,
 		samlConfiguration.SpInitiatedLoginPath,
 		samlConfiguration.ConfigurationName,
@@ -293,6 +289,5 @@ EOT
 		samlConfiguration.DebugMode,
 		samlConfiguration.SignAuthnRequest,
 		samlConfiguration.DisableRequestedAuthnContext,
-		samlConfiguration.IsRedirectBinding,
-		samlConfiguration.AssertionConsumerUrl)
+		samlConfiguration.IsRedirectBinding)
 }
