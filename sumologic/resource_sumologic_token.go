@@ -81,7 +81,6 @@ func resourceSumologicTokenRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("status", token.Status)
 	d.Set("description", token.Description)
 	d.Set("version", token.Version)
-	d.Set("type", token.Type)
 
 	return nil
 }
