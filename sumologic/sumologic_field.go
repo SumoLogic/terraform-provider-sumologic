@@ -14,7 +14,7 @@ func (s *Client) GetField(id string) (*Field, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, _, err := s.Get(urlWithParams, false)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *Client) DeleteField(id string) error {
 func (s *Client) CreateField(field Field) (string, error) {
 	urlWithoutParams := "v1/fields"
 
-	data, err := s.Post(urlWithoutParams, field)
+	data, err := s.Post(urlWithoutParams, field, false)
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (s *Client) CreateField(field Field) (string, error) {
 func (s *Client) FindFieldId(name string) (string, error) {
 	urlWithoutParams := "v1/fields"
 
-	body, _, err := s.Get(urlWithoutParams)
+	body, _, err := s.Get(urlWithoutParams, false)
 	if err != nil {
 		return "", err
 	}

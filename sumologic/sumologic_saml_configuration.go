@@ -9,7 +9,7 @@ func (s *Client) GetSamlConfiguration(id string) (*SamlConfiguration, error) {
 	// We don't have a get SAML configuration by id endpoint, only a list endpoint
 	url := "v1/saml/identityProviders"
 
-	data, _, err := s.Get(url)
+	data, _, err := s.Get(url, false)
 	if err != nil || data == nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (s *Client) GetSamlConfiguration(id string) (*SamlConfiguration, error) {
 func (s *Client) CreateSamlConfiguration(samlConfiguration SamlConfiguration) (*SamlConfiguration, error) {
 	url := "v1/saml/identityProviders"
 
-	data, err := s.Post(url, samlConfiguration)
+	data, err := s.Post(url, samlConfiguration, false)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *Client) DeleteSamlConfiguration(id string) error {
 func (s *Client) UpdateSamlConfiguration(id string, samlConfiguration SamlConfiguration) error {
 	url := fmt.Sprintf("v1/saml/identityProviders/%s", id)
 
-	_, err := s.Put(url, samlConfiguration)
+	_, err := s.Put(url, samlConfiguration, false)
 	return err
 }
 
