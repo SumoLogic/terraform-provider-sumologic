@@ -17,17 +17,17 @@ type GCPThirdPartyRef struct {
 }
 
 type GCPResource struct {
-	ServiceType    string            `json:"serviceType"`
-	Authentication GCPAuthentication `json:"authentication,omitempty"`
-	Path           GCPPath           `json:"path,omitempty"`
+	ServiceType    string             `json:"serviceType"`
+	Authentication *GCPAuthentication `json:"authentication"`
+	Path           *GCPPath           `json:"path"`
 }
 
 type GCPAuthentication struct {
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 }
 
 type GCPPath struct {
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 }
 
 func (s *Client) CreateGCPSource(gcpSource GCPSource, collectorID int) (int, error) {

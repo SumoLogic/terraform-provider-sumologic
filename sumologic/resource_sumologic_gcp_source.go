@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -39,7 +38,7 @@ func resourceSumologicGCPSource() *schema.Resource {
 		Type:     schema.TypeList,
 		Optional: true,
 		ForceNew: true,
-		MinItems: 1,
+		MinItems: 0,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -56,7 +55,7 @@ func resourceSumologicGCPSource() *schema.Resource {
 		Type:     schema.TypeList,
 		Optional: true,
 		ForceNew: true,
-		MinItems: 1,
+		MinItems: 0,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -144,74 +143,11 @@ func resourceToGCPSource(d *schema.ResourceData) (GCPSource, error) {
 		MessagePerRequest: d.Get("message_per_request").(bool),
 	}
 
-	authSettings, errAuthSettings := getGCPAuthentication(d)
-	if errAuthSettings != nil {
-		return gcpSource, errAuthSettings
-	}
-
-	pathSettings, errPathSettings := getGCPPathSettings(d)
-	if errPathSettings != nil {
-		return gcpSource, errPathSettings
-	}
-
 	GCPResource := GCPResource{
-		ServiceType:    d.Get("content_type").(string),
-		Authentication: authSettings,
-		Path:           pathSettings,
+		ServiceType: d.Get("content_type").(string),
 	}
 
 	gcpSource.ThirdPartyRef.Resources = append(gcpSource.ThirdPartyRef.Resources, GCPResource)
 
 	return gcpSource, nil
-}
-
-func getGCPThirdPartyPathAttributes(GCPResource []GCPResource) []map[string]interface{} {
-
-	var s []map[string]interface{}
-
-	for _, t := range GCPResource {
-		mapping := map[string]interface{}{
-			"type": t.Path.Type,
-		}
-		s = append(s, mapping)
-	}
-	return s
-}
-
-func getGCPAuthentication(d *schema.ResourceData) (GCPAuthentication, error) {
-	auths := d.Get("authentication").([]interface{})
-	authSettings := GCPAuthentication{}
-
-	if len(auths) > 0 {
-		auth := auths[0].(map[string]interface{})
-		switch authType := auth["type"].(string); authType {
-		case "NoAuthentication":
-			authSettings.Type = "NoAuthentication"
-		default:
-			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
-			log.Print(errorMessage)
-			return authSettings, errors.New(errorMessage)
-		}
-	}
-
-	return authSettings, nil
-}
-
-func getGCPPathSettings(d *schema.ResourceData) (GCPPath, error) {
-	pathSettings := GCPPath{}
-	paths := d.Get("path").([]interface{})
-
-	if len(paths) > 0 {
-		path := paths[0].(map[string]interface{})
-		switch pathType := path["type"].(string); pathType {
-		case "NoPathExpression":
-			pathSettings.Type = "NoPathExpression"
-		default:
-			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
-			log.Print(errorMessage)
-			return pathSettings, errors.New(errorMessage)
-		}
-	}
-
-	return pathSettings, nil
 }
