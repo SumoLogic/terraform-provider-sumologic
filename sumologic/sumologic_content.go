@@ -19,7 +19,7 @@ func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) 
 	log.Printf("Content export url: %s", url)
 
 	//Begin the content export job
-	rawJID, err := s.Post(url, nil)
+	rawJID, err := s.Post(url, nil, false)
 
 	//If there was an error, exit here and return it
 	if err != nil {
@@ -55,7 +55,7 @@ func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) 
 	url = fmt.Sprintf("v2/content/%s/export/%s/result", id, jid.ID)
 	log.Printf("Content export job results url: %s", url)
 
-	rawContent, _, err := s.Get(url)
+	rawContent, _, err := s.Get(url, false)
 
 	//Exit here if there was an error during the request
 	if err != nil {
@@ -155,7 +155,7 @@ func (s *Client) CreateOrUpdateContent(content Content, timeout time.Duration, o
 	log.Printf("Find folder url: %s", url)
 
 	//Request folder content
-	rawParent, _, err := s.Get(url)
+	rawParent, _, err := s.Get(url, false)
 
 	if err != nil {
 		return "", nil
@@ -207,7 +207,7 @@ func waitForJob(url string, timeout time.Duration, s *Client) error {
 			log.Println("====Start Job Status Check====")
 
 			var status Status
-			b, _, err := s.Get(url)
+			b, _, err := s.Get(url, false)
 			if err != nil {
 				return nil, "", err
 			}

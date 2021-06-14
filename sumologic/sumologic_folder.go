@@ -15,7 +15,7 @@ func (s *Client) GetFolder(id string) (*Folder, error) {
 	log.Printf("Folder read url: %s", url)
 
 	//Execute the folder read request
-	rawFolder, _, err := s.Get(url)
+	rawFolder, _, err := s.Get(url, false)
 
 	//If there was an error, exit here and return it
 	if err != nil {
@@ -78,7 +78,7 @@ func (s *Client) CreateFolder(folder Folder) (string, error) {
 	log.Printf("Create folder url: %s", url)
 
 	//Initiate folder creation
-	responseData, err := s.Post(url, folder)
+	responseData, err := s.Post(url, folder, false)
 
 	//Exit if there was an error during the request
 	if err != nil {
@@ -106,7 +106,7 @@ func (s *Client) UpdateFolder(folder Folder) error {
 	url := fmt.Sprintf("v2/content/folders/%s", folder.ID)
 	log.Printf("Update folder job status url: %s", url)
 
-	_, err := s.Put(url, folder)
+	_, err := s.Put(url, folder, false)
 
 	log.Println("####End folder update####")
 	return err
@@ -116,7 +116,7 @@ func (s *Client) UpdateFolder(folder Folder) error {
 func (s *Client) getPersonalFolder() (*Folder, error) {
 	log.Println("####Begin loading Personal Folder####")
 	url := "v2/content/folders/personal"
-	rawFolder, _, err := s.Get(url)
+	rawFolder, _, err := s.Get(url, false)
 	if err != nil {
 		return nil, err
 	}

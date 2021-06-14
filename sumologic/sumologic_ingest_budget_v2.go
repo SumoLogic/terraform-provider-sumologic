@@ -19,7 +19,7 @@ import (
 func (s *Client) CreateIngestBudgetV2(ingestBudgetV2 IngestBudgetV2) (string, error) {
 	urlWithoutParams := "v2/ingestBudgets"
 
-	data, err := s.Post(urlWithoutParams, ingestBudgetV2)
+	data, err := s.Post(urlWithoutParams, ingestBudgetV2, false)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +43,7 @@ func (s *Client) GetIngestBudgetV2(id string) (*IngestBudgetV2, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, _, err := s.Get(urlWithParams, false)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *Client) UpdateIngestBudgetV2(ingestBudgetV2 IngestBudgetV2) error {
 
 	ingestBudgetV2.ID = ""
 
-	_, err := s.Put(urlWithParams, ingestBudgetV2)
+	_, err := s.Put(urlWithParams, ingestBudgetV2, false)
 
 	return err
 

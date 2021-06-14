@@ -22,7 +22,7 @@ func (s *Client) CreateHTTPSource(httpSource HTTPSource, collectorID int) (int, 
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
-	body, err := s.Post(urlPath, request)
+	body, err := s.Post(urlPath, request, false)
 
 	if err != nil {
 		return -1, err
@@ -40,9 +40,7 @@ func (s *Client) CreateHTTPSource(httpSource HTTPSource, collectorID int) (int, 
 
 func (s *Client) GetHTTPSource(collectorID, sourceID int) (*HTTPSource, error) {
 
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID), false)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +74,7 @@ func (s *Client) UpdateHTTPSource(source HTTPSource, collectorID int) error {
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
-	_, err := s.Put(urlPath, request)
+	_, err := s.Put(urlPath, request, false)
 
 	return err
 }
