@@ -222,12 +222,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 	    if !ok {
         	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), resourceName)
         }
-	    id := rs.Primary.ID
-        num, err := strconv.ParseInt(id, 16, 64)
-        if err != nil {
-            return fmt.Errorf("Error = %s. Unable to convert hex %s to decimal: %d", err, id, num)
-        }
-        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%d", num)
+        assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
@@ -248,7 +243,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 			resource.TestCheckResourceAttr(resourceName, "sign_authn_request", strconv.FormatBool(samlConfiguration.SignAuthnRequest)),
 			resource.TestCheckResourceAttr(resourceName, "disable_requested_authn_context", strconv.FormatBool(samlConfiguration.DisableRequestedAuthnContext)),
 			resource.TestCheckResourceAttr(resourceName, "is_redirect_binding", strconv.FormatBool(samlConfiguration.IsRedirectBinding)),
-			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", url),
+			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", assertion_consumer_url),
 		)
 		return f(s)
 	}
