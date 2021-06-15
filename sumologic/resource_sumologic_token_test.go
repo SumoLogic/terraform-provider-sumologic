@@ -144,7 +144,7 @@ func TestAccSumologicToken_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_token.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_token.test", "status", testUpdatedStatus),
 					resource.TestCheckResourceAttr("sumologic_token.test", "type", testType),
-					// resource.TestCheckResourceAttr("sumologic_token.test", "version", "1"),
+					resource.TestCheckResourceAttr("sumologic_token.test", "version", "1"),
 				),
 			},
 		},
@@ -180,9 +180,8 @@ resource "sumologic_token" "test" {
       description = "%s"
       status = "%s"
 	  type = "CollectorRegistration"
-	  version = 1
 }
-`, name, description, status, version)
+`, name, description, status)
 }
 
 func testAccCheckTokenAttributes(name string) resource.TestCheckFunc {
