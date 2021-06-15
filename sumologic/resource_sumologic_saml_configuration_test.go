@@ -211,6 +211,8 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 		id := rs.Primary.ID
 		client := testAccProvider.Meta().(*Client)
 		_, err := client.GetSamlConfiguration(id)
+		fmt.Println("SRUJANA: Here we are")
+		fmt.Println(_)
 		if err != nil {
 			return fmt.Errorf("Saml Configuration (id=%s) not found", id)
 		}
@@ -231,7 +233,6 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
             log.Fatal(err)
         }
         assertion_consumer_url := rs.Primary.Attributes
-        fmt.Println(rs.Attributes)
         fmt.Println(assertion_consumer_url)
         fmt.Println(u.Path)
         fmt.Println(u.RawPath)
