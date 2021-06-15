@@ -218,6 +218,13 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 
 func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfiguration *SamlConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+	    rs, ok := s.RootModule().Resources[name]
+	    id := rs.Primary.ID
+        num, err := strconv.ParseInt(id, 16, 64)
+        if err != nil {
+            panic(err)
+        }
+        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%s", id)
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
@@ -238,7 +245,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 			resource.TestCheckResourceAttr(resourceName, "sign_authn_request", strconv.FormatBool(samlConfiguration.SignAuthnRequest)),
 			resource.TestCheckResourceAttr(resourceName, "disable_requested_authn_context", strconv.FormatBool(samlConfiguration.DisableRequestedAuthnContext)),
 			resource.TestCheckResourceAttr(resourceName, "is_redirect_binding", strconv.FormatBool(samlConfiguration.IsRedirectBinding)),
-			resource.TestCheckResourceAttrSet(resourceName, "assertion_consumer_url"),
+			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", url),
 		)
 		return f(s)
 	}
