@@ -99,8 +99,9 @@ func testAccCheckTokenExists(name string, token *Token, t *testing.T) resource.T
 		if err != nil {
 			return fmt.Errorf("Token %s not found", id)
 		}
-		log.Println("new Token %d", newToken.Version)
-		log.Println("old token $d", token.Version)
+		log.Println("new Token version", newToken.Version)
+		log.Println("old token verison", token.Version)
+		log.Println("new token", newToken)
 		token = newToken
 		return nil
 	}
@@ -179,7 +180,7 @@ resource "sumologic_token" "test" {
       description = "%s"
       status = "%s"
 	  type = "CollectorRegistration"
-	  version = %d
+	  version = 1
 }
 `, name, description, status, version)
 }
