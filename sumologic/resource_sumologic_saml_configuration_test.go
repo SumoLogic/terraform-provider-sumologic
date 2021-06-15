@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -223,12 +224,13 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 	    if !ok {
         	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), resourceName)
         }
-        assertion_consumer_url := rs.Attributes["assertion_consumer_url"]
+        // assertion_consumer_url := rs.Attributes["assertion_consumer_url"]
         // Parse + String preserve the original encoding.
         u, err := url.Parse("https://example.com/foo%2fbar")
         if err != nil {
             log.Fatal(err)
         }
+        assertion_consumer_url := rs.Primary.Attributes
         fmt.Println(rs.Attributes)
         fmt.Println(assertion_consumer_url)
         fmt.Println(u.Path)
@@ -254,7 +256,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 			resource.TestCheckResourceAttr(resourceName, "sign_authn_request", strconv.FormatBool(samlConfiguration.SignAuthnRequest)),
 			resource.TestCheckResourceAttr(resourceName, "disable_requested_authn_context", strconv.FormatBool(samlConfiguration.DisableRequestedAuthnContext)),
 			resource.TestCheckResourceAttr(resourceName, "is_redirect_binding", strconv.FormatBool(samlConfiguration.IsRedirectBinding)),
-			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", assertion_consumer_url),
+			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", "abc"),
 		)
 		return f(s)
 	}
