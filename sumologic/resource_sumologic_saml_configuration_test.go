@@ -220,7 +220,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 	return func(s *terraform.State) error {
 	    rs, ok := s.RootModule().Resources[resourceName]
 	    if !ok {
-        	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), name)
+        	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), resourceName)
         }
 	    id := rs.Primary.ID
         num, err := strconv.ParseInt(id, 16, 64)
