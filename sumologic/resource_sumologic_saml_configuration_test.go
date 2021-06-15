@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+    "net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -222,7 +223,17 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 	    if !ok {
         	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), resourceName)
         }
-        assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
+        assertion_consumer_url := rs.Attributes["assertion_consumer_url"]
+        // Parse + String preserve the original encoding.
+        u, err := url.Parse("https://example.com/foo%2fbar")
+        if err != nil {
+            log.Fatal(err)
+        }
+        fmt.Println(rs.Attributes)
+        fmt.Println(assertion_consumer_url)
+        fmt.Println(u.Path)
+        fmt.Println(u.RawPath)
+        fmt.Println(u.String())
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
