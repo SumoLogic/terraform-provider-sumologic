@@ -218,13 +218,16 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 
 func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfiguration *SamlConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-	    rs, ok := s.RootModule().Resources[name]
+	    rs, ok := s.RootModule().Resources[resourceName]
+	    if !ok {
+        	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), name)
+        }
 	    id := rs.Primary.ID
         num, err := strconv.ParseInt(id, 16, 64)
         if err != nil {
             panic(err)
         }
-        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%s", id)
+        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%s", num)
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
