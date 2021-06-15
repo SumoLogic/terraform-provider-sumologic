@@ -225,9 +225,9 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 	    id := rs.Primary.ID
         num, err := strconv.ParseInt(id, 16, 64)
         if err != nil {
-            panic(err)
+            return fmt.Errorf("Error = %s. Unable to convert hex %s to decimal: %d", err, id, num)
         }
-        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%s", num)
+        url := fmt.Sprintf("https://service.***.sumologic.com/sumo/saml/consume/%d", num)
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
