@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -98,6 +99,8 @@ func testAccCheckTokenExists(name string, token *Token, t *testing.T) resource.T
 		if err != nil {
 			return fmt.Errorf("Token %s not found", id)
 		}
+		log.Println("new Token %d", newToken.Version)
+		log.Println("old token $d", token.Version)
 		token = newToken
 		return nil
 	}
