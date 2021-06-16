@@ -230,8 +230,9 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
         if err != nil {
             log.Fatal(err)
         }
-        assertion_consumer_url := rs.Primary.Attributes
+        assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
         fmt.Sprintf(assertion_consumer_url)
+        fmt.Println(rs.Primary.Attributes)
         fmt.Sprintf(u.Path)
         fmt.Sprintf(u.RawPath)
         fmt.Sprintf(u.String())
