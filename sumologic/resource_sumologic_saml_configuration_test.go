@@ -214,30 +214,16 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 		if err != nil {
 			return fmt.Errorf("Saml Configuration (id=%s) not found", id)
 		}
+		assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
+		if strings.EqualFold(assertion_consumer_url, "") {
+		    return fmt.Errorf("Assertion Consumer URL not found for Saml Configuration (id=%s)", id)
+		}
 		return nil
 	}
 }
 
 func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfiguration *SamlConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-	    rs, ok := s.RootModule().Resources[resourceName]
-	    if !ok {
-        	return fmt.Errorf("Error = %s. Saml Configuration not found: %s", strconv.FormatBool(ok), resourceName)
-        }
-        // assertion_consumer_url := rs.Attributes["assertion_consumer_url"]
-        // Parse + String preserve the original encoding.
-        u, err := url.Parse("https://example.com/foo%2fbar")
-        if err != nil {
-            log.Fatal(err)
-        }
-        assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
-        fmt.Println("--------------SRUJANA: I am here-------------")
-        fmt.Println(assertion_consumer_url)
-        fmt.Sprintf(assertion_consumer_url)
-        fmt.Println(rs.Primary.Attributes)
-        fmt.Sprintf(u.Path)
-        fmt.Sprintf(u.RawPath)
-        fmt.Sprintf(u.String())
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
@@ -258,7 +244,7 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
 			resource.TestCheckResourceAttr(resourceName, "sign_authn_request", strconv.FormatBool(samlConfiguration.SignAuthnRequest)),
 			resource.TestCheckResourceAttr(resourceName, "disable_requested_authn_context", strconv.FormatBool(samlConfiguration.DisableRequestedAuthnContext)),
 			resource.TestCheckResourceAttr(resourceName, "is_redirect_binding", strconv.FormatBool(samlConfiguration.IsRedirectBinding)),
-			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", assertion_consumer_url),
+			resource.TestCheckResourceAttr(resourceName, "assertion_consumer_url", samlConfiguration.AssertionConsumerUrl),
 		)
 		return f(s)
 	}
