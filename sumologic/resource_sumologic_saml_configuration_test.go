@@ -2,11 +2,9 @@ package sumologic
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"testing"
-    "net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
