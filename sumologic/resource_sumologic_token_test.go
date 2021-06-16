@@ -15,7 +15,7 @@ func getRandomizedParamsForToken() (string, string, string, string) {
 	name := acctest.RandomWithPrefix("tf-acc-test")
 	description := acctest.RandomWithPrefix("tf-acc-test")
 	status := "Active"
-	tokenType := "CollectorRegistrationToken"
+	tokenType := "CollectorRegistration"
 	return name, description, status, tokenType
 }
 
