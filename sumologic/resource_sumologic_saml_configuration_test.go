@@ -210,12 +210,12 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 
 		id := rs.Primary.ID
 		client := testAccProvider.Meta().(*Client)
-		_, err := client.GetSamlConfiguration(id)
+		samlConfiguration1, err := client.GetSamlConfiguration(id)
 		if err != nil {
 			return fmt.Errorf("Saml Configuration (id=%s) not found", id)
 		}
         fmt.Println("SRUJANA: Here we are")
-        fmt.Sprintf(_.AssertionConsumerUrl)
+        fmt.Sprintf(samlConfiguration1.AssertionConsumerUrl)
 		return nil
 	}
 }
@@ -289,6 +289,7 @@ EOT
   sign_authn_request = %t
   disable_requested_authn_context = %t
   is_redirect_binding = %t
+  assertion_consumer_url = %s
 }`, label,
 		samlConfiguration.SpInitiatedLoginPath,
 		samlConfiguration.ConfigurationName,
@@ -308,5 +309,6 @@ EOT
 		samlConfiguration.DebugMode,
 		samlConfiguration.SignAuthnRequest,
 		samlConfiguration.DisableRequestedAuthnContext,
-		samlConfiguration.IsRedirectBinding)
+		samlConfiguration.IsRedirectBinding,
+		samlConfiguration.AssertionConsumerUrl)
 }
