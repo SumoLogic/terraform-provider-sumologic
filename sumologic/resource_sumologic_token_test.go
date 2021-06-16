@@ -6,16 +6,23 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func getRandomizedParamsForToken() (string, string, string, string) {
+	name := acctest.RandomWithPrefix("tf-acc-test")
+	description := acctest.RandomWithPrefix("tf-acc-test")
+	status := "Active"
+	tokenType := "CollectorRegistrationToken"
+	return name, description, status, tokenType
+}
+
 func TestAccSumologicToken_basic(t *testing.T) {
 	var token Token
 
-	testName := "Test Terraform Token"
-	testDescription := "Description tf test token"
-	testStatus := "Active"
+	testName, testDescription, testStatus, _ := getRandomizedParamsForToken()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,10 +43,7 @@ func TestAccSumologicToken_basic(t *testing.T) {
 
 func TestAccSumologicToken_create(t *testing.T) {
 	var token Token
-	testName := "Test Terraform Token"
-	testDescription := "Description tf test token"
-	testStatus := "Active"
-	testType := "CollectorRegistration"
+	testName, testDescription, testStatus, testType := getRandomizedParamsForToken()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -105,13 +109,9 @@ func testAccCheckTokenExists(name string, token *Token, t *testing.T) resource.T
 
 func TestAccSumologicToken_update(t *testing.T) {
 	var token Token
-	testName := "Test Terraform Token"
-	testDescription := "Description tf test token"
-	testStatus := "Active"
-	testType := "CollectorRegistration"
+	testName, testDescription, testStatus, testType := getRandomizedParamsForToken()
 
-	testUpdatedName := "Test Terraform Token Update"
-	testUpdatedDescription := "Description tf test token with update"
+	testUpdatedName, testUpdatedDescription, _, _ := getRandomizedParamsForToken()
 	testUpdatedStatus := "Inactive"
 
 	resource.Test(t, resource.TestCase{
