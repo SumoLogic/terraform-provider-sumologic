@@ -210,12 +210,10 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 
 		id := rs.Primary.ID
 		client := testAccProvider.Meta().(*Client)
-		samlConfiguration1, err := client.GetSamlConfiguration(id)
+		_, err := client.GetSamlConfiguration(id)
 		if err != nil {
 			return fmt.Errorf("Saml Configuration (id=%s) not found", id)
 		}
-        fmt.Println("SRUJANA: Here we are")
-        fmt.Sprintf(samlConfiguration1.AssertionConsumerUrl)
 		return nil
 	}
 }
@@ -233,10 +231,10 @@ func testSamlConfigurationCheckResourceAttr(resourceName string, samlConfigurati
             log.Fatal(err)
         }
         assertion_consumer_url := rs.Primary.Attributes
-        fmt.Println(assertion_consumer_url)
-        fmt.Println(u.Path)
-        fmt.Println(u.RawPath)
-        fmt.Println(u.String())
+        fmt.Sprintf(assertion_consumer_url)
+        fmt.Sprintf(u.Path)
+        fmt.Sprintf(u.RawPath)
+        fmt.Sprintf(u.String())
 		f := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(resourceName, "sp_initiated_login_path", samlConfiguration.SpInitiatedLoginPath),
 			resource.TestCheckResourceAttr(resourceName, "configuration_name", samlConfiguration.ConfigurationName),
@@ -289,7 +287,6 @@ EOT
   sign_authn_request = %t
   disable_requested_authn_context = %t
   is_redirect_binding = %t
-  assertion_consumer_url = %s
 }`, label,
 		samlConfiguration.SpInitiatedLoginPath,
 		samlConfiguration.ConfigurationName,
@@ -309,6 +306,5 @@ EOT
 		samlConfiguration.DebugMode,
 		samlConfiguration.SignAuthnRequest,
 		samlConfiguration.DisableRequestedAuthnContext,
-		samlConfiguration.IsRedirectBinding,
-		samlConfiguration.AssertionConsumerUrl)
+		samlConfiguration.IsRedirectBinding)
 }
