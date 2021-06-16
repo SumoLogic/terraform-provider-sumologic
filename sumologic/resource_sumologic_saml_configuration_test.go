@@ -56,6 +56,7 @@ func TestAccSumologicSamlConfiguration_basic(t *testing.T) {
 		SignAuthnRequest:             false,
 		DisableRequestedAuthnContext: false,
 		IsRedirectBinding:            false,
+		AssertionConsumerUrl:         "srujana",
 	}
 
 	resource.Test(t, resource.TestCase{
