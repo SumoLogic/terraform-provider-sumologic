@@ -17,9 +17,9 @@ type GCPThirdPartyRef struct {
 }
 
 type GCPResource struct {
-	ServiceType    string            `json:"serviceType"`
-	Authentication GCPAuthentication `json:"authentication,omitempty"`
-	Path           GCPPath           `json:"path,omitempty"`
+	ServiceType    string             `json:"serviceType"`
+	Authentication *GCPAuthentication `json:"authentication,omitempty"`
+	Path           *GCPPath           `json:"path,omitempty"`
 }
 
 type GCPAuthentication struct {

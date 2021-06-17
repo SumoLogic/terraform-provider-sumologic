@@ -8,6 +8,8 @@ description: |-
 # sumologic_gcp_source
 Provides a [Sumo Logic Google Cloud Platform Source][2].
 
+***Note:*** Google no longer requires a pub/sub domain to be [verified][3]. You no longer have to set up domain verification with your GCP Source endpoint.
+
 ## Example Usage
 ```hcl
 
@@ -16,13 +18,6 @@ resource "sumologic_gcp_source" "terraform_gcp_source" {
   description   = "My description"
   category      = "gcp"
   collector_id  = "${sumologic_collector.collector.id}"
-  authentication {
-    type = "NoAuthentication"
-  }
-
-  path {
-    type = "NoPathExpression"
-  }
 }
 
 resource "sumologic_collector" "collector" {
@@ -55,3 +50,4 @@ terraform import sumologic_gcp_source.test my-test-collector/my-test-source
 
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
 [2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Google-Cloud-Platform-Source
+[3]: https://cloud.google.com/pubsub/docs/push
