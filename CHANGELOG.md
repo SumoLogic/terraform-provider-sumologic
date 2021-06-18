@@ -1,5 +1,9 @@
 ## 2.9.4 (Unreleased)
 
+Features:
+
+* **New Resource:** sumologic_token (GH-203)
+
 ## 2.9.3 (April 26, 2021)
 
 FEATURES:
