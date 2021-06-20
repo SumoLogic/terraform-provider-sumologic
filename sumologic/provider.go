@@ -77,6 +77,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_token":                              resourceSumologicToken(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"sumologic_admin_recommended_folder": dataSourceSumologicAdminRecommendedFolder(),
 			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
 			"sumologic_collector":       dataSourceSumologicCollector(),
 			"sumologic_http_source":     dataSourceSumologicHTTPSource(),
