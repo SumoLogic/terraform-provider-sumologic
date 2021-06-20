@@ -78,12 +78,12 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_admin_recommended_folder": dataSourceSumologicAdminRecommendedFolder(),
-			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
-			"sumologic_collector":       dataSourceSumologicCollector(),
-			"sumologic_http_source":     dataSourceSumologicHTTPSource(),
-			"sumologic_personal_folder": dataSourceSumologicPersonalFolder(),
-			"sumologic_my_user_id":      dataSourceSumologicMyUserId(),
-			"sumologic_role":            dataSourceSumologicRole(),
+			"sumologic_caller_identity":          dataSourceSumologicCallerIdentity(),
+			"sumologic_collector":                dataSourceSumologicCollector(),
+			"sumologic_http_source":              dataSourceSumologicHTTPSource(),
+			"sumologic_personal_folder":          dataSourceSumologicPersonalFolder(),
+			"sumologic_my_user_id":               dataSourceSumologicMyUserId(),
+			"sumologic_role":                     dataSourceSumologicRole(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
