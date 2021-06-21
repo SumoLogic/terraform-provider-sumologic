@@ -1,6 +1,6 @@
 ## 2.9.4 (Unreleased)
 
-Features:
+FEATURES:
 
 * **New Resource:** sumologic_token (GH-203)
 
