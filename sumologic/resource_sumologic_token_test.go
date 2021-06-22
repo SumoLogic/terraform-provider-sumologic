@@ -59,7 +59,6 @@ func TestAccSumologicToken_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_token.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_token.test", "status", testStatus),
 					resource.TestCheckResourceAttr("sumologic_token.test", "type", testType),
-					resource.TestCheckResourceAttr("sumologic_token.test", "version", "0"),
 				),
 			},
 		},
@@ -128,7 +127,6 @@ func TestAccSumologicToken_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_token.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_token.test", "status", testStatus),
 					resource.TestCheckResourceAttr("sumologic_token.test", "type", testType),
-					resource.TestCheckResourceAttr("sumologic_token.test", "version", "0"),
 				),
 			},
 			{
@@ -140,7 +138,6 @@ func TestAccSumologicToken_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_token.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_token.test", "status", testUpdatedStatus),
 					resource.TestCheckResourceAttr("sumologic_token.test", "type", testType),
-					resource.TestCheckResourceAttr("sumologic_token.test", "version", "1"),
 				),
 			},
 		},

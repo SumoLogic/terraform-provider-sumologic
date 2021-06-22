@@ -15,7 +15,6 @@ resource "sumologic_token" "example_token" {
   description   = "Testing resource sumologic_token"
   status        = "Active"
   type          = "CollectorRegistration"
-  version       = 0
 }
 ```
 
@@ -23,11 +22,13 @@ resource "sumologic_token" "example_token" {
 
 The following arguments are supported:
 
+  * `type` - (Required) Type of the token. Valid value:
+    - `CollectorRegistration`.
   * `name` - (Required) Display name of the token. This must be unique across all of the tokens.
   * `description` - (Optional) The description of the token.
-  * `status` - (Required) Status of the token. Supported values are `Active`, and `Inactive`.
-  * `type` - (Required) Type of the token. Supported value is `CollectorRegistration`.
-  * `version` - (Required for update) Version of the token. This is only required for update. It starts from 0 when created and gets incremented with each update.
+  * `status` - (Required) Status of the token. Valid values:
+    - `Active`
+    - `Inactive`
   
 The following attributes are exported:
 

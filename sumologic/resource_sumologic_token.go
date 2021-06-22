@@ -101,8 +101,7 @@ func resourceSumologicTokenUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	// Each successful update will increment version
-	d.Set("version", token.Version+1)
+
 	return resourceSumologicTokenRead(d, meta)
 }
 
