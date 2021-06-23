@@ -81,10 +81,11 @@ func (s *Client) UpdateToken(token Token) error {
 }
 
 type Token struct {
-	Name        string `json:"name"`
-	Status      string `json:"status"`
-	ID          string `json:"id,omitempty"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	Version     int    `json:"version"`
+	Name               string `json:"name"`
+	Status             string `json:"status"`
+	ID                 string `json:"id,omitempty"`
+	Description        string `json:"description"`
+	Type               string `json:"type"`
+	Version            int    `json:"version"`
+	EncodedTokenAndUrl string `json:"encodedTokenAndUrl"`
 }

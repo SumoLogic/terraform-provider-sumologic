@@ -44,6 +44,11 @@ func resourceSumologicToken() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"CollectorRegistration", "CollectorRegistrationTokenResponse"}, false),
 			},
+
+			"encoded_token_and_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -59,6 +64,7 @@ func resourceSumologicTokenCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.SetId(id)
+		d.Set("encoded_token_and_url", token.EncodedTokenAndUrl)
 	}
 
 	return resourceSumologicTokenRead(d, meta)
@@ -83,6 +89,7 @@ func resourceSumologicTokenRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("status", token.Status)
 	d.Set("description", token.Description)
 	d.Set("version", token.Version)
+	d.Set("encoded_token_and_url", token.EncodedTokenAndUrl)
 
 	return nil
 }
@@ -108,11 +115,12 @@ func resourceSumologicTokenUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceToToken(d *schema.ResourceData) Token {
 
 	return Token{
-		Name:        d.Get("name").(string),
-		ID:          d.Id(),
-		Description: d.Get("description").(string),
-		Version:     d.Get("version").(int),
-		Type:        d.Get("type").(string),
-		Status:      d.Get("status").(string),
+		Name:               d.Get("name").(string),
+		ID:                 d.Id(),
+		Description:        d.Get("description").(string),
+		Version:            d.Get("version").(int),
+		Type:               d.Get("type").(string),
+		Status:             d.Get("status").(string),
+		EncodedTokenAndUrl: d.Get("encoded_token_and_url").(string),
 	}
 }

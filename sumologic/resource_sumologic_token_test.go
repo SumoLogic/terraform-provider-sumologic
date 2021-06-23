@@ -180,11 +180,13 @@ resource "sumologic_token" "test" {
 func testAccCheckTokenAttributes(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		f := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttrSet(name, "id"),
 			resource.TestCheckResourceAttrSet(name, "name"),
 			resource.TestCheckResourceAttrSet(name, "description"),
 			resource.TestCheckResourceAttrSet(name, "status"),
 			resource.TestCheckResourceAttrSet(name, "type"),
 			resource.TestCheckResourceAttrSet(name, "version"),
+			resource.TestCheckResourceAttrSet(name, "encoded_token_and_url"),
 		)
 		return f(s)
 	}
