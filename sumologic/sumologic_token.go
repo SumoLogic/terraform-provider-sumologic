@@ -8,7 +8,7 @@ import (
 func (s *Client) CreateToken(token Token) (string, error) {
 	urlWithoutParams := "v1/tokens"
 
-	data, err := s.Post(urlWithoutParams, token)
+	data, err := s.Post(urlWithoutParams, token, false)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func (s *Client) GetToken(id string) (*Token, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, _, err := s.Get(urlWithParams, false)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (s *Client) UpdateToken(token Token) error {
 
 	token.ID = ""
 
-	_, err := s.Put(urlWithParams, token)
+	_, err := s.Put(urlWithParams, token, false)
 
 	return err
 
