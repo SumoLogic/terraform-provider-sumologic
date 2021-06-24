@@ -1,9 +1,16 @@
-## 2.9.4 (Unreleased)
+## 2.9.5 (Unreleased)
+
+## 2.9.4 (June 24, 2021)
 
 FEATURES:
 
 * **New Resource:** sumologic_token (GH-203)
+* * **New Datasource:** sumologic_admin_recommended_folder (GH-215)
+
+ENHANCEMENTS:
+
 * Remove requirement of placeholder values for `path` and `authentication` for `sumologic_gcp_source` resource (GH-205) 
+* Add assertion consumer url to terraform saml configuration (GH-200)
 
 ## 2.9.3 (April 26, 2021)
 
