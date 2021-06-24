@@ -5,7 +5,7 @@
 FEATURES:
 
 * **New Resource:** sumologic_token (GH-203)
-* * **New Datasource:** sumologic_admin_recommended_folder (GH-215)
+* **New Datasource:** sumologic_admin_recommended_folder (GH-215)
 
 ENHANCEMENTS:
 
