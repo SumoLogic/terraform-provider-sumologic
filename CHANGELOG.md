@@ -3,6 +3,7 @@
 FEATURES:
 
 * **New Resource:** sumologic_token (GH-203)
+* Remove requirement of placeholder values for `path` and `authentication` for `sumologic_gcp_source` resource (GH-205) 
 
 ## 2.9.3 (April 26, 2021)
 
