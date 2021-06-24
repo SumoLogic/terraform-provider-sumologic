@@ -32,13 +32,14 @@ The following arguments are supported:
   
 The following attributes are exported:
 
-  * `id` - The internal ID of the token. 
+  * `id` - The internal ID of the token.
+  * `encodedTokenAndUrl` - The encoded token for collector registration.
 
 ## Import
 Tokens can be imported using the name, e.g.:
 
 ```hcl
-terraform import sumologic_token tokenName
+terraform import sumologic_token.test id
 ```
 
 [1]: https://help.sumologic.com/Manage/Security/Installation_Tokens
