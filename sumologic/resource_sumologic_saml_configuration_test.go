@@ -214,7 +214,7 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 		}
 		assertion_consumer_url := rs.Primary.Attributes["assertion_consumer_url"]
 		if strings.EqualFold(assertion_consumer_url, "") {
-		    return fmt.Errorf("Assertion Consumer URL not found for Saml Configuration (id=%s)", id)
+			return fmt.Errorf("Assertion Consumer URL not found for Saml Configuration (id=%s)", id)
 		}
 		return nil
 	}

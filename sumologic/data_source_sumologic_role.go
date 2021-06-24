@@ -83,7 +83,7 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)))
+	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)), false)
 	if err != nil {
 		return nil, err
 	}

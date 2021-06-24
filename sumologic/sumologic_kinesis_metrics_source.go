@@ -23,7 +23,7 @@ func (s *Client) CreateKinesisMetricsSource(kinesisMetricsSource KinesisMetricsS
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
-	body, err := s.Post(urlPath, request)
+	body, err := s.Post(urlPath, request, false)
 
 	if err != nil {
 		return -1, err
@@ -41,9 +41,7 @@ func (s *Client) CreateKinesisMetricsSource(kinesisMetricsSource KinesisMetricsS
 
 func (s *Client) GetKinesisMetricsSource(collectorID, sourceID int) (*KinesisMetricsSource, error) {
 
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID), false)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +75,7 @@ func (s *Client) UpdateKinesisMetricsSource(source KinesisMetricsSource, collect
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
-	_, err := s.Put(urlPath, request)
+	_, err := s.Put(urlPath, request, false)
 
 	return err
 }

@@ -14,7 +14,7 @@ func (s *Client) GetConnection(id string) (*Connection, error) {
 	url := fmt.Sprintf("v1/connections/%s", id)
 	log.Printf("connection read url: %s", url)
 
-	rawConnection, _, err := s.Get(url)
+	rawConnection, _, err := s.Get(url, false)
 	if err != nil {
 		log.Printf("SSAIN: The err: %s", err.Error())
 		if strings.Contains(err.Error(), "Connection with given ID does not exist.") {
@@ -60,7 +60,7 @@ func (s *Client) CreateConnection(connection Connection) (string, error) {
 	log.Printf("Create connection url: %s", url)
 
 	connection.Type = convertConToDef(connection.Type)
-	responseData, err := s.Post(url, connection)
+	responseData, err := s.Post(url, connection, false)
 	if err != nil {
 		return "", err
 	}
@@ -83,7 +83,7 @@ func (s *Client) UpdateConnection(connection Connection) error {
 	log.Printf("Update connection job status url: %s", url)
 
 	connection.Type = convertConToDef(connection.Type)
-	_, err := s.Put(url, connection)
+	_, err := s.Put(url, connection, false)
 
 	log.Println("#### End connection update ####")
 	return err

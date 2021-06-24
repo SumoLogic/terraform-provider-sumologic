@@ -18,7 +18,7 @@ import (
 func (s *Client) GetSubdomain() (*Subdomain, error) {
 	urlWithoutParams := "v1/account/subdomain"
 
-	data, _, err := s.Get(urlWithoutParams)
+	data, _, err := s.Get(urlWithoutParams, false)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) GetSubdomain() (*Subdomain, error) {
 func (s *Client) CreateSubdomain(subdomain Subdomain) (string, error) {
 	urlWithoutParams := "v1/account/subdomain"
 
-	data, err := s.Post(urlWithoutParams, subdomain)
+	data, err := s.Post(urlWithoutParams, subdomain, false)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +62,7 @@ func (s *Client) DeleteSubdomain() error {
 func (s *Client) UpdateSubdomain(subdomain Subdomain) (string, error) {
 	urlWithoutParams := "v1/account/subdomain"
 
-	data, err := s.Put(urlWithoutParams, subdomain)
+	data, err := s.Put(urlWithoutParams, subdomain, false)
 
 	var updatedSubdomain Subdomain
 	err = json.Unmarshal(data, &updatedSubdomain)

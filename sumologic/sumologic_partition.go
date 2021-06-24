@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
+	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id), false)
 	if err != nil {
 		if strings.Contains(err.Error(), "Partition Not Found") {
 			if data == nil {
@@ -36,7 +36,7 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 func (s *Client) CreatePartition(spartition Partition) (*Partition, error) {
 	var createdspartition Partition
 
-	responseBody, err := s.Post("v1/partitions", spartition)
+	responseBody, err := s.Post("v1/partitions", spartition, false)
 	if err != nil {
 		return nil, err
 	}
@@ -51,14 +51,14 @@ func (s *Client) CreatePartition(spartition Partition) (*Partition, error) {
 }
 
 func (s *Client) DecommissionPartition(id string) error {
-	_, err := s.Post(fmt.Sprintf("v1/partitions/%s/decommission", id), nil)
+	_, err := s.Post(fmt.Sprintf("v1/partitions/%s/decommission", id), nil, false)
 
 	return err
 }
 
 func (s *Client) UpdatePartition(spartition Partition) error {
 	url := fmt.Sprintf("v1/partitions/%s", spartition.ID)
-	_, err := s.Put(url, spartition)
+	_, err := s.Put(url, spartition, false)
 
 	return err
 }

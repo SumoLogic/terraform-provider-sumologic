@@ -7,7 +7,7 @@ import (
 
 func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 	url := fmt.Sprintf("v2/dashboards/%s", id)
-	data, _, err := s.Get(url)
+	data, _, err := s.Get(url, false)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 }
 
 func (s *Client) CreateDashboard(dashboardReq Dashboard) (*Dashboard, error) {
-	responseBody, err := s.Post("v2/dashboards", dashboardReq)
+	responseBody, err := s.Post("v2/dashboards", dashboardReq, false)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (s *Client) DeleteDashboard(id string) error {
 
 func (s *Client) UpdateDashboard(dashboard Dashboard) error {
 	url := fmt.Sprintf("v2/dashboards/%s", dashboard.ID)
-	_, err := s.Put(url, dashboard)
+	_, err := s.Put(url, dashboard, false)
 	return err
 }
 

@@ -50,7 +50,7 @@ func (s *Client) CreateMetadataSource(source MetadataSource, collectorID int) (i
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
 
-	body, err := s.Post(urlPath, request)
+	body, err := s.Post(urlPath, request, false)
 
 	if err != nil {
 		return -1, err
@@ -68,7 +68,7 @@ func (s *Client) CreateMetadataSource(source MetadataSource, collectorID int) (i
 
 func (s *Client) GetMetadataSource(collectorID, sourceID int) (*MetadataSource, error) {
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath)
+	body, _, err := s.Get(urlPath, false)
 
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (s *Client) UpdateMetadataSource(source MetadataSource, collectorID int) er
 		Source: source,
 	}
 
-	_, err := s.Put(url, request)
+	_, err := s.Put(url, request, false)
 
 	return err
 }

@@ -41,7 +41,7 @@ func (s *Client) CreateGCPSource(gcpSource GCPSource, collectorID int) (int, err
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
-	body, err := s.Post(urlPath, request)
+	body, err := s.Post(urlPath, request, false)
 
 	if err != nil {
 		return -1, err
@@ -59,9 +59,7 @@ func (s *Client) CreateGCPSource(gcpSource GCPSource, collectorID int) (int, err
 
 func (s *Client) GetGCPSource(collectorID, sourceID int) (*GCPSource, error) {
 
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID), false)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +93,7 @@ func (s *Client) UpdateGCPSource(source GCPSource, collectorID int) error {
 	}
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
-	_, err := s.Put(urlPath, request)
+	_, err := s.Put(urlPath, request, false)
 
 	return err
 }

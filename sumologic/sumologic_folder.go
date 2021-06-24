@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -15,7 +16,7 @@ func (s *Client) GetFolder(id string) (*Folder, error) {
 	log.Printf("Folder read url: %s", url)
 
 	//Execute the folder read request
-	rawFolder, _, err := s.Get(url)
+	rawFolder, _, err := s.Get(url, false)
 
 	//If there was an error, exit here and return it
 	if err != nil {
@@ -78,7 +79,7 @@ func (s *Client) CreateFolder(folder Folder) (string, error) {
 	log.Printf("Create folder url: %s", url)
 
 	//Initiate folder creation
-	responseData, err := s.Post(url, folder)
+	responseData, err := s.Post(url, folder, false)
 
 	//Exit if there was an error during the request
 	if err != nil {
@@ -106,7 +107,7 @@ func (s *Client) UpdateFolder(folder Folder) error {
 	url := fmt.Sprintf("v2/content/folders/%s", folder.ID)
 	log.Printf("Update folder job status url: %s", url)
 
-	_, err := s.Put(url, folder)
+	_, err := s.Put(url, folder, false)
 
 	log.Println("####End folder update####")
 	return err
@@ -116,7 +117,7 @@ func (s *Client) UpdateFolder(folder Folder) error {
 func (s *Client) getPersonalFolder() (*Folder, error) {
 	log.Println("####Begin loading Personal Folder####")
 	url := "v2/content/folders/personal"
-	rawFolder, _, err := s.Get(url)
+	rawFolder, _, err := s.Get(url, false)
 	if err != nil {
 		return nil, err
 	}
@@ -134,4 +135,64 @@ func (s *Client) getPersonalFolder() (*Folder, error) {
 
 	log.Println("####End loading Personal Folder####")
 	return &personalFolder, nil
+}
+
+//Retrieve AdminRecommendedFolder with current credentials
+func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, error) {
+	log.Println("####Begin loading Admin Recommended Folder####")
+	url := "v2/content/folders/adminRecommended"
+	rawJID, _, err := s.Get(url, true)
+
+	//If there was an error, exit here and return it
+	if err != nil {
+		if strings.Contains(err.Error(), "Content with the given ID does not exist.") {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var jid JobId
+	err = json.Unmarshal(rawJID, &jid)
+
+	//Exit here if there was an error parsing the json
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("JobId: %s", jid.ID)
+
+	url = fmt.Sprintf("v2/content/folders/adminRecommended/#{jid.ID}/status")
+	log.Printf("Admin recommended folder job status url: %s", url)
+
+	//Ensure the job has completed before proceeding
+	log.Printf("Job Id: %s", jid.ID)
+	err = waitForJob(url, timeout, s)
+	if err != nil {
+		return nil, err
+	}
+
+	// Request the results of the job
+	url = fmt.Sprintf("v2/content/folders/adminRecommended/#{jid.ID}/result")
+	log.Printf("Admin recommended folder job result url: %s", url)
+
+	rawContent, _, err := s.Get(url, false)
+
+	//Exit here if there was an error during the request
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse the export job results and populate the Content struct
+	var adminRecommendedFolder Folder
+	err = json.Unmarshal(rawContent, &adminRecommendedFolder)
+
+	//Exit here if there was an error parsing the json
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("AR Id: %s", adminRecommendedFolder.ID)
+	log.Printf("Name: %s", adminRecommendedFolder.Name)
+	log.Printf("Description: %s", adminRecommendedFolder.Description)
+
+	return &adminRecommendedFolder, nil
 }

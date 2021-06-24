@@ -128,7 +128,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	return d, resp.Header.Get("ETag"), nil
 }
 
-func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
+func (s *Client) Post(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -136,6 +136,10 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, err
+	}
+
+	if isAdminMode {
+		req.Header.Add("isAdminMode", "true")
 	}
 
 	<-rateLimiter.C
@@ -181,14 +185,14 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	return d, nil
 }
 
-func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
+func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
 	SumoMutexKV.Lock(urlPath)
 	defer SumoMutexKV.Unlock(urlPath)
 
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	_, etag, _ := s.Get(sumoURL.String())
+	_, etag, _ := s.Get(sumoURL.String(), false)
 
 	body, _ := json.Marshal(payload)
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
@@ -196,6 +200,10 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("If-Match", etag)
+
+	if isAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
@@ -216,13 +224,17 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	return d, nil
 }
 
-func (s *Client) Get(urlPath string) ([]byte, string, error) {
+func (s *Client) Get(urlPath string, isAdminMode bool) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, "", err
+	}
+
+	if isAdminMode {
+		req.Header.Add("isAdminMode", "true")
 	}
 
 	<-rateLimiter.C

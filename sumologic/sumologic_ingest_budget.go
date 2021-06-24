@@ -18,7 +18,7 @@ type IngestBudget struct {
 }
 
 func (s *Client) CreateIngestBudget(budget IngestBudget) (string, error) {
-	body, err := s.Post("v1/ingestBudgets", budget)
+	body, err := s.Post("v1/ingestBudgets", budget, false)
 
 	if err != nil {
 		return "", err
@@ -35,9 +35,7 @@ func (s *Client) CreateIngestBudget(budget IngestBudget) (string, error) {
 }
 
 func (s *Client) GetIngestBudget(id string) (*IngestBudget, error) {
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/ingestBudgets/%s", id),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets/%s", id), false)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +56,7 @@ func (s *Client) GetIngestBudget(id string) (*IngestBudget, error) {
 
 func (s *Client) UpdateIngestBudget(budget IngestBudget) error {
 	urlPath := fmt.Sprintf("v1/ingestBudgets/%s", budget.ID)
-	_, err := s.Put(urlPath, budget)
+	_, err := s.Put(urlPath, budget, false)
 
 	return err
 }
@@ -78,9 +76,7 @@ func (s *Client) FindIngestBudget(name string) (*IngestBudget, error) {
 	next := ""
 
 	for {
-		body, _, err := s.Get(
-			fmt.Sprintf("v1/ingestBudgets?next=%s", next),
-		)
+		body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets?next=%s", next), false)
 		if err != nil {
 			return nil, err
 		}
@@ -122,9 +118,7 @@ func (s *Client) CollectorAssignedToIngestBudget(ingestBudgetId string, collecto
 	next := ""
 
 	for {
-		body, _, err := s.Get(
-			fmt.Sprintf("v1/ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next),
-		)
+		body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next), false)
 		if err != nil {
 			return false, err
 		}
@@ -158,7 +152,7 @@ func (s *Client) CollectorAssignedToIngestBudget(ingestBudgetId string, collecto
 
 func (s *Client) AssignCollectorToIngestBudget(ingestBudgetId string, collectorId int) error {
 	urlPath := fmt.Sprintf("v1/ingestBudgets/%s/collectors/%d", ingestBudgetId, collectorId)
-	_, err := s.Put(urlPath, nil)
+	_, err := s.Put(urlPath, nil, false)
 
 	return err
 }
