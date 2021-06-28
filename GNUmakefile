@@ -2,11 +2,7 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
-DEV_VERSION_NUMBER=2.7.1
 PLUGIN_DIR=~/.terraform.d/plugins
-# PLUGIN_DIR_V13=~/.terraform.d/plugins/registry.terraform.io/sumologic/sumologic
-PLUGIN_DIR_V13=~/.terraform.d/providers/registry.terraform.io/sumologic/sumologic
-PLUGIN_DIR_SUFFIX=$(DEV_VERSION_NUMBER)/darwin_amd64
 
 default: build
 
@@ -21,14 +17,14 @@ install: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
 	go build -o $(PLUGIN_DIR)/terraform-provider-sumologic
 
-# separate command for installing in the right directory for terraform v0.13+
-install-v13: fmtcheck
+# separate command for installing in the right directory for testing development changes
+install-dev: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
-	go build -o $(PLUGIN_DIR_V13)/$(PLUGIN_DIR_SUFFIX)/terraform-provider-sumologic
+	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
 
 uninstall:
 	@rm -vf $(PLUGIN_DIR)/terraform-provider-sumologic
-	@rm -vf $(PLUGIN_DIR_V13)/$(PLUGIN_DIR_SUFFIX)/terraform-provider-sumologic
+	@rm -vf $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
 
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
