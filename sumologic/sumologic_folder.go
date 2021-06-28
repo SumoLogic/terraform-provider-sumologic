@@ -160,7 +160,7 @@ func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, erro
 	}
 	log.Printf("JobId: %s", jid.ID)
 
-	url = fmt.Sprintf("v2/content/folders/adminRecommended/#{jid.ID}/status")
+	url = fmt.Sprintf("v2/content/folders/adminRecommended/%s/status", jid.ID)
 	log.Printf("Admin recommended folder job status url: %s", url)
 
 	//Ensure the job has completed before proceeding
@@ -171,7 +171,7 @@ func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, erro
 	}
 
 	// Request the results of the job
-	url = fmt.Sprintf("v2/content/folders/adminRecommended/#{jid.ID}/result")
+	url = fmt.Sprintf("v2/content/folders/adminRecommended/%s/result", jid.ID)
 	log.Printf("Admin recommended folder job result url: %s", url)
 
 	rawContent, _, err := s.Get(url, false)
