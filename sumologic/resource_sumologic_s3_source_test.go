@@ -27,7 +27,7 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3SourceDestroy,
 		Steps: []resource.TestStep{
@@ -59,7 +59,7 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
