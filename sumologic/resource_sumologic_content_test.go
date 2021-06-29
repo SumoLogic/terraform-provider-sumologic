@@ -106,7 +106,7 @@ var updateConfigJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "AutoParse"
+		"parsingMode": "Manual"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
@@ -147,7 +147,7 @@ var configJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "AutoParse"
+		"parsingMode": "Manual"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
