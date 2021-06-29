@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-//Testing create functionality for Content resources
 func TestAccContent_create(t *testing.T) {
 	var content Content
 
@@ -98,7 +97,7 @@ func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 
 var updateConfigJson = `{
 	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "test-121",
+	"name": "tf-content-scheduled-search-01",
 	"search": {
 		"queryText": "\"warn\"",
 		"defaultTimeRange": "-15m",
@@ -139,7 +138,7 @@ var updateConfigJson = `{
 
 var configJson = `{
 	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "test-121",
+	"name": "tf-content-scheduled-search-01",
 	"search": {
 		"queryText": "\"error\"",
 		"defaultTimeRange": "-15m",
