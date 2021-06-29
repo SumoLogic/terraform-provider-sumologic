@@ -102,7 +102,6 @@ func (s *Client) CreateOrUpdateContent(content Content, timeout time.Duration, o
 
 	// extract id of newly created content
 	contentId := strings.Split(status.StatusMessage, ":")[1]
-	log.Printf("New content id: %s", contentId)
 	return contentId, nil
 }
 
