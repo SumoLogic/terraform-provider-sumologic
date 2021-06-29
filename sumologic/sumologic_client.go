@@ -312,15 +312,15 @@ func NewClient(accessID, accessKey, environment, base_url string) (*Client, erro
 }
 
 type Error struct {
-	Code    string `json:"status"`
+	Code    string `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail"`
 }
 
 type Status struct {
-	Status        string  `json:"status"`
-	StatusMessage string  `json:"statusMessage"`
-	Errors        []Error `json:"errors"`
+	Status        string `json:"status"`
+	StatusMessage string `json:"statusMessage"`
+	Error         Error  `json:"error"`
 }
 
 type FolderUpdate struct {
