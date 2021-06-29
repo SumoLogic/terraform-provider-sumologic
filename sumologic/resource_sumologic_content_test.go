@@ -89,7 +89,7 @@ func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*Client)
 		_, err := client.GetContent(content.ID, time.Minute)
 		if err == nil {
-			return fmt.Errorf("Content still exists")
+			return fmt.Errorf("Content(id=%s) still exists", content.ID)
 		}
 		return nil
 	}
