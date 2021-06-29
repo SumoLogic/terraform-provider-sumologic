@@ -165,7 +165,7 @@ func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, erro
 
 	//Ensure the job has completed before proceeding
 	log.Printf("Job Id: %s", jid.ID)
-	err = waitForJob(url, timeout, s)
+	_, err = waitForJob(url, timeout, s)
 	if err != nil {
 		return nil, err
 	}
