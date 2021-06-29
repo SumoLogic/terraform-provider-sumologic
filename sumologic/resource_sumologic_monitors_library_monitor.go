@@ -1,8 +1,8 @@
 package sumologic
 
 import (
-	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -352,11 +352,10 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	triggers := make([]interface{}, len(monitor.Triggers))
 	for i, t := range monitor.Triggers {
 		triggers[i] = map[string]interface{}{
-			"trigger_type":   t.TriggerType,
-			"threshold":      t.Threshold,
-			"threshold_type": t.ThresholdType,
-			// we don't read the TimeRange because it overwrites our local timerange and leads to errors
-			"time_range":       d.Get(fmt.Sprintf("triggers.%d.time_range", i)),
+			"trigger_type":     t.TriggerType,
+			"threshold":        t.Threshold,
+			"threshold_type":   t.ThresholdType,
+			"time_range":       strings.TrimPrefix(t.TimeRange, "-"),
 			"occurrence_type":  t.OccurrenceType,
 			"trigger_source":   t.TriggerSource,
 			"detection_method": t.DetectionMethod,

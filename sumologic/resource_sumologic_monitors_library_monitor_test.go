@@ -111,6 +111,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
@@ -195,7 +196,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		{
 			ThresholdType:   "GreaterThan",
 			Threshold:       40.0,
-			TimeRange:       "15m",
+			TimeRange:       "30m",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "Critical",
@@ -204,7 +205,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		{
 			ThresholdType:   "LessThanOrEqual",
 			Threshold:       40.0,
-			TimeRange:       "15m",
+			TimeRange:       "30m",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "ResolvedCritical",
@@ -253,6 +254,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
@@ -267,6 +269,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testUpdatedTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
@@ -398,7 +401,7 @@ resource "sumologic_monitor" "test" {
 	triggers  {
 		threshold_type = "GreaterThan"
 		threshold = 40.0
-		time_range = "15m"
+		time_range = "30m"
 		occurrence_type = "ResultCount"
 		trigger_source = "AllResults"
 		trigger_type = "Critical"
@@ -407,7 +410,7 @@ resource "sumologic_monitor" "test" {
 	  triggers  {
 		threshold_type = "LessThanOrEqual"
 		threshold = 40.0
-		time_range = "15m"
+		time_range = "30m"
 		occurrence_type = "ResultCount"
 		trigger_source = "AllResults"
 		trigger_type = "ResolvedCritical"
