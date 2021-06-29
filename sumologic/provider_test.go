@@ -38,6 +38,10 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("SUMOLOGIC_ENVIRONMENT"); v == "" {
 		t.Fatal("SUMOLOGIC_ENVIRONMENT must be set for acceptance tests")
 	}
+}
+
+func testAccPreCheckWithAWS(t *testing.T) {
+	testAccPreCheck(t)
 	if v := os.Getenv("SUMOLOGIC_TEST_AWS_ID"); v == "" {
 		t.Fatal("SUMOLOGIC_TEST_AWS_ID must be set for polling source acceptance tests")
 	}

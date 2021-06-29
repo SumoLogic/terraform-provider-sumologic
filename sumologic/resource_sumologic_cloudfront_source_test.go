@@ -20,7 +20,7 @@ func TestAccSumologicCloudFrontSource_create(t *testing.T) {
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudFrontSourceDestroy,
 		Steps: []resource.TestStep{
@@ -52,7 +52,7 @@ func TestAccSumologicCloudFrontSource_update(t *testing.T) {
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{

@@ -19,7 +19,7 @@ func TestAccSumologicKinesisMetricsSource_create(t *testing.T) {
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKinesisMetricsSourceDestroy,
 		Steps: []resource.TestStep{
@@ -50,7 +50,7 @@ func TestAccSumologicKinesisMetricsSource_update(t *testing.T) {
 	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
 	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
