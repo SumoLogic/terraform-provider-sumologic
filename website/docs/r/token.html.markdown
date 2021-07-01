@@ -33,7 +33,7 @@ The following arguments are supported:
 The following attributes are exported:
 
   * `id` - The internal ID of the token.
-  * `encodedTokenAndUrl` - The encoded token for collector registration.
+  * `encoded_token_and_url` - The encoded token for collector registration.
 
 ## Import
 Tokens can be imported using the name, e.g.:
