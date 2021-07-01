@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
@@ -96,8 +97,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional: true,
 						},
 						"threshold_type": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 						},
 						"time_range": {
 							Type:     schema.TypeString,

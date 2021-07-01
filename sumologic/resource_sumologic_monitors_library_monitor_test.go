@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -10,6 +11,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
+
+func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	config := `
+       resource "sumologic_monitor" "test" { 
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Logs"
+         triggers {
+           threshold_type = "foo"
+         }
+       }`
+	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
