@@ -91,6 +91,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"trigger_type": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"Critical","Warning","MissingData","ResolvedCritical","ResolvedWarning","ResolvedMissingData"}, false),
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
