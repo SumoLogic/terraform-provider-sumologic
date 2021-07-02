@@ -232,6 +232,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "MonitorsLibraryMonitor",
+				ValidateFunc: validation.StringInSlice([]string{"MonitorsLibraryMonitor", "MonitorsLibraryFolder"}, false),
 			},
 
 			"modified_by": {
