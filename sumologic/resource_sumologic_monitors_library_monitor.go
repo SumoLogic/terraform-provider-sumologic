@@ -115,6 +115,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"occurrence_type": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce","Always","ResultCount","MissingData"}, false),
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
