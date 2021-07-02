@@ -206,6 +206,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"monitor_type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
 			},
 
 			"is_locked": {
