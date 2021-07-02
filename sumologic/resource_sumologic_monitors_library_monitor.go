@@ -110,6 +110,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"trigger_source": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries","AnyTimeSeries","AllResults"}, false),
 						},
 						"occurrence_type": {
 							Type:     schema.TypeString,
