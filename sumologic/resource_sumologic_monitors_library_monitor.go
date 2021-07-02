@@ -120,6 +120,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"detection_method": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"StaticCondition","LogsStaticCondition","MetricsStaticCondition","LogsOutlierCondition","MetricsOutlierCondition","LogsMissingDataCondition","MetricsMissingDataCondition"}, false),
 						},
 					},
 				},
