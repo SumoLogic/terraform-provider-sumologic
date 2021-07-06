@@ -89,9 +89,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"Critical","Warning","MissingData","ResolvedCritical","ResolvedWarning","ResolvedMissingData"}, false),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
@@ -103,24 +103,24 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 						},
 						"time_range": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"5m","10m","15m","30m","60m","1h","3h","6h","12h","24h","1d"}, false),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"5m", "10m", "15m", "30m", "60m", "1h", "3h", "6h", "12h", "24h", "1d"}, false),
 						},
 						"trigger_source": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries","AnyTimeSeries","AllResults"}, false),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries", "AllResults"}, false),
 						},
 						"occurrence_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce","Always","ResultCount","MissingData"}, false),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
 						"detection_method": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"StaticCondition","LogsStaticCondition","MetricsStaticCondition","LogsOutlierCondition","MetricsOutlierCondition","LogsMissingDataCondition","MetricsMissingDataCondition"}, false),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition", "MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition", "LogsMissingDataCondition", "MetricsMissingDataCondition"}, false),
 						},
 					},
 				},
@@ -146,10 +146,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Deprecated: "The field `action_type` is deprecated and will be removed in a future release of the provider - please use `connection_type` instead.",
 									},
 									"connection_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ValidateFunc: validation.StringInSlice([]string{"Email","AWSLambda","AzureFunctions","Datadog","HipChat","Jira","NewRelic","Opsgenie","PagerDuty","Slack","MicrosoftTeams","Webhook"}, false),
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.StringInSlice([]string{"Email", "AWSLambda", "AzureFunctions", "Datadog", "HipChat", "Jira", "NewRelic", "Opsgenie", "PagerDuty", "Slack", "MicrosoftTeams", "Webhook"}, false),
 									},
 									"subject": {
 										Type:     schema.TypeString,
@@ -204,8 +204,8 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"monitor_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
 			},
 
@@ -229,9 +229,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "MonitorsLibraryMonitor",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "MonitorsLibraryMonitor",
 				ValidateFunc: validation.StringInSlice([]string{"MonitorsLibraryMonitor", "MonitorsLibraryFolder"}, false),
 			},
 
