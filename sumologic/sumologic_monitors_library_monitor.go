@@ -148,6 +148,7 @@ type TriggerCondition struct {
 	TriggerType     string  `json:"triggerType"`
 	Threshold       float64 `json:"threshold,omitempty"`
 	ThresholdType   string  `json:"thresholdType,omitempty"`
+	Field           string  `json:"field,omitempty"`
 	OccurrenceType  string  `json:"occurrenceType"`
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
