@@ -152,6 +152,9 @@ type TriggerCondition struct {
 	OccurrenceType  string  `json:"occurrenceType"`
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
+	Window          int     `json:"window,omitempty"`
+	Consecutive     int     `json:"consecutive,omitempty"`
+	Direction       string  `json:"direction,omitempty"`
 }
 
 type MonitorNotification struct {
