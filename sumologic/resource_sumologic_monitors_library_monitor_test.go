@@ -25,7 +25,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
        }`
 	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
 		Steps: []resource.TestStep{
 			{
