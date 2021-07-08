@@ -153,6 +153,7 @@ type TriggerCondition struct {
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
 	Window          int     `json:"window,omitempty"`
+	BaselineWindow  string  `json:"baselineWindow,omitempty"`
 	Consecutive     int     `json:"consecutive,omitempty"`
 	Direction       string  `json:"direction,omitempty"`
 }

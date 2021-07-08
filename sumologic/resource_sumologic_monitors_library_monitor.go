@@ -131,6 +131,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
+						"baseline_window": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"consecutive": {
 							Type:         schema.TypeInt,
 							Optional:     true,
@@ -390,6 +394,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 			"trigger_source":   t.TriggerSource,
 			"detection_method": t.DetectionMethod,
 			"window":           t.Window,
+			"baseline_window":  strings.TrimPrefix(t.BaselineWindow, "-"),
 			"consecutive":      t.Consecutive,
 			"direction":        t.Direction,
 		}
@@ -507,6 +512,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 			TriggerSource:   triggerDict["trigger_source"].(string),
 			DetectionMethod: triggerDict["detection_method"].(string),
 			Window:          triggerDict["window"].(int),
+			BaselineWindow:  triggerDict["baseline_window"].(string),
 			Consecutive:     triggerDict["consecutive"].(int),
 			Direction:       triggerDict["direction"].(string),
 		}
