@@ -1,4 +1,6 @@
-## 2.9.5 (Unreleased)
+## 2.9.6 (Unreleased)
+
+## 2.9.5 (July 8, 2021)
 
 ENHANCEMENTS:
 
