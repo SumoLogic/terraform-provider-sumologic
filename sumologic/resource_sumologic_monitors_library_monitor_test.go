@@ -182,6 +182,42 @@ func TestAccSumologicMonitorsLibraryMonitor_createLogsStaticMonitors(t *testing.
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_createMetricsStaticMonitors(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: exampleMetricsStaticMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", "Metrics"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", "Monitor"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", "A"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.query", "_sourceCategory=monitor-manager error"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", "Critical"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", "15m"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.threshold",   "40"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.threshold_type", "GreaterThan"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.occurrence_type", "Always"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.detection_method", "MetricsStaticCondition"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", "Email"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_createLogsOutlierMonitors(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
@@ -245,6 +281,73 @@ func TestAccSumologicMonitorsLibraryMonitor_createMetricsOutlierMonitors(t *test
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.threshold", "3"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.direction", "Both"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.detection_method", "MetricsOutlierCondition"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", "Email"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_createLogsMissingDataMonitors(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: exampleLogsMissingDataMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", "Logs"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", "Monitor"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", "A"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.query", "_sourceCategory=monitor-manager info"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", "MissingData"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", "15m"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.detection_method", "LogsMissingDataCondition"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", "Email"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_createMetricsMissingDataMonitors(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: exampleMetricsMissingDataMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", "Metrics"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", "Monitor"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", "A"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.query", "_sourceCategory=monitor-manager"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", "MissingData"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", "15m"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_source", "AllTimeSeries"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.detection_method", "MetricsMissingDataCondition"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", "Email"),
 				),
 			},
@@ -560,6 +663,48 @@ resource "sumologic_monitor" "test" {
 }`, testName, fieldName, fieldName, fieldName)
 }
 
+func exampleMetricsStaticMonitor(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Metrics"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "15m"
+		trigger_type = "Critical"
+        occurrence_type = "Always"
+		detection_method = "MetricsStaticCondition"
+	  }
+	triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "15m"
+		trigger_type = "ResolvedCritical"
+        occurrence_type = "Always"
+		detection_method = "MetricsStaticCondition"
+	  }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	  }
+}`, testName)
+}
+
 func exampleLogsOutlierMonitor(testName string, fieldName string) string {
 	return fmt.Sprintf(`
 resource "sumologic_monitor" "test" {
@@ -640,6 +785,80 @@ resource "sumologic_monitor" "test" {
 			message_body = "test"
 		  }
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	  }
+}`, testName)
+}
+
+func exampleLogsMissingDataMonitor(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager info"
+	  }
+	triggers  {
+		time_range = "15m"
+		trigger_type = "MissingData"
+		detection_method = "LogsMissingDataCondition"
+	  }
+	triggers  {
+		time_range = "15m"
+		trigger_type = "ResolvedMissingData"
+		detection_method = "LogsMissingDataCondition"
+	  }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["MissingData", "ResolvedMissingData"]
+	  }
+}`, testName)
+}
+
+func exampleMetricsMissingDataMonitor(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Metrics"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager"
+	  }
+	triggers  {
+		time_range = "15m"
+		trigger_type = "MissingData"
+        trigger_source = "AllTimeSeries"
+		detection_method = "MetricsMissingDataCondition"
+	  }
+	triggers  {
+		time_range = "15m"
+		trigger_type = "ResolvedMissingData"
+        trigger_source = "AllTimeSeries"
+		detection_method = "MetricsMissingDataCondition"
+	  }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["MissingData", "ResolvedMissingData"]
 	  }
 }`, testName)
 }
