@@ -105,7 +105,7 @@ func (s *Client) CreateOrUpdateContent(content Content, timeout time.Duration, o
 	return contentId, nil
 }
 
-func waitForJob(url string, timeout time.Duration, s *Client) (Status, error) {
+func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
 	conf := &resource.StateChangeConf{
 		Pending: []string{
 			"InProgress",
@@ -125,8 +125,8 @@ func waitForJob(url string, timeout time.Duration, s *Client) (Status, error) {
 				return nil, "", err
 			}
 
-			if status.Status == "failed" {
-				return status, status.Status, fmt.Errorf("job failed: %s", status.StatusMessage)
+			if status.Status == "Failed" {
+				return status, status.Status, fmt.Errorf("Failed - %s", status.Error)
 			}
 
 			return status, status.Status, nil
@@ -137,6 +137,10 @@ func waitForJob(url string, timeout time.Duration, s *Client) (Status, error) {
 	}
 
 	result, err := conf.WaitForState()
-	log.Printf("[DEBUG] job result: %v", result)
-	return result.(Status), err
+	log.Printf("[DEBUG] Done waiting for job; err: %s, result: %v", err, result)
+	if status, ok := result.(Status); ok {
+		return &status, err
+	} else {
+		return nil, err
+	}
 }

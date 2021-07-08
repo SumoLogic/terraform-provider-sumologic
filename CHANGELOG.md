@@ -1,5 +1,13 @@
 ## 2.9.5 (Unreleased)
 
+ENHANCEMENTS:
+
+* Add validation for monitor resource (GH-223)
+
+BUG FIXES:
+
+* Set error message on failure for content resource (GH-224)
+
 ## 2.9.4 (June 24, 2021)
 
 FEATURES:
@@ -9,7 +17,7 @@ FEATURES:
 
 ENHANCEMENTS:
 
-* Remove requirement of placeholder values for `path` and `authentication` for `sumologic_gcp_source` resource (GH-205) 
+* Remove requirement of placeholder values for `path` and `authentication` for `sumologic_gcp_source` resource (GH-205)
 * Add assertion consumer url to terraform saml configuration (GH-200)
 
 ## 2.9.3 (April 26, 2021)
