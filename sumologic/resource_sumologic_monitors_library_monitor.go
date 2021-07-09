@@ -88,6 +88,71 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"trigger": {
+							Type: schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"static_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getStaticConditionSchema(),
+										},
+									},
+									"logs_static_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getLogsStaticConditionSchema(),
+										},
+									},
+									"metrics_static_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getMetricsStaticConditionSchema(),
+										},
+									},
+									"logs_outlier_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getLogsOutlierConditionSchema(),
+										},
+									},
+									"metrics_outlier_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getMetricsOutlierConditionSchema(),
+										},
+									},
+									"logs_missing_data_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getLogsMissingDataConditionSchema(),
+										},
+									},
+									"metrics_missing_data_condition": {
+										Type: schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: getMetricsMissingDataConditionSchema(),
+										},
+									},
+								},
+							},
+						},
 						"trigger_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -534,3 +599,190 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		GroupNotifications: d.Get("group_notifications").(bool),
 	}
 }
+
+func getStaticConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
+		},
+		"threshold": {
+			Type:     schema.TypeFloat,
+			Optional: true,
+		},
+		"threshold_type": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+		},
+		"field": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"time_range": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+		},
+		"trigger_source": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries", "AllResults"}, false),
+		},
+		"occurrence_type": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
+		},
+	}
+}
+
+func getLogsStaticConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "ResolvedCritical", "ResolvedWarning"}, false),
+		},
+		"threshold": {
+			Type:     schema.TypeFloat,
+			Required: true,
+		},
+		"threshold_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+		},
+		"field": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"time_range": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+		},
+	}
+}
+
+func getMetricsStaticConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "ResolvedCritical", "ResolvedWarning"}, false),
+		},
+		"threshold": {
+			Type:     schema.TypeFloat,
+			Required: true,
+		},
+		"threshold_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+		},
+		"time_range": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+		},
+		"occurrence_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
+		},
+	}
+}
+
+func getLogsOutlierConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "ResolvedCritical", "ResolvedWarning"}, false),
+		},
+		"field": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"window": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			ValidateFunc: validation.IntAtLeast(1),
+		},
+		"consecutive": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			ValidateFunc: validation.IntAtLeast(1),
+		},
+		"direction": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+		},
+		"threshold": {
+			Type:     schema.TypeFloat,
+			Optional: true,
+		},
+	}
+}
+
+func getMetricsOutlierConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "ResolvedCritical", "ResolvedWarning"}, false),
+		},
+		"threshold": {
+			Type:     schema.TypeFloat,
+			Optional: true,
+		},
+		"baseline_window": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"direction": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+		},
+	}
+}
+
+func getLogsMissingDataConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"MissingData", "ResolvedMissingData"}, false),
+		},
+		"time_range": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+		},
+	}
+}
+
+func getMetricsMissingDataConditionSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"trigger_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"MissingData", "ResolvedMissingData"}, false),
+		},
+		"time_range": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+		},
+		"trigger_source": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries"}, false),
+		},
+	}
+}
+
