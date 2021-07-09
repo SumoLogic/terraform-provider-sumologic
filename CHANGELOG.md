@@ -1,4 +1,8 @@
-## 2.9.6 (Unreleased)
+## 2.9.6 (July 9, 2021)
+
+BUF FIXES:
+
+* Allow negative terse values for monitor threshold (GH-230)
 
 ## 2.9.5 (July 8, 2021)
 
