@@ -22,6 +22,11 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	// NOTE: Before sending out, denormalize TriggerConditions
+	for i, t := range monitorsLibraryMonitor.Triggers {
+		monitorsLibraryMonitor.Triggers[i] = DenormalizeTriggerCondition(t)
+	}
+
 	data, err := s.Post(urlWithParams, monitorsLibraryMonitor, false)
 	if err != nil {
 		return "", err
@@ -63,6 +68,11 @@ func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 		return nil, err
 	}
 
+	// NOTE: Normalize all TriggerConditions
+	for i, t := range monitorsLibraryMonitor.Triggers {
+		monitorsLibraryMonitor.Triggers[i] = NormalizeTriggerCondition(t)
+	}
+
 	return &monitorsLibraryMonitor, nil
 }
 
@@ -89,6 +99,10 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 	monitorsLibraryMonitor.ID = ""
 
+	// NOTE: Before sending out, denormalize TriggerConditions
+	for i, t := range monitorsLibraryMonitor.Triggers {
+		monitorsLibraryMonitor.Triggers[i] = DenormalizeTriggerCondition(t)
+	}
 	_, err := s.Put(urlWithParams, monitorsLibraryMonitor, false)
 
 	return err
@@ -111,6 +125,198 @@ func (s *Client) MoveMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibra
 	_, err := s.Put(urlWithParams, monitorsLibraryMonitor, false)
 
 	return err
+}
+
+func NormalizeTriggerCondition(condition TriggerCondition) TriggerCondition {
+	trigger := Trigger{}
+	switch condition.DetectionMethod {
+	case "StaticCondition":
+		trigger.StaticCondition = toStaticCondition(condition)
+	case "LogsStaticCondition":
+		trigger.LogsStaticCondition = toLogsStaticCondition(condition)
+	case "MetricsStaticCondition":
+		trigger.MetricsStaticCondition = toMetricsStaticCondition(condition)
+	case "LogsOutlierCondition":
+		trigger.LogsOutlierCondition = toLogsOutlierCondition(condition)
+	case "MetricsOutlierCondition":
+		trigger.MetricsOutlierCondition = toMetricsOutlierCondition(condition)
+	case "LogsMissingDataCondition":
+		trigger.LogsMissingDataCondition = toLogsMissingDataCondition(condition)
+	case "MetricsMissingDataCondition":
+		trigger.MetricsMissingDataCondition = toMetricsMissingDataCondition(condition)
+	default:
+		fmt.Errorf("NormalizeTriggerCondition: Invalid detection method %s\n", condition.DetectionMethod)
+	}
+	return TriggerCondition{
+		Trigger: &trigger,
+	}
+}
+
+func DenormalizeTriggerCondition(condition TriggerCondition) TriggerCondition {
+	switch trigger := condition.Trigger; {
+	case trigger != nil:
+		switch {
+		case trigger.StaticCondition != nil:
+			return fromStaticCondition(trigger.StaticCondition)
+		case trigger.LogsStaticCondition != nil:
+			return fromLogsStaticCondition(trigger.LogsStaticCondition)
+		case trigger.MetricsStaticCondition != nil:
+			return fromMetricsStaticCondition(trigger.MetricsStaticCondition)
+		case trigger.LogsOutlierCondition != nil:
+			return fromLogsOutlierCondition(trigger.LogsOutlierCondition)
+		case trigger.MetricsOutlierCondition != nil:
+			return fromMetricsOutlierCondition(trigger.MetricsOutlierCondition)
+		case trigger.LogsMissingDataCondition != nil:
+			return fromLogsMissingDataCondition(trigger.LogsMissingDataCondition)
+		case trigger.MetricsMissingDataCondition != nil:
+			return fromMetricsMissingDataCondition(trigger.MetricsMissingDataCondition)
+		default:
+			return condition
+		}
+	default:
+		return condition // TODO: Error handling?
+	}
+}
+
+func toStaticCondition(condition TriggerCondition) *StaticCondition {
+	return &StaticCondition{
+		TimeRange:      condition.TimeRange,
+		TriggerType:    condition.TriggerType,
+		Threshold:      condition.Threshold,
+		ThresholdType:  condition.ThresholdType,
+		OccurrenceType: condition.OccurrenceType,
+		TriggerSource:  condition.TriggerSource,
+		Field:          condition.Field,
+	}
+}
+
+func toLogsStaticCondition(condition TriggerCondition) *LogsStaticCondition {
+	return &LogsStaticCondition{
+		TimeRange:     condition.TimeRange,
+		TriggerType:   condition.TriggerType,
+		Threshold:     condition.Threshold,
+		ThresholdType: condition.ThresholdType,
+		Field:         condition.Field,
+	}
+}
+
+func toMetricsStaticCondition(condition TriggerCondition) *MetricsStaticCondition {
+	return &MetricsStaticCondition{
+		TimeRange:      condition.TimeRange,
+		TriggerType:    condition.TriggerType,
+		Threshold:      condition.Threshold,
+		ThresholdType:  condition.ThresholdType,
+		OccurrenceType: condition.OccurrenceType,
+	}
+}
+
+func toLogsOutlierCondition(condition TriggerCondition) *LogsOutlierCondition {
+	return &LogsOutlierCondition{
+		TriggerType: condition.TriggerType,
+		Threshold:   condition.Threshold,
+		Field:       condition.Field,
+		Window:      condition.Window,
+		Consecutive: condition.Consecutive,
+		Direction:   condition.Direction,
+	}
+}
+
+func toMetricsOutlierCondition(condition TriggerCondition) *MetricsOutlierCondition {
+	return &MetricsOutlierCondition{
+		TriggerType:    condition.TriggerType,
+		Threshold:      condition.Threshold,
+		BaselineWindow: condition.BaselineWindow,
+		Direction:      condition.Direction,
+	}
+}
+
+func toLogsMissingDataCondition(condition TriggerCondition) *LogsMissingDataCondition {
+	return &LogsMissingDataCondition{
+		TimeRange:   condition.TimeRange,
+		TriggerType: condition.TriggerType,
+	}
+}
+
+func toMetricsMissingDataCondition(condition TriggerCondition) *MetricsMissingDataCondition {
+	return &MetricsMissingDataCondition{
+		TimeRange:     condition.TimeRange,
+		TriggerType:   condition.TriggerType,
+		TriggerSource: condition.TriggerSource,
+	}
+}
+
+func fromStaticCondition(condition *StaticCondition) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       condition.TimeRange,
+		TriggerType:     condition.TriggerType,
+		Threshold:       condition.Threshold,
+		ThresholdType:   condition.ThresholdType,
+		OccurrenceType:  condition.OccurrenceType,
+		TriggerSource:   condition.TriggerSource,
+		Field:           condition.Field,
+		DetectionMethod: "StaticCondition",
+	}
+}
+
+func fromLogsStaticCondition(condition *LogsStaticCondition) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       condition.TimeRange,
+		TriggerType:     condition.TriggerType,
+		Threshold:       condition.Threshold,
+		ThresholdType:   condition.ThresholdType,
+		Field:           condition.Field,
+		DetectionMethod: "LogsStaticCondition",
+	}
+}
+
+func fromMetricsStaticCondition(condition *MetricsStaticCondition) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       condition.TimeRange,
+		TriggerType:     condition.TriggerType,
+		Threshold:       condition.Threshold,
+		ThresholdType:   condition.ThresholdType,
+		OccurrenceType:  condition.OccurrenceType,
+		DetectionMethod: "MetricsStaticCondition",
+	}
+}
+
+func fromLogsOutlierCondition(condition *LogsOutlierCondition) TriggerCondition {
+	return TriggerCondition{
+		TriggerType:     condition.TriggerType,
+		Threshold:       condition.Threshold,
+		Field:           condition.Field,
+		Window:          condition.Window,
+		Consecutive:     condition.Consecutive,
+		Direction:       condition.Direction,
+		DetectionMethod: "LogsOutlierCondition",
+	}
+}
+
+func fromMetricsOutlierCondition(condition *MetricsOutlierCondition) TriggerCondition {
+	return TriggerCondition{
+		TriggerType:     condition.TriggerType,
+		Threshold:       condition.Threshold,
+		BaselineWindow:  condition.BaselineWindow,
+		Direction:       condition.Direction,
+		DetectionMethod: "MetricsOutlierCondition",
+	}
+}
+
+func fromLogsMissingDataCondition(condition *LogsMissingDataCondition) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       condition.TimeRange,
+		TriggerType:     condition.TriggerType,
+		DetectionMethod: "LogsMissingDataCondition",
+	}
+}
+
+func fromMetricsMissingDataCondition(condition *MetricsMissingDataCondition) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       condition.TimeRange,
+		TriggerType:     condition.TriggerType,
+		TriggerSource:   condition.TriggerSource,
+		DetectionMethod: "MetricsMissingDataCondition",
+	}
 }
 
 // ---------- TYPES ----------
@@ -151,6 +357,77 @@ type TriggerCondition struct {
 	OccurrenceType  string  `json:"occurrenceType"`
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
+	Field           string  `json:"field,omitempty"`
+	Window          int     `json:"window,omitempty"`
+	BaselineWindow  string  `json:"baselineWindow,omitempty"`
+	Consecutive     int     `json:"consecutive,omitempty"`
+	Direction       string  `json:"direction,omitempty"`
+	// NOTE: 'Trigger' is an internal-only optional field--it is not translated to/from infrastructure JSON.
+	// Methods NormalizeTriggerCondition and DenormalizeTriggerCondition move TriggerCondition's attributes to (resp. from) Trigger.
+	Trigger *Trigger `json:"-"`
+}
+
+type Trigger struct {
+	StaticCondition             *StaticCondition
+	LogsStaticCondition         *LogsStaticCondition
+	MetricsStaticCondition      *MetricsStaticCondition
+	LogsOutlierCondition        *LogsOutlierCondition
+	MetricsOutlierCondition     *MetricsOutlierCondition
+	LogsMissingDataCondition    *LogsMissingDataCondition
+	MetricsMissingDataCondition *MetricsMissingDataCondition
+}
+
+type StaticCondition struct {
+	TimeRange      string
+	TriggerType    string
+	Threshold      float64
+	ThresholdType  string
+	OccurrenceType string
+	TriggerSource  string
+	Field          string
+}
+
+type LogsStaticCondition struct {
+	TimeRange     string
+	TriggerType   string
+	Threshold     float64
+	ThresholdType string
+	Field         string
+}
+
+type MetricsStaticCondition struct {
+	TimeRange      string
+	TriggerType    string
+	Threshold      float64
+	ThresholdType  string
+	OccurrenceType string
+}
+
+type LogsOutlierCondition struct {
+	TriggerType string
+	Threshold   float64
+	Field       string
+	Window      int
+	Consecutive int
+	Direction   string
+}
+
+type MetricsOutlierCondition struct {
+	TriggerType    string
+	Threshold      float64
+	BaselineWindow string
+	Direction      string
+}
+
+type LogsMissingDataCondition struct {
+	TimeRange   string
+	TriggerType string
+}
+
+type MetricsMissingDataCondition struct {
+	TimeRange     string
+	TriggerType   string
+	TriggerSource string
 }
 
 type MonitorNotification struct {

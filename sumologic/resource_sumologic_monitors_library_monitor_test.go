@@ -12,6 +12,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestSumologicMonitorsLibraryMonitor_TriggerResourceConverters(t *testing.T) {
+	// Converting between resource to Trigger should preserve information
+	testTriggerRefsAreEqual(t,
+		resourceToTrigger(triggerToResource(&staticConditionTriggerExample)),
+		&staticConditionTriggerExample)
+}
+
+func TestSumologicMonitorsLibraryMonitor_TriggerConditionNormalization(t *testing.T) {
+	for _, trigger := range allExampleTriggers {
+		normalized := TriggerCondition{Trigger: &trigger}
+		denormalized := DenormalizeTriggerCondition(normalized)
+		if denormalized.Trigger != nil {
+			t.Error("Expected Trigger to be nil after denormalization. Got:", denormalized.Trigger)
+		}
+		switch renormalizedTrigger := NormalizeTriggerCondition(denormalized).Trigger; {
+		case renormalizedTrigger == nil:
+			t.Error("Expected Trigger to be not nil after normalization")
+		default:
+			testTriggerRefsAreEqual(t, renormalizedTrigger, &trigger)
+		}
+	}
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
@@ -454,3 +477,133 @@ resource "sumologic_monitor" "test" {
 	  }
 }`, testName)
 }
+
+func testTriggerRefsAreEqual(t *testing.T, test *Trigger, expected *Trigger) {
+	testTriggersAreEqual(t, *test, *expected)
+}
+
+func testTriggersAreEqual(t *testing.T, test Trigger, expected Trigger) {
+	switch {
+	case expected.StaticCondition != nil:
+		if test.StaticCondition == nil {
+			t.Fatal("Expected StaticCondition, got nil")
+		} 
+		if *(test.StaticCondition) != *(expected.StaticCondition) {
+			t.Fatal("Expected StaticCondition", *(expected.StaticCondition), "got", *(test.StaticCondition))
+		}
+	case expected.LogsStaticCondition != nil:
+		if test.LogsStaticCondition == nil {
+			t.Fatal("Expected LogsStaticCondition, got nil")
+		}
+		if *(test.LogsStaticCondition) != *(expected.LogsStaticCondition) {
+			t.Fatal("Expected LogsStaticCondition", *(expected.LogsStaticCondition), "got", *(test.LogsStaticCondition))
+		}
+	case expected.MetricsStaticCondition != nil:
+		if test.MetricsStaticCondition == nil {
+			t.Fatal("Expected MetricsStaticCondition, got nil")
+		}
+		if *(test.MetricsStaticCondition) != *(expected.MetricsStaticCondition) {
+			t.Fatal("Expected MetricsStaticCondition", *(expected.MetricsStaticCondition), "got", *(test.MetricsStaticCondition))
+		}
+	case expected.LogsOutlierCondition != nil:
+		if test.LogsOutlierCondition == nil {
+			t.Fatal("Expected LogsOutlierCondition, got nil")
+		}
+		if *(test.LogsOutlierCondition) != *(expected.LogsOutlierCondition) {
+			t.Fatal("Expected LogsOutlierCondition", *(expected.LogsOutlierCondition), "got", *(test.LogsOutlierCondition))
+		}
+	case expected.MetricsOutlierCondition != nil:
+		if test.MetricsOutlierCondition == nil {
+			t.Fatal("Expected MetricsOutlierCondition, got nil")
+		}
+		if *(test.MetricsOutlierCondition) != *(expected.MetricsOutlierCondition) {
+			t.Fatal("Expected MetricsOutlierCondition", *(expected.MetricsOutlierCondition), "got", *(test.MetricsOutlierCondition))
+		}
+	case expected.LogsMissingDataCondition != nil:
+		if test.LogsMissingDataCondition == nil {
+			t.Fatal("Expected LogsMissingDataCondition, got nil")
+		}
+		if *(test.LogsMissingDataCondition) != *(expected.LogsMissingDataCondition) {
+			t.Fatal("Expected LogsMissingDataCondition", *(expected.LogsMissingDataCondition), "got", *(test.LogsMissingDataCondition))
+		}
+	case expected.MetricsMissingDataCondition != nil:
+		if test.MetricsMissingDataCondition == nil {
+			t.Fatal("Expected MetricsMissingDataCondition, got nil")
+		}
+		if *(test.MetricsMissingDataCondition) != *(expected.MetricsMissingDataCondition) {
+			t.Fatal("Expected MetricsMissingDataCondition", *(expected.MetricsMissingDataCondition), "got", *(test.MetricsMissingDataCondition))
+		}
+	default:
+		t.Fatal("Internal error: bad expected value:", expected)
+	}
+}
+
+var staticConditionTriggerExample = Trigger{
+	StaticCondition: &StaticCondition{
+		TimeRange:      "-15m",
+		TriggerType:    "Critical",
+		Threshold:      100,
+		ThresholdType:  "LessThan",
+		Field:          "field",
+		TriggerSource:  "AllResults",
+		OccurrenceType: "Always",
+	},
+}
+
+var logsStaticConditionTriggerExample = Trigger{
+	LogsStaticCondition: &LogsStaticCondition{
+		TimeRange:     "-15m",
+		TriggerType:   "Critical",
+		Threshold:     100,
+		ThresholdType: "LessThan",
+		Field:         "field",
+	},
+}
+
+var metricsStaticConditionTriggerExample = Trigger{
+	MetricsStaticCondition: &MetricsStaticCondition{
+		TimeRange:      "-15m",
+		TriggerType:    "Critical",
+		Threshold:      100,
+		ThresholdType:  "LessThan",
+		OccurrenceType: "Always",
+	},
+}
+
+var logsOutlierConditionTriggerExample = Trigger{
+	LogsOutlierCondition: &LogsOutlierCondition{
+		TriggerType: "Critical",
+		Threshold:   100,
+		Field:       "field",
+		Window:      5,
+		Consecutive: 1,
+		Direction:   "Both",
+	},
+}
+
+var metricsOutlierConditionTriggerExample = Trigger{
+	MetricsOutlierCondition: &MetricsOutlierCondition{
+		TriggerType:    "Critical",
+		Threshold:      100,
+		BaselineWindow: "-1d",
+		Direction:      "Both",
+	},
+}
+
+var logsMissingDataConditionTriggerExample = Trigger{
+	LogsMissingDataCondition: &LogsMissingDataCondition{
+		TimeRange:   "-15m",
+		TriggerType: "Critical",
+	},
+}
+
+var metricsMissingDataConditionTriggerExample = Trigger{
+	MetricsMissingDataCondition: &MetricsMissingDataCondition{
+		TimeRange:     "-15m",
+		TriggerType:   "Critical",
+		TriggerSource: "AllTimeSeries",
+	},
+}
+
+var allExampleTriggers = []Trigger{staticConditionTriggerExample, logsStaticConditionTriggerExample, metricsStaticConditionTriggerExample, logsOutlierConditionTriggerExample, metricsOutlierConditionTriggerExample, logsMissingDataConditionTriggerExample, metricsMissingDataConditionTriggerExample}
+

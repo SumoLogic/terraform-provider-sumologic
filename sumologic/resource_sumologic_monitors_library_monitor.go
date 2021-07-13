@@ -1,11 +1,10 @@
 package sumologic
 
 import (
-	"log"
-	"strings"
-
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 )
 
 func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
@@ -89,13 +88,13 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"trigger": {
-							Type: schema.TypeList,
+							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"static_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -103,7 +102,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"logs_static_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -111,7 +110,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"metrics_static_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -119,7 +118,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"logs_outlier_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -127,7 +126,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"metrics_outlier_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -135,7 +134,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"logs_missing_data_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -143,7 +142,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										},
 									},
 									"metrics_missing_data_condition": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										MaxItems: 1,
 										Optional: true,
 										Elem: &schema.Resource{
@@ -425,15 +424,10 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	}
 	// set triggers
 	triggers := make([]interface{}, len(monitor.Triggers))
-	for i, t := range monitor.Triggers {
+	for i, unNormalized := range monitor.Triggers {
+		t := NormalizeTriggerCondition(unNormalized)
 		triggers[i] = map[string]interface{}{
-			"trigger_type":     t.TriggerType,
-			"threshold":        t.Threshold,
-			"threshold_type":   t.ThresholdType,
-			"time_range":       strings.TrimPrefix(t.TimeRange, "-"),
-			"occurrence_type":  t.OccurrenceType,
-			"trigger_source":   t.TriggerSource,
-			"detection_method": t.DetectionMethod,
+			"trigger": triggerToResource(t.Trigger),
 		}
 	}
 	if err := d.Set("triggers", triggers); err != nil {
@@ -548,8 +542,115 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 			TriggerSource:   triggerDict["trigger_source"].(string),
 			DetectionMethod: triggerDict["detection_method"].(string),
 		}
+		if val, ok := triggerDict["trigger"]; ok {
+			triggers[i].Trigger = resourceToTrigger(val)
+		}
 	}
 	return triggers
+}
+
+func resourceToTrigger(val interface{}) *Trigger {
+	if elems, ok := val.([]map[string]interface{}); ok && len(elems) == 1 {
+		tf := elems[0]
+		if val, ok := tf["static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{StaticCondition: resourceToStaticCondition(val[0])}
+		} else if val, ok := tf["logs_static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{LogsStaticCondition: resourceToLogsStaticCondition(val[0])}
+		} else {
+			fmt.Errorf("Internal error: could not convert resource %s to Trigger", val)
+		} /*else if val, ok := tf["metrics_static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{MetricsStaticCondition: resourceToMetricsStaticCondition(val[0])}
+		} else if val, ok := tf["logs_outlier_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{LogsOutlierCondition: resourceToLogsOutlierCondition(val[0])}
+		} else if val, ok := tf["metrics_outlier_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{MetricsOutlierCondition: resourceToMetricsOutlierCondition(val[0])}
+		} else if val, ok := tf["logs_missing_data_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{LogsMissingDataCondition: resourceToLogsMissingDataCondition(val[0])}
+		} else if val, ok := tf["metrics_missing_data_condition"].([]map[string]interface{}); ok && len(val) == 1 {
+			return &Trigger{MetricsMissingDataCondition: resourceToMetricsMissingDataCondition(val[0])}
+		} */
+	}
+	fmt.Errorf("Didn't find a static_condition in resource %s. Returning empty Trigger", val)
+	return &Trigger{}
+}
+
+func resourceToStaticCondition(tf map[string](interface{})) *StaticCondition {
+	condition := StaticCondition{}
+	if val, ok := tf["time_range"]; ok {
+		condition.TimeRange = val.(string)
+	}
+	if val, ok := tf["trigger_type"]; ok {
+		condition.TriggerType = val.(string)
+	}
+	if val, ok := tf["threshold"]; ok {
+		condition.Threshold = val.(float64)
+	}
+	if val, ok := tf["threshold_type"]; ok {
+		condition.ThresholdType = val.(string)
+	}
+	if val, ok := tf["occurrence_type"]; ok {
+		condition.OccurrenceType = val.(string)
+	}
+	if val, ok := tf["trigger_source"]; ok {
+		condition.TriggerSource = val.(string)
+	}
+	if val, ok := tf["field"]; ok {
+		condition.Field = val.(string)
+	}
+	return &condition
+}
+
+func resourceToLogsStaticCondition(tf map[string](interface{})) *LogsStaticCondition {
+	condition := LogsStaticCondition{}
+	if val, ok := tf["time_range"]; ok {
+		condition.TimeRange = val.(string)
+	}
+	if val, ok := tf["trigger_type"]; ok {
+		condition.TriggerType = val.(string)
+	}
+	if val, ok := tf["threshold"]; ok {
+		condition.Threshold = val.(float64)
+	}
+	if val, ok := tf["threshold_type"]; ok {
+		condition.ThresholdType = val.(string)
+	}
+	if val, ok := tf["field"]; ok {
+		condition.Field = val.(string)
+	}
+	return &condition
+}
+
+func triggerToResource(trigger *Trigger) []map[string]interface{} {
+	resource := map[string]interface{}{}
+	switch {
+	case trigger.StaticCondition != nil:
+		resource["static_condition"] = staticConditionToResource(trigger.StaticCondition)
+	case trigger.LogsStaticCondition != nil:
+		resource["logs_static_condition"] = logsStaticConditionToResource(trigger.LogsStaticCondition)
+	}
+	return []map[string]interface{}{resource}
+}
+
+func staticConditionToResource(condition *StaticCondition) []map[string]interface{} {
+	return []map[string]interface{}{map[string]interface{}{
+		"time_range":      condition.TimeRange,
+		"trigger_type":    condition.TriggerType,
+		"threshold":       condition.Threshold,
+		"threshold_type":  condition.ThresholdType,
+		"occurrence_type": condition.OccurrenceType,
+		"trigger_source":  condition.TriggerSource,
+		"field":           condition.Field,
+	}}
+}
+
+func logsStaticConditionToResource(condition *LogsStaticCondition) []map[string]interface{} {
+	return []map[string]interface{}{map[string]interface{}{
+		"time_range":     condition.TimeRange,
+		"trigger_type":   condition.TriggerType,
+		"threshold":      condition.Threshold,
+		"threshold_type": condition.ThresholdType,
+		"field":          condition.Field,
+	}}
 }
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
@@ -785,4 +886,3 @@ func getMetricsMissingDataConditionSchema() map[string]*schema.Schema {
 		},
 	}
 }
-
