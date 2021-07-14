@@ -12,6 +12,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestSumologicMonitorsLibraryMonitor_TriggerResourceConverters(t *testing.T) {
+	// Converting between resource to Trigger should preserve information
+	trigger, _ := resourceToTrigger(triggerToResource(&staticConditionTriggerExample))
+	testTriggerRefsAreEqual(t,
+		trigger,
+		&staticConditionTriggerExample)
+}
+
+func TestSumologicMonitorsLibraryMonitor_TriggerConditionNormalization(t *testing.T) {
+	for _, trigger := range allExampleTriggers {
+		normalized := TriggerCondition{Trigger: &trigger}
+		denormalized := DenormalizeTriggerCondition(normalized)
+		if denormalized.Trigger != nil {
+			t.Error("Expected Trigger to be nil after denormalization. Got:", denormalized.Trigger)
+		}
+		renormalizedTriggerCondition, _ := NormalizeTriggerCondition(denormalized)
+		switch renormalizedTrigger := renormalizedTriggerCondition.Trigger; {
+		case renormalizedTrigger == nil:
+			t.Error("Expected Trigger to be not nil after normalization")
+		default:
+			testTriggerRefsAreEqual(t, renormalizedTrigger, &trigger)
+		}
+	}
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
@@ -138,6 +163,93 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
+				),
+			},
+		},
+	})
+}
+
+
+func TestAccSumologicMonitorsLibraryMonitor_create_logs_static_monitor(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testDescription := "terraform_test_monitor_description"
+	testType := "MonitorsLibraryMonitor"
+	testContentType := "Monitor"
+	testMonitorType := "Logs"
+	testIsDisabled := false
+	testQueries := []MonitorQuery{
+		{
+			RowID: "A",
+			Query: "_sourceCategory=monitor-manager error",
+		},
+	}
+	testTriggers := []TriggerCondition{
+		{
+			ThresholdType:   "GreaterThan",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "Critical",
+			DetectionMethod: "LogStaticCondition",
+		},
+		{
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
+		},
+	}
+	recipients := []string{"abc@example.com"}
+	testRecipients := make([]interface{}, len(recipients))
+	for i, v := range recipients {
+		testRecipients[i] = v
+	}
+	triggerTypes := []string{"Critical", "ResolvedCritical"}
+	testTriggerTypes := make([]interface{}, len(triggerTypes))
+	for i, v := range triggerTypes {
+		testTriggerTypes[i] = v
+	}
+	testNotificationAction := EmailNotification{
+		ConnectionType: "Email",
+		Recipients:     testRecipients,
+		Subject:        "test tf monitor",
+		TimeZone:       "PST",
+		MessageBody:    "test",
+	}
+	testNotifications := []MonitorNotification{
+		{
+			Notification:       testNotificationAction,
+			RunForTriggerTypes: testTriggerTypes,
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryLogsStaticMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger.0.logs_static_condition.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger.0.logs_static_condition.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
@@ -411,6 +523,52 @@ resource "sumologic_monitor" "test" {
 }`, testName)
 }
 
+func testAccSumologicMonitorsLibraryLogsStaticMonitor(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	triggers  {
+      trigger {
+        logs_static_condition {
+  		  threshold_type = "GreaterThan"
+		  threshold = 40.0
+		  time_range = "15m"
+		  trigger_type = "Critical"
+        }
+      }
+    }
+	triggers  {
+      trigger {
+        logs_static_condition {
+  		  threshold_type = "LessThanOrEqual"
+		  threshold = 40.0
+		  time_range = "15m"
+		  trigger_type = "ResolvedCritical"
+        }
+	  }
+    }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	  }
+}`, testName)
+}
+
 func testAccSumologicMonitorsLibraryMonitorUpdate(testName string) string {
 	return fmt.Sprintf(`
 resource "sumologic_monitor" "test" {
@@ -454,3 +612,133 @@ resource "sumologic_monitor" "test" {
 	  }
 }`, testName)
 }
+
+func testTriggerRefsAreEqual(t *testing.T, test *Trigger, expected *Trigger) {
+	testTriggersAreEqual(t, *test, *expected)
+}
+
+func testTriggersAreEqual(t *testing.T, test Trigger, expected Trigger) {
+	switch {
+	case expected.StaticCondition != nil:
+		if test.StaticCondition == nil {
+			t.Fatal("Expected StaticCondition, got nil")
+		} 
+		if *(test.StaticCondition) != *(expected.StaticCondition) {
+			t.Fatal("Expected StaticCondition", *(expected.StaticCondition), "got", *(test.StaticCondition))
+		}
+	case expected.LogsStaticCondition != nil:
+		if test.LogsStaticCondition == nil {
+			t.Fatal("Expected LogsStaticCondition, got nil")
+		}
+		if *(test.LogsStaticCondition) != *(expected.LogsStaticCondition) {
+			t.Fatal("Expected LogsStaticCondition", *(expected.LogsStaticCondition), "got", *(test.LogsStaticCondition))
+		}
+	case expected.MetricsStaticCondition != nil:
+		if test.MetricsStaticCondition == nil {
+			t.Fatal("Expected MetricsStaticCondition, got nil")
+		}
+		if *(test.MetricsStaticCondition) != *(expected.MetricsStaticCondition) {
+			t.Fatal("Expected MetricsStaticCondition", *(expected.MetricsStaticCondition), "got", *(test.MetricsStaticCondition))
+		}
+	case expected.LogsOutlierCondition != nil:
+		if test.LogsOutlierCondition == nil {
+			t.Fatal("Expected LogsOutlierCondition, got nil")
+		}
+		if *(test.LogsOutlierCondition) != *(expected.LogsOutlierCondition) {
+			t.Fatal("Expected LogsOutlierCondition", *(expected.LogsOutlierCondition), "got", *(test.LogsOutlierCondition))
+		}
+	case expected.MetricsOutlierCondition != nil:
+		if test.MetricsOutlierCondition == nil {
+			t.Fatal("Expected MetricsOutlierCondition, got nil")
+		}
+		if *(test.MetricsOutlierCondition) != *(expected.MetricsOutlierCondition) {
+			t.Fatal("Expected MetricsOutlierCondition", *(expected.MetricsOutlierCondition), "got", *(test.MetricsOutlierCondition))
+		}
+	case expected.LogsMissingDataCondition != nil:
+		if test.LogsMissingDataCondition == nil {
+			t.Fatal("Expected LogsMissingDataCondition, got nil")
+		}
+		if *(test.LogsMissingDataCondition) != *(expected.LogsMissingDataCondition) {
+			t.Fatal("Expected LogsMissingDataCondition", *(expected.LogsMissingDataCondition), "got", *(test.LogsMissingDataCondition))
+		}
+	case expected.MetricsMissingDataCondition != nil:
+		if test.MetricsMissingDataCondition == nil {
+			t.Fatal("Expected MetricsMissingDataCondition, got nil")
+		}
+		if *(test.MetricsMissingDataCondition) != *(expected.MetricsMissingDataCondition) {
+			t.Fatal("Expected MetricsMissingDataCondition", *(expected.MetricsMissingDataCondition), "got", *(test.MetricsMissingDataCondition))
+		}
+	default:
+		t.Fatal("Internal error: bad expected value:", expected)
+	}
+}
+
+var staticConditionTriggerExample = Trigger{
+	StaticCondition: &StaticCondition{
+		TimeRange:      "-15m",
+		TriggerType:    "Critical",
+		Threshold:      100,
+		ThresholdType:  "LessThan",
+		Field:          "field",
+		TriggerSource:  "AllResults",
+		OccurrenceType: "Always",
+	},
+}
+
+var logsStaticConditionTriggerExample = Trigger{
+	LogsStaticCondition: &LogsStaticCondition{
+		TimeRange:     "-15m",
+		TriggerType:   "Critical",
+		Threshold:     100,
+		ThresholdType: "LessThan",
+		Field:         "field",
+	},
+}
+
+var metricsStaticConditionTriggerExample = Trigger{
+	MetricsStaticCondition: &MetricsStaticCondition{
+		TimeRange:      "-15m",
+		TriggerType:    "Critical",
+		Threshold:      100,
+		ThresholdType:  "LessThan",
+		OccurrenceType: "Always",
+	},
+}
+
+var logsOutlierConditionTriggerExample = Trigger{
+	LogsOutlierCondition: &LogsOutlierCondition{
+		TriggerType: "Critical",
+		Threshold:   100,
+		Field:       "field",
+		Window:      5,
+		Consecutive: 1,
+		Direction:   "Both",
+	},
+}
+
+var metricsOutlierConditionTriggerExample = Trigger{
+	MetricsOutlierCondition: &MetricsOutlierCondition{
+		TriggerType:    "Critical",
+		Threshold:      100,
+		BaselineWindow: "-1d",
+		Direction:      "Both",
+	},
+}
+
+var logsMissingDataConditionTriggerExample = Trigger{
+	LogsMissingDataCondition: &LogsMissingDataCondition{
+		TimeRange:   "-15m",
+		TriggerType: "Critical",
+	},
+}
+
+var metricsMissingDataConditionTriggerExample = Trigger{
+	MetricsMissingDataCondition: &MetricsMissingDataCondition{
+		TimeRange:     "-15m",
+		TriggerType:   "Critical",
+		TriggerSource: "AllTimeSeries",
+	},
+}
+
+var allExampleTriggers = []Trigger{staticConditionTriggerExample, logsStaticConditionTriggerExample, metricsStaticConditionTriggerExample, logsOutlierConditionTriggerExample, metricsOutlierConditionTriggerExample, logsMissingDataConditionTriggerExample, metricsMissingDataConditionTriggerExample}
+
