@@ -14,8 +14,9 @@ import (
 
 func TestSumologicMonitorsLibraryMonitor_TriggerResourceConverters(t *testing.T) {
 	// Converting between resource to Trigger should preserve information
+	trigger, _ := resourceToTrigger(triggerToResource(&staticConditionTriggerExample))
 	testTriggerRefsAreEqual(t,
-		resourceToTrigger(triggerToResource(&staticConditionTriggerExample)),
+		trigger,
 		&staticConditionTriggerExample)
 }
 
@@ -26,7 +27,8 @@ func TestSumologicMonitorsLibraryMonitor_TriggerConditionNormalization(t *testin
 		if denormalized.Trigger != nil {
 			t.Error("Expected Trigger to be nil after denormalization. Got:", denormalized.Trigger)
 		}
-		switch renormalizedTrigger := NormalizeTriggerCondition(denormalized).Trigger; {
+		renormalizedTriggerCondition, _ := NormalizeTriggerCondition(denormalized)
+		switch renormalizedTrigger := renormalizedTriggerCondition.Trigger; {
 		case renormalizedTrigger == nil:
 			t.Error("Expected Trigger to be not nil after normalization")
 		default:
@@ -161,6 +163,93 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
+				),
+			},
+		},
+	})
+}
+
+
+func TestAccSumologicMonitorsLibraryMonitor_create_logs_static_monitor(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testDescription := "terraform_test_monitor_description"
+	testType := "MonitorsLibraryMonitor"
+	testContentType := "Monitor"
+	testMonitorType := "Logs"
+	testIsDisabled := false
+	testQueries := []MonitorQuery{
+		{
+			RowID: "A",
+			Query: "_sourceCategory=monitor-manager error",
+		},
+	}
+	testTriggers := []TriggerCondition{
+		{
+			ThresholdType:   "GreaterThan",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "Critical",
+			DetectionMethod: "LogStaticCondition",
+		},
+		{
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
+		},
+	}
+	recipients := []string{"abc@example.com"}
+	testRecipients := make([]interface{}, len(recipients))
+	for i, v := range recipients {
+		testRecipients[i] = v
+	}
+	triggerTypes := []string{"Critical", "ResolvedCritical"}
+	testTriggerTypes := make([]interface{}, len(triggerTypes))
+	for i, v := range triggerTypes {
+		testTriggerTypes[i] = v
+	}
+	testNotificationAction := EmailNotification{
+		ConnectionType: "Email",
+		Recipients:     testRecipients,
+		Subject:        "test tf monitor",
+		TimeZone:       "PST",
+		MessageBody:    "test",
+	}
+	testNotifications := []MonitorNotification{
+		{
+			Notification:       testNotificationAction,
+			RunForTriggerTypes: testTriggerTypes,
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryLogsStaticMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger.0.logs_static_condition.0.trigger_type", testTriggers[0].TriggerType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger.0.logs_static_condition.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 				),
 			},
@@ -421,6 +510,52 @@ resource "sumologic_monitor" "test" {
 		trigger_type = "ResolvedCritical"
 		detection_method = "StaticCondition"
 	  }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	  }
+}`, testName)
+}
+
+func testAccSumologicMonitorsLibraryLogsStaticMonitor(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	triggers  {
+      trigger {
+        logs_static_condition {
+  		  threshold_type = "GreaterThan"
+		  threshold = 40.0
+		  time_range = "15m"
+		  trigger_type = "Critical"
+        }
+      }
+    }
+	triggers  {
+      trigger {
+        logs_static_condition {
+  		  threshold_type = "LessThanOrEqual"
+		  threshold = 40.0
+		  time_range = "15m"
+		  trigger_type = "ResolvedCritical"
+        }
+	  }
+    }
 	notifications {
 		notification {
 			connection_type = "Email"

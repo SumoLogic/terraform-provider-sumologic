@@ -422,6 +422,8 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	if err := d.Set("notifications", notifications); err != nil {
 		return err
 	}
+	// Experimental: Do not set triggers
+	/*
 	// set triggers
 	triggers := make([]interface{}, len(monitor.Triggers))
 	for i, unNormalized := range monitor.Triggers {
@@ -433,6 +435,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	if err := d.Set("triggers", triggers); err != nil {
 		return err
 	}
+	 */
 	// set queries
 	queries := make([]interface{}, len(monitor.Queries))
 	for i, q := range monitor.Queries {
@@ -543,21 +546,31 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 			DetectionMethod: triggerDict["detection_method"].(string),
 		}
 		if val, ok := triggerDict["trigger"]; ok {
-			triggers[i].Trigger = resourceToTrigger(val)
+			t, err := resourceToTrigger(val)
+			if err != nil {
+				fmt.Println("resourceToTrigger failed: ", err)
+				return triggers
+			}
+			triggers[i].Trigger = t
+		}
+		var err error
+		triggers[i], err = NormalizeTriggerCondition(triggers[i])
+		if err != nil {
+			fmt.Println("Error while converting resource data to TriggerCondition: ", err)
 		}
 	}
 	return triggers
 }
 
-func resourceToTrigger(val interface{}) *Trigger {
-	if elems, ok := val.([]map[string]interface{}); ok && len(elems) == 1 {
-		tf := elems[0]
-		if val, ok := tf["static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
-			return &Trigger{StaticCondition: resourceToStaticCondition(val[0])}
-		} else if val, ok := tf["logs_static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
-			return &Trigger{LogsStaticCondition: resourceToLogsStaticCondition(val[0])}
+func resourceToTrigger(val interface{}) (*Trigger, error) {
+	if elems, ok := val.([]interface{}); ok && len(elems) == 1 {
+		tf := elems[0].(map[string]interface{})
+		if val, ok := tf["static_condition"].([]interface{}); ok && len(val) == 1 {
+			return &Trigger{StaticCondition: resourceToStaticCondition(val[0].(map[string]interface{}))}, nil
+		} else if val, ok := tf["logs_static_condition"].([]interface{}); ok && len(val) == 1 {
+			return &Trigger{LogsStaticCondition: resourceToLogsStaticCondition(val[0].(map[string]interface{}))}, nil
 		} else {
-			fmt.Errorf("Internal error: could not convert resource %s to Trigger", val)
+			return &Trigger{}, fmt.Errorf("Internal error: could not convert resource %s to Trigger\n", val)
 		} /*else if val, ok := tf["metrics_static_condition"].([]map[string]interface{}); ok && len(val) == 1 {
 			return &Trigger{MetricsStaticCondition: resourceToMetricsStaticCondition(val[0])}
 		} else if val, ok := tf["logs_outlier_condition"].([]map[string]interface{}); ok && len(val) == 1 {
@@ -570,9 +583,8 @@ func resourceToTrigger(val interface{}) *Trigger {
 			return &Trigger{MetricsMissingDataCondition: resourceToMetricsMissingDataCondition(val[0])}
 		} */
 	}
-	fmt.Errorf("Didn't find a static_condition in resource %s. Returning empty Trigger", val)
-	return &Trigger{}
-}
+	return &Trigger{}, fmt.Errorf("Don't know how to work with resource %s. Returning empty Trigger", val)
+	}
 
 func resourceToStaticCondition(tf map[string](interface{})) *StaticCondition {
 	condition := StaticCondition{}

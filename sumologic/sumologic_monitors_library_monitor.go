@@ -70,7 +70,11 @@ func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 
 	// NOTE: Normalize all TriggerConditions
 	for i, t := range monitorsLibraryMonitor.Triggers {
-		monitorsLibraryMonitor.Triggers[i] = NormalizeTriggerCondition(t)
+		if normalized, err := NormalizeTriggerCondition(t); err == nil  {
+			monitorsLibraryMonitor.Triggers[i] = normalized
+		} else {
+			return &monitorsLibraryMonitor, err
+		}
 	}
 
 	return &monitorsLibraryMonitor, nil
@@ -127,29 +131,34 @@ func (s *Client) MoveMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibra
 	return err
 }
 
-func NormalizeTriggerCondition(condition TriggerCondition) TriggerCondition {
-	trigger := Trigger{}
+func NormalizeTriggerCondition(condition TriggerCondition) (TriggerCondition, error) {
+	returnValue := TriggerCondition{Trigger: &Trigger{}}
+	if condition.Trigger != nil {
+		if isEmptyTrigger(*condition.Trigger) {
+			return returnValue, fmt.Errorf("Bad Trigger: empty")
+		}
+		// Already in normal form. Return without the legacy fields
+		return TriggerCondition{Trigger: condition.Trigger}, nil
+	}
 	switch condition.DetectionMethod {
 	case "StaticCondition":
-		trigger.StaticCondition = toStaticCondition(condition)
+		returnValue.Trigger.StaticCondition = toStaticCondition(condition)
 	case "LogsStaticCondition":
-		trigger.LogsStaticCondition = toLogsStaticCondition(condition)
+		returnValue.Trigger.LogsStaticCondition = toLogsStaticCondition(condition)
 	case "MetricsStaticCondition":
-		trigger.MetricsStaticCondition = toMetricsStaticCondition(condition)
+		returnValue.Trigger.MetricsStaticCondition = toMetricsStaticCondition(condition)
 	case "LogsOutlierCondition":
-		trigger.LogsOutlierCondition = toLogsOutlierCondition(condition)
+		returnValue.Trigger.LogsOutlierCondition = toLogsOutlierCondition(condition)
 	case "MetricsOutlierCondition":
-		trigger.MetricsOutlierCondition = toMetricsOutlierCondition(condition)
+		returnValue.Trigger.MetricsOutlierCondition = toMetricsOutlierCondition(condition)
 	case "LogsMissingDataCondition":
-		trigger.LogsMissingDataCondition = toLogsMissingDataCondition(condition)
+		returnValue.Trigger.LogsMissingDataCondition = toLogsMissingDataCondition(condition)
 	case "MetricsMissingDataCondition":
-		trigger.MetricsMissingDataCondition = toMetricsMissingDataCondition(condition)
+		returnValue.Trigger.MetricsMissingDataCondition = toMetricsMissingDataCondition(condition)
 	default:
-		fmt.Errorf("NormalizeTriggerCondition: Invalid detection method %s\n", condition.DetectionMethod)
+		fmt.Println("NormalizeTriggerCondition: Invalid detection method:", condition.DetectionMethod)
 	}
-	return TriggerCondition{
-		Trigger: &trigger,
-	}
+	return returnValue, nil
 }
 
 func DenormalizeTriggerCondition(condition TriggerCondition) TriggerCondition {
@@ -171,10 +180,12 @@ func DenormalizeTriggerCondition(condition TriggerCondition) TriggerCondition {
 		case trigger.MetricsMissingDataCondition != nil:
 			return fromMetricsMissingDataCondition(trigger.MetricsMissingDataCondition)
 		default:
+			fmt.Println("DenormalizeTriggerCondition failed because none of the required attributes is present", trigger)
 			return condition
 		}
 	default:
-		return condition // TODO: Error handling?
+		// Already denormalized. Return as-is
+		return condition
 	}
 }
 
@@ -357,6 +368,7 @@ type TriggerCondition struct {
 	OccurrenceType  string  `json:"occurrenceType"`
 	TriggerSource   string  `json:"triggerSource"`
 	DetectionMethod string  `json:"detectionMethod"`
+	// NOTE: The following fields are here for encoding/decoding JSON.
 	Field           string  `json:"field,omitempty"`
 	Window          int     `json:"window,omitempty"`
 	BaselineWindow  string  `json:"baselineWindow,omitempty"`
@@ -365,6 +377,16 @@ type TriggerCondition struct {
 	// NOTE: 'Trigger' is an internal-only optional field--it is not translated to/from infrastructure JSON.
 	// Methods NormalizeTriggerCondition and DenormalizeTriggerCondition move TriggerCondition's attributes to (resp. from) Trigger.
 	Trigger *Trigger `json:"-"`
+}
+
+func isEmptyTrigger(t Trigger) bool {
+	return t.StaticCondition == nil &&
+		t.LogsStaticCondition == nil &&
+		t.MetricsStaticCondition == nil &&
+		t.LogsOutlierCondition == nil &&
+		t.MetricsOutlierCondition == nil &&
+		t.LogsMissingDataCondition == nil &&
+		t.MetricsMissingDataCondition == nil
 }
 
 type Trigger struct {
