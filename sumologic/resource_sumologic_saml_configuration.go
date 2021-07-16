@@ -111,9 +111,9 @@ func resourceSumologicSamlConfiguration() *schema.Resource {
 				Computed: true,
 			},
 			"entity_id": {
-                Type:     schema.TypeString,
-                Computed: true,
-            },
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }

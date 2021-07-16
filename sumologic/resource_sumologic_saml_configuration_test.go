@@ -217,9 +217,9 @@ func testAccCheckSamlConfigurationExists(name string) resource.TestCheckFunc {
 			return fmt.Errorf("Assertion Consumer URL not found for Saml Configuration (id=%s)", id)
 		}
 		entity_id := rs.Primary.Attributes["entity_id"]
-        if strings.EqualFold(entity_id, "") {
-            return fmt.Errorf("Entity Id not set for Saml Configuration (id=%s)", id)
-        }
+		if strings.EqualFold(entity_id, "") {
+			return fmt.Errorf("Entity Id not set for Saml Configuration (id=%s)", id)
+		}
 		return nil
 	}
 }
