@@ -69,7 +69,7 @@ The following attributes are exported:
 - `id` - Unique identifier for the SAML Configuration.
 - `certificate` - Authentication Request Signing Certificate for the user.
 - `assertion_consumer_url` - The URL on Sumo Logic where the IdP will redirect to with its authentication response.
-- `entity_id` - The URL on Sumo Logic where the IdP will redirect to with its authentication response.
+- `entity_id` - A unique identifier that is the intended audience of the SAML assertion.
 
 ## Import
 SAML Configuration can be imported using the SAML configuration id, e.g.:
