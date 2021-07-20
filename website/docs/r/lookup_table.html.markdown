@@ -13,10 +13,14 @@ Provides a [Sumologic Lookup Table][1].
 data "sumologic_personal_folder" "personalFolder" {}
 
 resource "sumologic_lookup_table" "lookupTable" {
-    name = "a lookup table updated"
+    name = "Sample Lookup Table"
     fields {
       field_name = "FieldName1"
       field_type = "boolean"
+    }
+    fields {
+      field_name = "FieldName2"
+      field_type = "string"
     }
     ttl               = 100
     primary_keys      = ["FieldName1"]
