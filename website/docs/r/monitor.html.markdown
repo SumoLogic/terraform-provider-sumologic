@@ -221,7 +221,8 @@ The following arguments are supported:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
 - `queries` - (Required) All queries from the monitor.
-- `triggers` - (Required) Defines the conditions of when to send notifications.
+- `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
+- `triggers` - (Deprecated) Defines the conditions of when to send notifications.
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 
@@ -234,6 +235,115 @@ Additional data provided in state:
   - `MissingData`
   - `Normal`
   - `Disabled`
+
+## The `trigger_conditions` block
+A `trigger_conditions` block configures conditions for sending notifications.
+### Example
+```hcl
+trigger_conditions {
+  static_condition {
+    field           = "_count"
+    time_range      = "15m"
+    trigger_source  = "AllResults"
+    occurrence_type = "ResultCount"
+
+    critical {
+      alert {
+        threshold      = 100
+        threshold_type = "GreaterThan"
+      }
+
+      resolution {
+        threshold      = 90
+        threshold_type = "LessThanOrEqual"
+      }
+    }
+
+    warning {
+      alert {
+        threshold      = 80
+        threshold_type = "GreaterThan"
+      }
+
+      resolution {
+        threshold      = 75
+        threshold_type = "LessThanOrEqual"
+      }
+    }
+  }
+   
+  logs_missing_data_condition {
+    time_range = "30m"
+  }
+}
+```
+### Arguments
+Here is a summary of the various condition types that are supported, and the arguments each of them takes:
+- `static_condition`:
+  - `field`
+  - `time_range` (Required)
+  - `trigger_source` (Required)
+  - `occurrence_type` (Required)
+  - `critical`
+    - `alert` (Required)
+       - `threshold`
+       - `threshold_type`
+    - `resolution` (Required)
+      - `threshold`
+      - `threshold_type`
+  - `warning`
+    - `alert` (Required)
+      - `threshold`
+      - `threshold_type`
+    - `resolution` (Required)
+      - `threshold`
+      - `threshold_type`
+- `logs_static_condition`:
+  - `field`
+  - `time_range` (Required)
+  - `critical` (See `static_condition.critical` for schema)
+  - `warning`  (See `static_condition.warning` for schema)
+- `metrics_static_condition`:
+  - `time_range` (Required)
+  - `occurrence_type` (Required)
+  - `critical` (See `static_condition.critical` for schema)
+  - `warning`  (See `static_condition.warning` for schema)
+- `logs_outlier_condition`:
+  - `field`
+  - `window`
+  - `consecutive`
+  - `direction`
+  - `critical`
+     - `threshold`
+  - `warning`
+     - `threshold`
+- `metrics_outlier_condition`:
+  - `baseline_window`
+  - `direction`
+  - `threshold`
+  - `critical`
+    - `threshold`
+  - `warning`
+    - `threshold`
+- `logs_missing_data_condition`:
+  - `time_range` (Required)
+- `metrics_missing_data_condition`:
+  - `time_range` (Required)
+  - `trigger_source` (Required)
+
+A `trigger_conditions` block can contain at most 1 data condition:
+ - `static_condition`
+ - `logs_static_condition`
+ - `metrics_static_condition`
+ - `logs_outlier_condition`
+ - `metrics_outlier_condition`
+ 
+and at most 1 missing-data condition:
+  - `logs_missing_data_condition`
+  - `metrics_missing_data_condition`
+
+## The `triggers` block
+The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.
 
 ## Import
 
