@@ -13,32 +13,32 @@ Provides the ability to create, read, delete, and update [Monitors][1].
 
 ```hcl
 resource "sumologic_monitor" "tf_logs_monitor_1" {
-  name = "Terraform Logs Monitor"
-  description = "tf logs monitor"
-  type = "MonitorsLibraryMonitor"
-  is_disabled = false
+  name         = "Terraform Logs Monitor"
+  description  = "tf logs monitor"
+  type         = "MonitorsLibraryMonitor"
+  is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Logs"
   queries {
-      row_id = "A"
-      query = "_sourceCategory=event-action info"
+    row_id = "A"
+    query  = "_sourceCategory=event-action info"
   }
-  triggers  {
-    threshold_type = "GreaterThan"
-    threshold = 40.0
-    time_range = "15m"
-    occurrence_type = "ResultCount"
-    trigger_source = "AllResults"
-    trigger_type = "Critical"
+  triggers {
+    threshold_type   = "GreaterThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "Critical"
     detection_method = "StaticCondition"
   }
-  triggers  {
-    threshold_type = "LessThanOrEqual"
-    threshold = 40.0
-    time_range = "15m"
-    occurrence_type = "ResultCount"
-    trigger_source = "AllResults"
-    trigger_type = "ResolvedCritical"
+  triggers {
+    threshold_type   = "LessThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "ResolvedCritical"
     detection_method = "StaticCondition"
   }
   notifications {
@@ -47,8 +47,8 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
       recipients = [
         "abc@example.com",
       ]
-      subject = "Monitor Alert: {{TriggerType}} on {{Name}}"
-      time_zone = "PST"
+      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
+      time_zone    = "PST"
       message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
@@ -56,7 +56,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   notifications {
     notification {
       connection_type = "Webhook"
-      connection_id = "0000000000ABC123"
+      connection_id   = "0000000000ABC123"
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
@@ -67,43 +67,43 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
 
 ```hcl
 resource "sumologic_monitor" "tf_metrics_monitor_1" {
-  name = "Terraform Metrics Monitor"
-  description = "tf metrics monitor"
-  type = "MonitorsLibraryMonitor"
-  is_disabled = false
+  name         = "Terraform Metrics Monitor"
+  description  = "tf metrics monitor"
+  type         = "MonitorsLibraryMonitor"
+  is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Metrics"
   queries {
-      row_id = "A"
-      query = "metric=CPU_Idle _sourceCategory=event-action"
+    row_id = "A"
+    query  = "metric=CPU_Idle _sourceCategory=event-action"
   }
-  triggers  {
-      threshold_type = "GreaterThanOrEqual"
-      threshold = 40.0
-      time_range = "15m"
-      occurrence_type = "AtLeastOnce"
-      trigger_source = "AnyTimeSeries"
-      trigger_type = "Critical"
-      detection_method = "StaticCondition"
-    }
   triggers {
-    threshold_type = "LessThan"
-    threshold = 40.0
-    time_range = "15m"
-    occurrence_type = "Always"
-    trigger_source = "AnyTimeSeries"
-    trigger_type = "ResolvedCritical"
+    threshold_type   = "GreaterThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "AtLeastOnce"
+    trigger_source   = "AnyTimeSeries"
+    trigger_type     = "Critical"
     detection_method = "StaticCondition"
-    }
+  }
+  triggers {
+    threshold_type   = "LessThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "Always"
+    trigger_source   = "AnyTimeSeries"
+    trigger_type     = "ResolvedCritical"
+    detection_method = "StaticCondition"
+  }
   notifications {
     notification {
       connection_type = "Email"
-      recipients = ["abc@example.com"]
-      subject = "Triggered {{TriggerType}} Alert on Monitor {{Name}}"
-      time_zone = "PST"
-      message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+      recipients      = ["abc@example.com"]
+      subject         = "Triggered {{TriggerType}} Alert on Monitor {{Name}}"
+      time_zone       = "PST"
+      message_body    = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
     }
-    run_for_trigger_types = ["Critical","ResolvedCritical"]
+    run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
 }
 ```
@@ -112,16 +112,16 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 
 ```hcl
 resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
-  name = "Terraform Managed Folder 1"
+  name        = "Terraform Managed Folder 1"
   description = "A folder for Monitors"
 }
 
 resource "sumologic_connection" "example_pagerduty_connection" {
-  name = "example_pagerduty_connection"
-  description = "PagerDuty connection for notifications from Monitors"
-  type = "WebhookConnection"
-  webhook_type = "PagerDuty"
-  url = "https://events.pagerduty.com/"
+  name            = "example_pagerduty_connection"
+  description     = "PagerDuty connection for notifications from Monitors"
+  type            = "WebhookConnection"
+  webhook_type    = "PagerDuty"
+  url             = "https://events.pagerduty.com/"
   default_payload = <<JSON
 {
   "service_key": "pagerduty_api_integration_key",
@@ -134,33 +134,33 @@ JSON
 }
 
 resource "sumologic_monitor" "tf_logs_monitor_2" {
-  name = "Terraform Logs Monitor with Webhook Connection"
-  description = "tf logs monitor with webhook"
-  type = "MonitorsLibraryMonitor"
-  parent_id = sumologic_monitor_folder.tf_monitor_folder_1.id
-  is_disabled = false
+  name         = "Terraform Logs Monitor with Webhook Connection"
+  description  = "tf logs monitor with webhook"
+  type         = "MonitorsLibraryMonitor"
+  parent_id    = sumologic_monitor_folder.tf_monitor_folder_1.id
+  is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Logs"
   queries {
-      row_id = "A"
-      query = "_sourceCategory=event-action info"
+    row_id = "A"
+    query  = "_sourceCategory=event-action info"
   }
-  triggers  {
-    threshold_type = "GreaterThan"
-    threshold = 40.0
-    time_range = "15m"
-    occurrence_type = "ResultCount"
-    trigger_source = "AllResults"
-    trigger_type = "Critical"
+  triggers {
+    threshold_type   = "GreaterThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "Critical"
     detection_method = "StaticCondition"
   }
-  triggers  {
-    threshold_type = "LessThanOrEqual"
-    threshold = 40.0
-    time_range = "15m"
-    occurrence_type = "ResultCount"
-    trigger_source = "AllResults"
-    trigger_type = "ResolvedCritical"
+  triggers {
+    threshold_type   = "LessThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "ResolvedCritical"
     detection_method = "StaticCondition"
   }
   notifications {
@@ -169,16 +169,16 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
       recipients = [
         "abc@example.com",
       ]
-      subject = "Monitor Alert: {{TriggerType}} on {{Name}}"
-      time_zone = "PST"
+      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
+      time_zone    = "PST"
       message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
   notifications {
     notification {
-      connection_type = "PagerDuty"
-      connection_id = sumologic_connection.example_pagerduty_connection.id
+      connection_type  = "PagerDuty"
+      connection_id    = sumologic_connection.example_pagerduty_connection.id
       payload_override = <<JSON
 {
   "service_key": "your_pagerduty_api_integration_key",
@@ -200,7 +200,7 @@ NOTE: Monitor folders are considered a different resource from Library content f
 
 ```hcl
 resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
-  name = "test terraform folder"
+  name        = "test terraform folder"
   description = "a folder for monitors"
 }
 ```
