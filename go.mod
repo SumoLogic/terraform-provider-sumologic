@@ -1,6 +1,6 @@
 module github.com/SumoLogic/terraform-provider-sumologic
 
-go 1.12
+go 1.16
 
 require (
 	cloud.google.com/go/pubsub v1.2.0 // indirect
