@@ -1,4 +1,10 @@
-## 2.9.7 (Unreleased)
+## 2.9.8 (Unreleased)
+
+## 2.9.7 (July 22, 2021)
+
+ENHANCEMENTS:
+
+* Upgrade GoLang to support arm_64 (GH-241)
 
 ## 2.9.6 (July 9, 2021)
 
