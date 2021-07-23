@@ -200,6 +200,7 @@ func resourceToConnection(d *schema.ResourceData) Connection {
 	connection.Headers = mapToHeaders(d.Get("headers").(map[string]interface{}))
 	connection.CustomHeaders = mapToHeaders(d.Get("custom_headers").(map[string]interface{}))
 	connection.DefaultPayload = d.Get("default_payload").(string)
+	connection.ConnectionSubtype = d.Get("connection_subtype").(string)
 	connection.WebhookType = d.Get("webhook_type").(string)
 
 	return connection
