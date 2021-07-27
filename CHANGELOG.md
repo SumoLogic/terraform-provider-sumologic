@@ -1,5 +1,9 @@
 ## 2.9.8 (Unreleased)
 
+FEATURES:
+
+* Add support for ServiceNow Incident and Event webhook connection (GH-250)
+
 ## 2.9.7 (July 22, 2021)
 
 ENHANCEMENTS:
