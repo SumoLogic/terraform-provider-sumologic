@@ -8,6 +8,8 @@ description: |-
 # sumologic_content
 Provides a way to interact with Sumologic Content.
 
+~> **NOTE:** If working with many content items it is recommended to reduce [Terraform Parallelism](https://www.terraform.io/docs/cli/commands/apply.html#parallelism-n) to 2 in order to not be rate limited.
+
 ## Example Usage
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}

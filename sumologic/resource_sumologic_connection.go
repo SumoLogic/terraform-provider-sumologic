@@ -77,8 +77,13 @@ func resourceSumologicConnection() *schema.Resource {
 			"webhook_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie", "MicrosoftTeams"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie", "MicrosoftTeams", "ServiceNow"}, false),
 				Default:      "Webhook",
+			},
+			"connection_subtype": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"Incident", "Event"}, false),
 			},
 		},
 	}
@@ -136,6 +141,7 @@ func resourceSumologicConnectionRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("default_payload", connection.DefaultPayload)
 	d.Set("webhook_type", connection.WebhookType)
+	d.Set("connection_subtype", connection.ConnectionSubtype)
 	d.SetId(connection.ID)
 
 	log.Println("====End Connection Read====")
@@ -201,6 +207,7 @@ func resourceToConnection(d *schema.ResourceData) Connection {
 	connection.CustomHeaders = mapToHeaders(d.Get("custom_headers").(map[string]interface{}))
 	connection.DefaultPayload = d.Get("default_payload").(string)
 	connection.WebhookType = d.Get("webhook_type").(string)
+	connection.ConnectionSubtype = d.Get("connection_subtype").(string)
 
 	return connection
 }
@@ -233,4 +240,5 @@ func printConnection(connection Connection) {
 	log.Printf("CustomHeaders: %s", connection.CustomHeaders)
 	log.Printf("DefaultPayload: %s", connection.DefaultPayload)
 	log.Printf("WebhookType: %s", connection.WebhookType)
+	log.Printf("ConnectionSubtype: %s", connection.ConnectionSubtype)
 }
