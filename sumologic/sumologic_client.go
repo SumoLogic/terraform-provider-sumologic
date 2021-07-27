@@ -360,7 +360,7 @@ type Connection struct {
 	CustomHeaders     []Headers `json:"customHeaders,omitempty"`
 	DefaultPayload    string    `json:"defaultPayload"`
 	WebhookType       string    `json:"webhookType"`
-	ConnectionSubtype string    `json:"connectionSubtype"`
+	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

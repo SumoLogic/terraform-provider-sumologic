@@ -149,7 +149,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
-										ValidateFunc: validation.StringInSlice([]string{"Email", "AWSLambda", "AzureFunctions", "Datadog", "HipChat", "Jira", "NewRelic", "Opsgenie", "PagerDuty", "Slack", "MicrosoftTeams", "Webhook"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"Email", "AWSLambda", "AzureFunctions", "Datadog", "HipChat", "Jira", "NewRelic", "Opsgenie", "PagerDuty", "Slack", "MicrosoftTeams", "ServiceNow", "Webhook"}, false),
 									},
 									"subject": {
 										Type:     schema.TypeString,

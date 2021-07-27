@@ -83,7 +83,7 @@ func resourceSumologicConnection() *schema.Resource {
 			"connection_subtype": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Incident", "Event", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Incident", "Event"}, false),
 			},
 		},
 	}

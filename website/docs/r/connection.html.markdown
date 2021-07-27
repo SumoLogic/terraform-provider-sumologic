@@ -48,7 +48,7 @@ The following arguments are supported:
 - `headers` - (Optional) Map of access authorization headers.
 - `custom_headers` - (Optional) Map of custom webhook headers
 - `default_payload` - (Required) Default payload of the webhook.
-- `connection_subtype` - (Optional) The subtype of the connection. Valid values are `Incident` and `Event`. NOTEL This is only used for the `ServiceNow` webhook type.
+- `connection_subtype` - (Optional) The subtype of the connection. Valid values are `Incident` and `Event`. NOTE: This is only used for the `ServiceNow` webhook type.
 - `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `PagerDuty`, `Slack`, `Webhook`, `NewRelic`, `MicrosoftTeams`, and `ServiceNow`. Default: `Webhook`
 
 Additional data provided in state
