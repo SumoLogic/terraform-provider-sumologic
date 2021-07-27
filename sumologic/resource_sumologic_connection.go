@@ -84,7 +84,6 @@ func resourceSumologicConnection() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"Incident", "Event", ""}, false),
-				Default:      "",
 			},
 		},
 	}
