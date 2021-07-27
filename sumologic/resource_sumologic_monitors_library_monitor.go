@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -411,19 +412,11 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 }
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": {
-		Type:         schema.TypeString,
-		Required:     true,
-		ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
-	},
+	"time_range": &timeRangeSchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": {
-		Type:         schema.TypeString,
-		Required:     true,
-		ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
-	},
+	"time_range": &timeRangeSchema,
 	"trigger_source": {
 		Type:         schema.TypeString,
 		Required:     true,
@@ -575,7 +568,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	}
 
 	// set either 'trigger_conditions' or 'triggers', but not both, based on whichever the plan uses.
-	// we avoid converting between the 2 so as to prevent plan mismatches before and after an apply.
+	// we avoid converting between the two so as to prevent plan mismatches before and after an apply.
 	var has_trigger_conditions = false
 	if val, ok := d.GetOk("trigger_conditions"); ok {
 		if arr, ok := val.([]interface{}); ok && len(arr) > 0 {
@@ -1223,16 +1216,32 @@ func toSingletonArray(m map[string]interface{}) []map[string]interface{} {
 }
 
 func fromSingletonArray(block map[string]interface{}, field string) (map[string]interface{}, bool) {
+	emptyDict := dict{}
 	if iface, ok := block[field]; ok {
-		if arr, ok := iface.([]map[string]interface{}); ok && len(arr) == 1 {
-			return arr[0], true
-		}
-		// sometimes we send a []interface{}, and sometimes it is []map[string]interface{}
-		if arr, ok := iface.([]interface{}); ok && len(arr) == 1 {
-			return arr[0].(map[string]interface{}), true
+		switch arr := iface.(type) {
+		case []map[string]interface{}:
+			switch len(arr) {
+			case 0:
+				return emptyDict, false
+			case 1:
+				return arr[0], true
+			default:
+				panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
+			}
+		case []interface{}:
+			switch len(arr) {
+			case 0:
+				return emptyDict, false
+			case 1:
+				return arr[0].(map[string]interface{}), true
+			default:
+				panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
+			}
+		default:
+			panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
 		}
 	}
-	return map[string]interface{}{}, false
+	return emptyDict, false
 }
 
 func singletonFromResourceData(block *schema.ResourceData, field string) (map[string]interface{}, bool) {
