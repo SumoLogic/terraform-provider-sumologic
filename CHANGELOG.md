@@ -3,6 +3,11 @@
 FEATURES:
 
 * Add support for ServiceNow Incident and Event webhook connection (GH-250)
+* Add support for new detection methods to sumologic_monitor (GH-239)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-239)
 
 ## 2.9.7 (July 22, 2021)
 

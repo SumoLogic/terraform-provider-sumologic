@@ -84,8 +84,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"triggers": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Deprecated: "The field `triggers` is deprecated and will be removed in a future release of the provider -- please use `trigger_conditions` instead.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
@@ -121,6 +122,64 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition", "MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition", "LogsMissingDataCondition", "MetricsMissingDataCondition"}, false),
+						},
+					},
+				},
+			},
+
+			"trigger_conditions": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"logs_static_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: logsStaticTriggerConditionSchema,
+							},
+						},
+						"metrics_static_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: metricsStaticTriggerConditionSchema,
+							},
+						},
+						"logs_outlier_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: logsOutlierTriggerConditionSchema,
+							},
+						},
+						"metrics_outlier_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: metricsOutlierTriggerConditionSchema,
+							},
+						},
+						"logs_missing_data_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: logsMissingDataTriggerConditionSchema,
+							},
+						},
+						"metrics_missing_data_condition": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: metricsMissingDataTriggerConditionSchema,
+							},
 						},
 					},
 				},
@@ -256,6 +315,154 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 	}
 }
 
+// Trigger Condition schemas
+var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
+	"field": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"critical": nested(true, schemaMap{
+		"time_range": &timeRangeSchema,
+		"alert": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+		"resolution": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+	}),
+	"warning": nested(true, schemaMap{
+		"time_range": &timeRangeSchema,
+		"alert": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+		"resolution": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+	}),
+}
+
+var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
+	"critical": nested(true, schemaMap{
+		"time_range":      &timeRangeSchema,
+		"occurrence_type": &occurrenceTypeSchema,
+		"alert": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+		"resolution": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+	}),
+	"warning": nested(true, schemaMap{
+		"time_range":      &timeRangeSchema,
+		"occurrence_type": &occurrenceTypeSchema,
+		"alert": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+		"resolution": nested(false, schemaMap{
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+		}),
+	}),
+}
+
+var logsOutlierTriggerConditionSchema = map[string]*schema.Schema{
+	"field": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"direction": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+	},
+	"critical": nested(true, schemaMap{
+		"window":      &windowSchema,
+		"consecutive": &consecutiveSchema,
+		"threshold":   &thresholdSchema,
+	}),
+	"warning": nested(true, schemaMap{
+		"window":      &windowSchema,
+		"consecutive": &consecutiveSchema,
+		"threshold":   &thresholdSchema,
+	}),
+}
+
+var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
+	"direction": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+	},
+	"critical": nested(true, schemaMap{
+		"baseline_window": &baselineWindowSchema,
+		"threshold":       &thresholdSchema,
+	}),
+	"warning": nested(true, schemaMap{
+		"baseline_window": &baselineWindowSchema,
+		"threshold":       &thresholdSchema,
+	}),
+}
+
+var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
+	"time_range": &timeRangeSchema,
+}
+
+var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
+	"time_range": &timeRangeSchema,
+	"trigger_source": {
+		Type:         schema.TypeString,
+		Required:     true,
+		ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries"}, false),
+	},
+}
+
+var occurrenceTypeSchema = schema.Schema{
+	Type:         schema.TypeString,
+	Required:     true,
+	ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
+}
+
+var windowSchema = schema.Schema{
+	Type:         schema.TypeInt,
+	Optional:     true,
+	ValidateFunc: validation.IntAtLeast(1),
+}
+
+var baselineWindowSchema = schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
+
+var consecutiveSchema = schema.Schema{
+	Type:         schema.TypeInt,
+	Optional:     true,
+	ValidateFunc: validation.IntAtLeast(1),
+}
+
+var timeRangeSchema = schema.Schema{
+	Type:         schema.TypeString,
+	Required:     true,
+	ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+}
+
+var thresholdSchema = schema.Schema{
+	Type:     schema.TypeFloat,
+	Optional: true,
+}
+
+var thresholdTypeSchema = schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+}
+
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	if d.Id() == "" {
@@ -358,21 +565,35 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	if err := d.Set("notifications", notifications); err != nil {
 		return err
 	}
-	// set triggers
-	triggers := make([]interface{}, len(monitor.Triggers))
-	for i, t := range monitor.Triggers {
-		triggers[i] = map[string]interface{}{
-			"trigger_type":     t.TriggerType,
-			"threshold":        t.Threshold,
-			"threshold_type":   t.ThresholdType,
-			"time_range":       strings.TrimPrefix(t.TimeRange, "-"),
-			"occurrence_type":  t.OccurrenceType,
-			"trigger_source":   t.TriggerSource,
-			"detection_method": t.DetectionMethod,
+
+	// set either 'trigger_conditions' or 'triggers', but not both, based on whichever the plan uses.
+	// we avoid converting between the two so as to prevent plan mismatches before and after an apply.
+	var has_trigger_conditions = false
+	if val, ok := d.GetOk("trigger_conditions"); ok {
+		if arr, ok := val.([]interface{}); ok && len(arr) > 0 {
+			has_trigger_conditions = true
+			if err :=
+				d.Set("trigger_conditions", toSingletonArray(jsonToTriggerConditionsBlock(monitor.Triggers))); err != nil {
+				return err
+			}
 		}
 	}
-	if err := d.Set("triggers", triggers); err != nil {
-		return err
+	if !has_trigger_conditions {
+		triggers := make([]interface{}, len(monitor.Triggers))
+		for i, t := range monitor.Triggers {
+			triggers[i] = map[string]interface{}{
+				"time_range":       t.PositiveTimeRange(),
+				"trigger_type":     t.TriggerType,
+				"threshold":        t.Threshold,
+				"threshold_type":   t.ThresholdType,
+				"occurrence_type":  t.OccurrenceType,
+				"trigger_source":   t.TriggerSource,
+				"detection_method": t.DetectionMethod,
+			}
+		}
+		if err := d.Set("triggers", triggers); err != nil {
+			return err
+		}
 	}
 	// set queries
 	queries := make([]interface{}, len(monitor.Queries))
@@ -470,22 +691,369 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 }
 
 func getTriggers(d *schema.ResourceData) []TriggerCondition {
-	rawTriggers := d.Get("triggers").([]interface{})
-	triggers := make([]TriggerCondition, len(rawTriggers))
-	for i := range rawTriggers {
-		triggerDict := rawTriggers[i].(map[string]interface{})
-		triggers[i] = TriggerCondition{
-			TriggerType:     triggerDict["trigger_type"].(string),
-			Threshold:       triggerDict["threshold"].(float64),
-			ThresholdType:   triggerDict["threshold_type"].(string),
-			TimeRange:       triggerDict["time_range"].(string),
-			OccurrenceType:  triggerDict["occurrence_type"].(string),
-			TriggerSource:   triggerDict["trigger_source"].(string),
-			DetectionMethod: triggerDict["detection_method"].(string),
+	if triggerCondition, ok := singletonFromResourceData(d, "trigger_conditions"); ok {
+		ret := triggerConditionsBlockToJson(triggerCondition)
+		return ret
+	} else {
+		rawTriggers := d.Get("triggers").([]interface{})
+		triggers := make([]TriggerCondition, len(rawTriggers))
+		for i := range rawTriggers {
+			triggerDict := rawTriggers[i].(map[string]interface{})
+			triggers[i] = TriggerCondition{
+				TriggerType:     triggerDict["trigger_type"].(string),
+				Threshold:       triggerDict["threshold"].(float64),
+				ThresholdType:   triggerDict["threshold_type"].(string),
+				TimeRange:       triggerDict["time_range"].(string),
+				OccurrenceType:  triggerDict["occurrence_type"].(string),
+				TriggerSource:   triggerDict["trigger_source"].(string),
+				DetectionMethod: triggerDict["detection_method"].(string),
+			}
+		}
+		return triggers
+	}
+}
+
+// 'trigger_conditions' block to TriggerCondition JSON structure
+func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerCondition {
+	conditions := make([]TriggerCondition, 0)
+	if sc, ok := fromSingletonArray(block, logsStaticConditionFieldName); ok {
+		conditions = append(conditions, logsStaticConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, metricsStaticConditionFieldName); ok {
+		conditions = append(conditions, metricsStaticConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, logsOutlierConditionFieldName); ok {
+		conditions = append(conditions, logsOutlierConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, metricsOutlierConditionFieldName); ok {
+		conditions = append(conditions, metricsOutlierConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, logsMissingDataConditionFieldName); ok {
+		conditions = append(conditions, logsMissingDataConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, metricsMissingDataConditionFieldName); ok {
+		conditions = append(conditions, metricsMissingDataConditionBlockToJson(sc)...)
+	}
+	return conditions
+}
+
+func logsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Field:           block["field"].(string),
+		DetectionMethod: logsStaticConditionDetectionMethod,
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
+func metricsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		DetectionMethod: metricsStaticConditionDetectionMethod,
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
+func logsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Field:           block["field"].(string),
+		Direction:       block["direction"].(string),
+		DetectionMethod: logsOutlierConditionDetectionMethod,
+	}
+	// outlier blocks do not have 'alert' and 'resolution' sub-blocks. Here we generate empty blocks
+	// for reading to work
+	for _, triggerType := range []string{"critical", "warning"} {
+		if subBlock, ok := fromSingletonArray(block, triggerType); ok {
+			subBlock["alert"] = toSingletonArray(map[string]interface{}{})
+			subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
 		}
 	}
-	return triggers
+	return base.cloneReadingFromNestedBlocks(block)
 }
+
+func metricsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Direction:       block["direction"].(string),
+		DetectionMethod: metricsOutlierConditionDetectionMethod,
+	}
+	// outlier blocks do not have 'alert' and 'resolution' sub-blocks. Here we generate empty blocks
+	// for reading to work
+	for _, triggerType := range []string{"critical", "warning"} {
+		if subBlock, ok := fromSingletonArray(block, triggerType); ok {
+			subBlock["alert"] = toSingletonArray(map[string]interface{}{})
+			subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
+		}
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
+func logsMissingDataConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	alert := TriggerCondition{
+		TimeRange:       block["time_range"].(string),
+		DetectionMethod: logsMissingDataConditionDetectionMethod,
+		TriggerType:     "MissingData",
+	}
+	resolution := TriggerCondition{
+		TimeRange:       block["time_range"].(string),
+		DetectionMethod: logsMissingDataConditionDetectionMethod,
+		TriggerType:     "ResolvedMissingData",
+	}
+	return []TriggerCondition{alert, resolution}
+}
+
+func metricsMissingDataConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	// The TF model for metrics missing data does not have explicit threshold blocks. We implicitly create
+	// the 2 trigger types: MissingData and ResolvedMissingData.
+	alert := TriggerCondition{
+		TimeRange:       block["time_range"].(string),
+		TriggerSource:   block["trigger_source"].(string),
+		DetectionMethod: metricsMissingDataConditionDetectionMethod,
+		TriggerType:     "MissingData",
+	}
+	resolution := TriggerCondition{
+		TimeRange:       block["time_range"].(string),
+		TriggerSource:   block["trigger_source"].(string),
+		DetectionMethod: metricsMissingDataConditionDetectionMethod,
+		TriggerType:     "ResolvedMissingData",
+	}
+	return []TriggerCondition{alert, resolution}
+}
+
+// TriggerCondition JSON model to 'trigger_conditions' block
+func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]interface{} {
+	missingDataConditions := make([]TriggerCondition, 0)
+	dataConditions := make([]TriggerCondition, 0)
+	for _, condition := range conditions {
+		if condition.TriggerType == "MissingData" || condition.TriggerType == "ResolvedMissingData" {
+			missingDataConditions = append(missingDataConditions, condition)
+		} else {
+			dataConditions = append(dataConditions, condition)
+		}
+	}
+	triggerConditionsBlock := map[string]interface{}{}
+	if len(dataConditions) > 0 {
+		switch dataConditions[0].DetectionMethod {
+		case logsStaticConditionDetectionMethod:
+			triggerConditionsBlock[logsStaticConditionFieldName] = toSingletonArray(jsonToLogsStaticConditionBlock(dataConditions))
+		case metricsStaticConditionDetectionMethod:
+			triggerConditionsBlock[metricsStaticConditionFieldName] = toSingletonArray(jsonToMetricsStaticConditionBlock(dataConditions))
+		case logsOutlierConditionDetectionMethod:
+			triggerConditionsBlock[logsOutlierConditionFieldName] = toSingletonArray(jsonToLogsOutlierConditionBlock(dataConditions))
+		case metricsOutlierConditionDetectionMethod:
+			triggerConditionsBlock[metricsOutlierConditionFieldName] = toSingletonArray(jsonToMetricsOutlierConditionBlock(dataConditions))
+		}
+	}
+	if len(missingDataConditions) > 0 {
+		switch missingDataConditions[0].DetectionMethod {
+		case logsMissingDataConditionDetectionMethod:
+			triggerConditionsBlock[logsMissingDataConditionFieldName] = toSingletonArray(jsonToLogsMissingDataConditionBlock(missingDataConditions))
+		case metricsMissingDataConditionDetectionMethod:
+			triggerConditionsBlock[metricsMissingDataConditionFieldName] = toSingletonArray(jsonToMetricsMissingDataConditionBlock(missingDataConditions))
+		}
+	}
+	return triggerConditionsBlock
+}
+
+func jsonToLogsStaticConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	var criticalAlrt, criticalRslv = dict{}, dict{}
+	var warningAlrt, warningRslv = dict{}, dict{}
+	criticalDict := dict{"alert": toSingletonArray(criticalAlrt), "resolution": toSingletonArray(criticalRslv)}
+	warningDict := dict{"alert": toSingletonArray(warningAlrt), "resolution": toSingletonArray(warningRslv)}
+	block := map[string]interface{}{}
+
+	block["field"] = conditions[0].Field
+	block["critical"] = toSingletonArray(criticalDict)
+	block["warning"] = toSingletonArray(warningDict)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalAlrt["threshold"] = condition.Threshold
+			criticalAlrt["threshold_type"] = condition.ThresholdType
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalRslv["threshold"] = condition.Threshold
+			criticalRslv["threshold_type"] = condition.ThresholdType
+		case "Warning":
+			hasWarning = true
+			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningAlrt["threshold"] = condition.Threshold
+			warningAlrt["threshold_type"] = condition.ThresholdType
+		case "ResolvedWarning":
+			hasWarning = true
+			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningRslv["threshold"] = condition.Threshold
+			warningRslv["threshold_type"] = condition.ThresholdType
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
+func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	var criticalAlrt, criticalRslv = dict{}, dict{}
+	var warningAlrt, warningRslv = dict{}, dict{}
+	criticalDict := dict{"alert": toSingletonArray(criticalAlrt), "resolution": toSingletonArray(criticalRslv)}
+	warningDict := dict{"alert": toSingletonArray(warningAlrt), "resolution": toSingletonArray(warningRslv)}
+	block := map[string]interface{}{}
+
+	block["critical"] = toSingletonArray(criticalDict)
+	block["warning"] = toSingletonArray(warningDict)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["occurrence_type"] = condition.OccurrenceType
+			criticalAlrt["threshold"] = condition.Threshold
+			criticalAlrt["threshold_type"] = condition.ThresholdType
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["occurrence_type"] = condition.OccurrenceType
+			criticalRslv["threshold"] = condition.Threshold
+			criticalRslv["threshold_type"] = condition.ThresholdType
+		case "Warning":
+			hasWarning = true
+			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["occurrence_type"] = condition.OccurrenceType
+			warningAlrt["threshold"] = condition.Threshold
+			warningAlrt["threshold_type"] = condition.ThresholdType
+		case "ResolvedWarning":
+			hasWarning = true
+			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["occurrence_type"] = condition.OccurrenceType
+			warningRslv["threshold"] = condition.Threshold
+			warningRslv["threshold_type"] = condition.ThresholdType
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
+func jsonToLogsOutlierConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	var criticalDict, warningDict = dict{}, dict{}
+	block := map[string]interface{}{}
+
+	block["field"] = conditions[0].Field
+	block["direction"] = conditions[0].Direction
+	block["critical"] = toSingletonArray(criticalDict)
+	block["warning"] = toSingletonArray(warningDict)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["window"] = condition.Window
+			criticalDict["consecutive"] = condition.Consecutive
+			criticalDict["threshold"] = condition.Threshold
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["window"] = condition.Window
+			criticalDict["consecutive"] = condition.Consecutive
+			criticalDict["threshold"] = condition.Threshold
+		case "Warning":
+			hasWarning = true
+			warningDict["window"] = condition.Window
+			warningDict["consecutive"] = condition.Consecutive
+			warningDict["threshold"] = condition.Threshold
+		case "ResolvedWarning":
+			hasWarning = true
+			warningDict["window"] = condition.Window
+			warningDict["consecutive"] = condition.Consecutive
+			warningDict["threshold"] = condition.Threshold
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
+func jsonToMetricsOutlierConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	var criticalDict, warningDict = dict{}, dict{}
+	block := map[string]interface{}{}
+
+	block["direction"] = conditions[0].Direction
+	block["critical"] = toSingletonArray(criticalDict)
+	block["warning"] = toSingletonArray(warningDict)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["baseline_window"] = condition.PositiveBaselineWindow()
+			criticalDict["threshold"] = condition.Threshold
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["baseline_window"] = condition.PositiveBaselineWindow()
+			criticalDict["threshold"] = condition.Threshold
+		case "Warning":
+			hasWarning = true
+			warningDict["baseline_window"] = condition.PositiveBaselineWindow()
+			warningDict["threshold"] = condition.Threshold
+		case "ResolvedWarning":
+			hasWarning = true
+			warningDict["baseline_window"] = condition.PositiveBaselineWindow()
+			warningDict["threshold"] = condition.Threshold
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
+func jsonToLogsMissingDataConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	block := map[string]interface{}{}
+	firstCondition := conditions[0]
+	block["time_range"] = firstCondition.PositiveTimeRange()
+	return block
+}
+
+func jsonToMetricsMissingDataConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	block := map[string]interface{}{}
+	firstCondition := conditions[0]
+	block["time_range"] = firstCondition.PositiveTimeRange()
+	block["trigger_source"] = firstCondition.TriggerSource
+	return block
+}
+
+var logsStaticConditionFieldName = "logs_static_condition"
+var metricsStaticConditionFieldName = "metrics_static_condition"
+var logsOutlierConditionFieldName = "logs_outlier_condition"
+var metricsOutlierConditionFieldName = "metrics_outlier_condition"
+var logsMissingDataConditionFieldName = "logs_missing_data_condition"
+var metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
+
+var logsStaticConditionDetectionMethod = "LogsStaticCondition"
+var metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
+var logsOutlierConditionDetectionMethod = "LogsOutlierCondition"
+var metricsOutlierConditionDetectionMethod = "MetricsOutlierCondition"
+var logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
+var metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
@@ -534,3 +1102,165 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		GroupNotifications: d.Get("group_notifications").(bool),
 	}
 }
+
+func toResource(schm ...map[string]*schema.Schema) *schema.Resource {
+	mapMerge := func(dest map[string]*schema.Schema, src map[string]*schema.Schema) {
+		for k, v := range src {
+			dest[k] = v
+		}
+	}
+	allSchms := map[string]*schema.Schema{}
+	for _, _schm := range schm {
+		mapMerge(allSchms, _schm)
+	}
+	return &schema.Resource{
+		Schema: allSchms,
+	}
+}
+
+func nested(optional bool, sch map[string]*schema.Schema) *schema.Schema {
+	if optional {
+		return &schema.Schema{
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem:     toResource(sch),
+		}
+	} else {
+		return &schema.Schema{
+			Type:     schema.TypeList,
+			Required: true,
+			MaxItems: 1,
+			Elem:     toResource(sch),
+		}
+	}
+}
+
+func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
+	for k, v := range block {
+		switch k {
+		case "time_range":
+			condition.TimeRange = v.(string)
+		case "trigger_type":
+			condition.TriggerType = v.(string)
+		case "threshold":
+			condition.Threshold = v.(float64)
+		case "threshold_type":
+			condition.ThresholdType = v.(string)
+		case "occurrence_type":
+			condition.OccurrenceType = v.(string)
+		case "trigger_source":
+			condition.TriggerSource = v.(string)
+		case "detection_method":
+			condition.DetectionMethod = v.(string)
+		case "field":
+			condition.Field = v.(string)
+		case "window":
+			condition.Window = v.(int)
+		case "baseline_window":
+			condition.BaselineWindow = v.(string)
+		case "consecutive":
+			condition.Consecutive = v.(int)
+		case "direction":
+			condition.Direction = v.(string)
+		default:
+		}
+	}
+}
+
+// Clones the TriggerCondition with fields from nested blocks.
+// Expects the following nested block structure:
+// +-critical
+//  +-alert
+//  +-resolution
+// +-warning
+//  +-alert
+//  +-resolution
+// Adds any 'flat' fields appear at a level to the trigger condition, as per the mapping defined in [[readFrom]].
+func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]interface{}) []TriggerCondition {
+	var conditions = []TriggerCondition{}
+	var criticalCondition, resolvedCriticalCondition, warningCondition, resolvedWarningCondition = base, base, base, base
+	criticalCondition.TriggerType = "Critical"
+	resolvedCriticalCondition.TriggerType = "ResolvedCritical"
+	warningCondition.TriggerType = "Warning"
+	resolvedWarningCondition.TriggerType = "ResolvedWarning"
+
+	if critical, ok := fromSingletonArray(block, "critical"); ok {
+		criticalCondition.readFrom(critical)
+		resolvedCriticalCondition.readFrom(critical)
+		if alert, ok := fromSingletonArray(critical, "alert"); ok {
+			criticalCondition.readFrom(alert)
+		}
+		if resolved, ok := fromSingletonArray(critical, "resolution"); ok {
+			resolvedCriticalCondition.readFrom(resolved)
+		}
+		conditions = append(conditions, criticalCondition, resolvedCriticalCondition)
+	}
+	if warning, ok := fromSingletonArray(block, "warning"); ok {
+		warningCondition.readFrom(warning)
+		resolvedWarningCondition.readFrom(warning)
+		if alert, ok := fromSingletonArray(warning, "alert"); ok {
+			warningCondition.readFrom(alert)
+		}
+		if resolved, ok := fromSingletonArray(warning, "resolution"); ok {
+			resolvedWarningCondition.readFrom(resolved)
+		}
+		conditions = append(conditions, warningCondition, resolvedWarningCondition)
+	}
+	return conditions
+}
+
+func toSingletonArray(m map[string]interface{}) []map[string]interface{} {
+	return []map[string]interface{}{m}
+}
+
+func fromSingletonArray(block map[string]interface{}, field string) (map[string]interface{}, bool) {
+	emptyDict := dict{}
+	if iface, ok := block[field]; ok {
+		switch arr := iface.(type) {
+		case []map[string]interface{}:
+			switch len(arr) {
+			case 0:
+				return emptyDict, false
+			case 1:
+				return arr[0], true
+			default:
+				log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
+			}
+		case []interface{}:
+			switch len(arr) {
+			case 0:
+				return emptyDict, false
+			case 1:
+				return arr[0].(map[string]interface{}), true
+			default:
+				log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
+			}
+		default:
+			log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
+		}
+	}
+	return emptyDict, false
+}
+
+func singletonFromResourceData(block *schema.ResourceData, field string) (map[string]interface{}, bool) {
+	if i, ok := block.GetOk(field); ok {
+		if arr, ok := i.([]interface{}); ok && len(arr) == 1 {
+			if elem, ok := arr[0].(map[string]interface{}); ok {
+				return elem, true
+			}
+		}
+	}
+	return map[string]interface{}{}, false
+}
+
+func (t *TriggerCondition) PositiveTimeRange() string {
+	return strings.TrimPrefix(t.TimeRange, "-")
+}
+
+func (t *TriggerCondition) PositiveBaselineWindow() string {
+	return strings.TrimPrefix(t.BaselineWindow, "-")
+}
+
+type schemaMap = map[string]*schema.Schema
+type dict = map[string]interface{}
