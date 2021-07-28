@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -1226,7 +1225,7 @@ func fromSingletonArray(block map[string]interface{}, field string) (map[string]
 			case 1:
 				return arr[0], true
 			default:
-				panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
+				log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
 			}
 		case []interface{}:
 			switch len(arr) {
@@ -1235,10 +1234,10 @@ func fromSingletonArray(block map[string]interface{}, field string) (map[string]
 			case 1:
 				return arr[0].(map[string]interface{}), true
 			default:
-				panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
+				log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
 			}
 		default:
-			panic(fmt.Sprintf("Expected field '%s' to be a singleton array if present, got: %s", field, iface))
+			log.Fatalf("Expected field '%s' to be a singleton array if present, got: %s", field, iface)
 		}
 	}
 	return emptyDict, false
