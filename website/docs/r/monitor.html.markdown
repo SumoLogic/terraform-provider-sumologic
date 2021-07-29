@@ -23,21 +23,23 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
   }
-  trigger_conditions {
-    logs_static_condition {
-      critical {
-        time_range = "15m"
-        alert {
-          threshold      = 40.0
-          threshold_type = "GreaterThan"
-        }
-        resolution {
-          threshold      = 40.0
-          threshold_type = "LessThanOrEqual"
-        }
-      }
-    }
+  triggers {
+    threshold_type   = "GreaterThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "Critical"
+    detection_method = "StaticCondition"
   }
+  triggers {
+    threshold_type   = "LessThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "ResolvedCritical"
+    detection_method = "StaticCondition"  }
   notifications {
     notification {
       connection_type = "Email"
@@ -74,21 +76,23 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     row_id = "A"
     query  = "metric=CPU_Idle _sourceCategory=event-action"
   }
-  trigger_conditions {
-    metrics_static_condition {
-      critical {
-        time_range = "15m"
-        occurrence_type = "AtLeastOnce"
-        alert {
-          threshold      = 40.0
-          threshold_type = "GreaterThan"
-        }
-        resolution {
-          threshold      = 40.0
-          threshold_type = "LessThanOrEqual"
-        }
-      }
-    }
+  triggers {
+    threshold_type   = "GreaterThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "Critical"
+    detection_method = "StaticCondition"
+  }
+  triggers {
+    threshold_type   = "LessThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "ResolvedCritical"
+    detection_method = "StaticCondition"
   }
   notifications {
     notification {
@@ -140,20 +144,23 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
   }
-  trigger_conditions {
-    logs_static_condition {
-      critical {
-        time_range = "15m"
-        alert {
-          threshold      = 40.0
-          threshold_type = "GreaterThan"
-        }
-        resolution {
-          threshold      = 40.0
-          threshold_type = "LessThanOrEqual"
-        }
-      }
-    }
+  triggers {
+    threshold_type   = "GreaterThan"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "Critical"
+    detection_method = "StaticCondition"
+  }
+  triggers {
+    threshold_type   = "LessThanOrEqual"
+    threshold        = 40.0
+    time_range       = "15m"
+    occurrence_type  = "ResultCount"
+    trigger_source   = "AllResults"
+    trigger_type     = "ResolvedCritical"
+    detection_method = "StaticCondition"
   }
   notifications {
     notification {
@@ -213,8 +220,8 @@ The following arguments are supported:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
 - `queries` - (Required) All queries from the monitor.
-- `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
-- `triggers` - (Deprecated) Defines the conditions of when to send notifications.
+- `trigger_conditions` - (Beta) (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
+- `triggers` - Defines the conditions of when to send notifications.
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 
@@ -228,7 +235,7 @@ Additional data provided in state:
   - `Normal`
   - `Disabled`
 
-## The `trigger_conditions` block
+## The `trigger_conditions` block (Beta)
 A `trigger_conditions` block configures conditions for sending notifications.
 ### Example
 ```hcl
@@ -336,62 +343,6 @@ A `trigger_conditions` block can contain at most 1 data condition:
 and at most 1 missing-data condition:
   - `logs_missing_data_condition`
   - `metrics_missing_data_condition`
-
-## The `triggers` block
-The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.
-
-Here's an example logs monitor that uses `triggers` to specify trigger conditions:
-```hcl
-resource "sumologic_monitor" "tf_logs_monitor_1" {
-  name         = "Terraform Logs Monitor"
-  description  = "tf logs monitor"
-  type         = "MonitorsLibraryMonitor"
-  is_disabled  = false
-  content_type = "Monitor"
-  monitor_type = "Logs"
-  queries {
-    row_id = "A"
-    query  = "_sourceCategory=event-action info"
-  }
-  triggers {
-    threshold_type   = "GreaterThan"
-    threshold        = 40.0
-    time_range       = "15m"
-    occurrence_type  = "ResultCount"
-    trigger_source   = "AllResults"
-    trigger_type     = "Critical"
-    detection_method = "StaticCondition"
-  }
-  triggers {
-    threshold_type   = "LessThanOrEqual"
-    threshold        = 40.0
-    time_range       = "15m"
-    occurrence_type  = "ResultCount"
-    trigger_source   = "AllResults"
-    trigger_type     = "ResolvedCritical"
-    detection_method = "StaticCondition"
-  }
-  notifications {
-    notification {
-      connection_type = "Email"
-      recipients = [
-        "abc@example.com",
-      ]
-      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
-      time_zone    = "PST"
-      message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
-    }
-    run_for_trigger_types = ["Critical", "ResolvedCritical"]
-  }
-  notifications {
-    notification {
-      connection_type = "Webhook"
-      connection_id   = "0000000000ABC123"
-    }
-    run_for_trigger_types = ["Critical", "ResolvedCritical"]
-  }
-}
-```
 
 ## Import
 
