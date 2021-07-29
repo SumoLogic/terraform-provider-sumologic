@@ -21,13 +21,13 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
-	github.com/ulikunitz/xz v0.5.6 // indirect
+	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20200210222208-86ce3cb69678 // indirect
 	golang.org/x/exp v0.0.0-20200207192155-f17229e696bd // indirect
 	golang.org/x/tools v0.0.0-20200216192241-b320d3a0f5a2 // indirect
 	google.golang.org/api v0.17.0 // indirect
 	google.golang.org/genproto v0.0.0-20200210034751-acff78025515 // indirect
-	google.golang.org/grpc v1.27.1
+	google.golang.org/grpc v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
