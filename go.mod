@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.88.0 // indirect
 	github.com/aws/aws-sdk-go v1.40.10 // indirect
 	github.com/fatih/color v1.9.0 // indirect
-	github.com/go-errors/errors v1.0.1
+	github.com/go-errors/errors v1.4.0
 	github.com/go-test/deep v1.0.5 // indirect
 	github.com/hashicorp/go-hclog v0.12.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
