@@ -1,4 +1,6 @@
-## 2.9.8 (Unreleased)
+## 2.9.9 (Unreleased)
+
+## 2.9.8 (July 30, 2021)
 
 FEATURES:
 
@@ -8,6 +10,10 @@ FEATURES:
 DEPRECATIONS:
 
 * resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-239)
+
+BUG FIXES:
+
+* datasource/sumologic_http_source: fix int64 conversion for `collector_id` (GH-251)
 
 ## 2.9.7 (July 22, 2021)
 
