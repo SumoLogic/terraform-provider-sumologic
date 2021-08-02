@@ -84,9 +84,8 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"triggers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Deprecated: "The field `triggers` is deprecated and will be removed in a future release of the provider -- please use `trigger_conditions` instead.",
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"trigger_type": {
