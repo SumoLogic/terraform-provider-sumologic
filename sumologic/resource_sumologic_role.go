@@ -42,7 +42,7 @@ func resourceSumologicRole() *schema.Resource {
 				Optional: true,
 			},
 			"capabilities": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
