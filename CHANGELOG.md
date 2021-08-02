@@ -1,5 +1,9 @@
 ## 2.9.9 (Unreleased)
 
+BUG FIXES:
+
+* resource/sumologic_monitor: Removed deprecation warning for `triggers`.
+
 ## 2.9.8 (July 30, 2021)
 
 FEATURES:
