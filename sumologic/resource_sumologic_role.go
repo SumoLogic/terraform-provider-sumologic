@@ -119,7 +119,7 @@ func resourceSumologicRoleUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceToRole(d *schema.ResourceData) Role {
-	rawCapabilities := d.Get("capabilities").([]interface{})
+	rawCapabilities := d.Get("capabilities").(*schema.Set).List()
 	capabilities := make([]string, len(rawCapabilities))
 	for i, v := range rawCapabilities {
 		capabilities[i] = v.(string)
