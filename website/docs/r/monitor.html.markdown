@@ -193,16 +193,9 @@ JSON
 }
 ```
 
-## Example Monitor Folder
+## Monitor Folders
 
-NOTE: Monitor folders are considered a different resource from Library content folders.
-
-```hcl
-resource "sumologic_monitor_folder" "tf_monitor_folder_1" {
-  name        = "test terraform folder"
-  description = "a folder for monitors"
-}
-```
+NOTE: Monitor folders are considered a different resource from Library content folders. See [sumologic_monitor_folder][2] for more details.
 
 ## Argument reference
 
@@ -353,3 +346,4 @@ terraform import sumologic_monitor.test 1234567890
 ```
 
 [1]: https://help.sumologic.com/?cid=10020
+[2]: monitor_folder.html.markdown
