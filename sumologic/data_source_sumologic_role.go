@@ -34,7 +34,7 @@ func dataSourceSumologicRole() *schema.Resource {
 				Computed: true,
 			},
 			"capabilities": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
