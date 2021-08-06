@@ -58,7 +58,7 @@ The following properties are common to ALL sources and can be used to configure 
 ```
 resource "sumologic_http_source" "instrumentation-logs" {
    ...
-   fields = {"sourceType": "instrumentation"}
+   fields = {"origin": "instrumentation"}
 }
 
 ```
