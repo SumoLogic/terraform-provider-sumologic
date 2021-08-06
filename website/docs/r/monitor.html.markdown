@@ -264,8 +264,18 @@ trigger_conditions {
 }
 ```
 ### Arguments
-Here is a summary of the various condition types that are supported, and the arguments each of them takes (fields which are not marked as `Required` are optional):
-- `logs_static_condition`:
+A `trigger_conditions` block contains one or more subblocks of the following types:
+- `logs_static_condition`
+- `metrics_static_condition`
+- `logs_outlier_condition`
+- `metrics_outlier_condition`
+- `logs_missing_data_condition`
+- `metrics_missing_data_condition`
+
+Subblocks should be limited to at most 1 missing data condition and at most 1 static / outlier condition.
+
+Here is a summary of arguments for each condition type (fields which are not marked as `Required` are optional):
+#### logs_static_condition
   - `field`
   - `critical`
     - `time_range` (Required)
@@ -283,7 +293,7 @@ Here is a summary of the various condition types that are supported, and the arg
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-- `metrics_static_condition`:
+#### metrics_static_condition
   - `critical`
     - `time_range` (Required)
     - `occurrence_type` (Required)
@@ -302,7 +312,7 @@ Here is a summary of the various condition types that are supported, and the arg
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-- `logs_outlier_condition`:
+#### logs_outlier_condition
   - `field`
   - `direction`
   - `critical`
@@ -313,7 +323,7 @@ Here is a summary of the various condition types that are supported, and the arg
      - `window`
      - `consecutive`
      - `threshold`
-- `metrics_outlier_condition`:
+#### metrics_outlier_condition
   - `direction`
   - `critical`
      - `baseline_window`
@@ -321,21 +331,11 @@ Here is a summary of the various condition types that are supported, and the arg
   - `warning`
     - `baseline_window`
     - `threshold`
-- `logs_missing_data_condition`:
+#### logs_missing_data_condition
   - `time_range` (Required)
-- `metrics_missing_data_condition`:
+#### metrics_missing_data_condition
   - `time_range` (Required)
   - `trigger_source` (Required)
-
-A `trigger_conditions` block can contain at most 1 data condition:
- - `logs_static_condition`
- - `metrics_static_condition`
- - `logs_outlier_condition`
- - `metrics_outlier_condition`
- 
-and at most 1 missing-data condition:
-  - `logs_missing_data_condition`
-  - `metrics_missing_data_condition`
 
 ## Import
 
