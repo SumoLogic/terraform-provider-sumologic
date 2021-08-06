@@ -4,6 +4,7 @@ BUG FIXES:
 
 * resource/sumologic_monitor: Removed deprecation warning for `triggers`.
 * seperated docs for sumologic_monitor_folder from docs for sumologic_monitor.
+* resource/sumologic_monitor: Fixed docs for `trigger_conditions`.
 
 ## 2.9.8 (July 30, 2021)
 
