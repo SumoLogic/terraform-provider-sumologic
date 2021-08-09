@@ -54,7 +54,14 @@ The following properties are common to ALL sources and can be used to configure 
 - `filters` - (Optional) If you'd like to add a filter to the source, type the name of the filter (Exclude, Include, Mask, Hash, or Forward. 
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). 
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
-- `fields` - (Optional) Map containing [key/value pairs][3]. 
+- `fields` - (Optional) Map containing [key/value pairs][3], e.g.
+```
+resource "sumologic_http_source" "instrumentation-logs" {
+   ...
+   fields = {"origin": "instrumentation"}
+}
+
+```
 
 [0]: index.html.markdown
 [2]: https://en.wikipedia.org/wiki/Tz_database
