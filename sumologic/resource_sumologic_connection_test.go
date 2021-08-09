@@ -50,7 +50,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
 	webhookType := "ServiceNow"
 	connectionSubtype := "Incident"
-	headers := "{\n\t\"Authorization\": \"Basic ABC123\"\n}"
+	headers := "{\"Authorization\": \"Basic ABC123\"}"
 
 	var connection Connection
 
@@ -68,7 +68,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "headers", headers),
+					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "headers", headers+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "default_payload", defaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "webhook_type", webhookType),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "connection_subtype", connectionSubtype),
@@ -195,7 +195,7 @@ resource "sumologic_connection" "serviceNowTest" {
 	type = "%s"
 	description = "%s"
 	url = "%s"
-	headers = %s
+	headers = "%s"
 	webhook_type = "ServiceNow"
 	connection_subtype = "%s"
 	default_payload = <<JSON
