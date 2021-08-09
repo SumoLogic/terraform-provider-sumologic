@@ -193,6 +193,9 @@ resource "sumologic_connection" "serviceNowTest" {
 	type = "%s"
 	description = "%s"
 	url = "%s"
+	headers = {
+		"Authorization": "Basic SOMERANDOMAUTHSTRING"
+	}
 	webhook_type = "ServiceNow"
 	connection_subtype = "%s"
 	default_payload = <<JSON
