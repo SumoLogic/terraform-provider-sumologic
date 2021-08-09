@@ -50,7 +50,6 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
 	webhookType := "ServiceNow"
 	connectionSubtype := "Incident"
-	headers := "{\"Authorization\": \"Basic ABC123\"}"
 
 	var connection Connection
 
@@ -60,7 +59,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: createServiceNowWebhookConnectionConfig(name, connectionType, description, url, connectionSubtype, defaultPayload, headers),
+				Config: createServiceNowWebhookConnectionConfig(name, connectionType, description, url, connectionSubtype, defaultPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.serviceNowTest", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.serviceNowTest"),
@@ -68,7 +67,6 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "headers", headers+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "default_payload", defaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "webhook_type", webhookType),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "connection_subtype", connectionSubtype),
@@ -188,19 +186,21 @@ JSON
 `, name, connectionType, desc, url, webhookType, defaultPayload)
 }
 
-func createServiceNowWebhookConnectionConfig(name, connectionType, desc, url, connectionSubtype, defaultPayload, headers string) string {
+func createServiceNowWebhookConnectionConfig(name, connectionType, desc, url, connectionSubtype, defaultPayload string) string {
 	return fmt.Sprintf(`
 resource "sumologic_connection" "serviceNowTest" {
 	name = "%s"
 	type = "%s"
 	description = "%s"
 	url = "%s"
-	headers = "%s"
+	headers = {
+		"Authorization": "Basic SOMERANDOMAUTHSTRING"
+	}
 	webhook_type = "ServiceNow"
 	connection_subtype = "%s"
 	default_payload = <<JSON
 %s
 JSON
 }
-`, name, connectionType, desc, url, connectionSubtype, defaultPayload, headers)
+`, name, connectionType, desc, url, connectionSubtype, defaultPayload)
 }
