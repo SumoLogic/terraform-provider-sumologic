@@ -12,7 +12,7 @@ import (
 func TestAccPasswordPolicy_create(t *testing.T) {
 	passwordPolicy := PasswordPolicy{
 		MinLength:                      9,
-		MaxLength:                      50,
+		MaxLength:                      128,
 		MustContainLowercase:           false,
 		MustContainUppercase:           true,
 		MustContainDigits:              false,
@@ -45,7 +45,7 @@ func TestAccPasswordPolicy_create(t *testing.T) {
 func TestAccPasswordPolicy_update(t *testing.T) {
 	passwordPolicy := PasswordPolicy{
 		MinLength:                      10,
-		MaxLength:                      51,
+		MaxLength:                      128,
 		MustContainLowercase:           true,
 		MustContainUppercase:           true,
 		MustContainDigits:              false,
@@ -61,7 +61,7 @@ func TestAccPasswordPolicy_update(t *testing.T) {
 
 	updatedPasswordPolicy := PasswordPolicy{
 		MinLength:                      12,
-		MaxLength:                      52,
+		MaxLength:                      128,
 		MustContainLowercase:           false,
 		MustContainUppercase:           false,
 		MustContainDigits:              false,

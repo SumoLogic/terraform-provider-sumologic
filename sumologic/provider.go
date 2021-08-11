@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -89,8 +88,6 @@ func Provider() terraform.ResourceProvider {
 		ConfigureFunc: providerConfigure,
 	}
 }
-
-var SumoMutexKV = mutexkv.NewMutexKV()
 
 func resolveRedirectURL(accessId string, accessKey string) (string, error) {
 	req, err := http.NewRequest(http.MethodHead, "https://api.sumologic.com/api/v1/collectors", nil)
