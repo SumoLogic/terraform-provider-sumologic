@@ -268,9 +268,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"evaluation_delay": {
-			  Type:     schema.TypeString,
-      	Optional: true,
-			}
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			"is_locked": {
 				Type:     schema.TypeBool,
@@ -1090,7 +1090,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		CreatedAt:          d.Get("created_at").(string),
 		MonitorType:        d.Get("monitor_type").(string),
 		Description:        d.Get("description").(string),
-		EvaluationDelay     d.Get("evaluation_delay").(string),
+		EvaluationDelay:    d.Get("evaluation_delay").(string),
 		Queries:            queries,
 		ModifiedBy:         d.Get("modified_by").(string),
 		IsMutable:          d.Get("is_mutable").(bool),
