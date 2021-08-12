@@ -1,4 +1,6 @@
-## 2.9.9 (Unreleased)
+## 2.9.10 (Unreleased)
+
+## 2.9.9 (August 12, 2021)
 
 BUG FIXES:
 
