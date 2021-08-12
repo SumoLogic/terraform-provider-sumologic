@@ -2,7 +2,9 @@ package sumologic
 
 import (
 	"fmt"
+	"log"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -11,6 +13,73 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
+
+func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShouldBeInverses(t *testing.T) {
+	sortTriggerConditions := func(slice []TriggerCondition) {
+		sort.SliceStable(slice, func(i, j int) bool {
+			return slice[i].DetectionMethod < slice[j].DetectionMethod
+		})
+	}
+	testTriggerConditions := [][]TriggerCondition{
+		{
+			exampleLogsStaticTriggerCondition("Critical", 100, "GreaterThan"),
+			exampleLogsStaticTriggerCondition("ResolvedCritical", 90, "LessThanOrEqual"),
+		},
+		{
+			exampleLogsStaticTriggerCondition("Warning", 90, "GreaterThan"),
+			exampleLogsStaticTriggerCondition("ResolvedWarning", 80, "LessThanOrEqual"),
+		},
+		{
+			exampleMetricsStaticTriggerCondition("Critical", 100, "GreaterThan"),
+			exampleMetricsStaticTriggerCondition("ResolvedCritical", 90, "LessThanOrEqual"),
+		},
+		{
+			exampleLogsOutlierTriggerCondition("Critical", 3),
+			exampleLogsOutlierTriggerCondition("ResolvedCritical", 3),
+		},
+		{
+			exampleMetricsOutlierTriggerCondition("Critical", 3),
+			exampleMetricsOutlierTriggerCondition("ResolvedCritical", 3),
+		},
+		{
+			exampleLogsMissingDataTriggerCondition("MissingData"),
+			exampleLogsMissingDataTriggerCondition("ResolvedMissingData"),
+		},
+		{
+			exampleMetricsMissingDataTriggerCondition("MissingData"),
+			exampleMetricsMissingDataTriggerCondition("ResolvedMissingData"),
+		},
+		{
+			exampleLogsStaticTriggerCondition("Critical", 100, "GreaterThan"),
+			exampleLogsStaticTriggerCondition("ResolvedCritical", 90, "LessThanOrEqual"),
+			exampleLogsStaticTriggerCondition("Warning", 90, "GreaterThan"),
+			exampleLogsStaticTriggerCondition("ResolvedWarning", 80, "LessThanOrEqual"),
+			exampleLogsMissingDataTriggerCondition("MissingData"),
+			exampleLogsMissingDataTriggerCondition("ResolvedMissingData"),
+		},
+		{
+			exampleMetricsOutlierTriggerCondition("Critical", 3),
+			exampleMetricsOutlierTriggerCondition("ResolvedCritical", 3),
+			exampleMetricsOutlierTriggerCondition("Warning", 2),
+			exampleMetricsOutlierTriggerCondition("ResolvedWarning", 2),
+			exampleMetricsMissingDataTriggerCondition("MissingData"),
+			exampleMetricsMissingDataTriggerCondition("ResolvedMissingData"),
+		},
+	}
+	for _, triggerConditions := range testTriggerConditions {
+		triggerConditionsAfterRoundTrip := triggerConditionsBlockToJson(jsonToTriggerConditionsBlock(triggerConditions))
+		sortTriggerConditions(triggerConditionsAfterRoundTrip)
+		sortTriggerConditions(triggerConditions)
+		if len(triggerConditionsAfterRoundTrip) != len(triggerConditions) {
+			log.Fatalln("Test case:", triggerConditions, "Lengths differ: Expected", len(triggerConditions), "got", len(triggerConditionsAfterRoundTrip))
+		}
+		for i := range triggerConditions {
+			if triggerConditionsAfterRoundTrip[i] != triggerConditions[i] {
+				log.Fatalln("Test case:", triggerConditions, "Expected", triggerConditions[i], "got", triggerConditionsAfterRoundTrip[i])
+			}
+		}
+	}
+}
 
 func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
@@ -143,6 +212,32 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_create_all_monitor_types(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	for _, monitorConfig := range allExampleMonitors {
+		testNameSuffix := acctest.RandString(16)
+
+		testName := "terraform_test_monitor_" + testNameSuffix
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			Steps: []resource.TestStep{
+				{
+					Config: monitorConfig(testName),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+						testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+						resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
+						resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					),
+				},
+			},
+		})
+	}
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
@@ -453,4 +548,208 @@ resource "sumologic_monitor" "test" {
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 }`, testName)
+}
+
+func exampleMonitorWithTriggerCondition(
+	testName string,
+	monitorType string,
+	query string,
+	trigger string,
+	triggerTys []string) string {
+	triggerTysStr := `"` + strings.Join(triggerTys, `","`) + `"`
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "%s"
+	queries {
+		row_id = "A"
+		query = "%s"
+	  }
+    trigger_conditions {
+      %s
+    }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = [%s]
+	  }
+}`, testName, monitorType, query, trigger, triggerTysStr)
+}
+
+var exampleLogsStaticTriggerConditionBlock = `
+   logs_static_condition {
+     critical {
+       time_range = "30m"
+       alert {
+         threshold = 100.0
+         threshold_type = "GreaterThan"
+       }
+       resolution {
+         threshold = 90
+         threshold_type = "LessThanOrEqual"
+       }
+     }
+     field = "field"
+   }`
+
+var exampleMetricsStaticTriggerConditionBlock = `
+   metrics_static_condition {
+     critical {
+       time_range = "30m"
+       occurrence_type = "Always"
+       alert {
+         threshold = 100.0
+         threshold_type = "GreaterThan"
+       }
+       resolution {
+         threshold = 90
+         threshold_type = "LessThanOrEqual"
+       }
+     }
+   }`
+
+var exampleLogsOutlierTriggerConditionBlock = `
+   logs_outlier_condition {
+     critical {
+       window = 5
+       consecutive = 1
+       threshold = 3.0
+     }
+     field = "field"
+     direction = "Both"
+   }`
+
+var exampleMetricsOutlierTriggerConditionBlock = `
+   metrics_outlier_condition {
+     critical {
+       baseline_window = "15m"
+       threshold = 3.0
+     }
+     direction = "Both"
+   }`
+
+var exampleLogsMissingDataTriggerConditionBlock = `
+   logs_missing_data_condition {
+     time_range = "30m"
+   }`
+
+var exampleMetricsMissingDataTriggerConditionBlock = `
+   metrics_missing_data_condition {
+     time_range = "30m"
+     trigger_source = "AnyTimeSeries"
+   }`
+
+func exampleLogsStaticMonitor(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		exampleLogsStaticTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
+}
+
+func exampleMetricsStaticMonitor(testName string) string {
+	query := "error _sourceCategory=category"
+	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
+		exampleMetricsStaticTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
+}
+
+func exampleLogsOutlierMonitor(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		exampleLogsOutlierTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
+}
+
+func exampleMetricsOutlierMonitor(testName string) string {
+	query := "error _sourceCategory=category"
+	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
+		exampleMetricsOutlierTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
+}
+
+func exampleLogsMissingDataMonitor(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		exampleLogsMissingDataTriggerConditionBlock, []string{"MissingData", "ResolvedMissingData"})
+}
+
+func exampleMetricsMissingDataMonitor(testName string) string {
+	query := "error _sourceCategory=category"
+	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
+		exampleMetricsMissingDataTriggerConditionBlock, []string{"MissingData", "ResolvedMissingData"})
+}
+
+var allExampleMonitors = []func(testName string) string{
+	exampleLogsStaticMonitor,
+	exampleMetricsStaticMonitor,
+	exampleLogsOutlierMonitor,
+	exampleMetricsOutlierMonitor,
+	exampleLogsMissingDataMonitor,
+	exampleMetricsMissingDataMonitor,
+}
+
+func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       "30m",
+		TriggerType:     triggerType,
+		Threshold:       threshold,
+		ThresholdType:   thresholdType,
+		Field:           "field",
+		DetectionMethod: "LogsStaticCondition",
+	}
+}
+
+func exampleMetricsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       "30m",
+		TriggerType:     triggerType,
+		Threshold:       threshold,
+		ThresholdType:   thresholdType,
+		OccurrenceType:  "Always",
+		DetectionMethod: "MetricsStaticCondition",
+	}
+}
+
+func exampleLogsOutlierTriggerCondition(triggerType string, threshold float64) TriggerCondition {
+	return TriggerCondition{
+		TriggerType:     triggerType,
+		Window:          5,
+		Consecutive:     1,
+		Direction:       "Both",
+		Threshold:       threshold,
+		Field:           "field",
+		DetectionMethod: "LogsOutlierCondition",
+	}
+}
+
+func exampleMetricsOutlierTriggerCondition(triggerType string, threshold float64) TriggerCondition {
+	return TriggerCondition{
+		TriggerType:     triggerType,
+		Threshold:       threshold,
+		BaselineWindow:  "30m",
+		Direction:       "Both",
+		DetectionMethod: "MetricsOutlierCondition",
+	}
+}
+
+func exampleLogsMissingDataTriggerCondition(triggerType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       "30m",
+		TriggerType:     triggerType,
+		DetectionMethod: "LogsMissingDataCondition",
+	}
+}
+
+func exampleMetricsMissingDataTriggerCondition(triggerType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       "30m",
+		TriggerType:     triggerType,
+		TriggerSource:   "AllTimeSeries",
+		DetectionMethod: "MetricsMissingDataCondition",
+	}
 }

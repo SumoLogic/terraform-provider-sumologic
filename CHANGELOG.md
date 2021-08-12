@@ -1,4 +1,31 @@
-## 2.9.7 (Unreleased)
+## 2.9.9 (Unreleased)
+
+BUG FIXES:
+
+* resource/sumologic_monitor: Removed deprecation warning for `triggers`.
+* seperated docs for sumologic_monitor_folder from docs for sumologic_monitor.
+* resource/sumologic_monitor: Fixed docs for `trigger_conditions`.
+
+## 2.9.8 (July 30, 2021)
+
+FEATURES:
+
+* Add support for ServiceNow Incident and Event webhook connection (GH-250)
+* Add support for new detection methods to sumologic_monitor (GH-239)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-239)
+
+BUG FIXES:
+
+* datasource/sumologic_http_source: fix int64 conversion for `collector_id` (GH-251)
+
+## 2.9.7 (July 22, 2021)
+
+ENHANCEMENTS:
+
+* Upgrade GoLang to support arm_64 (GH-241)
 
 ## 2.9.6 (July 9, 2021)
 

@@ -186,9 +186,6 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 }
 
 func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
-	SumoMutexKV.Lock(urlPath)
-	defer SumoMutexKV.Unlock(urlPath)
-
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -354,15 +351,16 @@ type Content struct {
 
 // Connection is used to describe a connection.
 type Connection struct {
-	ID             string    `json:"id,omitempty"`
-	Type           string    `json:"type"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description,omitempty"`
-	URL            string    `json:"url"`
-	Headers        []Headers `json:"headers,omitempty"`
-	CustomHeaders  []Headers `json:"customHeaders,omitempty"`
-	DefaultPayload string    `json:"defaultPayload"`
-	WebhookType    string    `json:"webhookType"`
+	ID                string    `json:"id,omitempty"`
+	Type              string    `json:"type"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description,omitempty"`
+	URL               string    `json:"url"`
+	Headers           []Headers `json:"headers,omitempty"`
+	CustomHeaders     []Headers `json:"customHeaders,omitempty"`
+	DefaultPayload    string    `json:"defaultPayload"`
+	WebhookType       string    `json:"webhookType"`
+	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

@@ -42,7 +42,7 @@ func resourceSumologicUser() *schema.Resource {
 				Required: true,
 			},
 			"role_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -124,7 +124,7 @@ func resourceSumologicUserUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceToUser(d *schema.ResourceData) User {
-	rawRoleIds := d.Get("role_ids").([]interface{})
+	rawRoleIds := d.Get("role_ids").(*schema.Set).List()
 	roleIds := make([]string, len(rawRoleIds))
 	for i, v := range rawRoleIds {
 		roleIds[i] = v.(string)
