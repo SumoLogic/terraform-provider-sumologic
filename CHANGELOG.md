@@ -6,6 +6,10 @@ BUG FIXES:
 * seperated docs for sumologic_monitor_folder from docs for sumologic_monitor.
 * resource/sumologic_monitor: Fixed docs for `trigger_conditions`.
 
+FEATURES:
+
+* Adding "entityId" as part of SAML API response object.
+
 ## 2.9.8 (July 30, 2021)
 
 FEATURES:
