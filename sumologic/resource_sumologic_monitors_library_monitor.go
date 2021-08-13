@@ -313,9 +313,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"playbook": {
-				Type:         schema.TypeString,
-				Optional:     true
-			}			
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -1106,7 +1106,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		IsDisabled:         d.Get("is_disabled").(bool),
 		Status:             status,
 		GroupNotifications: d.Get("group_notifications").(bool),
-		Playbook:			d.Get("playbook").(bool),
+		Playbook:           d.Get("playbook").(string),
 	}
 }
 
