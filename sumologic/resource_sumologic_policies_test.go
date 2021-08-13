@@ -9,6 +9,33 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestAccPolicies_basic(t *testing.T) {
+	policies := Policies{
+		Audit:                              AuditPolicy{Enabled: true},
+		DataAccessLevel:                    DataAccessLevelPolicy{Enabled: true},
+		MaxUserSessionTimeout:              MaxUserSessionTimeoutPolicy{MaxUserSessionTimeout: "1h"},
+		SearchAudit:                        SearchAuditPolicy{Enabled: true},
+		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
+		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 70},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPoliciesDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: newPoliciesConfig("tf_policies_import_test", &policies),
+			},
+			{
+				ResourceName:      "sumologic_policies.tf_policies_import_test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccPolicies_create(t *testing.T) {
 	policies := Policies{
 		Audit:                              AuditPolicy{Enabled: true},

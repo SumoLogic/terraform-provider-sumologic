@@ -47,6 +47,12 @@ The following arguments are supported:
 - `enabled` - (Optional) Whether the [User Concurrent Sessions Limit Policy][6] is enabled. Defaults to `false`.
 - `max_concurrent_sessions` - (Optional) Maximum number of concurrent sessions a user may have. Defaults to `100`.
 
+## Import
+Policies can be imported using the id `org-policies`, e.g.:
+```hcl
+terraform import sumologic_policies.example_policies org-policies
+```
+
 [1]: https://help.sumologic.com/Manage/Security/Audit-Index
 [2]: https://help.sumologic.com/Manage/Security/Data_Access_Level_for_Shared_Dashboards
 [3]: https://help.sumologic.com/Manage/Security/Set_a_Maximum_Web_Session_Timeout

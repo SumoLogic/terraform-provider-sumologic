@@ -19,6 +19,9 @@ func resourceSumologicPolicies() *schema.Resource {
 		Read:   resourceSumologicPoliciesRead,
 		Update: resourceSumologicPoliciesUpdate,
 		Delete: resourceSumologicPoliciesDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"audit": {
@@ -88,7 +91,7 @@ func resourceSumologicPoliciesCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	d.SetId("policies")
+	d.SetId("org-policies")
 	return nil
 }
 
