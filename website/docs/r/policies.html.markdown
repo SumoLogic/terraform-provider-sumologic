@@ -48,7 +48,10 @@ The following arguments are supported:
 - `max_concurrent_sessions` - (Optional) Maximum number of concurrent sessions a user may have. Defaults to `100`.
 
 ## Import
-Policies can be imported using the id `org-policies`, e.g.:
+Policies can be imported using the id `org-policies`.
+
+~> **NOTE:** Only `org-policies` id should be used when importing policies. Using any other id may have unintended consequences.
+
 ```hcl
 terraform import sumologic_policies.example_policies org-policies
 ```
