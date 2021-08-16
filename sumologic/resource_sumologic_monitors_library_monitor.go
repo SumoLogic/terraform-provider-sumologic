@@ -272,7 +272,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "this value is bad"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
 			},
 
 			"is_locked": {
