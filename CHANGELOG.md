@@ -2,6 +2,10 @@
 
 ## 2.9.9 (August 12, 2021)
 
+FEATURES:
+
+* **New Resource:** sumologic_policies (GH-248)
+
 BUG FIXES:
 
 * resource/sumologic_monitor: Removed deprecation warning for `triggers`.
