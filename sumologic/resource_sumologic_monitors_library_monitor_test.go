@@ -523,6 +523,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = true
 	content_type = "Monitor"
 	monitor_type = "Logs"
+	evaluation_delay = "8m"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"

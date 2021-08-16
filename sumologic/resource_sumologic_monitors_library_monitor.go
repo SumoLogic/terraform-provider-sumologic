@@ -512,7 +512,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("created_by", monitor.CreatedBy)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
-	log.Printf("[WARN] value of delay: %v", monitor.EvaluationDelay)
 	d.Set("evaluation_delay", monitor.EvaluationDelay)
 	d.Set("modified_by", monitor.ModifiedBy)
 	d.Set("is_mutable", monitor.IsMutable)
@@ -590,7 +589,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	if !has_trigger_conditions {
 		triggers := make([]interface{}, len(monitor.Triggers))
 		for i, t := range monitor.Triggers {
-			log.Printf("[WARN] value of timerange: %v", t.PositiveTimeRange())
 			triggers[i] = map[string]interface{}{
 				"time_range":       t.PositiveTimeRange(),
 				"trigger_type":     t.TriggerType,
