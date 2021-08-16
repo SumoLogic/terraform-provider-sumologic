@@ -126,6 +126,7 @@ type MonitorsLibraryMonitor struct {
 	Notifications      []MonitorNotification `json:"notifications,omitempty"`
 	CreatedBy          string                `json:"createdBy"`
 	MonitorType        string                `json:"monitorType"`
+	EvaluationDelay    string                `json:"evaluationDelay,omitempty"`
 	IsLocked           bool                  `json:"isLocked"`
 	Description        string                `json:"description"`
 	CreatedAt          string                `json:"createdAt"`
