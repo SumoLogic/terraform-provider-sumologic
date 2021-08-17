@@ -138,6 +138,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	testContentType := "Monitor"
 	testMonitorType := "Logs"
 	testIsDisabled := false
+	testEvaluationDelay := "5m"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -203,6 +204,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -251,6 +253,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testMonitorType := "Logs"
 	testPlaybook := "This is a test playbook"
 	testIsDisabled := false
+	testEvaluationDelay := "5m"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -309,6 +312,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testUpdatedMonitorType := "Logs"
 	testUpdatedPlaybook := "This is an updated test playbook"
 	testUpdatedIsDisabled := true
+	testUpdatedEvaluationDelay := "8m"
 	testUpdatedQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -374,6 +378,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -390,6 +395,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testUpdatedType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testUpdatedEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
@@ -450,6 +456,7 @@ func testAccCheckMonitorsLibraryMonitorAttributes(name string) resource.TestChec
 			resource.TestCheckResourceAttrSet(name, "created_by"),
 			resource.TestCheckResourceAttrSet(name, "is_locked"),
 			resource.TestCheckResourceAttrSet(name, "monitor_type"),
+			resource.TestCheckResourceAttrSet(name, "evaluation_delay"),
 			resource.TestCheckResourceAttrSet(name, "is_system"),
 			resource.TestCheckResourceAttrSet(name, "is_disabled"),
 			resource.TestCheckResourceAttrSet(name, "name"),
@@ -475,6 +482,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = false
 	content_type = "Monitor"
 	monitor_type = "Logs"
+	evaluation_delay = "5m"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager error"
@@ -519,6 +527,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = true
 	content_type = "Monitor"
 	monitor_type = "Logs"
+	evaluation_delay = "8m"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"

@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -267,6 +268,13 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
 			},
 
+			"evaluation_delay": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
+			},
+
 			"is_locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -510,6 +518,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("created_by", monitor.CreatedBy)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
+	d.Set("evaluation_delay", monitor.EvaluationDelay)
 	d.Set("modified_by", monitor.ModifiedBy)
 	d.Set("is_mutable", monitor.IsMutable)
 	d.Set("version", monitor.Version)
@@ -1091,6 +1100,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		CreatedAt:          d.Get("created_at").(string),
 		MonitorType:        d.Get("monitor_type").(string),
 		Description:        d.Get("description").(string),
+		EvaluationDelay:    d.Get("evaluation_delay").(string),
 		Queries:            queries,
 		ModifiedBy:         d.Get("modified_by").(string),
 		IsMutable:          d.Get("is_mutable").(bool),

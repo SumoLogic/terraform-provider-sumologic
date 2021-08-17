@@ -19,6 +19,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Logs"
+  evaluation_delay = "5m"
   queries {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
@@ -72,6 +73,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
   is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Metrics"
+  evaluation_delay = "1m"
   queries {
     row_id = "A"
     query  = "metric=CPU_Idle _sourceCategory=event-action"
