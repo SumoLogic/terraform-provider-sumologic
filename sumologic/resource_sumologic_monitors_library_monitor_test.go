@@ -515,7 +515,7 @@ resource "sumologic_monitor" "test" {
 		  }
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
-	playbook = "This is an updated test playbook"  
+	playbook = "This is a test playbook"  
 }`, testName)
 }
 
