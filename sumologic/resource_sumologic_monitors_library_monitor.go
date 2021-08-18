@@ -311,12 +311,18 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+
 			"post_request_map": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+
+			"playbook": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -526,6 +532,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("is_disabled", monitor.IsDisabled)
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
+	d.Set("playbook", monitor.Playbook)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -1109,6 +1116,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		IsDisabled:         d.Get("is_disabled").(bool),
 		Status:             status,
 		GroupNotifications: d.Get("group_notifications").(bool),
+		Playbook:           d.Get("playbook").(string),
 	}
 }
 

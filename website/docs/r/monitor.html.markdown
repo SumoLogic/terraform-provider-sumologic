@@ -219,6 +219,7 @@ The following arguments are supported:
 - `triggers` - Defines the conditions of when to send notifications.
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
+- `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
 
 Additional data provided in state:
 

@@ -251,6 +251,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testType := "MonitorsLibraryMonitor"
 	testContentType := "Monitor"
 	testMonitorType := "Logs"
+	testPlaybook := "This is a test playbook"
 	testIsDisabled := false
 	testEvaluationDelay := "5m"
 	testQueries := []MonitorQuery{
@@ -309,6 +310,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testUpdatedType := "MonitorsLibraryMonitor"
 	testUpdatedContentType := "Monitor"
 	testUpdatedMonitorType := "Logs"
+	testUpdatedPlaybook := "This is an updated test playbook"
 	testUpdatedIsDisabled := true
 	testUpdatedEvaluationDelay := "8m"
 	testUpdatedQueries := []MonitorQuery{
@@ -382,6 +384,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testPlaybook),
 				),
 			},
 			{
@@ -398,6 +401,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testUpdatedTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testUpdatedPlaybook),
 				),
 			},
 		},
@@ -511,6 +515,7 @@ resource "sumologic_monitor" "test" {
 		  }
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
+	playbook = "This is a test playbook"  
 }`, testName)
 }
 
@@ -556,6 +561,7 @@ resource "sumologic_monitor" "test" {
 		}
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
+	playbook = "This is an updated test playbook"
 }`, testName)
 }
 
@@ -591,6 +597,7 @@ resource "sumologic_monitor" "test" {
 		  }
 		run_for_trigger_types = [%s]
 	  }
+	playbook = "This is a test playbook"
 }`, testName, monitorType, query, trigger, triggerTysStr)
 }
 
