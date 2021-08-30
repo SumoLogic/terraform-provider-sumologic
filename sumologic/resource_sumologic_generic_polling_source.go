@@ -193,6 +193,13 @@ func resourceSumologicGenericPollingSourceRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	authSettings, errAuthSettings := getPollingAuthentication(d)
+	if errAuthSettings != nil {
+		d.Set("authentication", authSettings)
+	} else {
+		return errAuthSettings
+	}
+
 	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
 		return fmt.Errorf("%s", err)
 	}
