@@ -1,5 +1,8 @@
 ## 2.9.11 (Unreleased)
 
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
 
 ## 2.9.10 (August 24, 2021)
 
