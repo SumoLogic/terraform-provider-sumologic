@@ -39,7 +39,7 @@ The following arguments are supported:
 - `filter` - (Optional) An optional clause that a hierarchy requires to be matched.
   + `key` - (Required) Filtering key.
   + `value` - (Required) Value required for the filtering key.
-- `level` - (Required) A hierarchy of entities. The order is up-down, left to right levels with condition, then level without condition. 
+- `level` - (Required) A hierarchy of entities. The order is up-down, left to right levels with condition, then level without condition. Maximum supported total depth is 6.
   + `entity_type` - (Required) Indicates the name and type for all entities at this hierarchy level, e.g. service or pod in case of kubernetes entities.
   + `next_levels_with_conditions` - (Optional) Zero or more next levels with conditions.
     + `condition` - (Required) Condition to be checked against for level.entityType value, for now full string match.
