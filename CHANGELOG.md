@@ -1,5 +1,8 @@
-## 2.9.11 (Unreleased)
+## 2.10.0 (Unreleased)
 
+FEATURES:
+
+* **New Resource:** sumologic_hierarchy (GH-260)
 
 ## 2.9.10 (August 24, 2021)
 
