@@ -16,7 +16,7 @@ resource "sumologic_dashboard" "api-dashboard" {
 	title = "Api Health Dashboard"
 	description = "Demo dashboard description"
 	folder_id = data.sumologic_personal_folder.personalFolder.id
-	refresh_interval = 60
+	refresh_interval = 120
 	theme = "Dark"
 
 	time_range {
@@ -272,7 +272,7 @@ The following arguments are supported:
 - `description` - (Optional) Description of the dashboard.
 - `folder_id` - (Optional) The identifier of the folder to save the dashboard in. By default it is saved in your
 personal folder.
-- `refresh_interval` - (Optional) Interval of time (in seconds) to automatically refresh the dashboard.
+- `refresh_interval` - (Optional) Interval of time (in seconds) to automatically refresh the dashboard. Valid values are 120,300,900,1800,3600,7200,86400.
 - `theme` - (Optional) Theme of the dashboard.
 - `topology_label_map` - (Block List, Max: 1, Optional) Topology labels for the dashboard. See
 [topology label map schema](#schema-for-topology_label_map)
