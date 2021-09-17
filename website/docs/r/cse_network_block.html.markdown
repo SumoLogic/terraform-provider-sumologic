@@ -6,7 +6,7 @@ description: |-
 ---
 
 # network_block
-Provides a [CSE Network Block].
+Provides a CSE Network Block.
 
 ## Example Usage
 ```hcl

@@ -3,7 +3,7 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
-* **New Resource:** cse_newtwork_block
+* **New Resource:** cse_network_block
 
 ## 2.9.10 (August 24, 2021)
 
