@@ -6,7 +6,7 @@ description: |-
 ---
 
 # insights_status
-Provides a [CSE Insights Status].
+Provides a CSE Insights Status.
 
 ## Example Usage
 ```hcl

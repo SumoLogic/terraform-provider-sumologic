@@ -6,7 +6,7 @@ description: |-
 ---
 
 # insights_resolution
-Provides a [CSE Insights Resolution].
+Provides a CSE Insights Resolution.
 
 ## Example Usage
 ```hcl

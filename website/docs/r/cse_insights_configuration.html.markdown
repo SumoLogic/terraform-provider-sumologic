@@ -1,16 +1,16 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_cse_insight_status"
+page_title: "SumoLogic: sumologic_cse_insights_status"
 description: |-
   Provides a CSE Insight Status
 ---
 
-# insight_status
-Provides a [CSE Insight Status].
+# Insights_status
+Provides a CSE Insight Status.
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_insight_status" "insight_status" {
+resource "sumologic_cse_Insights_status" "Insights_status" {
   name = "New Name"
   description = "New description"
 }
