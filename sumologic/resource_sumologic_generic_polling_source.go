@@ -193,6 +193,11 @@ func resourceSumologicGenericPollingSourceRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	authSettings := getPollingThirdPartyAuthenticationAttributes(pollingResources)
+	if err := d.Set("authentication", authSettings); err != nil {
+		return err
+	}
+
 	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
 		return fmt.Errorf("%s", err)
 	}
@@ -249,6 +254,22 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"limit_to_regions":    t.Path.LimitToRegions,
 			"limit_to_namespaces": t.Path.LimitToNamespaces,
 			"tag_filters":         flattenPollingTagFilters(t.Path.TagFilters),
+		}
+		s = append(s, mapping)
+	}
+	return s
+}
+
+func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResource) []map[string]interface{} {
+
+	var s []map[string]interface{}
+
+	for _, t := range pollingResource {
+		mapping := map[string]interface{}{
+			"type":       t.Authentication.Type,
+			"access_key": t.Authentication.AwsID,
+			"secret_key": t.Authentication.AwsKey,
+			"role_arn":   t.Authentication.RoleARN,
 		}
 		s = append(s, mapping)
 	}
