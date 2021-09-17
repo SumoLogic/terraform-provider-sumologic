@@ -1,0 +1,101 @@
+package sumologic
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+)
+
+func TestAccSumologicSCEInsightsConfiguration_create(t *testing.T) {
+	var insightConfiguration CSEInsightsConfiguration
+	nLookbackDays := 10.0
+	nThreshold := 13.0
+	resourceName := "sumologic_cse_insights_configuration.insights_configuration"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEInsightsConfigurationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSEInsightsConfigurationConfig(nLookbackDays, nThreshold),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEInsightsConfigurationExists(resourceName, &insightConfiguration),
+					testCheckInsightsConfigurationValues(&insightConfiguration, nLookbackDays, nThreshold),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCSEInsightsConfigurationDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*Client)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "sumologic_cse_insights_configuration" {
+			continue
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("CSE Insights Status destruction check: CSE Insights Status ID is not set")
+		}
+
+		s, err := client.GetCSEInsightsConfiguration()
+		if err != nil {
+			return fmt.Errorf("Encountered an error: " + err.Error())
+		}
+		if s != nil {
+			if s.Threshold != 0 && s.LookbackDays != 0 {
+				return fmt.Errorf("insight Configuration still exists")
+			}
+		}
+	}
+	return nil
+}
+
+func testCreateCSEInsightsConfigurationConfig(nLookbackDays float64, nThreshold float64) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_insights_configuration" "insights_configuration" {
+	lookback_days = "%f"
+	threshold = "%f"
+}
+`, nLookbackDays, nThreshold)
+}
+
+func testCheckCSEInsightsConfigurationExists(n string, insightConfiguration *CSEInsightsConfiguration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("insight Configuration ID is not set")
+		}
+
+		c := testAccProvider.Meta().(*Client)
+		insightConfigurationResp, err := c.GetCSEInsightsConfiguration()
+		if err != nil {
+			return err
+		}
+
+		*insightConfiguration = *insightConfigurationResp
+
+		return nil
+	}
+}
+
+func testCheckInsightsConfigurationValues(insightConfiguration *CSEInsightsConfiguration, nLookbackDays float64, nThreshold float64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if insightConfiguration.LookbackDays != nLookbackDays {
+			return fmt.Errorf("bad lookback days, expected \"%f\", got: %#v", nLookbackDays, insightConfiguration.LookbackDays)
+		}
+		if insightConfiguration.Threshold != nThreshold {
+			return fmt.Errorf("bad threshold, expected \"%f\", got: %#v", nThreshold, insightConfiguration.Threshold)
+		}
+
+		return nil
+	}
+}

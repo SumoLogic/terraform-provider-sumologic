@@ -34,6 +34,11 @@
 ##### Monitors
   + [sumologic_monitor][46]
   + [sumologic_monitor_folder][47]
+  
+##### CSE
++ [sumologic_cse_insights_resolution][51]
++ [sumologic_cse_insights_status][52]
++ [sumologic_cse_insights_configuration][53]
 
 #### Common Source Properties
 
@@ -85,3 +90,7 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [45]: r/connection.html.markdown
 [46]: r/monitor.html.markdown
 [47]: r/monitor_folder.html.markdown
+
+[51]: r/cse_insights_resolution.html.markdown
+[52]: r/cse_insights_status.html.markdown
+[53]: r/cse_insights_status.html.markdown
