@@ -3,9 +3,9 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
-* **New Resource:** cse_insight_resolution
-* **New Resource:** cse_insight_status
-* **New Resource:** cse_insight_configuration
+* **New Resource:** cse_insights_resolution
+* **New Resource:** cse_insights_status
+* **New Resource:** cse_insights_configuration
 
 ## 2.9.10 (August 24, 2021)
 
