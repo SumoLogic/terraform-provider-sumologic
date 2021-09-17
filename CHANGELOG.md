@@ -3,6 +3,8 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
+* **New Resource:** sumologic_cse_entity_criticality_config
+* **New Resource:** sumologic_cse_custom_entity_type
 
 ## 2.9.10 (August 24, 2021)
 
