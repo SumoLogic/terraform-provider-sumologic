@@ -948,7 +948,7 @@ func getTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 }
 
 func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
-	if items := tfTopologyLabel["data"].([]interface{}); len(items) > 0 {
+	if items := tfTopologyLabel["data"].([]interface{}); len(items) == 1 {
 		labelMap := make(map[string][]string)
 		for _, item := range items {
 			dataItem := item.(map[string]interface{})
