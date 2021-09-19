@@ -21,6 +21,7 @@ type Client struct {
 	AccessKey   string
 	Environment string
 	BaseURL     *url.URL
+	IsAdmin     bool
 	httpClient  HttpClient
 }
 
@@ -128,7 +129,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	return d, resp.Header.Get("ETag"), nil
 }
 
-func (s *Client) Post(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
+func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -138,7 +139,7 @@ func (s *Client) Post(urlPath string, payload interface{}, isAdminMode bool) ([]
 		return nil, err
 	}
 
-	if isAdminMode {
+	if s.IsAdmin {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -185,11 +186,11 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	return d, nil
 }
 
-func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
+func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	_, etag, _ := s.Get(sumoURL.String(), false)
+	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
@@ -198,7 +199,7 @@ func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]b
 	}
 	req.Header.Add("If-Match", etag)
 
-	if isAdminMode {
+	if s.IsAdmin {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -221,7 +222,7 @@ func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]b
 	return d, nil
 }
 
-func (s *Client) Get(urlPath string, isAdminMode bool) ([]byte, string, error) {
+func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -230,7 +231,7 @@ func (s *Client) Get(urlPath string, isAdminMode bool) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	if isAdminMode {
+	if s.IsAdmin {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -264,6 +265,10 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
+	if s.IsAdmin {
+		req.Header.Add("isAdminMode", "true")
+	}
+
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
@@ -283,12 +288,13 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func NewClient(accessID, accessKey, environment, base_url string) (*Client, error) {
+func NewClient(accessID, accessKey, environment, base_url string, admin bool) (*Client, error) {
 	client := Client{
 		AccessID:    accessID,
 		AccessKey:   accessKey,
 		httpClient:  http.DefaultClient,
 		Environment: environment,
+		IsAdmin:     admin,
 	}
 
 	if base_url == "" {
