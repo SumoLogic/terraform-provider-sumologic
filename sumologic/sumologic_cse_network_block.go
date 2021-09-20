@@ -78,6 +78,6 @@ type CSENetworkBlock struct {
 	ID                string `json:"id,omitempty"`
 	AddressBlock      string `json:"addressBlock"`
 	Label             string `json:"label"`
-	Internal          bool   `json:"internal,omitempty"`
-	SuppressesSignals bool   `json:"suppressesSignals,omitempty"`
+	Internal          bool   `json:"internal"`
+	SuppressesSignals bool   `json:"suppressesSignals"`
 }
