@@ -60,6 +60,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
+  playbook = "test playbook"
 }
 ```
 
@@ -106,6 +107,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
+  playbook = "test playbook"
 }
 ```
 
