@@ -92,4 +92,4 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [47]: r/monitor_folder.html.markdown
 
 [54]: r/cse_entity_criticality_config.html.markdown
-[54]: r/cse_custom_entity_type.html.markdown
+[55]: r/cse_custom_entity_type.html.markdown
