@@ -16,15 +16,14 @@ func TestAccSumologicMetadataSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	metadataResourceName := "sumologic_metadata_source.metadata"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMetadataSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetadataSourceExists(metadataResourceName, &metadataSource),
 					testAccCheckMetadataSourceValues(&metadataSource, sName, sDescription, sCategory),
@@ -47,15 +46,14 @@ func TestAccSumologicMetadataSource_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	metadataResourceName := "sumologic_metadata_source.metadata"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetadataSourceExists(metadataResourceName, &metadataSource),
 					testAccCheckMetadataSourceValues(&metadataSource, sName, sDescription, sCategory),
@@ -68,7 +66,7 @@ func TestAccSumologicMetadataSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey),
+				Config: testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetadataSourceExists(metadataResourceName, &metadataSource),
 					testAccCheckMetadataSourceValues(&metadataSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -150,7 +148,7 @@ func testAccCheckMetadataSourceValues(pollingSource *MetadataSource, name, descr
 		return nil
 	}
 }
-func testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey string) string {
+func testAccSumologicMetadataSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -167,9 +165,8 @@ resource "sumologic_metadata_source" "metadata" {
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	path {
 		type = "AwsMetadataPath"
@@ -178,5 +175,5 @@ resource "sumologic_metadata_source" "metadata" {
 		tag_filters = ["Deploy*,", "!DeployStatus,", "Cluster"]
 	  }
 }
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn)
 }

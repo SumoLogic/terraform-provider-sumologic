@@ -82,9 +82,8 @@ jobs:
         SUMOLOGIC_ACCESSID: ${{ secrets.SUMOLOGIC_ACCESSID }}
         SUMOLOGIC_ACCESSKEY:  ${{ secrets.SUMOLOGIC_ACCESSKEY }}
         SUMOLOGIC_ENVIRONMENT:  ${{ secrets.SUMOLOGIC_ENVIRONMENT }}
-        SUMOLOGIC_TEST_AWS_ID:  ${{ secrets.SUMOLOGIC_TEST_AWS_ID }}
-        SUMOLOGIC_TEST_AWS_KEY:  ${{ secrets.SUMOLOGIC_TEST_AWS_KEY }}
         SUMOLOGIC_TEST_BUCKET_NAME:  ${{ secrets.SUMOLOGIC_TEST_BUCKET_NAME }}
+        SUMOLOGIC_TEST_ROLE_ARN:  ${{ secrets.SUMOLOGIC_TEST_ROLE_ARN }}
 
       run: |
         go test -v -cover ./sumologic/
