@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 func (s *Client) GetCSENetworkBlock(id string) (*CSENetworkBlock, error) {
@@ -55,7 +54,6 @@ func (s *Client) CreateCSENetworkBlock(cseNetworkBlock CSENetworkBlock) (string,
 
 func (s *Client) UpdateCSENetworkBlock(cseNetworkBlock CSENetworkBlock) error {
 	url := fmt.Sprintf("sec/v1/network-blocks/%s", cseNetworkBlock.ID)
-	log.Printf("[INFO] url: %s", url)
 	cseNetworkBlock.ID = ""
 	request := CSENetworkBlockRequest{
 		CSENetworkBlock: cseNetworkBlock,

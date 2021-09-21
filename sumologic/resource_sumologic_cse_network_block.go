@@ -24,18 +24,20 @@ func resourceSumologicCSENetworkBlock() *schema.Resource {
 			},
 			"label": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"internal": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Default:  true,
 			},
 			"suppresses_signals": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
+				Default:  false,
 			},
 		},
 	}

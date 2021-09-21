@@ -35,7 +35,7 @@
   + [sumologic_monitor][46]
   + [sumologic_monitor_folder][47]
 
-##### CSE
+##### Cloud SIEM Enterprise (CSE)
 + [sumologic_cse_network_block][50]
 
 #### Common Source Properties
