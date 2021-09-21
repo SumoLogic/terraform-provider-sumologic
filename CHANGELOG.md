@@ -4,7 +4,12 @@ FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
 * **New Resource:** sumologic_cse_network_block (GH-271)
-=======
+
+POTENTIALLY BREAKING CHANGES:
+
+* resource/sumologic_policies: Changed all policies to be required. Configurations might need to be updated in 
+case some policies were not specified previously. (GH-279)
+
 DEPRECATIONS:
 
 * resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
