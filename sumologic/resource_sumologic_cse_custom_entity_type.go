@@ -119,12 +119,10 @@ func resourceToCSECustomEntityType(d *schema.ResourceData) (CSECustomEntityType,
 }
 
 func resourceFieldsToStringArray(resourceFields []interface{}) []string {
-	var fields = []string{}
+	fields := make([]string, len(resourceFields))
 
-	for _, field := range resourceFields {
-		if field != nil {
-			fields = append(fields, field.(string))
-		}
+	for i, field := range resourceFields {
+		fields[i] = field.(string)
 	}
 
 	return fields
