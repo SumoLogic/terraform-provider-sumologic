@@ -3,7 +3,7 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
-* **New Resource:** sumologic_cse_network_block (PR #271)
+* **New Resource:** sumologic_cse_network_block (GH-271)
 =======
 DEPRECATIONS:
 
