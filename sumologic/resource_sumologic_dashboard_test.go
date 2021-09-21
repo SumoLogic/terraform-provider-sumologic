@@ -40,7 +40,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 	title := "terraform_test_dashboard_" + testNameSuffix
 	description := "Test dashboard description"
 	theme := "Dark"
-	refreshInterval := 30
+	refreshInterval := 120
 	topologyLabel := "service"
 	topologyLabelValue := "collection-proxy"
 	literalRangeName := "today"
@@ -123,7 +123,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	title := "terraform_test_dashboard_" + testNameSuffix
 	description := "Test dashboard description"
 	theme := "Dark"
-	refreshInterval := 30
+	refreshInterval := 120
 	topologyLabel := "service"
 	topologyLabelValue := "collection-proxy"
 	literalRangeName := "today"
@@ -154,7 +154,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 
 	// updated config
 	newTheme := "Light"
-	newRefreshInterval := 60
+	newRefreshInterval := 300
 	newTopologyLabelValue := "collection-cluster"
 	newLiteralRangeName := "week"
 	searchPanel := SumoSearchPanel{
