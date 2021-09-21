@@ -56,6 +56,7 @@ func (s *Client) UpdateCSELogMapping(CSELogMapping CSELogMapping) error {
 	url := fmt.Sprintf("sec/v1/log-mappings/%s", CSELogMapping.ID)
 
 	CSELogMapping.ID = ""
+	CSELogMapping.Enabled = nil
 	request := CSELogMappingRequest{
 		CSELogMapping: CSELogMapping,
 	}
@@ -79,13 +80,12 @@ type CSELogMapping struct {
 	ParentId           string                              `json:"parentId,omitempty"`
 	ProductGuid        string                              `json:"productGuid,omitempty"`
 	RecordType         string                              `json:"recordType"`
-	Enabled            bool                                `json:"enabled"`
 	RelatesEntities    bool                                `json:"relatesEntities"`
 	Fields             []CSELogMappingField                `json:"fields"`
-	SkippedValues      []string                            `json:"skippedValues"`
-	StructuredFields   CSELogMappingStructuredInputField   `json:"structuredFields"`
-	StructuredInputs   []CSELogMappingStructuredInputField `json:"structuredInputs"`
-	UnstructuredFields CSELogMappingUnstructuredFields     `json:"unstructuredFields"`
+	SkippedValues      []string                            `json:"skippedValues,omitempty"`
+	StructuredInputs   []CSELogMappingStructuredInputField `json:"structuredInputs,omitempty"`
+	UnstructuredFields *CSELogMappingUnstructuredFields    `json:"unstructuredFields,omitempty"`
+	Enabled            *bool                               `json:"enabled,omitempty"`
 }
 
 type CSELogMappingField struct {
@@ -103,7 +103,7 @@ type CSELogMappingField struct {
 	FieldJoin        []string              `json:"fieldJoin"`
 	JoinDelimiter    string                `json:"joinDelimiter"`
 	FormatParameters []string              `json:"formatParameters"`
-	LookUp           []CSELogMappingLookUp `json:"lookUp"`
+	LookUp           []CSELogMappingLookUp `json:"lookup"`
 }
 
 type CSELogMappingLookUp struct {
@@ -119,5 +119,5 @@ type CSELogMappingStructuredInputField struct {
 }
 
 type CSELogMappingUnstructuredFields struct {
-	PatternNames []string `json:"patternNames"`
+	PatternNames []string `json:"patternNames,omitempty"`
 }

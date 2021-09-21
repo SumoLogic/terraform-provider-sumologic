@@ -166,15 +166,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 					},
 				},
 			},
-			"structured_fields": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: getLogMappingStructuredInputFieldSchema(),
-				},
-			},
-			"structured_fields_inputs": {
+			"structured_inputs": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
@@ -279,7 +271,7 @@ func resourceSumologicCSELogMappingUpdate(d *schema.ResourceData, meta interface
 	c := meta.(*Client)
 
 	CSELogMapping := resourceToCSELogMapping(d)
-
+	CSELogMapping.ID = d.Id()
 	err := c.UpdateCSELogMapping(CSELogMapping)
 	if err != nil {
 		return err
@@ -297,10 +289,6 @@ func resourceStringArrayToStringArray(values []interface{}) []string {
 }
 
 func resourceToCSELogMapping(d *schema.ResourceData) CSELogMapping {
-	id := d.Id()
-	if id == "" {
-		return CSELogMapping{}
-	}
 
 	skippedValuesData := d.Get("skipped_values").([]interface{})
 	skippedValues := make([]string, len(skippedValuesData))
@@ -321,20 +309,31 @@ func resourceToCSELogMapping(d *schema.ResourceData) CSELogMapping {
 		structuredInputs = append(structuredInputs, resourceToCSELogMappingStructuredInputField([]interface{}{data}))
 	}
 
-	return CSELogMapping{
-		ID:                 id,
-		Name:               d.Get("name").(string),
-		ParentId:           d.Get("parent_id").(string),
-		ProductGuid:        d.Get("product_guid").(string),
-		RecordType:         d.Get("record_type").(string),
-		Enabled:            d.Get("enabled").(bool),
-		RelatesEntities:    d.Get("relates_entities").(bool),
-		SkippedValues:      skippedValues,
-		Fields:             fields,
-		StructuredFields:   resourceToCSELogMappingStructuredInputField(d.Get("structured_fields").([]interface{})),
-		StructuredInputs:   structuredInputs,
-		UnstructuredFields: resourceToCSELogMappingUnstructuredInputField(d.Get("unstructured_fields").([]interface{})),
+	unstructuredFields := resourceToCSELogMappingUnstructuredInputField(d.Get("unstructured_fields").([]interface{}))
+
+	enabled := d.Get("enabled").(bool)
+
+	CSELogMapping := CSELogMapping{
+		Name:            d.Get("name").(string),
+		ParentId:        d.Get("parent_id").(string),
+		ProductGuid:     d.Get("product_guid").(string),
+		RecordType:      d.Get("record_type").(string),
+		RelatesEntities: d.Get("relates_entities").(bool),
+		SkippedValues:   skippedValues,
+		Fields:          fields,
+		Enabled:         &enabled,
 	}
+
+	if len(structuredInputs) > 0 {
+		CSELogMapping.StructuredInputs = structuredInputs
+	}
+	if len(unstructuredFields.PatternNames) > 0 {
+		CSELogMapping.UnstructuredFields = &unstructuredFields
+	} else {
+		CSELogMapping.UnstructuredFields = nil
+	}
+
+	return CSELogMapping
 }
 
 func resourceToCSELogMappingStructuredInputField(data interface{}) CSELogMappingStructuredInputField {
@@ -356,7 +355,6 @@ func resourceToCSELogMappingUnstructuredInputField(data interface{}) CSELogMappi
 	if len(unstructuredInputFieldSlice) > 0 {
 		unstructuredInputFieldObj := unstructuredInputFieldSlice[0].(map[string]interface{})
 		unstructuredInputField.PatternNames = resourceStringArrayToStringArray(unstructuredInputFieldObj["pattern_names"].([]interface{}))
-
 	}
 	return unstructuredInputField
 }
@@ -406,16 +404,19 @@ func resourceToCSELogMappingField(data interface{}) CSELogMappingField {
 
 func setLogMapping(d *schema.ResourceData, CSELogMapping *CSELogMapping) {
 	d.Set("name", CSELogMapping.Name)
-	d.Set("parent_id", CSELogMapping.ParentId)
+	if CSELogMapping.ParentId != "" {
+		d.Set("parent_id", CSELogMapping.ParentId)
+	}
 	d.Set("product_guid", CSELogMapping.ProductGuid)
 	d.Set("record_type", CSELogMapping.RecordType)
-	d.Set("enabled", CSELogMapping.Enabled)
+	d.Set("enabled", *(CSELogMapping.Enabled))
 	d.Set("relates_entities", CSELogMapping.RelatesEntities)
 	d.Set("skipped_values", CSELogMapping.SkippedValues)
 	setFields(d, CSELogMapping.Fields)
-	setStructuredFields(d, CSELogMapping.StructuredFields)
 	setStructuredInputs(d, CSELogMapping.StructuredInputs)
-	setUnStructuredFields(d, CSELogMapping.UnstructuredFields)
+	if CSELogMapping.UnstructuredFields != nil {
+		setUnStructuredFields(d, *(CSELogMapping.UnstructuredFields))
+	}
 }
 
 func setUnStructuredFields(d *schema.ResourceData, unstructuredFields CSELogMappingUnstructuredFields) {
@@ -444,20 +445,6 @@ func setStructuredInputs(d *schema.ResourceData, structuredInputs []CSELogMappin
 	}
 
 	d.Set("structured_inputs", f)
-
-}
-
-func setStructuredFields(d *schema.ResourceData, structuredFields CSELogMappingStructuredInputField) {
-	resourceStructuredFieldsMap := make(map[string]interface{})
-	resourceStructuredFieldsMap["event_id_pattern"] = structuredFields.EventIdPattern
-	resourceStructuredFieldsMap["log_format"] = structuredFields.LogFormat
-	resourceStructuredFieldsMap["product"] = structuredFields.Product
-	resourceStructuredFieldsMap["vendor"] = structuredFields.Vendor
-
-	resourceStructuresFields := make([]map[string]interface{}, 1)
-	resourceStructuresFields[0] = resourceStructuredFieldsMap
-
-	d.Set("structured_fields", resourceStructuresFields)
 
 }
 

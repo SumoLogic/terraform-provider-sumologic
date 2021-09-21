@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -60,19 +59,6 @@ func testAccCSERuleTuningExpressionDestroy(s *terraform.State) error {
 }
 
 func testCreateCSERuleTuningExpressionConfig(nName string, nDescription string, nExpression string, nEnabled bool, nExclude bool, nIsGlobal bool, nRuleIds []string) string {
-
-	log.Printf(`
-resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
-	name = "%s"
-	description = "%s"
-	expression = "%s"
-	enabled = "%t"
-	exclude = "%t"
-	is_global = "%t"
-	rule_ids = ["%s"]
-}
-`, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, nRuleIds[0])
-
 	return fmt.Sprintf(`
 resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 	name = "%s"

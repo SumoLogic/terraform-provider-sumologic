@@ -1,23 +1,48 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_cse_rule_tuning_expression"
+page_title: "SumoLogic: sumologic_cse_log_mapping"
 description: |-
-  Provides a CSE Rule Tuning Expression
+  Provides a CSE Log Mapping
 ---
 
-# rule_tuning_expression
-Provides a CSE Rule Tuning Expression.
+# log_mapping
+Provides a CSE Log Mapping.
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
-  name = "New Rule Tuning Name"
-  description = "New Rule Tuning Description"
-  expression = "accountId = 1234"
+resource "sumologic_cse_log_mapping" "log_mapping" {
+  name = "New Log Mapping"
+  product_guid = "003d35b3-3ba8-4e93-8776-e5810b4e243e"
+  record_type = "Audit"
   enabled = "true"
-  exclude = "true"
-  is_global = "false"
-  rule_ids = ["LEGACY-S00084"]
+  relates_entities = "true"
+  skipped_values = ["skipped"]
+  fields {
+    name = "action"
+    value = "action"
+    value_type = "constant"
+    skipped_values = ["-"]
+    default_value = ""
+    format = "JSON"
+    case_insensitive = "false"
+    alternate_values = ["altValue"]
+    time_zone = "UTC"
+    split_delimiter = ","
+    split_index = "index"
+    field_join = ["and"]
+    join_delimiter = ""
+    format_parameters = ["param"]
+    lookup {
+      key = "tunnel-up"
+      value = "true"
+    }
+  }
+  structured_inputs  {
+    event_id_pattern = "vpn"
+    log_format = "JSON"
+    product = "fortinate"
+    vendor = "fortinate"
+  }
 }
 ```
 
