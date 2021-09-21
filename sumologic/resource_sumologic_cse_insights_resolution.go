@@ -58,12 +58,7 @@ func resourceSumologicCSEInsightsResolutionRead(d *schema.ResourceData, meta int
 
 	d.Set("name", CSEInsightsResolutionGet.Name)
 	d.Set("description", CSEInsightsResolutionGet.Description)
-
-	//var CSEInsightsResolutionParent *CSEInsightsResolutionParent
-	//CSEInsightsResolutionParent = CSEInsightsResolutionGet.Parent
-	//if CSEInsightsResolutionParent != nil {
 	d.Set("parent", parentIdToParentName(CSEInsightsResolutionGet.Parent.ID))
-	//}
 
 	return nil
 }
