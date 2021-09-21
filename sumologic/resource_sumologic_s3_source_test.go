@@ -23,8 +23,7 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	s3ResourceName := "sumologic_s3_source.s3"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
@@ -32,7 +31,7 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 		CheckDestroy: testAccCheckS3SourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -55,8 +54,7 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	s3ResourceName := "sumologic_s3_source.s3"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
@@ -64,7 +62,7 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -77,7 +75,7 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -159,7 +157,7 @@ func testAccCheckS3SourceValues(pollingSource *PollingSource, name, description,
 		return nil
 	}
 }
-func testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket string) string {
+func testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -175,9 +173,8 @@ resource "sumologic_s3_source" "s3" {
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	  path {
 		type = "S3BucketPathExpression"
@@ -186,5 +183,5 @@ resource "sumologic_s3_source" "s3" {
 	  }
 	}
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }

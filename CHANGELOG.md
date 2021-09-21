@@ -3,6 +3,11 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
+* **New Resource:** sumologic_cse_network_block (GH-271)
+=======
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
 
 ## 2.9.10 (August 24, 2021)
 
