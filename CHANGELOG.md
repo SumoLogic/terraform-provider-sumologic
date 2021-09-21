@@ -3,6 +3,8 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
+* **New Resource:** sumologic_cse_rule_tuning_expression
+* **New Resource:** sumologic_cse_log_mapping
 
 ## 2.9.10 (August 24, 2021)
 

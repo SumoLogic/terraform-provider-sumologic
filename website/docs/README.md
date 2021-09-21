@@ -35,6 +35,10 @@
   + [sumologic_monitor][46]
   + [sumologic_monitor_folder][47]
 
+##### CSE
++ [sumologic_cse_rule_tuning_expression][56]
++ [sumologic_cse_log_mapping][57]
+
 #### Common Source Properties
 
 The following properties are common to ALL sources and can be used to configure each source.
@@ -85,3 +89,6 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [45]: r/connection.html.markdown
 [46]: r/monitor.html.markdown
 [47]: r/monitor_folder.html.markdown
+
+[56]: r/cse_rule_tuning_expression.html.markdown
+[57]: r/cse_log_mapping.html.markdown
