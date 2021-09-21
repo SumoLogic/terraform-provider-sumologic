@@ -38,6 +38,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
 			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
 			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),
 			"sumologic_cse_insights_status":                resourceSumologicCSEInsightsStatus(),

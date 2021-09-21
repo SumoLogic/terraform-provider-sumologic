@@ -16,15 +16,14 @@ func TestAccSumologicKinesisMetricsSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	kinesisMetricsResourceName := "sumologic_kinesis_metrics_source.kinesisMetrics"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKinesisMetricsSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKinesisMetricsSourceExists(kinesisMetricsResourceName, &kinesisMetricsSource),
 					testAccCheckKinesisMetricsSourceValues(&kinesisMetricsSource, sName, sDescription, sCategory),
@@ -47,15 +46,14 @@ func TestAccSumologicKinesisMetricsSource_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	kinesisMetricsResourceName := "sumologic_kinesis_metrics_source.kinesisMetrics"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKinesisMetricsSourceExists(kinesisMetricsResourceName, &kinesisMetricsSource),
 					testAccCheckKinesisMetricsSourceValues(&kinesisMetricsSource, sName, sDescription, sCategory),
@@ -68,7 +66,7 @@ func TestAccSumologicKinesisMetricsSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey),
+				Config: testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKinesisMetricsSourceExists(kinesisMetricsResourceName, &kinesisMetricsSource),
 					testAccCheckKinesisMetricsSourceValues(&kinesisMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -150,7 +148,7 @@ func testAccCheckKinesisMetricsSourceValues(kinesisMetricsSource *KinesisMetrics
 		return nil
 	}
 }
-func testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey string) string {
+func testAccSumologicKinesisMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -165,9 +163,8 @@ resource "sumologic_kinesis_metrics_source" "kinesisMetrics" {
 	content_type  = "KinesisMetric"
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	path {
 		type = "KinesisMetricPath"
@@ -183,5 +180,5 @@ resource "sumologic_kinesis_metrics_source" "kinesisMetrics" {
 		}
 	  }
 }
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn)
 }
