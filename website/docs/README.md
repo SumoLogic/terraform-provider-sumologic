@@ -35,6 +35,9 @@
   + [sumologic_monitor][46]
   + [sumologic_monitor_folder][47]
 
+##### Cloud SIEM Enterprise (CSE)
++ [sumologic_cse_network_block][50]
+
 #### Common Source Properties
 
 The following properties are common to ALL sources and can be used to configure each source.
@@ -85,3 +88,4 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [45]: r/connection.html.markdown
 [46]: r/monitor.html.markdown
 [47]: r/monitor_folder.html.markdown
+[50]: r/cse_network_block.html.markdown
