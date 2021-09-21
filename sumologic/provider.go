@@ -36,7 +36,7 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
 			},
-			"admin": {
+			"admin_mode": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -123,7 +123,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessKey := d.Get("access_key").(string)
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
-	isAdmin := d.Get("admin").(bool)
+	isInAdminMode := d.Get("admin_mode").(bool)
 
 	msg := ""
 	if accessId == "" {
@@ -158,6 +158,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		accessKey,
 		environment,
 		baseUrl,
-		isAdmin,
+		isInAdminMode,
 	)
 }

@@ -1,5 +1,7 @@
 ## 2.10.0 (Unreleased)
 
+* Add a provider option `admin_mode`
+
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)

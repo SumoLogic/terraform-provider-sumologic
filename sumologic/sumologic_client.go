@@ -17,12 +17,12 @@ type HttpClient interface {
 }
 
 type Client struct {
-	AccessID    string
-	AccessKey   string
-	Environment string
-	BaseURL     *url.URL
-	IsAdmin     bool
-	httpClient  HttpClient
+	AccessID      string
+	AccessKey     string
+	Environment   string
+	BaseURL       *url.URL
+	IsInAdminMode bool
+	httpClient    HttpClient
 }
 
 var ProviderVersion string
@@ -139,7 +139,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	if s.IsAdmin {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -199,7 +199,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	}
 	req.Header.Add("If-Match", etag)
 
-	if s.IsAdmin {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -231,7 +231,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	if s.IsAdmin {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -265,7 +265,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
-	if s.IsAdmin {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -290,11 +290,11 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 
 func NewClient(accessID, accessKey, environment, base_url string, admin bool) (*Client, error) {
 	client := Client{
-		AccessID:    accessID,
-		AccessKey:   accessKey,
-		httpClient:  http.DefaultClient,
-		Environment: environment,
-		IsAdmin:     admin,
+		AccessID:      accessID,
+		AccessKey:     accessKey,
+		httpClient:    http.DefaultClient,
+		Environment:   environment,
+		IsInAdminMode: admin,
 	}
 
 	if base_url == "" {
