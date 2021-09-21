@@ -26,39 +26,33 @@ func resourceSumologicPolicies() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"audit": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  DefaultPolicies.Audit.Enabled,
+				Required: true,
 			},
 			"data_access_level": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  DefaultPolicies.DataAccessLevel.Enabled,
+				Required: true,
 			},
 			"max_user_session_timeout": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  DefaultPolicies.MaxUserSessionTimeout.MaxUserSessionTimeout,
+				Required: true,
 			},
 			"search_audit": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  DefaultPolicies.SearchAudit.Enabled,
+				Required: true,
 			},
 			"share_dashboards_outside_organization": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  DefaultPolicies.ShareDashboardsOutsideOrganization.Enabled,
+				Required: true,
 			},
 			"user_concurrent_sessions_limit": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  DefaultPolicies.UserConcurrentSessionsLimit.Enabled,
+							Required: true,
 						},
 						"max_concurrent_sessions": {
 							Type:     schema.TypeInt,

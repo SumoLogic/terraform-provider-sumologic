@@ -36,15 +36,15 @@ resource "sumologic_policies" "example_policies" {
 
 The following arguments are supported:
 
-- `audit` - (Optional) Whether the [Audit Policy][1] is enabled. Defaults to `false`.
-- `data_access_level` - (Optional) Whether the [Data Access Level Policy][2] is enabled. Defaults to `false`.
-- `max_user_session_timeout` - (Optional) The [maximum web session timeout][3] users are able to configure within their user preferences. Defaults to `7d`.
-- `search_audit` - (Optional) Whether the [Search Audit Policy][4] is enabled. Defaults to `false`.
-- `share_dashboards_outside_organization` - (Optional) Whether the [Share a Dashboard Outside Organization Policy][5] is enabled. Defaults to `false`.
-- `user_concurrent_sessions_limit` - (Block List, Max: 1, Optional) The [User Concurrent Sessions Limit Policy][6]. See [user_concurrent_sessions_limit schema](#user_concurrent_sessions_limit) for details.
+- `audit` - (Required) Whether the [Audit Policy][1] is enabled.
+- `data_access_level` - (Required) Whether the [Data Access Level Policy][2] is enabled.
+- `max_user_session_timeout` - (Required) The [maximum web session timeout][3] users are able to configure within their user preferences.
+- `search_audit` - (Required) Whether the [Search Audit Policy][4] is enabled.
+- `share_dashboards_outside_organization` - (Required) Whether the [Share a Dashboard Outside Organization Policy][5] is enabled.
+- `user_concurrent_sessions_limit` - (Block List, Max: 1, Required) The [User Concurrent Sessions Limit Policy][6]. See [user_concurrent_sessions_limit schema](#user_concurrent_sessions_limit) for details.
 
 ### Schema for `user_concurrent_sessions_limit`
-- `enabled` - (Optional) Whether the [User Concurrent Sessions Limit Policy][6] is enabled. Defaults to `false`.
+- `enabled` - (Required) Whether the [User Concurrent Sessions Limit Policy][6] is enabled.
 - `max_concurrent_sessions` - (Optional) Maximum number of concurrent sessions a user may have. Defaults to `100`.
 
 ## Import
