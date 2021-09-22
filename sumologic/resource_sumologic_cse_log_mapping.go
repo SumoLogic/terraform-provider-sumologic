@@ -409,7 +409,8 @@ func setLogMapping(d *schema.ResourceData, CSELogMapping *CSELogMapping) {
 	}
 	d.Set("product_guid", CSELogMapping.ProductGuid)
 	d.Set("record_type", CSELogMapping.RecordType)
-	d.Set("enabled", *(CSELogMapping.Enabled))
+	enabled := *(CSELogMapping.Enabled)
+	d.Set("enabled", enabled)
 	d.Set("relates_entities", CSELogMapping.RelatesEntities)
 	d.Set("skipped_values", CSELogMapping.SkippedValues)
 	setFields(d, CSELogMapping.Fields)
