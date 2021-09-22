@@ -5,7 +5,7 @@ description: |-
   Provides a CSE Entity Criticality Configuration
 ---
 
-# entity_criticality_config
+# sumologic_cse_entity_criticality_config
 Provides a CSE Entity Criticality Configuration.
 
 ## Example Usage
@@ -28,4 +28,9 @@ The following attributes are exported:
 
 - `id` - The internal ID of the entity criticality configuration.
 
+## Import
 
+Entity criticality configuration can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_entity_criticality_config.entity_criticality_config id
+```
