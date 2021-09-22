@@ -80,14 +80,14 @@ type CSEInsightsResolutionResponse struct {
 
 type CSEInsightsResolutionPost struct {
 	ID          int    `json:"id,omitempty"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Name        string `json:"name,omitempty"`
 	ParentId    int    `json:"parentId,omitempty"`
 }
 
 type CSEInsightsResolutionGet struct {
 	ID          int                         `json:"id,omitempty"`
-	Description string                      `json:"description"`
+	Description string                      `json:"description,omitempty"`
 	Name        string                      `json:"name,omitempty"`
 	Parent      CSEInsightsResolutionParent `json:"parent,omitempty"`
 }

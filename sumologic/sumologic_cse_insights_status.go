@@ -81,18 +81,18 @@ type CSEInsightsStatusResponse struct {
 
 type CSEInsightsStatusPost struct {
 	ID          string `json:"id,omitempty"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Name        string `json:"name,omitempty"`
 }
 
 type CSEInsightsStatusGet struct {
 	ID          string `json:"id,omitempty"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Name        string `json:"name,omitempty"`
 	DisplayName string `json:"displayName,omitempty"`
 }
 
 type CSEInsightsStatusUpdate struct {
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Name        string `json:"name,omitempty"`
 }
