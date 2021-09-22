@@ -63,6 +63,10 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
@@ -270,6 +274,7 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 			"access_key": t.Authentication.AwsID,
 			"secret_key": t.Authentication.AwsKey,
 			"role_arn":   t.Authentication.RoleARN,
+			"region":     t.Authentication.Region,
 		}
 		s = append(s, mapping)
 	}
@@ -329,9 +334,15 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			authSettings.Type = "S3BucketAuthentication"
 			authSettings.AwsID = auth["access_key"].(string)
 			authSettings.AwsKey = auth["secret_key"].(string)
+			if auth["region"] != nil {
+				authSettings.Region = auth["region"].(string)
+			}
 		case "AWSRoleBasedAuthentication":
 			authSettings.Type = "AWSRoleBasedAuthentication"
 			authSettings.RoleARN = auth["role_arn"].(string)
+			if auth["region"] != nil {
+				authSettings.Region = auth["region"].(string)
+			}
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
