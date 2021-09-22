@@ -5,7 +5,7 @@ description: |-
   Provides a CSE Custom Entity Type
 ---
 
-# custom_entity_type
+# sumologic_cse_custom_entity_type
 Provides a CSE Custom Entity Type.
 
 ## Example Usage
@@ -30,4 +30,9 @@ The following attributes are exported:
 
 - `id` - The internal ID of the custom entity type.
 
+## Import
 
+Custom entity type can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_custom_entity_type.custom_entity_type id
+```
