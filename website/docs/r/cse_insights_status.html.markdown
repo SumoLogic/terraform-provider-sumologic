@@ -5,7 +5,7 @@ description: |-
   Provides a CSE Insights Status
 ---
 
-# insights_status
+# sumologic_cse_insights_status
 Provides a CSE Insights Status.
 
 ## Example Usage
@@ -28,4 +28,9 @@ The following attributes are exported:
 
 - `id` - The internal ID of the insights status.
 
+## Import
 
+Insights Status can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_insights_status.insights_status id
+```

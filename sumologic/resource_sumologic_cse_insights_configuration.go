@@ -68,7 +68,7 @@ func resourceSumologicCSEInsightsConfigurationDelete(d *schema.ResourceData, met
 }
 
 func resourceSumologicCSEInsightsConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
-	//we are not really creating new object in backend, using "fake id" for terraform resource
+	//we are not really creating new object in backend, using constant id for terraform resource
 	d.SetId(hash("cse-insights-configuration"))
 	return resourceSumologicCSEInsightsConfigurationUpdate(d, meta)
 }

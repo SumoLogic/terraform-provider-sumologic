@@ -95,4 +95,4 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [50]: r/cse_network_block.html.markdown
 [51]: r/cse_insights_resolution.html.markdown
 [52]: r/cse_insights_status.html.markdown
-[53]: r/cse_insights_status.html.markdown
+[53]: r/cse_insights_configuration.html.markdown

@@ -20,7 +20,7 @@ func resourceSumologicCSEInsightsResolution() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"name": {
@@ -120,7 +120,6 @@ func resourceSumologicCSEInsightsResolutionCreate(d *schema.ResourceData, meta i
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %d", id)
 		d.SetId(strconv.Itoa(id))
 	}
 

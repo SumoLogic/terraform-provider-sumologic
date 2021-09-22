@@ -18,7 +18,7 @@ func resourceSumologicCSEInsightsStatus() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"name": {
@@ -73,7 +73,6 @@ func resourceSumologicCSEInsightsStatusCreate(d *schema.ResourceData, meta inter
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %s", id)
 		d.SetId(id)
 	}
 

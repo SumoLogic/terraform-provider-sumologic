@@ -5,7 +5,7 @@ description: |-
   Provides a CSE Insights Resolution
 ---
 
-# insights_resolution
+# sumologic_cse_insights_resolution
 Provides a CSE Insights Resolution.
 
 ## Example Usage
@@ -30,4 +30,9 @@ The following attributes are exported:
 
 - `id` - The internal ID of the insights resolution.
 
+## Import
 
+Insights Resolution can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_insights_resolution.insights_resolution id
+```

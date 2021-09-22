@@ -7,7 +7,7 @@ FEATURES:
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
-=======
+
 DEPRECATIONS:
 
 * resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)

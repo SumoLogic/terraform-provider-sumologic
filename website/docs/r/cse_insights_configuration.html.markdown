@@ -1,18 +1,18 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_cse_insights_status"
+page_title: "SumoLogic: sumologic_cse_insights_configuration"
 description: |-
-  Provides a CSE Insight Status
+  Provides a CSE Insights Configuration
 ---
 
-# Insights_status
-Provides a CSE Insight Status.
+# sumologic_cse_insights_configuration
+Provides a CSE Insights Configuration.
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_Insights_status" "Insights_status" {
-  name = "New Name"
-  description = "New description"
+resource "sumologic_cse_insights_configuration" "insights_configuration" {
+  lookback_days = 13
+  threshold = 12
 }
 ```
 
@@ -20,12 +20,16 @@ resource "sumologic_cse_Insights_status" "Insights_status" {
 
 The following arguments are supported:
 
-- `name` - (Required) The name of the insight status.
-- `description` - (Required) The description of the insight status.
-
+- `lookback_days` - (Optional) Detection window expressed in days.
+- `threshold` - (Optional) Detection threshold.
 
 The following attributes are exported:
 
-- `id` - The internal ID of the insight status.
+- `id` - The internal ID of the insights configuration.
 
+## Import
 
+Insights Configuration can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_insights_configuration.insights_configuration id
+```
