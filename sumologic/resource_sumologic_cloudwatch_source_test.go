@@ -16,15 +16,14 @@ func TestAccSumologicCloudWatchSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	cloudWatchResourceName := "sumologic_cloudwatch_source.cloudwatch"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudWatchSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
 					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sName, sDescription, sCategory),
@@ -47,15 +46,14 @@ func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	cloudWatchResourceName := "sumologic_cloudwatch_source.cloudwatch"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
 					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sName, sDescription, sCategory),
@@ -68,7 +66,7 @@ func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey),
+				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudWatchSourceExists(cloudWatchResourceName, &cloudWatchSource),
 					testAccCheckCloudWatchSourceValues(&cloudWatchSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -150,7 +148,7 @@ func testAccCheckCloudWatchSourceValues(pollingSource *PollingSource, name, desc
 		return nil
 	}
 }
-func testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey string) string {
+func testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -167,9 +165,8 @@ resource "sumologic_cloudwatch_source" "cloudwatch" {
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	path {
 		type = "CloudWatchPath"
@@ -187,5 +184,5 @@ resource "sumologic_cloudwatch_source" "cloudwatch" {
 		}
 	  }
 }
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsId, testAwsKey)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn)
 }

@@ -3,8 +3,14 @@
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
-* **New Resource:** sumologic_cse_entity_criticality_config
-* **New Resource:** sumologic_cse_custom_entity_type
+* **New Resource:** sumologic_cse_network_block (GH-271)
+* **New Resource:** sumologic_cse_entity_criticality_config (GH-275)
+* **New Resource:** sumologic_cse_custom_entity_type (GH-275)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
+
 
 ## 2.9.10 (August 24, 2021)
 

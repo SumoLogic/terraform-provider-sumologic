@@ -63,6 +63,10 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
@@ -193,6 +197,11 @@ func resourceSumologicGenericPollingSourceRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	authSettings := getPollingThirdPartyAuthenticationAttributes(pollingResources)
+	if err := d.Set("authentication", authSettings); err != nil {
+		return err
+	}
+
 	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
 		return fmt.Errorf("%s", err)
 	}
@@ -255,6 +264,23 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 	return s
 }
 
+func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResource) []map[string]interface{} {
+
+	var s []map[string]interface{}
+
+	for _, t := range pollingResource {
+		mapping := map[string]interface{}{
+			"type":       t.Authentication.Type,
+			"access_key": t.Authentication.AwsID,
+			"secret_key": t.Authentication.AwsKey,
+			"role_arn":   t.Authentication.RoleARN,
+			"region":     t.Authentication.Region,
+		}
+		s = append(s, mapping)
+	}
+	return s
+}
+
 func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
@@ -308,9 +334,15 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			authSettings.Type = "S3BucketAuthentication"
 			authSettings.AwsID = auth["access_key"].(string)
 			authSettings.AwsKey = auth["secret_key"].(string)
+			if auth["region"] != nil {
+				authSettings.Region = auth["region"].(string)
+			}
 		case "AWSRoleBasedAuthentication":
 			authSettings.Type = "AWSRoleBasedAuthentication"
 			authSettings.RoleARN = auth["role_arn"].(string)
+			if auth["region"] != nil {
+				authSettings.Region = auth["region"].(string)
+			}
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)

@@ -29,6 +29,7 @@ type PollingAuthentication struct {
 	AwsID   string `json:"awsId"`
 	AwsKey  string `json:"awsKey"`
 	RoleARN string `json:"roleARN"`
+	Region  string `json:"region,omitempty"`
 }
 
 type PollingPath struct {

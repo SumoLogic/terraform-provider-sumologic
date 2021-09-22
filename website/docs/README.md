@@ -35,7 +35,8 @@
   + [sumologic_monitor][46]
   + [sumologic_monitor_folder][47]
 
-##### CSE
+##### Cloud SIEM Enterprise (CSE)
++ [sumologic_cse_network_block][50]
 + [sumologic_cse_entity_criticality_config][54]
 + [sumologic_cse_custom_entity_type][55]
 
@@ -90,6 +91,6 @@ resource "sumologic_http_source" "instrumentation-logs" {
 [45]: r/connection.html.markdown
 [46]: r/monitor.html.markdown
 [47]: r/monitor_folder.html.markdown
-
+[50]: r/cse_network_block.html.markdown
 [54]: r/cse_entity_criticality_config.html.markdown
 [55]: r/cse_custom_entity_type.html.markdown
