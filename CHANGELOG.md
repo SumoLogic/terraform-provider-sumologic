@@ -1,4 +1,6 @@
-## 2.10.0 (Unreleased)
+## 2.11.0 (Unreleased)
+
+## 2.10.0 (September 22, 2021)
 
 FEATURES:
 
