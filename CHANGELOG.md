@@ -1,4 +1,8 @@
 ## 2.11.0 (Unreleased)
+FEATURES:
+
+* **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
+
 
 ## 2.10.0 (September 22, 2021)
 
