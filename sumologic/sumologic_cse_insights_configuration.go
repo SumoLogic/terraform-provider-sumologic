@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Client) GetCSEInsightsConfiguration() (*CSEInsightsConfiguration, error) {
-	data, _, err := s.Get("sec/v1/insights-configuration", false)
+	data, _, err := s.Get("sec/v1/insights-configuration")
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (s *Client) UpdateCSEInsightsConfiguration(CSEInsightsConfiguration CSEInsi
 		CSEInsightsConfiguration: CSEInsightsConfiguration,
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

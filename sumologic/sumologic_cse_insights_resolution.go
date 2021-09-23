@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEInsightsResolution(id int) (*CSEInsightsResolutionGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%d", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSEInsightsResolution(CSEInsightsResolutionPost CSEInsigh
 
 	var response CSEInsightsResolutionResponse
 
-	responseBody, err := s.Post("sec/v1/insight-resolutions", request, false)
+	responseBody, err := s.Post("sec/v1/insight-resolutions", request)
 	if err != nil {
 		return -1, err
 	}
@@ -61,7 +61,7 @@ func (s *Client) UpdateCSEInsightsResolution(CSEInsightsResolutionPost CSEInsigh
 		},
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

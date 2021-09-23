@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEInsightsStatus(id string) (*CSEInsightsStatusGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-status/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-status/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSEInsightsStatus(CSEInsightsStatusPost CSEInsightsStatus
 
 	var response CSEInsightsStatusResponse
 
-	responseBody, err := s.Post("sec/v1/insight-status", request, false)
+	responseBody, err := s.Post("sec/v1/insight-status", request)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +62,7 @@ func (s *Client) UpdateCSEInsightsStatus(CSEInsightsStatusPost CSEInsightsStatus
 		},
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }
