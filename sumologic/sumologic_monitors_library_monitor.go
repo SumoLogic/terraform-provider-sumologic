@@ -22,7 +22,7 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, err := s.Post(urlWithParams, monitorsLibraryMonitor, false)
+	data, err := s.Post(urlWithParams, monitorsLibraryMonitor)
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +47,7 @@ func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams, false)
+	data, _, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 
 	monitorsLibraryMonitor.ID = ""
 
-	_, err := s.Put(urlWithParams, monitorsLibraryMonitor, false)
+	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
 
 	return err
 }
@@ -108,7 +108,7 @@ func (s *Client) MoveMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibra
 
 	monitorsLibraryMonitor.ID = ""
 
-	_, err := s.Put(urlWithParams, monitorsLibraryMonitor, false)
+	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
 
 	return err
 }

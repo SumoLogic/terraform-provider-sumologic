@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSENetworkBlock(id string) (*CSENetworkBlock, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/network-blocks/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/network-blocks/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSENetworkBlock(cseNetworkBlock CSENetworkBlock) (string,
 
 	var response CSENetworkBlockResponse
 
-	responseBody, err := s.Post("sec/v1/network-blocks", request, false)
+	responseBody, err := s.Post("sec/v1/network-blocks", request)
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +59,7 @@ func (s *Client) UpdateCSENetworkBlock(cseNetworkBlock CSENetworkBlock) error {
 		CSENetworkBlock: cseNetworkBlock,
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

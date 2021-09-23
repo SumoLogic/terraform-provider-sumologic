@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {
 func (s *Client) CreateScheduledView(sview ScheduledView) (*ScheduledView, error) {
 	var createdSview ScheduledView
 
-	responseBody, err := s.Post("v1/scheduledViews", sview, false)
+	responseBody, err := s.Post("v1/scheduledViews", sview)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (s *Client) DeleteScheduledView(id string) error {
 func (s *Client) UpdateScheduledView(sview ScheduledView) error {
 	url := fmt.Sprintf("v1/scheduledViews/%s", sview.ID)
 
-	_, err := s.Put(url, sview, false)
+	_, err := s.Put(url, sview)
 
 	return err
 }

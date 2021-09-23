@@ -10,7 +10,7 @@ import (
 //READ
 func (s *Client) GetFolder(id string) (*Folder, error) {
 	url := fmt.Sprintf("v2/content/folders/%s", id)
-	rawFolder, _, err := s.Get(url, false)
+	rawFolder, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (s *Client) DeleteFolder(id string, timeout time.Duration) error {
 
 func (s *Client) CreateFolder(folder Folder) (string, error) {
 	url := "v2/content/folders"
-	responseData, err := s.Post(url, folder, false)
+	responseData, err := s.Post(url, folder)
 	if err != nil {
 		return "", err
 	}
@@ -62,13 +62,13 @@ func (s *Client) CreateFolder(folder Folder) (string, error) {
 
 func (s *Client) UpdateFolder(folder Folder) error {
 	url := fmt.Sprintf("v2/content/folders/%s", folder.ID)
-	_, err := s.Put(url, folder, false)
+	_, err := s.Put(url, folder)
 	return err
 }
 
 func (s *Client) getPersonalFolder() (*Folder, error) {
 	url := "v2/content/folders/personal"
-	rawFolder, _, err := s.Get(url, false)
+	rawFolder, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *Client) getPersonalFolder() (*Folder, error) {
 
 func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, error) {
 	url := "v2/content/folders/adminRecommended"
-	rawJID, _, err := s.Get(url, true)
+	rawJID, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, erro
 	}
 
 	url = fmt.Sprintf("v2/content/folders/adminRecommended/%s/result", jid.ID)
-	rawContent, _, err := s.Get(url, false)
+	rawContent, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}

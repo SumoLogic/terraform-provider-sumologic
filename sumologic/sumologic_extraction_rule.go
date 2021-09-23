@@ -17,7 +17,7 @@ import (
 )
 
 func (s *Client) CreateFieldExtractionRule(fieldExtractionRule FieldExtractionRule) (string, error) {
-	data, err := s.Post("v1/extractionRules", fieldExtractionRule, false)
+	data, err := s.Post("v1/extractionRules", fieldExtractionRule)
 	if err != nil {
 		return "", err
 	}
@@ -37,7 +37,7 @@ func (s *Client) DeleteFieldExtractionRule(id string) error {
 }
 
 func (s *Client) GetFieldExtractionRule(id string) (*FieldExtractionRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/extractionRules/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("v1/extractionRules/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *Client) UpdateFieldExtractionRule(fieldExtractionRule FieldExtractionRu
 
 	fieldExtractionRule.ID = ""
 
-	_, err := s.Put(url, fieldExtractionRule, false)
+	_, err := s.Put(url, fieldExtractionRule)
 	return err
 }
 
