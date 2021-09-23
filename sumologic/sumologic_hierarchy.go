@@ -8,7 +8,7 @@ import (
 func (s *Client) CreateHierarchy(hierarchy Hierarchy) (string, error) {
 	urlWithoutParams := "v1/entities/hierarchies"
 
-	data, err := s.Post(urlWithoutParams, hierarchy, false)
+	data, err := s.Post(urlWithoutParams, hierarchy)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func (s *Client) GetHierarchy(id string) (*Hierarchy, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams, false)
+	data, _, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (s *Client) UpdateHierarchy(hierarchy Hierarchy) error {
 
 	hierarchy.ID = ""
 
-	_, err := s.Put(urlWithParams, hierarchy, false)
+	_, err := s.Put(urlWithParams, hierarchy)
 
 	return err
 

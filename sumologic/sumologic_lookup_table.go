@@ -20,7 +20,7 @@ import (
 func (s *Client) CreateLookupTable(lookupTable LookupTable) (string, error) {
 	urlWithoutParams := "v1/lookupTables"
 
-	data, err := s.Post(urlWithoutParams, lookupTable, false)
+	data, err := s.Post(urlWithoutParams, lookupTable)
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +45,7 @@ func (s *Client) GetLookupTable(id string) (*LookupTable, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams, false)
+	data, _, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *Client) UpdateLookupTable(lookupTable LookupTable) error {
 
 	lookupTable.ID = ""
 
-	_, err := s.Put(urlWithParams, lookupTable, false)
+	_, err := s.Put(urlWithParams, lookupTable)
 
 	return err
 

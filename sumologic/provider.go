@@ -36,6 +36,11 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
 			},
+			"admin_mode": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
@@ -118,6 +123,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessKey := d.Get("access_key").(string)
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
+	isInAdminMode := d.Get("admin_mode").(bool)
 
 	msg := ""
 	if accessId == "" {
@@ -152,5 +158,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		accessKey,
 		environment,
 		baseUrl,
+		isInAdminMode,
 	)
 }

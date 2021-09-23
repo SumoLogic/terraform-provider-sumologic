@@ -17,7 +17,7 @@ import (
 )
 
 func (s *Client) CreateUser(user User) (string, error) {
-	data, err := s.Post("v1/users", user, false)
+	data, err := s.Post("v1/users", user)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +41,7 @@ func (s *Client) DeleteUser(id string, transferTo string) error {
 }
 
 func (s *Client) GetUser(id string) (*User, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/users/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("v1/users/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (s *Client) UpdateUser(user User) error {
 	user.ID = ""
 	user.Email = ""
 
-	_, err := s.Put(url, user, false)
+	_, err := s.Put(url, user)
 	return err
 }
 

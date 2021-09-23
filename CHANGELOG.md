@@ -2,6 +2,8 @@
 
 ## 2.10.0 (September 22, 2021)
 
+* Add a provider option `admin_mode`
+
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
