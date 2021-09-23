@@ -43,12 +43,12 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 			},
 			"relates_entities": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"skipped_values": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -78,7 +78,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						},
 						"skipped_values": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -96,12 +96,12 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						},
 						"case_insensitive": {
 							Type:     schema.TypeBool,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 						},
 						"alternate_values": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -124,7 +124,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						},
 						"field_join": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -137,7 +137,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						},
 						"format_parameters": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -145,7 +145,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						},
 						"lookup": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -168,7 +168,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 			},
 			"structured_inputs": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: getLogMappingStructuredInputFieldSchema(),

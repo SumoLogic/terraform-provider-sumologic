@@ -38,4 +38,9 @@ The following attributes are exported:
 
 - `id` - The internal ID of the rule tuning expression.
 
+## Import
 
+Rule tuning expression can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_rule_tuning_expression.rule_tuning_expression id
+```

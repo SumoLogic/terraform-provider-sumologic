@@ -50,17 +50,54 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
 
 The following arguments are supported:
 
-- `name` - (Required) The name of the insights status.
-- `description` - (Required) The description of the insights status.
-- `expression` - (Required) Expression to match.
+- `name` - (Required) The name of the log mapping.
+- `parent_id` - (Optional) The id of the parent log mapping.
+- `product_guid` - (Required) Product GUID.
+- `record_type` - (Required) The record type to be created. ( possible values: Audit, AuditChange, AuditFile, AuditResourceAccess, Authentication, AuthenticationPrivilegeEscalation, Canary, Email, Endpoint, EndpointModuleLoad, EndpointProcess, Network, NetworkDHCP, NetworkDNS, NetworkFlow, NetworkHTTP, NetworkProxy, Notification, NotificationVulnerability )
 - `enabled` - (Required) Enabled flag.
-- `exclude` - (Required) Set to true to exclude records that also match expression.
-- `is_global` - (Required) Set to true if tuning expression intended to be global.
-- `rule_ids` - (Required) List of rule ids, for the tuning expression to be applied. ( Empty if is_global set to true)
+- `relates_entities` - (Optional) Set to true to relate entities.
+- `skipped_values` - (Optional) List of skipped values.
+- `fields` - (Required) List of fields for the new log mapping. See [field_schema](#schema-for-field) for details.
+- `structured_inputs` - (Optional, omit if unstructured_fields is defined ) List of structured inputs for the new log mapping. See [structured_input_schema](#schema-for-structured_input) for details.
+- `unstructured_fields` - (Optional, omit if structured_inputs is defined) Unstructured fields for the new log mapping. See [unstructured_field_schema](#schema-for-unstructured_field) for details.
+
+### Schema for `field`
+- `name` - (Required) Name of the field.
+- `value` - (Required) Value of the field.
+- `skipped_values` - (Required) List of skipped values.
+- `default_value` - (Optional) Default value of the field.
+- `format` - (Required) Format of the field. ( JSON, Windows, Syslog, CEF, LEEF )
+- `case_insensitive` - (Optional) Case insensitive flag.
+- `alternate_values` - (Required) List of alternate values.
+- `product_guid` - (Optional) Time zone.
+- `split_delimiter` - (Required) Split delimiter to be used. ( some example: ",", "-", "|")
+- `field_join` - (Required) List of field join values.
+- `join_delimiter` - (Optional) Join delimiter.
+- `format_parameters` - (Optional) List of format parameters.
+- `lookup` - (Required) List of lookup key value pair for field. See [lookup_schema](#schema-for-lookup) for details.
+
+### Schema for `lookup`
+- `key` - (Required) Lookup key.
+- `value` - (Required) Lookup value.
+
+### Schema for `structured_input`
+- `event_id_pattern` - (Required) Event id pattern.
+- `log_format` - (Required) Log format. ( JSON, Windows, Syslog, CEF, LEEF )
+- `product` - (Required) Product name.
+- `vendor` - (Required) Vendor name.
+
+### Schema for `unstructured_field`
+- `pattern_names` - (Required) List of grok pattern names.
 
 
 The following attributes are exported:
 
 - `id` - The internal ID of the rule tuning expression.
 
+## Import
+
+Log Mapping can be imported using the field id, e.g.:
+```hcl
+terraform import sumologic_cse_log_mapping.log_mapping id
+```
 
