@@ -1,17 +1,26 @@
-## 2.10.0 (Unreleased)
+## 2.11.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** sumologic_cse_log_mapping (GH-280)
+
+## 2.10.0 (September 22, 2021)
+
+* Add a provider option `admin_mode`
 
 FEATURES:
 
 * **New Resource:** sumologic_hierarchy (GH-260)
 * **New Resource:** sumologic_cse_network_block (GH-271)
-* **New Resource:** sumologic_cse_rule_tuning_expression (GH-280)
-* **New Resource:** sumologic_cse_log_mapping (GH-280)
 
+POTENTIALLY BREAKING CHANGES:
+
+* resource/sumologic_policies: Changed all policies to be required. Configurations might need to be updated in
+  case some policies were not specified previously. (GH-279)
 
 DEPRECATIONS:
 
 * resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
-
 
 ## 2.9.10 (August 24, 2021)
 

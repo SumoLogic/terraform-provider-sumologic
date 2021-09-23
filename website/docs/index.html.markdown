@@ -50,6 +50,25 @@ resource "sumologic_http_source" "http_source" {
     collector_id = "${sumologic_collector.collector.id}"
 }
 
+# Configure the Sumo Logic Provider in Admin Mode
+provider "sumologic" {
+    access_id   = "${var.sumologic_access_id}"
+    access_key  = "${var.sumologic_access_key}"
+    environment = "us2"
+    admin_mode  = true
+    alias       = "admin"
+}
+
+# Look up the Admin Recommended Folder
+data "sumologic_admin_recommended_folder" "folder" {}
+
+# Create a folder underneath the Admin Recommended Folder (which requires Admin Mode)
+resource "sumologic_folder" "test" {
+    provider    = sumologic.admin
+    name        = "test"
+    description = "A test folder"
+    parent_id   = data.sumologic_admin_recommended_folder.folder.id
+}
 ```
 
 ## Authentication

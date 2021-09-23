@@ -7,7 +7,7 @@ import (
 func (s *Client) GetPasswordPolicy() (*PasswordPolicy, error) {
 	url := "v1/passwordPolicy"
 
-	data, _, err := s.Get(url, false)
+	data, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (s *Client) ResetPasswordPolicy() error {
 	url := "v1/passwordPolicy"
 
 	// Since password policy cannot be deleted, we just reset it back to the default by passing an empty request body.
-	data, err := s.Put(url, map[string]string{}, false)
+	data, err := s.Put(url, map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (s *Client) ResetPasswordPolicy() error {
 func (s *Client) UpdatePasswordPolicy(passwordPolicy PasswordPolicy) (*PasswordPolicy, error) {
 	url := "v1/passwordPolicy"
 
-	data, err := s.Put(url, passwordPolicy, false)
+	data, err := s.Put(url, passwordPolicy)
 	if err != nil {
 		return nil, err
 	}
