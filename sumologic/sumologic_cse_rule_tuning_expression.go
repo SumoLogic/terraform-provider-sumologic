@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSERuleTuningExpression(id string) (*CSERuleTuningExpression, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rule-tuning-expressions/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/rule-tuning-expressions/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSERuleTuningExpression(CSERuleTuningExpression CSERuleTu
 
 	var response CSERuleTuningExpressionResponse
 
-	responseBody, err := s.Post("sec/v1/rule-tuning-expressions", request, false)
+	responseBody, err := s.Post("sec/v1/rule-tuning-expressions", request)
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (s *Client) UpdateCSERuleTuningExpression(CSERuleTuningExpression CSERuleTu
 		CSERuleTuningExpression: CSERuleTuningExpression,
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }
