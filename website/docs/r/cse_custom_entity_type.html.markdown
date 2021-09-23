@@ -21,8 +21,8 @@ resource "sumologic_cse_custom_entity_type" "custom_entity_type" {
 
 The following arguments are supported:
 
-- `name` - (Required) Human friend and unique name. Examples: "Ip Address", "Username", "Mac Address".
-- `identifier` - (Required) Machine friendly and unique identifier. Examples: "ip", "username", "mac".
+- `name` - (Required) Human friend and unique name. Example: "File Hash".
+- `identifier` - (Required) Machine friendly and unique identifier. Example: "filehash".
 - `fields` - (Required) Record schema fields. Examples: "file_hash_md5", "file_hash_sha1".".
 
 
