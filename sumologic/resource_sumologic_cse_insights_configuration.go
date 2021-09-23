@@ -98,9 +98,11 @@ func resourceToCSEInsightsConfiguration(d *schema.ResourceData) (CSEInsightsConf
 		return CSEInsightsConfiguration{}, nil
 	}
 
-	return CSEInsightsConfiguration{
+	lookbackDays := d.Get("lookback_days").(float64)
+	threshold := d.Get("threshold").(float64)
 
-		LookbackDays: d.Get("lookback_days").(float64),
-		Threshold:    d.Get("threshold").(float64),
+	return CSEInsightsConfiguration{
+		LookbackDays: &lookbackDays,
+		Threshold:    &threshold,
 	}, nil
 }

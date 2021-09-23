@@ -44,6 +44,6 @@ type CSEInsightsConfigurationResponse struct {
 }
 
 type CSEInsightsConfiguration struct {
-	LookbackDays float64 `json:"lookbackDays,omitempty"`
-	Threshold    float64 `json:"threshold,omitempty"`
+	LookbackDays *float64 `json:"lookbackDays,omitempty"`
+	Threshold    *float64 `json:"threshold,omitempty"`
 }

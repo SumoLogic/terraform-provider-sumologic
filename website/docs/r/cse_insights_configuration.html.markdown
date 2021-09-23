@@ -2,7 +2,7 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_insights_configuration"
 description: |-
-  Provides a CSE Insights Configuration
+    Provides the CSE Insights Configuration for the whole organization. There can be only one configuration per organization.
 ---
 
 # sumologic_cse_insights_configuration

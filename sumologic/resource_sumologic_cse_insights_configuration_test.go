@@ -47,7 +47,7 @@ func testAccCSEInsightsConfigurationDestroy(s *terraform.State) error {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
 		if s != nil {
-			if s.Threshold != 0 && s.LookbackDays != 0 {
+			if s.Threshold != nil && s.LookbackDays != nil {
 				return fmt.Errorf("insight Configuration still exists")
 			}
 		}
@@ -89,10 +89,10 @@ func testCheckCSEInsightsConfigurationExists(n string, insightConfiguration *CSE
 
 func testCheckInsightsConfigurationValues(insightConfiguration *CSEInsightsConfiguration, nLookbackDays float64, nThreshold float64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if insightConfiguration.LookbackDays != nLookbackDays {
+		if *insightConfiguration.LookbackDays != nLookbackDays {
 			return fmt.Errorf("bad lookback days, expected \"%f\", got: %#v", nLookbackDays, insightConfiguration.LookbackDays)
 		}
-		if insightConfiguration.Threshold != nThreshold {
+		if *insightConfiguration.Threshold != nThreshold {
 			return fmt.Errorf("bad threshold, expected \"%f\", got: %#v", nThreshold, insightConfiguration.Threshold)
 		}
 
