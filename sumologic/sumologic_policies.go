@@ -78,7 +78,7 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 func (s *Client) getPolicy(endpoint string, policy interface{}) error {
 	url := fmt.Sprintf("v1/policies/%s", endpoint)
 
-	data, _, err := s.Get(url, false)
+	data, _, err := s.Get(url)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (s *Client) getPolicy(endpoint string, policy interface{}) error {
 func (s *Client) putPolicy(endpoint string, body interface{}, policy interface{}) error {
 	url := fmt.Sprintf("v1/policies/%s", endpoint)
 
-	data, err := s.Put(url, body, false)
+	data, err := s.Put(url, body)
 	if err != nil {
 		return err
 	}
