@@ -25,13 +25,13 @@ resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 
 The following arguments are supported:
 
-- `name` - (Required) The name of the insights status.
-- `description` - (Required) The description of the insights status.
+- `name` - (Required) The name of the rule tuning expression.
+- `description` - (Required) The description of the rule tuning expression.
 - `expression` - (Required) Expression to match.
 - `enabled` - (Required) Enabled flag.
-- `exclude` - (Required) Set to true to exclude records that also match expression.
-- `is_global` - (Required) Set to true if tuning expression intended to be global.
-- `rule_ids` - (Required) List of rule ids, for the tuning expression to be applied. ( Empty if is_global set to true)
+- `exclude` - (Required) Set to true to exclude records that match the expression. If set to false, only records that do match the expression will be included.
+- `is_global` - (Required) Set to true if this tuning expression should be applied to all rules.
+- `rule_ids` - (Required) List of rule IDs, for the tuning expression to be applied. ( Empty if is_global set to true)
 
 
 The following attributes are exported:
