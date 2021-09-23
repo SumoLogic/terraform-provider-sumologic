@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSECustomEntityType(id string) (*CSECustomEntityType, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/custom-entity-types/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/custom-entity-types/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSECustomEntityType(CSECustomEntityType CSECustomEntityTy
 
 	var response CSECustomEntityTypeResponse
 
-	responseBody, err := s.Post("sec/v1/custom-entity-types", request, false)
+	responseBody, err := s.Post("sec/v1/custom-entity-types", request)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +62,7 @@ func (s *Client) UpdateCSECustomEntityType(CSECustomEntityType CSECustomEntityTy
 		},
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

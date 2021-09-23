@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEEntityCriticalityConfig(id string) (*CSEEntityCriticalityConfig, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/entity-criticality-configs/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/entity-criticality-configs/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSEEntityCriticalityConfig(CSEEntityCriticalityConfig CSE
 
 	var response CSEEntityCriticalityConfigResponse
 
-	responseBody, err := s.Post("sec/v1/entity-criticality-configs", request, false)
+	responseBody, err := s.Post("sec/v1/entity-criticality-configs", request)
 	if err != nil {
 		return "", err
 	}
@@ -61,7 +61,7 @@ func (s *Client) UpdateCSEEntityCriticalityConfig(CSEEntityCriticalityConfig CSE
 		},
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }
