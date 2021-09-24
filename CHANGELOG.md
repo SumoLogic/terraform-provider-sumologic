@@ -2,8 +2,8 @@
 
 FEATURES:
 
-* **New Resource:** sumologic_cse_log_mapping (GH-280)
-* **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-280)
+* **New Resource:** sumologic_cse_log_mapping (GH-284)
+* **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
 
 ## 2.10.0 (September 22, 2021)
 
