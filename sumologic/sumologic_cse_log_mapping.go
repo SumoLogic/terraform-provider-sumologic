@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSELogMapping(id string) (*CSELogMapping, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/log-mappings/%s", id), false)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/log-mappings/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (s *Client) CreateCSELogMapping(CSELogMapping CSELogMapping) (string, error
 
 	var response CSELogMappingResponse
 
-	responseBody, err := s.Post("sec/v1/log-mappings", request, false)
+	responseBody, err := s.Post("sec/v1/log-mappings", request)
 	if err != nil {
 		return "", err
 	}
@@ -61,7 +61,7 @@ func (s *Client) UpdateCSELogMapping(CSELogMapping CSELogMapping) error {
 		CSELogMapping: CSELogMapping,
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

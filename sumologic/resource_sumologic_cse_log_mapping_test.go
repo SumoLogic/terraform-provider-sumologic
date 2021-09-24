@@ -11,12 +11,12 @@ import (
 func TestAccSumologicSCELogMapping_create(t *testing.T) {
 	var logMapping CSELogMapping
 	lmName := "New Log Mapping"
-	lmProductGuid := "003d35b3-3ba8-4e93-8776-e5810b4e243e"
 	lmRecordType := "Audit"
 	lmEnabled := true
 	lmRelatesEntities := true
 	lmSkippedValue := "skipped"
-
+	lmProduct := "Web Gateway"
+	lmVendor := "McAfee"
 	lmLookUp := CSELogMappingLookUp{
 		Key:   "tunnel-up",
 		Value: "true",
@@ -42,8 +42,6 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 		CSELogMappingStructuredInputField{
 			EventIdPattern: "vpn",
 			LogFormat:      "JSON",
-			Product:        "fortinate",
-			Vendor:         "fortinate",
 		}
 
 	resourceName := "sumologic_cse_log_mapping.log_mapping"
@@ -53,10 +51,10 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 		CheckDestroy: testAccCSELogMappingDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSELogMappingConfig(lmName, lmProductGuid, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields),
+				Config: testCreateCSELogMappingConfig(lmName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSELogMappingExists(resourceName, &logMapping),
-					testCheckLogMappingValues(&logMapping, lmName, lmProductGuid, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp),
+					testCheckLogMappingValues(&logMapping, lmName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -87,12 +85,18 @@ func testAccCSELogMappingDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSELogMappingConfig(lmName string, lmProductId string, lmRecordType string, lmEnabled bool, lmRelatesEntities bool, lmSkippedValues string, lmField CSELogMappingField, lmLookUp CSELogMappingLookUp, lmStructuredInputsFields CSELogMappingStructuredInputField) string {
+func testCreateCSELogMappingConfig(lmName string, lmRecordType string, lmEnabled bool, lmRelatesEntities bool, lmSkippedValues string, lmField CSELogMappingField, lmLookUp CSELogMappingLookUp, lmStructuredInputsFields CSELogMappingStructuredInputField, lmProduct string, lmVendor string) string {
 
 	resource := fmt.Sprintf(`
+
+data "sumologic_cse_log_mapping_vendor_product" "web_gateway" {
+  	product = "%s"
+	vendor = "%s"
+}
+
 resource "sumologic_cse_log_mapping" "log_mapping" {
 	name = "%s"
-	product_guid = "%s"
+	product_guid = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.guid}"
 	record_type = "%s"
 	enabled = "%t"
 	relates_entities = "%t"
@@ -120,14 +124,17 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
 	structured_inputs  {
 			event_id_pattern = "%s"
 			log_format = "%s"
-			product = "%s"
-			vendor = "%s"	
+			product = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.product}"
+			vendor = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.vendor}"	
 	}
 }
-`, lmName, lmProductId, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValues,
+
+
+
+`, lmProduct, lmVendor, lmName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValues,
 		lmField.Name, lmField.Value, lmField.ValueType, lmField.SkippedValues[0], lmField.DefaultValue, lmField.Format, lmField.CaseInsensitive, lmField.AlternateValues[0], lmField.TimeZone, lmField.SplitDelimiter, lmField.SplitIndex, lmField.FieldJoin[0], lmField.JoinDelimiter, lmField.FormatParameters[0],
 		lmLookUp.Key, lmLookUp.Value,
-		lmStructuredInputsFields.EventIdPattern, lmStructuredInputsFields.LogFormat, lmStructuredInputsFields.Product, lmStructuredInputsFields.Vendor)
+		lmStructuredInputsFields.EventIdPattern, lmStructuredInputsFields.LogFormat)
 
 	return resource
 }
@@ -155,13 +162,10 @@ func testCheckCSELogMappingExists(n string, logMapping *CSELogMapping) resource.
 	}
 }
 
-func testCheckLogMappingValues(logMapping *CSELogMapping, lmName string, lmProductId string, lmRecordType string, lmEnabled bool, lmRelatesEntities bool, lmSkippedValues string, lmField CSELogMappingField, lmLookUp CSELogMappingLookUp) resource.TestCheckFunc {
+func testCheckLogMappingValues(logMapping *CSELogMapping, lmName string, lmRecordType string, lmEnabled bool, lmRelatesEntities bool, lmSkippedValues string, lmField CSELogMappingField, lmLookUp CSELogMappingLookUp, lmStructuredInputsFields CSELogMappingStructuredInputField, lmProduct string, lmVendor string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if logMapping.Name != lmName {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", lmName, logMapping.Name)
-		}
-		if logMapping.ProductGuid != lmProductId {
-			return fmt.Errorf("bad product guid, expected \"%s\", got: %#v", lmProductId, logMapping.ProductGuid)
 		}
 		if logMapping.RecordType != lmRecordType {
 			return fmt.Errorf("bad record type, expected \"%s\", got: %#v", lmRecordType, logMapping.RecordType)
@@ -191,6 +195,15 @@ func testCheckLogMappingValues(logMapping *CSELogMapping, lmName string, lmProdu
 			logMapping.Fields[0].LookUp[0].Key != lmLookUp.Key || logMapping.Fields[0].LookUp[0].Value != lmLookUp.Value {
 
 			return fmt.Errorf("bad field, expected \"%#v\", got: %#v", lmField, logMapping.Fields[0])
+		}
+
+		if logMapping.StructuredInputs[0].Product != lmProduct ||
+			logMapping.StructuredInputs[0].Vendor != lmVendor ||
+			logMapping.StructuredInputs[0].LogFormat != lmStructuredInputsFields.LogFormat ||
+			logMapping.StructuredInputs[0].EventIdPattern != lmStructuredInputsFields.EventIdPattern {
+
+			return fmt.Errorf("bad structured input, expected \"%#v\"", logMapping.StructuredInputs[0])
+
 		}
 
 		return nil

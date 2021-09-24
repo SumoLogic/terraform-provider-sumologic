@@ -63,18 +63,19 @@ The following arguments are supported:
 
 ### Schema for `field`
 - `name` - (Required) Name of the field.
-- `value` - (Required) Value of the field.
-- `skipped_values` - (Required) List of skipped values.
+- `value` - (Optional) Value of the field.
+- `value_type` - (Optional) The value type.
+- `skipped_values` - (Optional) List of skipped values.
 - `default_value` - (Optional) Default value of the field.
-- `format` - (Required) Format of the field. ( JSON, Windows, Syslog, CEF, LEEF )
+- `format` - (Optional) Format of the field. ( JSON, Windows, Syslog, CEF, LEEF )
 - `case_insensitive` - (Optional) Case insensitive flag.
-- `alternate_values` - (Required) List of alternate values.
-- `product_guid` - (Optional) Time zone.
-- `split_delimiter` - (Required) Split delimiter to be used. ( some example: ",", "-", "|")
-- `field_join` - (Required) List of field join values.
+- `alternate_values` - (Optional) List of alternate values.
+- `time_zone` - (Optional) Time zone.
+- `split_delimiter` - (Optional) Split delimiter to be used. ( some example: ",", "-", "|")
+- `field_join` - (Optional) List of field join values.
 - `join_delimiter` - (Optional) Join delimiter.
 - `format_parameters` - (Optional) List of format parameters.
-- `lookup` - (Required) List of lookup key value pair for field. See [lookup_schema](#schema-for-lookup) for details.
+- `lookup` - (Optional) List of lookup key value pair for field. See [lookup_schema](#schema-for-lookup) for details.
 
 ### Schema for `lookup`
 - `key` - (Required) Lookup key.
