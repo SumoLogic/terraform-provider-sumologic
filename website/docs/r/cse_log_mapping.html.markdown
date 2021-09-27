@@ -53,12 +53,12 @@ The following arguments are supported:
 - `name` - (Required) The name of the log mapping.
 - `parent_id` - (Optional) The id of the parent log mapping.
 - `product_guid` - (Required) Product GUID.
-- `record_type` - (Required) The record type to be created. ( possible values: Audit, AuditChange, AuditFile, AuditResourceAccess, Authentication, AuthenticationPrivilegeEscalation, Canary, Email, Endpoint, EndpointModuleLoad, EndpointProcess, Network, NetworkDHCP, NetworkDNS, NetworkFlow, NetworkHTTP, NetworkProxy, Notification, NotificationVulnerability )
+- `record_type` - (Required) The record type to be created. (possible values: Audit, AuditChange, AuditFile, AuditResourceAccess, Authentication, AuthenticationPrivilegeEscalation, Canary, Email, Endpoint, EndpointModuleLoad, EndpointProcess, Network, NetworkDHCP, NetworkDNS, NetworkFlow, NetworkHTTP, NetworkProxy, Notification, NotificationVulnerability)
 - `enabled` - (Required) Enabled flag.
 - `relates_entities` - (Optional) Set to true to relate entities.
 - `skipped_values` - (Optional) List of skipped values.
 - `fields` - (Required) List of fields for the new log mapping. See [field_schema](#schema-for-field) for details.
-- `structured_inputs` - (Optional, omit if unstructured_fields is defined ) List of structured inputs for the new log mapping. See [structured_input_schema](#schema-for-structured_input) for details.
+- `structured_inputs` - (Optional, omit if unstructured_fields is defined) List of structured inputs for the new log mapping. See [structured_input_schema](#schema-for-structured_input) for details.
 - `unstructured_fields` - (Optional, omit if structured_inputs is defined) Unstructured fields for the new log mapping. See [unstructured_field_schema](#schema-for-unstructured_field) for details.
 
 ### Schema for `field`
@@ -93,7 +93,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `id` - The internal ID of the rule tuning expression.
+- `id` - The internal ID of the log mapping.
 
 ## Import
 

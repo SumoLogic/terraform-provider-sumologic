@@ -416,18 +416,18 @@ func setLogMapping(d *schema.ResourceData, CSELogMapping *CSELogMapping) {
 	setFields(d, CSELogMapping.Fields)
 	setStructuredInputs(d, CSELogMapping.StructuredInputs)
 	if CSELogMapping.UnstructuredFields != nil {
-		setUnStructuredFields(d, *(CSELogMapping.UnstructuredFields))
+		setUnstructuredFields(d, *(CSELogMapping.UnstructuredFields))
 	}
 }
 
-func setUnStructuredFields(d *schema.ResourceData, unstructuredFields CSELogMappingUnstructuredFields) {
+func setUnstructuredFields(d *schema.ResourceData, unstructuredFields CSELogMappingUnstructuredFields) {
 	resourceUnstructuredFieldsMap := make(map[string]interface{})
 	resourceUnstructuredFieldsMap["patter_names"] = unstructuredFields.PatternNames
 
-	resourceUnstructuresFields := make([]map[string]interface{}, 1)
-	resourceUnstructuresFields[0] = resourceUnstructuredFieldsMap
+	resourceUnstructuredFields := make([]map[string]interface{}, 1)
+	resourceUnstructuredFields[0] = resourceUnstructuredFieldsMap
 
-	d.Set("unstructured_fields", resourceUnstructuresFields)
+	d.Set("unstructured_fields", resourceUnstructuredFields)
 
 }
 
