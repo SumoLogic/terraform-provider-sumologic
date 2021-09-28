@@ -2,10 +2,6 @@
 FEATURES:
 
 * **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
-
-
-FEATURES:
-
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)

@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_insights_configuration"
 description: |-
-    Provides the CSE Insights Configuration for the whole organization. There can be only one configuration per organization.
+    Provides the Sumologic CSE Insights Configuration for the whole organization. There can be only one configuration per organization.
 ---
 
 # sumologic_cse_insights_configuration
-Provides a CSE Insights Configuration.
+Provides the Sumologic CSE Insights Configuration for the whole organization. There can be only one configuration per organization.
 
 ## Example Usage
 ```hcl
@@ -21,15 +21,15 @@ resource "sumologic_cse_insights_configuration" "insights_configuration" {
 The following arguments are supported:
 
 - `lookback_days` - (Optional) Detection window expressed in days.
-- `threshold` - (Optional) Detection threshold.
+- `threshold` - (Optional) Detection threshold activity score.
 
 The following attributes are exported:
 
-- `id` - The internal ID of the insights configuration.
+- `ID` - The internal ID of the insights configuration.
 
 ## Import
 
 Insights Configuration can be imported using the field id, e.g.:
 ```hcl
-terraform import sumologic_cse_insights_configuration.insights_configuration id
+terraform import sumologic_cse_insights_configuration.insights_configuration ID
 ```
