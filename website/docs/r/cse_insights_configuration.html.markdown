@@ -29,7 +29,10 @@ The following attributes are exported:
 
 ## Import
 
-Insights Configuration can be imported using the field id, e.g.:
+Insights Configuration can be imported using the id `cse-insights-configuration`:
+
+~> **NOTE:** Only `cse-insights-configuration` id should be used when importing hte insights configuration. Using any other id may have unintended consequences.
+
 ```hcl
-terraform import sumologic_cse_insights_configuration.insights_configuration ID
+terraform import sumologic_cse_insights_configuration.insights_configuration cse-insights-configuration
 ```
