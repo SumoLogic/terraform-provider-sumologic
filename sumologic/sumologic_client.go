@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -29,16 +28,15 @@ type Client struct {
 var ProviderVersion string
 
 var endpoints = map[string]string{
-	"us1":  "https://api.sumologic.com/api/",
-	"us2":  "https://api.us2.sumologic.com/api/",
-	"fed":  "https://api.fed.sumologic.com/api/",
-	"eu":   "https://api.eu.sumologic.com/api/",
-	"au":   "https://api.au.sumologic.com/api/",
-	"de":   "https://api.de.sumologic.com/api/",
-	"jp":   "https://api.jp.sumologic.com/api/",
-	"ca":   "https://api.ca.sumologic.com/api/",
-	"in":   "https://api.in.sumologic.com/api/",
-	"nite": "https://nite-api.sumologic.net/api/",
+	"us1": "https://api.sumologic.com/api/",
+	"us2": "https://api.us2.sumologic.com/api/",
+	"fed": "https://api.fed.sumologic.com/api/",
+	"eu":  "https://api.eu.sumologic.com/api/",
+	"au":  "https://api.au.sumologic.com/api/",
+	"de":  "https://api.de.sumologic.com/api/",
+	"jp":  "https://api.jp.sumologic.com/api/",
+	"ca":  "https://api.ca.sumologic.com/api/",
+	"in":  "https://api.in.sumologic.com/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
@@ -134,10 +132,8 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	log.Printf("[INFO] Post URL: %s", sumoURL)
-	body, _ := json.Marshal(payload)
 
-	log.Printf("[INFO] POST body: %s", body)
+	body, _ := json.Marshal(payload)
 	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, err
@@ -193,12 +189,10 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	log.Printf("[INFO] Put URL: %s", sumoURL)
+
 	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
-
-	log.Printf("[INFO] PUT body: %s", body)
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, err
@@ -231,7 +225,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	log.Printf("[INFO] Get URL: %s", sumoURL)
+
 	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, "", err
@@ -252,7 +246,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	log.Printf("[INFO] Get response: %s", string(d))
+
 	if resp.StatusCode == 404 {
 		return nil, "", nil
 	} else if resp.StatusCode >= 400 {
@@ -265,7 +259,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 func (s *Client) Delete(urlPath string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	log.Printf("[INFO] Delete URL: %s", sumoURL)
+
 	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey)
 	if err != nil {
 		return nil, err
