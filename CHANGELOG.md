@@ -1,10 +1,14 @@
 ## 2.11.0 (Unreleased)
+
+* Address missing feedback from GH-274 and GH-281 (GH-285)
+
 FEATURES:
 
 * **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
+
 
 ## 2.10.0 (September 22, 2021)
 
