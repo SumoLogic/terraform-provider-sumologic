@@ -19,37 +19,30 @@ func resourceSumologicCSERuleTuningExpression() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"expression": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 			"exclude": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 			"is_global": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 			"rule_ids": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -115,7 +108,7 @@ func resourceSumologicCSERuleTuningExpressionCreate(d *schema.ResourceData, meta
 		d.SetId(id)
 	}
 
-	return resourceSumologicCSERuleTuningExpressionUpdate(d, meta)
+	return resourceSumologicCSERuleTuningExpressionRead(d, meta)
 }
 
 func resourceSumologicCSERuleTuningExpressionUpdate(d *schema.ResourceData, meta interface{}) error {
