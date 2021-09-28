@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_insights_status"
 description: |-
-  Provides a Sumologic CSE Insights Status
+  Provides a Sumologic CSE Insights Status. Preconfigured Insight statuses cannot be edited or deleted; you can however create custom statuses.
 ---
 
 # sumologic_cse_insights_status
-Provides a Sumologic CSE Insights Status.
+Provides a Sumologic CSE Insights Status. Preconfigured Insight statuses cannot be edited or deleted; you can however create custom statuses.
 
 ## Example Usage
 ```hcl
