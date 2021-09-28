@@ -43,6 +43,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_rule_tuning_expression":         resourceSumologicCSERuleTuningExpression(),
 			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
 			"sumologic_cse_custom_entity_type":             resourceSumologicCSECustomEntityType(),
 			"sumologic_cse_entity_criticality_config":      resourceSumologicCSEEntityCriticalityConfig(),
