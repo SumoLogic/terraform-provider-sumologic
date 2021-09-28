@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_entity_criticality_config"
 description: |-
-  Provides a CSE Entity Criticality Configuration
+  Provides a Sumologic CSE Entity Criticality Configuration
 ---
 
 # sumologic_cse_entity_criticality_config
-Provides a CSE Entity Criticality Configuration.
+Provides a Sumologic CSE Entity Criticality Configuration.
 
 ## Example Usage
 ```hcl

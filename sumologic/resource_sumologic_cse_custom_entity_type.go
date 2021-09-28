@@ -19,17 +19,14 @@ func resourceSumologicCSECustomEntityType() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"identifier": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"fields": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -87,7 +84,7 @@ func resourceSumologicCSECustomEntityTypeCreate(d *schema.ResourceData, meta int
 		d.SetId(id)
 	}
 
-	return resourceSumologicCSECustomEntityTypeUpdate(d, meta)
+	return resourceSumologicCSECustomEntityTypeRead(d, meta)
 }
 
 func resourceSumologicCSECustomEntityTypeUpdate(d *schema.ResourceData, meta interface{}) error {

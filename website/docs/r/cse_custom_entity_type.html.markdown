@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_custom_entity_type"
 description: |-
-  Provides a CSE Custom Entity Type
+  Provides a Sumologic CSE Custom Entity Type
 ---
 
 # sumologic_cse_custom_entity_type
-Provides a CSE Custom Entity Type.
+Provides a Sumologic CSE Custom Entity Type.
 
 ## Example Usage
 ```hcl

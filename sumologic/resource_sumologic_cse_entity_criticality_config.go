@@ -19,12 +19,10 @@ func resourceSumologicCSEEntityCriticalityConfig() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"severity_expression": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 		},
 	}
@@ -77,7 +75,7 @@ func resourceSumologicCSEEntityCriticalityConfigCreate(d *schema.ResourceData, m
 		d.SetId(id)
 	}
 
-	return resourceSumologicCSEEntityCriticalityConfigUpdate(d, meta)
+	return resourceSumologicCSEEntityCriticalityConfigRead(d, meta)
 }
 
 func resourceSumologicCSEEntityCriticalityConfigUpdate(d *schema.ResourceData, meta interface{}) error {
