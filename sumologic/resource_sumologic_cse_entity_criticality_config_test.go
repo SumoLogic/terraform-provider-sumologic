@@ -30,6 +30,36 @@ func TestAccSumologicSCEEntityCriticalityConfig_create(t *testing.T) {
 	})
 }
 
+func TestAccSumologicSCEEntityCriticalityConfig_update(t *testing.T) {
+	var entityCriticalityConfig CSEEntityCriticalityConfig
+	nName := "New Entity Criticality"
+	nSeverityExpression := "severity + 2"
+	resourceName := "sumologic_cse_entity_criticality_config.entity_criticality_config"
+	uSeverity := "severity + 3"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEEntityCriticalityConfigDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSEEntityCriticalityConfigConfig(nName, nSeverityExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEEntityCriticalityConfigExists(resourceName, &entityCriticalityConfig),
+					testCheckEntityCriticalityConfigValues(&entityCriticalityConfig, nName, nSeverityExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testCreateCSEEntityCriticalityConfigConfig(nName, uSeverity),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEEntityCriticalityConfigExists(resourceName, &entityCriticalityConfig),
+					testCheckEntityCriticalityConfigValues(&entityCriticalityConfig, nName, uSeverity),
+				),
+			},
+		},
+	})
+}
+
 func testAccCSEEntityCriticalityConfigDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 

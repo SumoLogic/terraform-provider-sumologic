@@ -31,6 +31,38 @@ func TestAccSumologicSCECustomEntityType_create(t *testing.T) {
 	})
 }
 
+func TestAccSumologicSCECustomEntityType_update(t *testing.T) {
+	var customEntityType CSECustomEntityType
+	nName := "New Custom Entity Type"
+	nIdentifier := "identifier"
+	nFields := []string{"field1"}
+	uName := "Changed type"
+	uFields := []string{"field2"}
+	resourceName := "sumologic_cse_custom_entity_type.custom_entity_type"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSECustomEntityTypeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSECustomEntityTypeConfig(nName, nIdentifier, nFields),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomEntityTypeExists(resourceName, &customEntityType),
+					testCheckCustomEntityTypeValues(&customEntityType, nName, nIdentifier, nFields),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testCreateCSECustomEntityTypeConfig(uName, nIdentifier, uFields),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomEntityTypeExists(resourceName, &customEntityType),
+					testCheckCustomEntityTypeValues(&customEntityType, uName, nIdentifier, uFields),
+				),
+			},
+		},
+	})
+}
+
 func testAccCSECustomEntityTypeDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
