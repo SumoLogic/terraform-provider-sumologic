@@ -2,7 +2,9 @@
 FEATURES:
 
 * **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
-
+* **New Resource:** sumologic_cse_insights_resolution (GH-274)
+* **New Resource:** sumologic_cse_insights_status (GH-274)
+* **New Resource:** sumologic_cse_insights_configuration (GH-274)
 
 ## 2.10.0 (September 22, 2021)
 
@@ -15,8 +17,8 @@ FEATURES:
 
 POTENTIALLY BREAKING CHANGES:
 
-* resource/sumologic_policies: Changed all policies to be required. Configurations might need to be updated in 
-case some policies were not specified previously. (GH-279)
+* resource/sumologic_policies: Changed all policies to be required. Configurations might need to be updated in
+  case some policies were not specified previously. (GH-279)
 
 DEPRECATIONS:
 

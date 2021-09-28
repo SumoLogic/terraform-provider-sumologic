@@ -45,6 +45,9 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_rule_tuning_expression":         resourceSumologicCSERuleTuningExpression(),
 			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
+			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
+			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),
+			"sumologic_cse_insights_status":                resourceSumologicCSEInsightsStatus(),
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_gcp_source":                         resourceSumologicGCPSource(),
