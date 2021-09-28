@@ -96,7 +96,7 @@ data "sumologic_cse_log_mapping_vendor_product" "web_gateway" {
 
 resource "sumologic_cse_log_mapping" "log_mapping" {
 	name = "%s"
-	product_guid = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.guid}"
+	product_guid = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.guid}"
 	record_type = "%s"
 	enabled = "%t"
 	relates_entities = "%t"
@@ -124,8 +124,8 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
 	structured_inputs  {
 			event_id_pattern = "%s"
 			log_format = "%s"
-			product = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.product}"
-			vendor = "${data.sumologic_cse_log_maping_vendor_product.web_gateway.vendor}"	
+			product = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.product}"
+			vendor = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.vendor}"	
 	}
 }
 
