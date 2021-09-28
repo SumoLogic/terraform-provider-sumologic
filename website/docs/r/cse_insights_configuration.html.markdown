@@ -11,8 +11,8 @@ Provides the Sumologic CSE Insights Configuration for the whole organization. Th
 ## Example Usage
 ```hcl
 resource "sumologic_cse_insights_configuration" "insights_configuration" {
-  lookback_days = 13
-  threshold = 12
+  lookback_days = 13.0
+  threshold = 12.0
 }
 ```
 

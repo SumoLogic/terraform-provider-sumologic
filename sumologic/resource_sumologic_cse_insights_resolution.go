@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+const Resolved string = "Resolved"
+const FalsePositive string = "FalsePositive"
+const NoAction string = "NoAction"
+const Duplicate string = "Duplicate"
+
 func resourceSumologicCSEInsightsResolution() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicCSEInsightsResolutionCreate,
@@ -32,7 +37,7 @@ func resourceSumologicCSEInsightsResolution() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,
-				ValidateFunc: validation.StringInSlice([]string{"Resolved", "False Positive", "No Action", "Duplicate"}, false),
+				ValidateFunc: validation.StringInSlice([]string{Resolved, FalsePositive, NoAction, Duplicate}, false),
 			},
 		},
 	}
@@ -42,11 +47,11 @@ func resourceSumologicCSEInsightsResolutionRead(d *schema.ResourceData, meta int
 	c := meta.(*Client)
 
 	var CSEInsightsResolutionGet *CSEInsightsResolutionGet
-	id, _ := strconv.Atoi(d.Id())
+	id := d.Id()
 
 	CSEInsightsResolutionGet, err := c.GetCSEInsightsResolution(id)
 	if err != nil {
-		log.Printf("[WARN] CSE Insights Resolution not found when looking by id: %d, err: %v", id, err)
+		log.Printf("[WARN] CSE Insights Resolution not found when looking by id: %s, err: %v", id, err)
 
 	}
 
@@ -69,13 +74,13 @@ func parentIdToParentName(parentId int) string {
 
 	if parentId > 0 {
 		if parentId == 1 {
-			parentName = "Resolved"
+			parentName = Resolved
 		} else if parentId == 2 {
-			parentName = "False Positive"
+			parentName = FalsePositive
 		} else if parentId == 3 {
-			parentName = "No Action"
+			parentName = NoAction
 		} else if parentId == 4 {
-			parentName = "Duplicate"
+			parentName = Duplicate
 		}
 	}
 	return parentName
@@ -85,24 +90,23 @@ func parentNameToParentId(parentName string) int {
 
 	parentId := -1
 
-	if parentName != "" {
-		if parentName == "Resolved" {
-			parentId = 1
-		} else if parentName == "False Positive" {
-			parentId = 2
-		} else if parentName == "No Action" {
-			parentId = 3
-		} else if parentName == "Duplicate" {
-			parentId = 4
-		}
+	if parentName == Resolved {
+		parentId = 1
+	} else if parentName == FalsePositive {
+		parentId = 2
+	} else if parentName == NoAction {
+		parentId = 3
+	} else if parentName == Duplicate {
+		parentId = 4
 	}
+
 	return parentId
 }
 
 func resourceSumologicCSEInsightsResolutionDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	id, _ := strconv.Atoi(d.Id())
+	id := d.Id()
 	return c.DeleteCSEInsightsResolution(id)
 
 }

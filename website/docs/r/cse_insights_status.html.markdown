@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_insights_status"
 description: |-
-  Provides a CSE Insights Status
+  Provides a Sumologic CSE Insights Status
 ---
 
 # sumologic_cse_insights_status
-Provides a CSE Insights Status.
+Provides a Sumologic CSE Insights Status.
 
 ## Example Usage
 ```hcl

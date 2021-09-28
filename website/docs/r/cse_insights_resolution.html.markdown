@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_insights_resolution"
 description: |-
-  Provides a CSE Insights Resolution
+  Provides a Sumologic CSE Insights Resolution. When an insight gets closed, a resolution indicates why it got closed.
 ---
 
 # sumologic_cse_insights_resolution
-Provides a CSE Insights Resolution.
+Provides a Sumologic CSE Insights Resolution. When an insight gets closed, a resolution indicates why it got closed.
 
 ## Example Usage
 ```hcl

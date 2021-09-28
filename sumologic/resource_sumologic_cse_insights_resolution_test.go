@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -44,10 +43,7 @@ func testAccCSEInsightsResolutionDestroy(s *terraform.State) error {
 			return fmt.Errorf("CSE Insights Resolution destruction check: CSE Insights Resolution ID is not set")
 		}
 
-		id, err := strconv.Atoi(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("cse insight resolution check: id should be int; got %s", rs.Primary.ID)
-		}
+		id := rs.Primary.ID
 
 		s, err := client.GetCSEInsightsResolution(id)
 		if err != nil {
@@ -81,10 +77,7 @@ func testCheckCSEInsightsResolutionExists(n string, insightResolution *CSEInsigh
 			return fmt.Errorf("insight Resolution ID is not set")
 		}
 
-		id, err := strconv.Atoi(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("insight Resolution id should be int; got %s", rs.Primary.ID)
-		}
+		id := rs.Primary.ID
 
 		c := testAccProvider.Meta().(*Client)
 		insightResolutionResp, err := c.GetCSEInsightsResolution(id)

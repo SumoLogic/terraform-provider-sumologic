@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func (s *Client) GetCSEInsightsResolution(id int) (*CSEInsightsResolutionGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%d", id))
+func (s *Client) GetCSEInsightsResolution(id string) (*CSEInsightsResolutionGet, error) {
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -24,8 +24,8 @@ func (s *Client) GetCSEInsightsResolution(id int) (*CSEInsightsResolutionGet, er
 	return &response.CSEInsightsResolutionGet, nil
 }
 
-func (s *Client) DeleteCSEInsightsResolution(id int) error {
-	_, err := s.Delete(fmt.Sprintf("sec/v1/insight-resolutions/%d", id))
+func (s *Client) DeleteCSEInsightsResolution(id string) error {
+	_, err := s.Delete(fmt.Sprintf("sec/v1/insight-resolutions/%s", id))
 
 	return err
 }

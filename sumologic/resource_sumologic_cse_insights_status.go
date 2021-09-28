@@ -26,6 +26,10 @@ func resourceSumologicCSEInsightsStatus() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+			"display_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -50,6 +54,7 @@ func resourceSumologicCSEInsightsStatusRead(d *schema.ResourceData, meta interfa
 
 	d.Set("name", CSEInsightsStatusGet.Name)
 	d.Set("description", CSEInsightsStatusGet.Description)
+	d.Set("display_name", CSEInsightsStatusGet.DisplayName)
 
 	return nil
 }
