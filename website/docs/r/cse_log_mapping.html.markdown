@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_log_mapping"
 description: |-
-  Provides a CSE Log Mapping
+  Provides a Sumologic CSE Log Mapping
 ---
 
 # log_mapping
-Provides a CSE Log Mapping.
+Provides a Sumologic CSE Log Mapping.
 
 ## Example Usage
 ```hcl
