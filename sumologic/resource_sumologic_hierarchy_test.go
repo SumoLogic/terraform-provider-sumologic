@@ -93,47 +93,6 @@ func TestAccSumologicHierarchy_create(t *testing.T) {
 	})
 }
 
-func testAccCheckHierarchyDestroy(hierarchy Hierarchy) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		client := testAccProvider.Meta().(*Client)
-		for _, r := range s.RootModule().Resources {
-			id := r.Primary.ID
-			u, err := client.GetHierarchy(id)
-			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
-			}
-			if u != nil {
-				return fmt.Errorf("Hierarchy %s still exists", id)
-			}
-		}
-		return nil
-	}
-}
-
-func testAccCheckHierarchyExists(name string, hierarchy *Hierarchy, t *testing.T) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-		if !ok {
-			//need this so that we don't get an unused import error for strconv in some cases
-			return fmt.Errorf("Error = %s. Hierarchy not found: %s", strconv.FormatBool(ok), name)
-		}
-
-		//need this so that we don't get an unused import error for strings in some cases
-		if strings.EqualFold(rs.Primary.ID, "") {
-			return fmt.Errorf("Hierarchy ID is not set")
-		}
-
-		id := rs.Primary.ID
-		c := testAccProvider.Meta().(*Client)
-		newHierarchy, err := c.GetHierarchy(id)
-		if err != nil {
-			return fmt.Errorf("Hierarchy %s not found", id)
-		}
-		hierarchy = newHierarchy
-		return nil
-	}
-}
-
 func TestAccSumologicHierarchy_update(t *testing.T) {
 	var hierarchy Hierarchy
 	testName, testFilter, testLevel := getRandomizedParamsForHierarchy()
@@ -185,6 +144,47 @@ func TestAccSumologicHierarchy_update(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckHierarchyDestroy(hierarchy Hierarchy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		client := testAccProvider.Meta().(*Client)
+		for _, r := range s.RootModule().Resources {
+			id := r.Primary.ID
+			u, err := client.GetHierarchy(id)
+			if err != nil {
+				return fmt.Errorf("Encountered an error: " + err.Error())
+			}
+			if u != nil {
+				return fmt.Errorf("Hierarchy %s still exists", id)
+			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckHierarchyExists(name string, hierarchy *Hierarchy, t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			//need this so that we don't get an unused import error for strconv in some cases
+			return fmt.Errorf("Error = %s. Hierarchy not found: %s", strconv.FormatBool(ok), name)
+		}
+
+		//need this so that we don't get an unused import error for strings in some cases
+		if strings.EqualFold(rs.Primary.ID, "") {
+			return fmt.Errorf("Hierarchy ID is not set")
+		}
+
+		id := rs.Primary.ID
+		c := testAccProvider.Meta().(*Client)
+		newHierarchy, err := c.GetHierarchy(id)
+		if err != nil {
+			return fmt.Errorf("Hierarchy %s not found", id)
+		}
+		hierarchy = newHierarchy
+		return nil
+	}
 }
 
 func testAccCheckSumologicHierarchyConfigImported(name string, filter HierarchyFilteringClause, level Level) string {
