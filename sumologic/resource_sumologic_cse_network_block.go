@@ -91,7 +91,6 @@ func resourceSumologicCSENetworkBlockCreate(d *schema.ResourceData, meta interfa
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %s", id)
 		d.SetId(id)
 	}
 

@@ -1,16 +1,16 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_network_block"
+page_title: "SumoLogic: sumologic_cse_network_block"
 description: |-
   Provides a CSE Network Block
 ---
 
-# sumologic_network_block
+# sumologic_cse_network_block
 Provides a Sumo Logic CSE Network Block.
 
 ## Example Usage
 ```hcl
-resource "sumologic_network_block" "network_block" {
+resource "sumologic_cse_network_block" "network_block" {
   address_block         = "10.0.1.0/26"
   label     = "network block from terraform"
   internal = "true"
@@ -35,5 +35,5 @@ The following attributes are exported:
 
 Network Block can be imported using the field id, e.g.:
 ```hcl
-terraform import sumologic_network_block.network_block id
+terraform import sumologic_cse_network_block.network_block id
 ```
