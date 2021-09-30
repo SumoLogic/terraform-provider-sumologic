@@ -19,37 +19,30 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"parent_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"product_guid": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"record_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: false,
 			},
 			"relates_entities": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 			"skipped_values": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -57,29 +50,24 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 			"fields": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"value_type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"skipped_values": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -87,22 +75,18 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						"default_value": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"format": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"case_insensitive": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: false,
 						},
 						"alternate_values": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -110,22 +94,18 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						"time_zone": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"split_delimiter": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"split_index": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"field_join": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -133,12 +113,10 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						"join_delimiter": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"format_parameters": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -146,19 +124,16 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						"lookup": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: false,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"key": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: false,
 									},
 									"value": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: false,
 									},
 								},
 							},
@@ -169,7 +144,6 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 			"structured_inputs": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: getLogMappingStructuredInputFieldSchema(),
 				},
@@ -184,7 +158,6 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 						"pattern_names": {
 							Type:     schema.TypeList,
 							Required: true,
-							ForceNew: false,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -201,22 +174,18 @@ func getLogMappingStructuredInputFieldSchema() map[string]*schema.Schema {
 		"event_id_pattern": {
 			Type:     schema.TypeString,
 			Required: true,
-			ForceNew: false,
 		},
 		"log_format": {
 			Type:     schema.TypeString,
 			Required: true,
-			ForceNew: false,
 		},
 		"product": {
 			Type:     schema.TypeString,
 			Required: true,
-			ForceNew: false,
 		},
 		"vendor": {
 			Type:     schema.TypeString,
 			Required: true,
-			ForceNew: false,
 		},
 	}
 }
