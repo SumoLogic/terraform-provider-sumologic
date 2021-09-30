@@ -2,8 +2,13 @@
 
 FEATURES:
 
+* **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
+* **New Resource:** sumologic_cse_insights_resolution (GH-274)
+* **New Resource:** sumologic_cse_insights_status (GH-274)
+* **New Resource:** sumologic_cse_insights_configuration (GH-274)
 * **New Resource:** sumologic_cse_log_mapping (GH-284)
 * **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
+
 
 ## 2.10.0 (September 22, 2021)
 
