@@ -5,6 +5,8 @@
 FEATURES:
 
 * **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
+* **New Resource:** sumologic_cse_entity_criticality_config (GH-275)
+* **New Resource:** sumologic_cse_custom_entity_type (GH-275)
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
