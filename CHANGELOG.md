@@ -9,6 +9,9 @@ FEATURES:
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
 
+BUG FIXES:
+
+* Fix hierarchy without a filter not being accepted
 
 ## 2.10.0 (September 22, 2021)
 
