@@ -88,11 +88,11 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 
 	CSEThresholdRuleGet, err := c.GetCSEThresholdRule(id)
 	if err != nil {
-		log.Printf("[WARN] CSE Insights Status not found when looking by id: %s, err: %v", id, err)
+		log.Printf("[WARN] CSE Threshold Rule not found when looking by id: %s, err: %v", id, err)
 	}
 
 	if CSEThresholdRuleGet == nil {
-		log.Printf("[WARN] CSE Insights Status not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] CSE Threshold Rule not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return nil
 	}
@@ -101,7 +101,7 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("count_field", CSEThresholdRuleGet.CountField)
 	d.Set("description", CSEThresholdRuleGet.Description)
 	d.Set("enabled", CSEThresholdRuleGet.Enabled)
-	d.Set("entity_selectors", CSEThresholdRuleGet.EntitySelectors)
+	d.Set("entity_selectors", entitySelectorArrayToResource(CSEThresholdRuleGet.EntitySelectors))
 	d.Set("expression", CSEThresholdRuleGet.Expression)
 	d.Set("group_by_fields", CSEThresholdRuleGet.GroupByFields)
 	d.Set("is_prototype", CSEThresholdRuleGet.IsPrototype)
@@ -147,7 +147,6 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %s", id)
 		d.SetId(id)
 	}
 

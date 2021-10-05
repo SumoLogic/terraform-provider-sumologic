@@ -65,24 +65,24 @@ func resourceSumologicCSEMatchRuleRead(d *schema.ResourceData, meta interface{})
 
 	CSEMatchRuleGet, err := c.GetCSEMatchRule(id)
 	if err != nil {
-		log.Printf("[WARN] CSE Insights Status not found when looking by id: %s, err: %v", id, err)
+		log.Printf("[WARN] CSE Match Rule not found when looking by id: %s, err: %v", id, err)
 
 	}
 
 	if CSEMatchRuleGet == nil {
-		log.Printf("[WARN] CSE Insights Status not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] CSE Match Rule not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return nil
 	}
 
 	d.Set("description_expression", CSEMatchRuleGet.DescriptionExpression)
 	d.Set("enabled", CSEMatchRuleGet.Enabled)
-	d.Set("entity_selectors", CSEMatchRuleGet.EntitySelectors)
+	d.Set("entity_selectors", entitySelectorArrayToResource(CSEMatchRuleGet.EntitySelectors))
 	d.Set("expression", CSEMatchRuleGet.Expression)
 	d.Set("is_prototype", CSEMatchRuleGet.IsPrototype)
 	d.Set("name", CSEMatchRuleGet.Name)
 	d.Set("name_expression", CSEMatchRuleGet.NameExpression)
-	d.Set("severity_mapping", CSEMatchRuleGet.SeverityMapping)
+	d.Set("severity_mapping", severityMappingToResource(CSEMatchRuleGet.SeverityMapping))
 	d.Set("summary_expression", CSEMatchRuleGet.SummaryExpression)
 	d.Set("tags", CSEMatchRuleGet.Tags)
 
@@ -117,7 +117,6 @@ func resourceSumologicCSEMatchRuleCreate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %s", id)
 		d.SetId(id)
 	}
 

@@ -90,6 +90,19 @@ func resourceToEntitySelectorArray(resourceEntitySelectors []interface{}) []Enti
 	return result
 }
 
+func entitySelectorArrayToResource(entitySelectors []EntitySelector) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(entitySelectors))
+
+	for i, entitySelector := range entitySelectors {
+		result[i] = map[string]interface{}{
+			"entity_type": entitySelector.EntityType,
+			"expression":  entitySelector.Expression,
+		}
+	}
+
+	return result
+}
+
 func resourceToSeverityMappingValueMappingArray(resourceSeverityMappingValueMappings []interface{}) []SeverityMappingValueMapping {
 	result := make([]SeverityMappingValueMapping, len(resourceSeverityMappingValueMappings))
 
@@ -112,6 +125,29 @@ func resourceToSeverityMapping(resourceSeverityMapping interface{}) SeverityMapp
 		Default: resourceSeverityMappingMap["default"].(int),
 		Field:   resourceSeverityMappingMap["field"].(string),
 		Mapping: resourceToSeverityMappingValueMappingArray(resourceSeverityMappingMap["mapping"].([]interface{})),
+	}
+}
+
+func severityMappingValueMappingArrayToResource(severityMappingValueMappings []SeverityMappingValueMapping) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(severityMappingValueMappings))
+
+	for i, severityMappingValueMapping := range severityMappingValueMappings {
+		result[i] = map[string]interface{}{
+			"type": severityMappingValueMapping.Type,
+			"from": severityMappingValueMapping.From,
+			"to":   severityMappingValueMapping.To,
+		}
+	}
+
+	return result
+}
+
+func severityMappingToResource(severityMapping SeverityMapping) map[string]interface{} {
+	return map[string]interface{}{
+		"type":    severityMapping.Type,
+		"default": severityMapping.Default,
+		"field":   severityMapping.Field,
+		"mapping": severityMappingValueMappingArrayToResource(severityMapping.Mapping),
 	}
 }
 

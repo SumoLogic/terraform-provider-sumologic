@@ -55,8 +55,6 @@ func (s *Client) UpdateCSEThresholdRule(CSEThresholdRule CSEThresholdRule) error
 	url := fmt.Sprintf("sec/v1/rules/threshold/%s", CSEThresholdRule.ID)
 
 	CSEThresholdRule.ID = ""
-	fmt.Printf("Window Size: %s\n", CSEThresholdRule.WindowSize)
-	fmt.Printf("Window Size Name: %s\n", CSEThresholdRule.WindowSizeName)
 	request := CSEThresholdRuleRequest{
 		CSEThresholdRule: CSEThresholdRule,
 	}
