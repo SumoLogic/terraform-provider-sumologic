@@ -14,8 +14,8 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
   name = "New Log Mapping"
   product_guid = "003d35b3-3ba8-4e93-8776-e5810b4e243e"
   record_type = "Audit"
-  enabled = "true"
-  relates_entities = "true"
+  enabled = true
+  relates_entities = true
   skipped_values = ["skipped"]
   fields {
     name = "action"
@@ -24,7 +24,7 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
     skipped_values = ["-"]
     default_value = ""
     format = "JSON"
-    case_insensitive = "false"
+    case_insensitive = false
     alternate_values = ["altValue"]
     time_zone = "UTC"
     split_delimiter = ","
@@ -67,11 +67,11 @@ The following arguments are supported:
 - `value_type` - (Optional) The value type.
 - `skipped_values` - (Optional) List of skipped values.
 - `default_value` - (Optional) Default value of the field.
-- `format` - (Optional) Format of the field. ( JSON, Windows, Syslog, CEF, LEEF )
+- `format` - (Optional) Format of the field. (JSON, Windows, Syslog, CEF, LEEF )
 - `case_insensitive` - (Optional) Case insensitive flag.
 - `alternate_values` - (Optional) List of alternate values.
 - `time_zone` - (Optional) Time zone.
-- `split_delimiter` - (Optional) Split delimiter to be used. ( some example: ",", "-", "|")
+- `split_delimiter` - (Optional) Split delimiter to be used. (some example: ",", "-", "|")
 - `field_join` - (Optional) List of field join values.
 - `join_delimiter` - (Optional) Join delimiter.
 - `format_parameters` - (Optional) List of format parameters.
@@ -83,7 +83,7 @@ The following arguments are supported:
 
 ### Schema for `structured_input`
 - `event_id_pattern` - (Required) Event id pattern.
-- `log_format` - (Required) Log format. ( JSON, Windows, Syslog, CEF, LEEF )
+- `log_format` - (Required) Log format. (JSON, Windows, Syslog, CEF, LEEF )
 - `product` - (Required) Product name.
 - `vendor` - (Required) Vendor name.
 
