@@ -41,7 +41,7 @@ func dataSourceCSELogMappingVendorAndProductRead(d *schema.ResourceData, meta in
 
 	if vendorAndProduct == nil {
 		d.SetId("")
-		return fmt.Errorf("Vendor product not found, removing from state: %v - %v", id, err)
+		return fmt.Errorf("Vendor product not found, removing from state: %v", id)
 	}
 
 	d.SetId(vendorAndProduct.GUID)

@@ -28,15 +28,16 @@ type Client struct {
 var ProviderVersion string
 
 var endpoints = map[string]string{
-	"us1": "https://api.sumologic.com/api/",
-	"us2": "https://api.us2.sumologic.com/api/",
-	"fed": "https://api.fed.sumologic.com/api/",
-	"eu":  "https://api.eu.sumologic.com/api/",
-	"au":  "https://api.au.sumologic.com/api/",
-	"de":  "https://api.de.sumologic.com/api/",
-	"jp":  "https://api.jp.sumologic.com/api/",
-	"ca":  "https://api.ca.sumologic.com/api/",
-	"in":  "https://api.in.sumologic.com/api/",
+	"us1":  "https://api.sumologic.com/api/",
+	"us2":  "https://api.us2.sumologic.com/api/",
+	"fed":  "https://api.fed.sumologic.com/api/",
+	"eu":   "https://api.eu.sumologic.com/api/",
+	"au":   "https://api.au.sumologic.com/api/",
+	"de":   "https://api.de.sumologic.com/api/",
+	"jp":   "https://api.jp.sumologic.com/api/",
+	"ca":   "https://api.ca.sumologic.com/api/",
+	"in":   "https://api.in.sumologic.com/api/",
+	"nite": "https://nite-api.sumologic.net/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
