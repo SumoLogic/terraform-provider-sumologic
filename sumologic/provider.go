@@ -50,6 +50,8 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
 			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),
 			"sumologic_cse_insights_status":                resourceSumologicCSEInsightsStatus(),
+			"sumologic_cse_match_rule":                     resourceSumologicCSEMatchRule(),
+			"sumologic_cse_threshold_rule":                 resourceSumologicCSEThresholdRule(),
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_gcp_source":                         resourceSumologicGCPSource(),

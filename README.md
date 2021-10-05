@@ -48,7 +48,7 @@ $ make build
 
 In order to test the provider, you can run `make test`.
 
-For manual testing, run `make install` in the root direcory to install it as a plugin. 
+For manual testing, run `make install` in the root directory to install it as a plugin. 
 Then run `terraform init` to initialize it.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
