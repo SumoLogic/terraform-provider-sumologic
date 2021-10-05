@@ -10,8 +10,8 @@ FEATURES:
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
-* **New Resource:** sumologic_cse_match_rule (GH-285)
-* **New Resource:** sumologic_cse_threshold_rule (GH-285)
+* **New Resource:** sumologic_cse_match_rule (GH-287)
+* **New Resource:** sumologic_cse_threshold_rule (GH-287)
 
 BUG FIXES:
 
