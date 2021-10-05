@@ -62,6 +62,68 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 	})
 }
 
+func TestAccSumologicSCELogMapping_update(t *testing.T) {
+	var logMapping CSELogMapping
+	lmName := "New Log Mapping"
+	lmRecordType := "Audit"
+	lmEnabled := true
+	lmRelatesEntities := true
+	lmSkippedValue := "skipped"
+	lmProduct := "Web Gateway"
+	lmVendor := "McAfee"
+	lmLookUp := CSELogMappingLookUp{
+		Key:   "tunnel-up",
+		Value: "true",
+	}
+
+	lmField := CSELogMappingField{
+		Name:             "action",
+		Value:            "action",
+		ValueType:        "constant",
+		SkippedValues:    []string{"-"},
+		Format:           "JSON",
+		CaseInsensitive:  false,
+		AlternateValues:  []string{"altValue"},
+		TimeZone:         "UTC",
+		SplitDelimiter:   ",",
+		SplitIndex:       "index",
+		FieldJoin:        []string{"and"},
+		JoinDelimiter:    "",
+		FormatParameters: []string{"param"},
+	}
+
+	lmStructuredInputsFields :=
+		CSELogMappingStructuredInputField{
+			EventIdPattern: "vpn",
+			LogFormat:      "JSON",
+		}
+
+	uName := "Changed Name"
+	resourceName := "sumologic_cse_log_mapping.log_mapping"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSELogMappingDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSELogMappingConfig(lmName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSELogMappingExists(resourceName, &logMapping),
+					testCheckLogMappingValues(&logMapping, lmName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testCreateCSELogMappingConfig(uName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSELogMappingExists(resourceName, &logMapping),
+					testCheckLogMappingValues(&logMapping, uName, lmRecordType, lmEnabled, lmRelatesEntities, lmSkippedValue, lmField, lmLookUp, lmStructuredInputsFields, lmProduct, lmVendor),
+				),
+			},
+		},
+	})
+}
+
 func testAccCSELogMappingDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
