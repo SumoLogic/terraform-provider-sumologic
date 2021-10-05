@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestDataSourceCSELogMappingVendorProduct_basic(t *testing.T) {
+func TestAccDataSourceCSELogMappingVendorProduct_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -14,14 +14,14 @@ func TestDataSourceCSELogMappingVendorProduct_basic(t *testing.T) {
 			{
 				Config: testDataSourceSumologicCSELogMappingVendorProduct,
 				Check: resource.ComposeTestCheckFunc(
-					testDataSourceSumologicCSELogMappingVendorProductCheck("data.sumologic_cse_log_mapping_vendor_product.web_gateway"),
+					testAccDataSourceSumologicCSELogMappingVendorProductCheck("data.sumologic_cse_log_mapping_vendor_product.web_gateway"),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceSumologicCSELogMappingVendorProductCheck(name string) resource.TestCheckFunc {
+func testAccDataSourceSumologicCSELogMappingVendorProductCheck(name string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrSet(name, "product"),
 		resource.TestCheckResourceAttr(name, "product", "Web Gateway"),
