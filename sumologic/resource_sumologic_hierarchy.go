@@ -239,12 +239,15 @@ func resourceToHierarchy(d *schema.ResourceData) Hierarchy {
 	rawLevel := d.Get("level").([]interface{})[0]
 	level := getLevel(rawLevel.(map[string]interface{}))
 
-	return Hierarchy{
-		Name:   d.Get("name").(string),
-		ID:     d.Id(),
-		Filter: &filter,
-		Level:  level,
+	hierarchy := Hierarchy{}
+	hierarchy.Name = d.Get("name").(string)
+	hierarchy.ID = d.Id()
+	hierarchy.Level = level
+	if len(filter.Key) > 0 {
+		hierarchy.Filter = &filter
 	}
+
+	return hierarchy
 }
 
 func getFilter(rawFilter map[string]interface{}) HierarchyFilteringClause {

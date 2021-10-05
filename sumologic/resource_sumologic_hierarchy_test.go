@@ -78,6 +78,8 @@ func TestAccSumologicHierarchy_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testFilter.Key),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testFilter.Value),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "level.0.entity_type",
+						testLevel.EntityType),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
 						"level.0.next_levels_with_conditions.0.condition",
 						testLevel.NextLevelsWithConditions[0].Condition),
@@ -87,6 +89,86 @@ func TestAccSumologicHierarchy_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
 						"level.0.next_level.0.entity_type",
 						testLevel.NextLevel.EntityType),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicHierarchy_createAlmostEmpty(t *testing.T) {
+	var hierarchy Hierarchy
+	testName, _, testLevel := getRandomizedParamsForHierarchy()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckHierarchyDestroy(hierarchy),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicHierarchyAlmostEmpty(testName, testLevel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
+					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "level.0.entity_type",
+						testLevel.EntityType),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicHierarchy_update(t *testing.T) {
+	var hierarchy Hierarchy
+	testName, testFilter, testLevel := getRandomizedParamsForHierarchy()
+
+	testUpdatedName, testUpdatedFilter, testUpdatedLevel := getRandomizedParamsForHierarchy()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckHierarchyDestroy(hierarchy),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicHierarchy(testName, testFilter, testLevel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
+					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testFilter.Key),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testFilter.Value),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "level.0.entity_type",
+						testLevel.EntityType),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_levels_with_conditions.0.condition",
+						testLevel.NextLevelsWithConditions[0].Condition),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_levels_with_conditions.0.level.0.entity_type",
+						testLevel.NextLevelsWithConditions[0].Level.EntityType),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_level.0.entity_type",
+						testLevel.NextLevel.EntityType),
+				),
+			},
+			{
+				Config: testAccSumologicHierarchyUpdate(testUpdatedName, testUpdatedFilter, testUpdatedLevel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
+					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testUpdatedName),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testUpdatedFilter.Key),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testUpdatedFilter.Value),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "level.0.entity_type",
+						testUpdatedLevel.EntityType),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_levels_with_conditions.0.condition",
+						testUpdatedLevel.NextLevelsWithConditions[0].Condition),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_levels_with_conditions.0.level.0.entity_type",
+						testUpdatedLevel.NextLevelsWithConditions[0].Level.EntityType),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
+						"level.0.next_level.0.entity_type",
+						testUpdatedLevel.NextLevel.EntityType),
 				),
 			},
 		},
@@ -132,59 +214,6 @@ func testAccCheckHierarchyExists(name string, hierarchy *Hierarchy, t *testing.T
 		hierarchy = newHierarchy
 		return nil
 	}
-}
-
-func TestAccSumologicHierarchy_update(t *testing.T) {
-	var hierarchy Hierarchy
-	testName, testFilter, testLevel := getRandomizedParamsForHierarchy()
-
-	testUpdatedName, testUpdatedFilter, testUpdatedLevel := getRandomizedParamsForHierarchy()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHierarchyDestroy(hierarchy),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicHierarchy(testName, testFilter, testLevel),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
-					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testName),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testFilter.Key),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testFilter.Value),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_levels_with_conditions.0.condition",
-						testLevel.NextLevelsWithConditions[0].Condition),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_levels_with_conditions.0.level.0.entity_type",
-						testLevel.NextLevelsWithConditions[0].Level.EntityType),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_level.0.entity_type",
-						testLevel.NextLevel.EntityType),
-				),
-			},
-			{
-				Config: testAccSumologicHierarchyUpdate(testUpdatedName, testUpdatedFilter, testUpdatedLevel),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
-					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testUpdatedName),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testUpdatedFilter.Key),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testUpdatedFilter.Value),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_levels_with_conditions.0.condition",
-						testUpdatedLevel.NextLevelsWithConditions[0].Condition),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_levels_with_conditions.0.level.0.entity_type",
-						testUpdatedLevel.NextLevelsWithConditions[0].Level.EntityType),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test",
-						"level.0.next_level.0.entity_type",
-						testUpdatedLevel.NextLevel.EntityType),
-				),
-			},
-		},
-	})
 }
 
 func testAccCheckSumologicHierarchyConfigImported(name string, filter HierarchyFilteringClause, level Level) string {
@@ -233,6 +262,17 @@ func testAccSumologicHierarchy(name string, filter HierarchyFilteringClause, lev
         }`,
 		name, filter.Key, filter.Value, level.EntityType, level.NextLevelsWithConditions[0].Condition,
 		level.NextLevelsWithConditions[0].Level.EntityType, level.NextLevel.EntityType)
+}
+
+func testAccSumologicHierarchyAlmostEmpty(name string, level Level) string {
+	return fmt.Sprintf(`
+        resource "sumologic_hierarchy" "test" {
+            name = "%s"
+            level {
+                entity_type = "%s"
+            }
+        }`,
+		name, level.EntityType)
 }
 
 func testAccSumologicHierarchyUpdate(name string, filter HierarchyFilteringClause, level Level) string {
