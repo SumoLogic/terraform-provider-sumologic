@@ -27,7 +27,65 @@ The following arguments are supported:
 - `name` - (Required) The name of the role.
 - `description` - (Optional) The description of the role.
 - `filter_predicate` - (Optional) A search filter to restrict access to specific logs.
-- `capabilities` - (Optional) List of capabilities associated with this role.
+- `capabilities` - (Optional) List of capabilities associated with this role. Valid Values are:  
+  - Data Management:  
+    - viewCollectors
+    - manageCollectors
+    - manageBudgets
+    - manageDataVolumeFeed
+    - viewFieldExtraction
+    - manageFieldExtractionRules
+    - manageS3DataForwarding
+    - manageContent
+    - dataVolumeIndex
+    - manageConnections
+    - viewScheduledViews
+    - manageScheduledViews
+    - viewPartitions
+    - managePartitions
+    - viewFields
+    - manageFields
+    - viewAccountOverview
+    - manageTokens
+  - Entity management:
+    - manageEntityTypeConfig
+  - Metrics:
+    - metricsTransformation
+    - metricsExtraction
+    - metricsRules
+  - Security:
+    - managePasswordPolicy
+    - ipAllowlisting
+    - createAccessKeys
+    - manageAccessKeys
+    - manageSupportAccountAccess
+    - manageAuditDataFeed
+    - manageSaml
+    - shareDashboardOutsideOrg
+    - manageOrgSettings
+    - changeDataAccessLevel
+  - Dashboards:
+    - shareDashboardWorld
+    - shareDashboardAllowlist
+  - UserManagement:
+    - manageUsersAndRoles
+  - Observability:
+    - searchAuditIndex
+    - auditEventIndex
+  - Cloud SIEM Enterprise:
+    - viewCse
+  - Alerting:
+    - viewMonitorsV2
+    - manageMonitorsV2
+    - viewAlerts
+
+
+ 
+  
+
+
+
+
 
 The following attributes are exported:
 
