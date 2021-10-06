@@ -58,6 +58,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
+  playbook = "{{Name}} should be fixed in 24 hours when {{TriggerType}} is triggered."
 }
 ```
 
@@ -102,6 +103,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
+  playbook = "test playbook"
 }
 ```
 
