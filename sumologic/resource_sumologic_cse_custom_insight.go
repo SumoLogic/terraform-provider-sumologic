@@ -116,7 +116,6 @@ func resourceSumologicCSECustomInsightCreate(d *schema.ResourceData, meta interf
 		if err != nil {
 			return err
 		}
-		log.Printf("[INFO] got id: %s", id)
 		d.SetId(id)
 	}
 
