@@ -14,6 +14,7 @@ FEATURES:
 * **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
 * **New Resource:** sumologic_cse_match_rule (GH-287)
 * **New Resource:** sumologic_cse_threshold_rule (GH-287)
+* **New Resource:** sumologic_cse_custom_insight (GH-289)
 
 BUG FIXES:
 
