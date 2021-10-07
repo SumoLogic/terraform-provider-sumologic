@@ -12,6 +12,8 @@ FEATURES:
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
 * **New Resource:** sumologic_cse_log_mapping (GH-284) 
 * **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
+* **New Resource:** sumologic_cse_aggregation_rule (GH-290)
+* **New Resource:** sumologic_cse_chain_rule (GH-290)
 * **New Resource:** sumologic_cse_match_rule (GH-287)
 * **New Resource:** sumologic_cse_threshold_rule (GH-287)
 
