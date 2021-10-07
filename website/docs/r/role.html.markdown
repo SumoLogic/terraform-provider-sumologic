@@ -78,15 +78,7 @@ The following arguments are supported:
     - viewMonitorsV2
     - manageMonitorsV2
     - viewAlerts
-
-
- 
-  
-
-
-
-
-
+    
 The following attributes are exported:
 
 - `id` - The internal ID of the role.
