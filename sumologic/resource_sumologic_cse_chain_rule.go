@@ -104,7 +104,7 @@ func resourceSumologicCSEChainRuleRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", CSEChainRuleGet.Description)
 	d.Set("enabled", CSEChainRuleGet.Enabled)
 	d.Set("entity_selectors", entitySelectorArrayToResource(CSEChainRuleGet.EntitySelectors))
-	d.Set("expressions_and_limits", CSEChainRuleGet.ExpressionsAndLimits)
+	d.Set("expressions_and_limits", expressionsAndLimitsArrayToResource(CSEChainRuleGet.ExpressionsAndLimits))
 	d.Set("group_by_fields", CSEChainRuleGet.GroupByFields)
 	d.Set("is_prototype", CSEChainRuleGet.IsPrototype)
 	d.Set("ordered", CSEChainRuleGet.Ordered)
@@ -173,6 +173,19 @@ func resourceToExpressionsAndLimitsArray(resourceExpressionsAndLimits []interfac
 		result[i] = ExpressionAndLimit{
 			Expression: resourceExpressionAndLimit.(map[string]interface{})["expression"].(string),
 			Limit:      resourceExpressionAndLimit.(map[string]interface{})["limit"].(int),
+		}
+	}
+
+	return result
+}
+
+func expressionsAndLimitsArrayToResource(expressionsAndLimits []ExpressionAndLimit) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(expressionsAndLimits))
+
+	for i, expressionAndLimit := range expressionsAndLimits {
+		result[i] = map[string]interface{}{
+			"expression": expressionAndLimit.Expression,
+			"limit":      expressionAndLimit.Limit,
 		}
 	}
 

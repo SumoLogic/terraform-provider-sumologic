@@ -117,7 +117,7 @@ func resourceSumologicCSEAggregationRuleRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	d.Set("aggregation_functions", CSEAggregationRuleGet.AggregationFunctions)
+	d.Set("aggregation_functions", aggregationFunctionsArrayToResource(CSEAggregationRuleGet.AggregationFunctions))
 	d.Set("description_expression", CSEAggregationRuleGet.DescriptionExpression)
 	d.Set("enabled", CSEAggregationRuleGet.Enabled)
 	d.Set("entity_selectors", entitySelectorArrayToResource(CSEAggregationRuleGet.EntitySelectors))
@@ -199,6 +199,20 @@ func resourceToAggregationFunctionsArray(resourceAggregationFunctions []interfac
 			Name:      aggregationFunctionMap["name"].(string),
 			Function:  aggregationFunctionMap["function"].(string),
 			Arguments: resourceToStringArray(aggregationFunctionMap["arguments"].([]interface{})),
+		}
+	}
+
+	return result
+}
+
+func aggregationFunctionsArrayToResource(aggregationFunctions []AggregationFunction) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(aggregationFunctions))
+
+	for i, aggregationFunction := range aggregationFunctions {
+		result[i] = map[string]interface{}{
+			"name":      aggregationFunction.Name,
+			"function":  aggregationFunction.Function,
+			"arguments": aggregationFunction.Arguments,
 		}
 	}
 
