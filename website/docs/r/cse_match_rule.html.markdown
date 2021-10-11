@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_cse_match_rule
-Provides a Sumo Logic CSE Match Rule.
+Provides a Sumo Logic CSE [Match Rule](https://help.sumologic.com/Cloud_SIEM_Enterprise/CSE_Rules/03_Write_a_Match_Rule).
 
 ## Example Usage
 ```hcl

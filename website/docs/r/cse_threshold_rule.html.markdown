@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_cse_threshold_rule
-Provides a Sumo Logic CSE Threshold Rule.
+Provides a Sumo Logic CSE [Threshold Rule](https://help.sumologic.com/Cloud_SIEM_Enterprise/CSE_Rules/05_Write_a_Threshold_Rule).
 
 ## Example Usage
 ```hcl
@@ -50,7 +50,7 @@ The following arguments are supported:
 - `severity` - (Required) The severity of the generated Signals
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Required) The tags of the generated Signals
-- `window_size` - (Required) How long of a window to aggregate records for
+- `window_size` - (Required) How long of a window to aggregate records for. Current acceptable values are T05M, T10M, T30M, T60M, T24H, T12H, or T05D.
 
 The following attributes are exported:
 
