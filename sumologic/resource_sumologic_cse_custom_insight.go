@@ -30,8 +30,7 @@ func resourceSumologicCSECustomInsight() *schema.Resource {
 			},
 			"ordered": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Required: true,
 			},
 			"rule_ids": {
 				Type:     schema.TypeList,
@@ -43,6 +42,7 @@ func resourceSumologicCSECustomInsight() *schema.Resource {
 			"severity": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{"HIGH", "MEDIUM", "LOW"}, false),
 			},
 			"signal_names": {
 				Type:     schema.TypeList,
@@ -53,7 +53,7 @@ func resourceSumologicCSECustomInsight() *schema.Resource {
 			},
 			"tags": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -95,7 +95,6 @@ func resourceSumologicCSECustomInsightDelete(d *schema.ResourceData, meta interf
 	c := meta.(*Client)
 
 	return c.DeleteCSECustomInsight(d.Id())
-
 }
 
 func resourceSumologicCSECustomInsightCreate(d *schema.ResourceData, meta interface{}) error {

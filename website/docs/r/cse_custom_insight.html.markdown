@@ -28,10 +28,10 @@ The following arguments are supported:
 
 - `description` - (Required) The description of the generated Insights
 - `enabled` - (Required) Whether the Custom Insight should generate Insights
-- `ordered` - (Optional; defaults to false) Whether the signals matching the rule IDs/signal names must be in the same chronological order as they are listed in the Custom Insight
+- `ordered` - (Required) Whether the signals matching the rule IDs/signal names must be in the same chronological order as they are listed in the Custom Insight
 - `name` - (Required) The name of the Custom Insight and the generated Insights
 - `rule_ids` - (Optional) The Rule IDs to match to generate an Insight (exactly one of rule_ids or signal_names must be specified)
-- `severity` - (Required) The severity of the generated Insights
+- `severity` - (Required) The severity of the generated Insights (HIGH, MEDIUM, or LOW)
 - `signal_names` - (Optional) The Signal names to match to generate an Insight (exactly one of rule_ids or signal_names must be specified)
 - `tags` - (Required) The tags of the generated Insights
 
