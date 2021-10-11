@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_cse_aggregation_rule
-Provides a Sumo Logic CSE Aggregation Rule.
+Provides a Sumo Logic CSE [Aggregation Rule](https://help.sumologic.com/Cloud_SIEM_Enterprise/CSE_Rules/09_Write_an_Aggregation_Rule).
 
 ## Example Usage
 ```hcl
@@ -69,7 +69,7 @@ The following arguments are supported:
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Required) The tags of the generated Signals
 - `trigger_expression` - (Required) The expression to determine whether a Signal should be created based on the aggregation results
-- `window_size` - (Required) How long of a window to aggregate records for
+- `window_size` - (Required) How long of a window to aggregate records for. Current acceptable values are T05M, T10M, T30M, T60M, T24H, T12H, or T05D.
 
 The following attributes are exported:
 
