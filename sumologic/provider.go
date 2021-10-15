@@ -47,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cse_rule_tuning_expression":         resourceSumologicCSERuleTuningExpression(),
 			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
 			"sumologic_cse_custom_entity_type":             resourceSumologicCSECustomEntityType(),
+			"sumologic_cse_custom_insight":                 resourceSumologicCSECustomInsight(),
 			"sumologic_cse_entity_criticality_config":      resourceSumologicCSEEntityCriticalityConfig(),
 			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
 			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),

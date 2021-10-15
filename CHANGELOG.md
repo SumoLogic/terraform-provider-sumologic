@@ -16,6 +16,7 @@ FEATURES:
 * **New Resource:** sumologic_cse_chain_rule (GH-290)
 * **New Resource:** sumologic_cse_match_rule (GH-287)
 * **New Resource:** sumologic_cse_threshold_rule (GH-287)
+* **New Resource:** sumologic_cse_custom_insight (GH-289)
 
 BUG FIXES:
 
