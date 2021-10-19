@@ -1,6 +1,6 @@
-## 2.11.0 (Unreleased)
+## 2.11.1 (Unreleased)
 
-* Address missing feedback from GH-274 and GH-281 (GH-285)
+## 2.11.0 (October 19, 2021)
 
 FEATURES:
 
