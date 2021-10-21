@@ -27,7 +27,7 @@ resource "sumologic_collector" "collector" {
 ```
 
 ## Argument reference
-  * [Common Source Properties](https://github.com/SumoLogic/terraform-provider-sumologic/tree/master/website#common-source-properties)
+   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
 
 ## Attributes Reference
 The following attributes are exported:
