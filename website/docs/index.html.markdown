@@ -71,7 +71,7 @@ resource "sumologic_folder" "test" {
 }
 ```
 
-#### Common Source Properties
+## Common Source Properties
 
 The following properties are common to ALL sources and can be used to configure each source.
 
