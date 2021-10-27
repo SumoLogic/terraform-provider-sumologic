@@ -30,7 +30,6 @@ func testAccDataSourceUserCheck(email, reference string) resource.TestCheckFunc 
 		resource.TestCheckResourceAttrPair(email, "first_name", reference, "first_name"),
 		resource.TestCheckResourceAttrPair(email, "last_name", reference, "last_name"),
 		resource.TestCheckResourceAttrPair(email, "is_active", reference, "is_active"),
-		resource.TestCheckResourceAttrPair(email, "role_ids", reference, "role_ids"),
 	)
 }
 
@@ -40,7 +39,7 @@ resource "sumologic_user" "test" {
   last_name = "User"
   email = "user@example.com"
   is_active = "true"
-  role_ids = ["0123456789"]
+  role_ids = []
   transfer_to = "0123456789"
 }
 

@@ -83,12 +83,11 @@ func dataSourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error setting role ids for datasource %s: %s", d.Id(), err)
 	}
 
-	log.Printf("[DEBUG] data_source_sumologic_role: retrieved %v", user)
+	log.Printf("[DEBUG] data_source_sumologic_user: retrieved %v", user)
 	return nil
 }
 
 func (s *Client) GetUserName(email string) (*User, error) {
-	// where to check the correct api endpoint?
 	data, _, err := s.Get(fmt.Sprintf("v1/users?email=%s", url.QueryEscape(email)))
 	if err != nil {
 		return nil, err
@@ -107,7 +106,6 @@ func (s *Client) GetUserName(email string) (*User, error) {
 	return &response.User, nil
 }
 
-// Assume email is unique?
 type UserResponse struct {
 	User User `json:"user"`
 }
