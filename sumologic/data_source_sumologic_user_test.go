@@ -39,17 +39,15 @@ resource "sumologic_user" "test1" {
   last_name = "User1"
   email = "user1@example.com"
   is_active = "true"
-  role_ids = ["${sumologic_role.test.id}"]
-  transfer_to = "${sumologic_user.test2.id}"
+  role_ids = ["${sumologic_role.test_role.id}"]
+  transfer_to = ""
 }
 
-resource "sumologic_user" "test2" {
-	first_name = "Test2"
-	last_name = "User2"
-	email = "user2@example.com"
-	is_active = "true"
-	role_ids = ["${sumologic_role.test.id}"]
-	transfer_to = "${sumologic_user.test1.id}"
+resource "sumologic_role" "test_role" {
+	name = "My_Role"
+	description = "My_SumoRoleDesc"
+	filter_predicate = "_sourceCategory=Test"
+	capabilities = ["viewCollectors"]
   }
 
 data "sumologic_user" "by_email" {
