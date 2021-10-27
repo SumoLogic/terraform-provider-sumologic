@@ -41,6 +41,7 @@ resource "sumologic_user" "test" {
   email = "user@example.com"
   is_active = "true"
   role_ids = ["0123456789"]
+  transfer_to = "0123456789"
 }
 
 data "sumologic_user" "by_email" {
