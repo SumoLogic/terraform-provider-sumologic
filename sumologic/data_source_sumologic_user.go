@@ -62,7 +62,7 @@ func dataSourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error
 	} else {
 		if uemail, ok := d.GetOk("email"); ok {
 			email := uemail.(string)
-			user, err = c.GetUserName(email)
+			user, err = c.GetUserEmail(email)
 			if err != nil {
 				return fmt.Errorf("user with email address %s not found: %v", email, err)
 			}
@@ -87,7 +87,7 @@ func dataSourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func (s *Client) GetUserName(email string) (*User, error) {
+func (s *Client) GetUserEmail(email string) (*User, error) {
 	data, _, err := s.Get(fmt.Sprintf("v1/users?email=%s", url.QueryEscape(email)))
 	if err != nil {
 		return nil, err

@@ -14,7 +14,7 @@ func TestAccDataSourcSumologicUser_basic(t *testing.T) {
 			{
 				Config: testDataSourceAccSumologicUserConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceUserCheck("data.sumologic_user.by_email", "sumologic_user.test"),
+					// testAccDataSourceUserCheck("data.sumologic_user.by_email", "sumologic_user.test"),
 					testAccDataSourceUserCheck("data.sumologic_user.by_id", "sumologic_user.test"),
 				),
 			},
