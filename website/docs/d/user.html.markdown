@@ -34,3 +34,7 @@ The following attributes are exported:
 
 - `id` - The internal ID of the role. This can be used to create users having that role.
 - `email` - (Required) Email of the user.
+- `first_name` - (Required) First name of the user.
+- `last_name` - (Required) Last name of the user.
+- `is_active` - (Required) This has the value true if the user is active and false if they have been deactivated.
+- `role_ids` - (Required) List of roleIds associated with the user.
