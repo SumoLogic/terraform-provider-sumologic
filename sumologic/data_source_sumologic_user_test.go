@@ -40,7 +40,7 @@ resource "sumologic_user" "test" {
   email = "user@example.com"
   is_active = "true"
   role_ids = ["${sumologic_role.test_role.id}"]
-  transfer_to = "0123456789"
+  transfer_to = "${sumologic_user.test.id}"
 }
 
 resource "sumologic_role" "test_role" {
