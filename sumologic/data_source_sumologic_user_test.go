@@ -34,10 +34,10 @@ func testAccDataSourceUserCheck(email, reference string) resource.TestCheckFunc 
 }
 
 var testDataSourceAccSumologicUserConfig = `
-resource "sumologic_user" "test1" {
-  first_name = "Test1"
-  last_name = "User1"
-  email = "user1@example.com"
+resource "sumologic_user" "test" {
+  first_name = "Test"
+  last_name = "User"
+  email = "user@example.com"
   is_active = "true"
   role_ids = ["${sumologic_role.test_role.id}"]
   transfer_to = ""
