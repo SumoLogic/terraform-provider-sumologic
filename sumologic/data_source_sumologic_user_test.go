@@ -45,7 +45,7 @@ resource "sumologic_user" "test" {
 }
 
 data "sumologic_user" "by_email" {
-  name = "${sumologic_user.test.email}"
+  email = "${sumologic_user.test.email}"
 }
 
 data "sumologic_user" "by_id" {
