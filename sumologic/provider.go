@@ -18,17 +18,17 @@ func Provider() terraform.ResourceProvider {
 		Schema: map[string]*schema.Schema{
 			"access_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSID", nil),
 			},
 			"access_key": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSKEY", nil),
 			},
 			"auth_jwt": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_AUTHJWT", nil),
 			},
 			"environment": {
