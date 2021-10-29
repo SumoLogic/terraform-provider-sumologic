@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,8 +15,8 @@ func TestAccDataSourcSumologicUser_basic(t *testing.T) {
 			{
 				Config: testDataSourceAccSumologicUserConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceUserCheck("data.sumologic_user.by_email", "sumologic_user.test"),
-					testAccDataSourceUserCheck("data.sumologic_user.by_id", "sumologic_user.test"),
+					testAccDataSourceUserCheck("data.sumologic_user.by_id", "sumologic_user.test_user"),
+					testAccDataSourceUserCheck("data.sumologic_user.by_email", "sumologic_user.test_user"),
 				),
 			},
 		},
@@ -33,28 +34,28 @@ func testAccDataSourceUserCheck(email, reference string) resource.TestCheckFunc 
 	)
 }
 
-var testDataSourceAccSumologicUserConfig = `
-resource "sumologic_user" "test" {
+var testDataSourceAccSumologicUserConfig = fmt.Sprintf(`
+resource "sumologic_user" "test_user" {
   first_name = "Test"
   last_name = "User"
-  email = "user@example.com"
+  email = "%s"
   is_active = "true"
   role_ids = ["${sumologic_role.test_role.id}"]
   transfer_to = ""
 }
 
 resource "sumologic_role" "test_role" {
-	name = "My_Role"
+	name = "Test_role_user_data"
 	description = "My_SumoRoleDesc"
 	filter_predicate = "_sourceCategory=Test"
 	capabilities = ["viewCollectors"]
   }
 
 data "sumologic_user" "by_email" {
-  email = "${sumologic_user.test.email}"
+  email = "${sumologic_user.test_user.email}"
 }
 
 data "sumologic_user" "by_id" {
-  id = "${sumologic_user.test.id}"
+  id = "${sumologic_user.test_user.id}"
 }
-`
+`, FieldsMap["User"]["email"])

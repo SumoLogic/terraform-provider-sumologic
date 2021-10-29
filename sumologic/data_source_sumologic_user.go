@@ -20,17 +20,17 @@ func dataSourceSumologicUser() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"first_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"last_name": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"email": {
+				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"is_active": {
@@ -103,9 +103,9 @@ func (s *Client) GetUserEmail(email string) (*User, error) {
 		return nil, err
 	}
 
-	return &response.User, nil
+	return &response.User[0], nil
 }
 
 type UserResponse struct {
-	User User `json:"user"`
+	User []User `json:"data"`
 }
