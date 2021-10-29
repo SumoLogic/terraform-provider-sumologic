@@ -34,7 +34,7 @@ func dataSourceSumologicRole() *schema.Resource {
 				Computed: true,
 			},
 			"capabilities": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -83,7 +83,7 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)), false)
+	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)))
 	if err != nil {
 		return nil, err
 	}

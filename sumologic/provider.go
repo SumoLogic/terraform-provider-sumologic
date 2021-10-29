@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -42,8 +41,26 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
 			},
+			"admin_mode": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_log_mapping":                    resourceSumologicCSELogMapping(),
+			"sumologic_cse_rule_tuning_expression":         resourceSumologicCSERuleTuningExpression(),
+			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
+			"sumologic_cse_custom_entity_type":             resourceSumologicCSECustomEntityType(),
+			"sumologic_cse_custom_insight":                 resourceSumologicCSECustomInsight(),
+			"sumologic_cse_entity_criticality_config":      resourceSumologicCSEEntityCriticalityConfig(),
+			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
+			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),
+			"sumologic_cse_insights_status":                resourceSumologicCSEInsightsStatus(),
+			"sumologic_cse_aggregation_rule":               resourceSumologicCSEAggregationRule(),
+			"sumologic_cse_chain_rule":                     resourceSumologicCSEChainRule(),
+			"sumologic_cse_match_rule":                     resourceSumologicCSEMatchRule(),
+			"sumologic_cse_threshold_rule":                 resourceSumologicCSEThresholdRule(),
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
 			"sumologic_gcp_source":                         resourceSumologicGCPSource(),
@@ -80,21 +97,22 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_saml_configuration":                 resourceSumologicSamlConfiguration(),
 			"sumologic_kinesis_metrics_source":             resourceSumologicKinesisMetricsSource(),
 			"sumologic_token":                              resourceSumologicToken(),
+			"sumologic_policies":                           resourceSumologicPolicies(),
+			"sumologic_hierarchy":                          resourceSumologicHierarchy(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"sumologic_admin_recommended_folder": dataSourceSumologicAdminRecommendedFolder(),
-			"sumologic_caller_identity":          dataSourceSumologicCallerIdentity(),
-			"sumologic_collector":                dataSourceSumologicCollector(),
-			"sumologic_http_source":              dataSourceSumologicHTTPSource(),
-			"sumologic_personal_folder":          dataSourceSumologicPersonalFolder(),
-			"sumologic_my_user_id":               dataSourceSumologicMyUserId(),
-			"sumologic_role":                     dataSourceSumologicRole(),
+			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
+			"sumologic_admin_recommended_folder":       dataSourceSumologicAdminRecommendedFolder(),
+			"sumologic_caller_identity":                dataSourceSumologicCallerIdentity(),
+			"sumologic_collector":                      dataSourceSumologicCollector(),
+			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
+			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
+			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
+			"sumologic_role":                           dataSourceSumologicRole(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
 }
-
-var SumoMutexKV = mutexkv.NewMutexKV()
 
 func resolveRedirectURL(accessId string, accessKey string, authJwt string) (string, error) {
 	req, err := http.NewRequest(http.MethodHead, "https://api.sumologic.com/api/v1/collectors", nil)
@@ -128,6 +146,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	authJwt := d.Get("auth_jwt").(string)
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
+	isInAdminMode := d.Get("admin_mode").(bool)
 
 	msg := ""
 	if authJwt == "" {
@@ -177,5 +196,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		authJwt,
 		environment,
 		baseUrl,
+		isInAdminMode,
 	)
 }

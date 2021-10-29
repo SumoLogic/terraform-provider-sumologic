@@ -29,6 +29,7 @@ type PollingAuthentication struct {
 	AwsID   string `json:"awsId"`
 	AwsKey  string `json:"awsKey"`
 	RoleARN string `json:"roleARN"`
+	Region  string `json:"region,omitempty"`
 }
 
 type PollingPath struct {
@@ -58,7 +59,7 @@ func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int
 
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
 
-	body, err := s.Post(urlPath, request, false)
+	body, err := s.Post(urlPath, request)
 
 	if err != nil {
 		return -1, err
@@ -76,7 +77,7 @@ func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int
 
 func (s *Client) GetPollingSource(collectorID, sourceID int) (*PollingSource, error) {
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath, false)
+	body, _, err := s.Get(urlPath)
 
 	if err != nil {
 		return nil, err
@@ -111,7 +112,7 @@ func (s *Client) UpdatePollingSource(source PollingSource, collectorID int) erro
 		Source: source,
 	}
 
-	_, err := s.Put(url, request, false)
+	_, err := s.Put(url, request)
 
 	return err
 }

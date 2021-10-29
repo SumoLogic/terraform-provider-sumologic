@@ -17,26 +17,28 @@ type HttpClient interface {
 }
 
 type Client struct {
-	AccessID    string
-	AccessKey   string
-	AuthJwt     string
-	Environment string
-	BaseURL     *url.URL
-	httpClient  HttpClient
+	AccessID      string
+	AccessKey     string
+	AuthJwt       string
+	Environment   string
+	BaseURL       *url.URL
+	IsInAdminMode bool
+	httpClient    HttpClient
 }
 
 var ProviderVersion string
 
 var endpoints = map[string]string{
-	"us1": "https://api.sumologic.com/api/",
-	"us2": "https://api.us2.sumologic.com/api/",
-	"fed": "https://api.fed.sumologic.com/api/",
-	"eu":  "https://api.eu.sumologic.com/api/",
-	"au":  "https://api.au.sumologic.com/api/",
-	"de":  "https://api.de.sumologic.com/api/",
-	"jp":  "https://api.jp.sumologic.com/api/",
-	"ca":  "https://api.ca.sumologic.com/api/",
-	"in":  "https://api.in.sumologic.com/api/",
+	"us1":  "https://api.sumologic.com/api/",
+	"us2":  "https://api.us2.sumologic.com/api/",
+	"fed":  "https://api.fed.sumologic.com/api/",
+	"eu":   "https://api.eu.sumologic.com/api/",
+	"au":   "https://api.au.sumologic.com/api/",
+	"de":   "https://api.de.sumologic.com/api/",
+	"jp":   "https://api.jp.sumologic.com/api/",
+	"ca":   "https://api.ca.sumologic.com/api/",
+	"in":   "https://api.in.sumologic.com/api/",
+	"nite": "https://nite-api.sumologic.net/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
@@ -133,7 +135,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 	return d, resp.Header.Get("ETag"), nil
 }
 
-func (s *Client) Post(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
+func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -143,7 +145,7 @@ func (s *Client) Post(urlPath string, payload interface{}, isAdminMode bool) ([]
 		return nil, err
 	}
 
-	if isAdminMode {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -190,14 +192,11 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	return d, nil
 }
 
-func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]byte, error) {
-	SumoMutexKV.Lock(urlPath)
-	defer SumoMutexKV.Unlock(urlPath)
-
+func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	_, etag, _ := s.Get(sumoURL.String(), false)
+	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
@@ -206,7 +205,7 @@ func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]b
 	}
 	req.Header.Add("If-Match", etag)
 
-	if isAdminMode {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -229,7 +228,7 @@ func (s *Client) Put(urlPath string, payload interface{}, isAdminMode bool) ([]b
 	return d, nil
 }
 
-func (s *Client) Get(urlPath string, isAdminMode bool) ([]byte, string, error) {
+func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -238,7 +237,7 @@ func (s *Client) Get(urlPath string, isAdminMode bool) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	if isAdminMode {
+	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
 	}
 
@@ -272,6 +271,10 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
@@ -291,13 +294,14 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func NewClient(accessID, accessKey, authJwt, environment, base_url string) (*Client, error) {
+func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin bool) (*Client, error) {
 	client := Client{
-		AccessID:    accessID,
-		AccessKey:   accessKey,
-		AuthJwt:     authJwt,
-		httpClient:  http.DefaultClient,
-		Environment: environment,
+		AccessID:      accessID,
+		AccessKey:     accessKey,
+		AuthJwt:       authJwt,
+		httpClient:    http.DefaultClient,
+		Environment:   environment,
+		IsInAdminMode: admin,
 	}
 
 	if base_url == "" {
@@ -360,15 +364,16 @@ type Content struct {
 
 // Connection is used to describe a connection.
 type Connection struct {
-	ID             string    `json:"id,omitempty"`
-	Type           string    `json:"type"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description,omitempty"`
-	URL            string    `json:"url"`
-	Headers        []Headers `json:"headers,omitempty"`
-	CustomHeaders  []Headers `json:"customHeaders,omitempty"`
-	DefaultPayload string    `json:"defaultPayload"`
-	WebhookType    string    `json:"webhookType"`
+	ID                string    `json:"id,omitempty"`
+	Type              string    `json:"type"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description,omitempty"`
+	URL               string    `json:"url"`
+	Headers           []Headers `json:"headers,omitempty"`
+	CustomHeaders     []Headers `json:"customHeaders,omitempty"`
+	DefaultPayload    string    `json:"defaultPayload"`
+	WebhookType       string    `json:"webhookType"`
+	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

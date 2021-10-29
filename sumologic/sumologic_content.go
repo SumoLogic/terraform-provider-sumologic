@@ -16,7 +16,7 @@ func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) 
 	log.Printf("[DEBUG] Exporting content with id: %s", id)
 
 	// Begin the content export job
-	rawJID, err := s.Post(url, nil, false)
+	rawJID, err := s.Post(url, nil)
 	if err != nil {
 		if strings.Contains(err.Error(), "Content with the given ID does not exist.") {
 			return nil, nil
@@ -41,7 +41,7 @@ func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) 
 	// Request the results of the job
 	var content Content
 	url = fmt.Sprintf("v2/content/%s/export/%s/result", id, jid.ID)
-	rawContent, _, err := s.Get(url, false)
+	rawContent, _, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
 		},
 		Refresh: func() (interface{}, string, error) {
 			var status Status
-			b, _, err := s.Get(url, false)
+			b, _, err := s.Get(url)
 			if err != nil {
 				return nil, "", err
 			}
