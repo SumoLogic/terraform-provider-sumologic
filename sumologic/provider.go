@@ -154,7 +154,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			msg = "sumologic provider: auth_jwt is not set;"
 		}
 		if accessId == "" {
-			msg = fmt.sprintf("%s access_id should be set;", msg)
+			msg = fmt.Sprintf("%s access_id should be set;", msg)
 		}
 		if accessKey == "" {
 			msg = fmt.Sprintf("%s access_key should be set; ", msg)
@@ -164,7 +164,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			msg = "sumologic provider: auth_jwt is set;"
 		}
 		if accessId != "" {
-			msg = fmt.sprintf("%s access_id should not be set;", msg)
+			msg = fmt.Sprintf("%s access_id should not be set;", msg)
 		}
 		if accessKey != "" {
 			msg = fmt.Sprintf("%s access_key should not be set; ", msg)
