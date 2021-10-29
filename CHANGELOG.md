@@ -1,5 +1,9 @@
 ## 2.11.1 (Unreleased)
 
+FEATURES:
+
+* **New Datasource:** sumologic_user (GH-299)
+
 ## 2.11.0 (October 19, 2021)
 
 FEATURES:
