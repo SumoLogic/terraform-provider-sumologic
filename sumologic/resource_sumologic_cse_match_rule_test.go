@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
 	var matchRule CSEMatchRule
 	descriptionExpression := "Test description"
 	enabled := true

@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var ruleTuningExpression CSERuleTuningExpression
 	nName := "New Rule Tuning Name"
 	nDescription := "New Rule Tuning Description"

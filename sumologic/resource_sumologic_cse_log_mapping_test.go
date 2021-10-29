@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCELogMapping_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var logMapping CSELogMapping
 	lmName := "New Log Mapping"
 	lmRecordType := "Audit"
@@ -63,6 +65,8 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 }
 
 func TestAccSumologicSCELogMapping_update(t *testing.T) {
+	SkipCseTest(t)
+
 	var logMapping CSELogMapping
 	lmName := "New Log Mapping"
 	lmRecordType := "Audit"
@@ -187,7 +191,7 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
 			event_id_pattern = "%s"
 			log_format = "%s"
 			product = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.product}"
-			vendor = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.vendor}"	
+			vendor = "${data.sumologic_cse_log_mapping_vendor_product.web_gateway.vendor}"
 	}
 }
 

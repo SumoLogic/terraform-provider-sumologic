@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCEInsightsResolution_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var insightResolution CSEInsightsResolutionGet
 	nName := "New Insights Resolution"
 	nDescription := "New Insights Resolution Description"
