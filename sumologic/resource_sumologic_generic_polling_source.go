@@ -130,7 +130,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						},
 					},
 				},
-				"sns_topic_arn": {
+				"sns_topic_or_subscription_arn": {
 					Type:     schema.TypeList,
 					MaxItems: 1,
 					Computed: true,
@@ -269,13 +269,13 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"type":                t.Path.Type,
-			"bucket_name":         t.Path.BucketName,
-			"path_expression":     t.Path.PathExpression,
-			"limit_to_regions":    t.Path.LimitToRegions,
-			"limit_to_namespaces": t.Path.LimitToNamespaces,
-			"tag_filters":         flattenPollingTagFilters(t.Path.TagFilters),
-			"sns_topic_arn":       flattenPollingSnsTopicArn(t.Path.SnsTopicOrSubscriptionArn),
+			"type":                          t.Path.Type,
+			"bucket_name":                   t.Path.BucketName,
+			"path_expression":               t.Path.PathExpression,
+			"limit_to_regions":              t.Path.LimitToRegions,
+			"limit_to_namespaces":           t.Path.LimitToNamespaces,
+			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
+			"sns_topic_or_subscription_arn": flattenPollingSnsTopicArn(t.Path.SnsTopicOrSubscriptionArn),
 		}
 		s = append(s, mapping)
 	}
@@ -350,7 +350,7 @@ func flattenPollingSnsTopicArn(v SnsTopicArn) []map[string]interface{} {
 func getPollingSnsTopicArn(d *schema.ResourceData) SnsTopicArn {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
-	snsConfig := path["sns_topic_arn"].([]interface{})
+	snsConfig := path["sns_topic_or_subscription_arn"].([]interface{})
 	snsTopicArn := SnsTopicArn{}
 
 	if len(snsConfig) > 0 {
