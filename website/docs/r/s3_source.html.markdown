@@ -58,6 +58,7 @@ In addition to the common properties, the following arguments are supported:
      + `type` - (Required) type of polling source. This has to be `S3BucketPathExpression` for `S3 source`.
      + `bucket_name` - (Required) The name of the bucket. 
      + `path_expression` - (Required) The path to the data.
+     + `sns_topic_or_subscription_arn` - (Optional) This is a computed field for SNS topic/subscription ARN. After creating the source via terraform, you can setup [SNS subscription][3] on Sumologic UI and run the terraform apply with the `-refresh-only` flag to update the state with the actual state of the infrastructure. If SNS has been successfully configured and has received a subscription confirmation request `isSuccess` will be true.
 
 ### See also
   * [Common Source Properties](https://github.com/SumoLogic/tree/master/website#common-source-properties)
@@ -83,3 +84,4 @@ terraform import sumologic_s3_source.test my-test-collector/my-test-source
 
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
 [2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-S3-Source
+[3]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS_Sources#set-up-sns-in-aws-highly-recommended
