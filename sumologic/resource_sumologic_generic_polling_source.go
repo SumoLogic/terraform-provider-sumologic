@@ -132,7 +132,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				},
 				"sns_topic_or_subscription_arn": {
 					Type:     schema.TypeList,
-					MaxItems: 1,
 					Computed: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
