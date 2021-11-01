@@ -275,7 +275,7 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"limit_to_regions":              t.Path.LimitToRegions,
 			"limit_to_namespaces":           t.Path.LimitToNamespaces,
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
-			"sns_topic_or_subscription_arn": flattenPollingSnsTopicArn(t.Path.SnsTopicOrSubscriptionArn),
+			"sns_topic_or_subscription_arn": flattenPollingSnsSubscriptionOrTopicArn(t.Path.SnsTopicOrSubscriptionArn),
 		}
 		s = append(s, mapping)
 	}
@@ -337,30 +337,30 @@ func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	return filters
 }
 
-func flattenPollingSnsTopicArn(v SnsTopicArn) []map[string]interface{} {
-	var snsTopicArn []map[string]interface{}
+func flattenPollingSnsSubscriptionOrTopicArn(v SnsSubscriptionOrTopicArn) []map[string]interface{} {
+	var snsSubscriptionOrTopicArn []map[string]interface{}
 	snsTopic := map[string]interface{}{
 		"is_success": v.IsSuccess,
 		"arn":        v.Arn,
 	}
-	snsTopicArn = append(snsTopicArn, snsTopic)
-	return snsTopicArn
+	snsSubscriptionOrTopicArn = append(snsSubscriptionOrTopicArn, snsTopic)
+	return snsSubscriptionOrTopicArn
 }
 
-func getPollingSnsTopicArn(d *schema.ResourceData) SnsTopicArn {
+func getPollingSnsSubscriptionOrTopicArn(d *schema.ResourceData) SnsSubscriptionOrTopicArn {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	snsConfig := path["sns_topic_or_subscription_arn"].([]interface{})
-	snsTopicArn := SnsTopicArn{}
+	snsSubscriptionOrTopicArn := SnsSubscriptionOrTopicArn{}
 
 	if len(snsConfig) > 0 {
 		for _, rawConfig := range snsConfig {
 			config := rawConfig.(map[string]interface{})
-			snsTopicArn.IsSuccess = config["is_success"].(bool)
-			snsTopicArn.Arn = config["arn"].(string)
+			snsSubscriptionOrTopicArn.IsSuccess = config["is_success"].(bool)
+			snsSubscriptionOrTopicArn.Arn = config["arn"].(string)
 		}
 	}
-	return snsTopicArn
+	return snsSubscriptionOrTopicArn
 }
 
 func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
@@ -408,7 +408,7 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicArn(d)
+			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsSubscriptionOrTopicArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
