@@ -33,13 +33,13 @@ type PollingAuthentication struct {
 }
 
 type PollingPath struct {
-	Type                      string                    `json:"type"`
-	BucketName                string                    `json:"bucketName,omitempty"`
-	PathExpression            string                    `json:"pathExpression,omitempty"`
-	LimitToRegions            []string                  `json:"limitToRegions,omitempty"`
-	LimitToNamespaces         []string                  `json:"limitToNamespaces,omitempty"`
-	TagFilters                []TagFilter               `json:"tagFilters,omitempty"`
-	SnsTopicOrSubscriptionArn SnsSubscriptionOrTopicArn `json:"snsTopicOrSubscriptionArn,omitempty"`
+	Type                      string                           `json:"type"`
+	BucketName                string                           `json:"bucketName,omitempty"`
+	PathExpression            string                           `json:"pathExpression,omitempty"`
+	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
+	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
+	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
+	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 }
 
 type TagFilter struct {
@@ -48,7 +48,7 @@ type TagFilter struct {
 	Tags      []string `json:"tags"`
 }
 
-type SnsSubscriptionOrTopicArn struct {
+type PollingSnsTopicOrSubscriptionArn struct {
 	IsSuccess bool   `json:"isSuccess"`
 	Arn       string `json:"arn"`
 }
