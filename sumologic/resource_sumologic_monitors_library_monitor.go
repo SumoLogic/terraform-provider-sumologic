@@ -941,11 +941,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
-			// Issue 297: Do not set parent block's occurrence_type from resolution triggers.
-			// Resolution triggers have either the same occurrence_type as their alert counterparts,
-			// or, in case of MetricsStaticCondition, are always set to "Always".
-			// In either case, the parent's occurrence_type will be set when visiting the alert trigger.
-			// criticalDict["occurrence_type"] = condition.OccurrenceType
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 		case "Warning":
@@ -957,11 +952,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
-			// Issue 297: Do not set parent block's occurrence_type from resolution triggers.
-			// Resolution triggers have either the same occurrence_type as their alert counterparts,
-			// or, in case of MetricsStaticCondition, are always set to "Always".
-			// In either case, the parent's occurrence_type will be set when visiting the alert trigger.
-			// warningDict["occurrence_type"] = condition.OccurrenceType
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 		}
