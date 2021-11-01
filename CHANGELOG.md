@@ -1,5 +1,9 @@
 ## 2.11.1 (Unreleased)
 
+BUG FIXES:
+ 
+* Fix occurrence_type for metrics resolution conditions (GH-297)
+
 ## 2.11.0 (October 19, 2021)
 
 FEATURES:
