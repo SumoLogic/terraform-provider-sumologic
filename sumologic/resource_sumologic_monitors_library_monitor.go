@@ -765,7 +765,13 @@ func metricsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCo
 	base := TriggerCondition{
 		DetectionMethod: metricsStaticConditionDetectionMethod,
 	}
-	return base.cloneReadingFromNestedBlocks(block)
+	triggerConditions := base.cloneReadingFromNestedBlocks(block)
+	for i, _ := range triggerConditions {
+		if triggerConditions[i].TriggerType == "ResolvedCritical" || triggerConditions[i].TriggerType == "ResolvedWarning" {
+			triggerConditions[i].OccurrenceType = "Always"
+		}
+	}
+	return triggerConditions
 }
 
 func logsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
@@ -935,7 +941,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
-			criticalDict["occurrence_type"] = condition.OccurrenceType
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 		case "Warning":
@@ -947,7 +952,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
-			warningDict["occurrence_type"] = condition.OccurrenceType
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 		}

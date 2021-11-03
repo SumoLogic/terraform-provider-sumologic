@@ -617,7 +617,23 @@ var exampleLogsStaticTriggerConditionBlock = `
      field = "field"
    }`
 
-var exampleMetricsStaticTriggerConditionBlock = `
+var exampleMetricsStaticTriggerConditionBlock1 = `
+   metrics_static_condition {
+     critical {
+       time_range = "30m"
+       occurrence_type = "AtLeastOnce"
+       alert {
+         threshold = 100.0
+         threshold_type = "GreaterThan"
+       }
+       resolution {
+         threshold = 90
+         threshold_type = "LessThanOrEqual"
+       }
+     }
+   }`
+
+var exampleMetricsStaticTriggerConditionBlock2 = `
    metrics_static_condition {
      critical {
        time_range = "30m"
@@ -670,10 +686,16 @@ func exampleLogsStaticMonitor(testName string) string {
 		exampleLogsStaticTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
 }
 
-func exampleMetricsStaticMonitor(testName string) string {
+func exampleMetricsStaticMonitor1(testName string) string {
 	query := "error _sourceCategory=category"
 	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
-		exampleMetricsStaticTriggerConditionBlock, []string{"Critical", "ResolvedCritical"})
+		exampleMetricsStaticTriggerConditionBlock1, []string{"Critical", "ResolvedCritical"})
+}
+
+func exampleMetricsStaticMonitor2(testName string) string {
+	query := "error _sourceCategory=category"
+	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
+		exampleMetricsStaticTriggerConditionBlock2, []string{"Critical", "ResolvedCritical"})
 }
 
 func exampleLogsOutlierMonitor(testName string) string {
@@ -702,7 +724,8 @@ func exampleMetricsMissingDataMonitor(testName string) string {
 
 var allExampleMonitors = []func(testName string) string{
 	exampleLogsStaticMonitor,
-	exampleMetricsStaticMonitor,
+	exampleMetricsStaticMonitor1,
+	exampleMetricsStaticMonitor2,
 	exampleLogsOutlierMonitor,
 	exampleMetricsOutlierMonitor,
 	exampleLogsMissingDataMonitor,
