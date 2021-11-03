@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
 	var CustomInsight CSECustomInsight
 	description := "Test description"
 	enabled := true

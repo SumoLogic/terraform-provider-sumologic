@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
 	var thresholdRule CSEThresholdRule
 	countDistinct := true
 	countField := "dstDevice_hostname"
