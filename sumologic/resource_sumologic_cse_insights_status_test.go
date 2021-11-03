@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCEInsightsStatus_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var insightStatus CSEInsightsStatusGet
 	nName := "New Test Status"
 	nDescription := "New Test Status Description"

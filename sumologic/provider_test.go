@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -26,6 +27,12 @@ func TestProvider(t *testing.T) {
 
 func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
+}
+
+func SkipCseTest(t *testing.T) {
+	if strings.ToLower(os.Getenv("SKIP_CSE_TESTS")) == "true" {
+		t.Skip("Skipping CSE Test")
+	}
 }
 
 func testAccPreCheck(t *testing.T) {

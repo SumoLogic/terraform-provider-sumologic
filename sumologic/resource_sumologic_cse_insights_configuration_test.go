@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCEInsightsConfiguration_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var insightConfiguration CSEInsightsConfiguration
 	nLookbackDays := 10.0
 	nThreshold := 13.0
