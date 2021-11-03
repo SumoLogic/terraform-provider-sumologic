@@ -107,7 +107,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"time_range": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+							ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 						},
 						"trigger_source": {
 							Type:         schema.TypeString,
@@ -463,7 +463,7 @@ var consecutiveSchema = schema.Schema{
 var timeRangeSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Required:     true,
-	ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 }
 
 var thresholdSchema = schema.Schema{
