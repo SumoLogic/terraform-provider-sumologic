@@ -19,6 +19,13 @@ on:
   # change.
   schedule:
     - cron: '0 13 * * *'
+
+# From https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
+# When a concurrent job or workflow is queued, if another job or workflow using the same
+# concurrency group in the repository is in progress, the queued job or workflow will be pending.
+# Any previously pending job or workflow in the concurrency group will be canceled.
+concurrency: "TfAccTests"
+
 jobs:
   # ensure the code builds...
   build:
