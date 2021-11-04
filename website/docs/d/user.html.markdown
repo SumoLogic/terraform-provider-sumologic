@@ -5,21 +5,20 @@ description: |-
 Provides a way to retrieve Sumo Logic user details (id, email, etc) for a user managed outside of terraform.
 ---
 
-# sumologic_role
+# sumologic_user
 
-Provides a way to retrieve Sumo Logic user details (id, email, etc) for a user
-managed by another terraform stack.
+Provides a way to retrieve Sumo Logic user details (id, email, etc) for a user managed outside of terraform.
 
 
 ## Example Usage
 ```hcl
-data "sumologic_role" "this" {
+data "sumologic_user" "this" {
   id = "1234567890"
 }
 ```
 
 ```hcl
-data "sumologic_role" "that" {
+data "sumologic_user" "that" {
   email = "user@example.com"
 }
 ```
@@ -32,7 +31,7 @@ If both `id` and `email` have been specified, `id` takes precedence.
 
 The following attributes are exported:
 
-- `id` - The internal ID of the role. This can be used to create users having that role.
+- `id` - The internal ID of the user.
 - `email` - (Required) Email of the user.
 - `first_name` - (Required) First name of the user.
 - `last_name` - (Required) Last name of the user.
