@@ -43,7 +43,7 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "NoAuthentication"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -70,7 +70,7 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"KinesisLogPath"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"KinesisLogPath", "NoPathExpression"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -206,9 +206,13 @@ func getKinesisLogPathSettings(d *schema.ResourceData) (KinesisLogPath, error) {
 		    pathSettings.BucketName = path["bucket_name"].(string)
 		    pathSettings.PathExpression = path["path_expression"].(string)
 		    pathSettings.ScanInterval = path["scan_interval"].(int)
-		case "NoPathExpression"
+		case "NoPathExpression":
+		    pathSettings.Type = pathType
+		default:
+			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
+			log.Print(errorMessage)
+			return pathSettings, errors.New(errorMessage)
 		}
-
 	} else {
 		return pathSettings, errors.New(fmt.Sprintf("[ERROR] no path specification in kinesis log Soruce"))
 	}
@@ -223,10 +227,6 @@ func getKinesisLogAuthentication(d *schema.ResourceData) (PollingAuthentication,
 		auth := auths[0].(map[string]interface{})
 		switch authType := auth["type"].(string); authType {
 		case "S3BucketAuthentication":
-			if d.Get("content_type").(string) == "AwsInventory" {
-				return authSettings, errors.New(
-					fmt.Sprintf("[ERROR] Unsupported authType: %v for AwsInventory source", authType))
-			}
 			authSettings.Type = "S3BucketAuthentication"
 			authSettings.AwsID = auth["access_key"].(string)
 			authSettings.AwsKey = auth["secret_key"].(string)

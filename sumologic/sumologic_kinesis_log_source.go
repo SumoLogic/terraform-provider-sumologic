@@ -18,8 +18,8 @@ type KinesisLogThirdPartyRef struct {
 
 type KinesisLogResource struct {
 	ServiceType    string                   `json:"serviceType"`
-	Authentication *PollingAuthentication   `json:"authentication,omitempty"`
-	Path           *KinesisLogPath          `json:"path,omitempty"`
+	Authentication PollingAuthentication   `json:"authentication,omitempty"`
+	Path           KinesisLogPath          `json:"path,omitempty"`
 }
 
 type KinesisLogPath struct {
