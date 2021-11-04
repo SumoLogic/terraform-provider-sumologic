@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicCSEChainRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
 	var ChainRule CSEChainRule
 	description := "Test description"
 	enabled := true

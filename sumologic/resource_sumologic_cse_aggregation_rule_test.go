@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicCSEAggregationRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
 	var AggregationRule CSEAggregationRule
 	aggregationFunctionName := "distinct_eventid_count"
 	aggregationFunction := "count_distinct"

@@ -73,6 +73,22 @@ type Role struct {
 	FilterPredicate string `json:"filterPredicate"`
 	// List of user identifiers to assign the role to.
 	Users []string `json:"users"`
-	// List of [capabilities](https://help.sumologic.com/Manage/Users-and-Roles/Manage-Roles/Role-Capabilities) associated with this role. Valid values are   ### Connections   - manageConnections   ### Collectors   - manageCollectors   - viewCollectors   ### Dashboards   - shareDashboardWhitelist   - shareDashboardWorld   ### Data Management   - manageContent   - manageDataVolumeFeed   - manageFieldExtractionRules   - manageIndexes   - manageS3DataForwarding   ### Metrics   - manageMonitors   - metricsExtraction   ### Security   - ipWhitelisting   - manageAccessKeys   - manageAuditDataFeed   - managePasswordPolicy   - manageSaml   - manageSupportAccountAccess   - manageUsersAndRoles   - shareDashboardOutsideOrg
+	// List of [capabilities](https://help.sumologic.com/Manage/Users-and-Roles/Manage-Roles/Role-Capabilities)
+	// associated with this role. Valid values are:
+	// ### Data Management     - viewCollectors     - manageCollectors     - manageBudgets     - manageDataVolumeFeed
+	//  - viewFieldExtraction     - manageFieldExtractionRules     - manageS3DataForwarding     - manageContent
+	//  - dataVolumeIndex     - manageConnections     - viewScheduledViews     - manageScheduledViews
+	//  - viewPartitions     - managePartitions     - viewFields     - manageFields     - viewAccountOverview
+	//  - manageTokens
+	// ### Entity management     - manageEntityTypeConfig
+	// ### Metrics     - metricsTransformation     - metricsExtraction     - metricsRules
+	// ### Security     - managePasswordPolicy     - ipAllowlisting     - createAccessKeys     - manageAccessKeys
+	//  - manageSupportAccountAccess     - manageAuditDataFeed     - manageSaml     - shareDashboardOutsideOrg
+	//  - manageOrgSettings     - changeDataAccessLevel
+	// ### Dashboards     - shareDashboardWorld     - shareDashboardAllowlist
+	// ### UserManagement     - manageUsersAndRoles
+	// ### Observability     - searchAuditIndex     - auditEventIndex
+	// ### Cloud SIEM Enterprise     - viewCse
+	// ### Alerting     - viewMonitorsV2     - manageMonitorsV2     - viewAlerts
 	Capabilities []string `json:"capabilities"`
 }

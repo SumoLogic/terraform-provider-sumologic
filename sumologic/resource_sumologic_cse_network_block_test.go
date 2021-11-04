@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCENetworkBlock_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var networkBlock CSENetworkBlock
 	nAddressBlock := "10.0.1.0/26"
 	nLabel := "network block test"

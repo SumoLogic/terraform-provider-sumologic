@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCECustomEntityType_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var customEntityType CSECustomEntityType
 	nName := "New Custom Entity Type"
 	nIdentifier := "identifier"
@@ -32,6 +34,8 @@ func TestAccSumologicSCECustomEntityType_create(t *testing.T) {
 }
 
 func TestAccSumologicSCECustomEntityType_update(t *testing.T) {
+	SkipCseTest(t)
+
 	var customEntityType CSECustomEntityType
 	nName := "New Custom Entity Type"
 	nIdentifier := "identifier"

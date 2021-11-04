@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccSumologicSCEEntityCriticalityConfig_create(t *testing.T) {
+	SkipCseTest(t)
+
 	var entityCriticalityConfig CSEEntityCriticalityConfig
 	nName := "New Entity Criticality"
 	nSeverityExpression := "severity + 2"
@@ -31,6 +33,8 @@ func TestAccSumologicSCEEntityCriticalityConfig_create(t *testing.T) {
 }
 
 func TestAccSumologicSCEEntityCriticalityConfig_update(t *testing.T) {
+	SkipCseTest(t)
+
 	var entityCriticalityConfig CSEEntityCriticalityConfig
 	nName := "New Entity Criticality"
 	nSeverityExpression := "severity + 2"

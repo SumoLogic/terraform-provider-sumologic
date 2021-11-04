@@ -2,7 +2,7 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_role"
 description: |-
-  Provides a way to retrieve Sumo Logic role details (id, names, etc) for a role managed by another terraform stack.
+  Provides a way to retrieve Sumo Logic role details (id, names, etc) for a role managed outside of terraform.
 ---
 
 # sumologic_role

@@ -33,18 +33,24 @@ type PollingAuthentication struct {
 }
 
 type PollingPath struct {
-	Type              string      `json:"type"`
-	BucketName        string      `json:"bucketName,omitempty"`
-	PathExpression    string      `json:"pathExpression,omitempty"`
-	LimitToRegions    []string    `json:"limitToRegions,omitempty"`
-	LimitToNamespaces []string    `json:"limitToNamespaces,omitempty"`
-	TagFilters        []TagFilter `json:"tagFilters,omitempty"`
+	Type                      string                           `json:"type"`
+	BucketName                string                           `json:"bucketName,omitempty"`
+	PathExpression            string                           `json:"pathExpression,omitempty"`
+	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
+	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
+	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
+	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 }
 
 type TagFilter struct {
 	Type      string   `json:"type"`
 	Namespace string   `json:"namespace"`
 	Tags      []string `json:"tags"`
+}
+
+type PollingSnsTopicOrSubscriptionArn struct {
+	IsSuccess bool   `json:"isSuccess"`
+	Arn       string `json:"arn"`
 }
 
 func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int, error) {

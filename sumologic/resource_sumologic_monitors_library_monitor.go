@@ -107,7 +107,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"time_range": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+							ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 						},
 						"trigger_source": {
 							Type:         schema.TypeString,
@@ -463,7 +463,7 @@ var consecutiveSchema = schema.Schema{
 var timeRangeSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Required:     true,
-	ValidateFunc: validation.StringInSlice([]string{"5m", "-5m", "10m", "-10m", "15m", "-15m", "30m", "-30m", "60m", "-60m", "1h", "-1h", "3h", "-3h", "6h", "-6h", "12h", "-12h", "24h", "-24h", "1d", "-1d"}, false),
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 }
 
 var thresholdSchema = schema.Schema{
@@ -765,7 +765,13 @@ func metricsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCo
 	base := TriggerCondition{
 		DetectionMethod: metricsStaticConditionDetectionMethod,
 	}
-	return base.cloneReadingFromNestedBlocks(block)
+	triggerConditions := base.cloneReadingFromNestedBlocks(block)
+	for i, _ := range triggerConditions {
+		if triggerConditions[i].TriggerType == "ResolvedCritical" || triggerConditions[i].TriggerType == "ResolvedWarning" {
+			triggerConditions[i].OccurrenceType = "Always"
+		}
+	}
+	return triggerConditions
 }
 
 func logsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
@@ -935,7 +941,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
-			criticalDict["occurrence_type"] = condition.OccurrenceType
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 		case "Warning":
@@ -947,7 +952,6 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
-			warningDict["occurrence_type"] = condition.OccurrenceType
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 		}

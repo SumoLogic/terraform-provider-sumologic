@@ -2,7 +2,7 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_user"
 description: |-
-Provides a way to retrieve Sumo Logic user details (id, email, etc) for a user managed by another terraform stack.
+Provides a way to retrieve Sumo Logic user details (id, email, etc) for a user managed outside of terraform.
 ---
 
 # sumologic_role
