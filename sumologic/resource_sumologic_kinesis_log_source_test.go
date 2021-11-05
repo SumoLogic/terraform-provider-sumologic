@@ -170,12 +170,9 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
 	  }
 	path {
 		type = "KinesisLogPath"
-		path {
-			type            = "TagFilters"
-		    bucket_name     = "%s"
-		    path_expression = "*"
-		    scan_interval   = 30000
-		}
+        bucket_name     = "%s"
+        path_expression = "*"
+        scan_interval   = 30000
 	  }
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
