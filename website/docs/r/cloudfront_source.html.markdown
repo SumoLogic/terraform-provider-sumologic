@@ -58,11 +58,9 @@ In addition to the common properties, the following arguments are supported:
      + `type` - (Required) type of polling source. This has to be `S3BucketPathExpression` for `CloudFront` source.
      + `bucket_name` - (Required) The name of the bucket. This is needed if using type `S3BucketPathExpression`. 
      + `path_expression` - (Required) The path to the data. This is needed if using type `S3BucketPathExpression`.
-     + `sns_topic_or_subscription_arn` - (Computed) This is a computed field for SNS topic/subscription ARN.
 
 ### See also
    * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
-   * [Configuring SNS Subscription](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#configuring-sns-subscription)
 
 ## Attributes Reference
 The following attributes are exported:
