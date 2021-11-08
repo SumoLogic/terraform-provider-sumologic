@@ -130,22 +130,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						},
 					},
 				},
-				"sns_topic_or_subscription_arn": {
-					Type:     schema.TypeList,
-					Computed: true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"is_success": {
-								Type:     schema.TypeBool,
-								Computed: true,
-							},
-							"arn": {
-								Type:     schema.TypeString,
-								Computed: true,
-							},
-						},
-					},
-				},
 			},
 		},
 	}
@@ -268,13 +252,12 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"type":                          t.Path.Type,
-			"bucket_name":                   t.Path.BucketName,
-			"path_expression":               t.Path.PathExpression,
-			"limit_to_regions":              t.Path.LimitToRegions,
-			"limit_to_namespaces":           t.Path.LimitToNamespaces,
-			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
-			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
+			"type":                t.Path.Type,
+			"bucket_name":         t.Path.BucketName,
+			"path_expression":     t.Path.PathExpression,
+			"limit_to_regions":    t.Path.LimitToRegions,
+			"limit_to_namespaces": t.Path.LimitToNamespaces,
+			"tag_filters":         flattenPollingTagFilters(t.Path.TagFilters),
 		}
 		s = append(s, mapping)
 	}
@@ -336,32 +319,6 @@ func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	return filters
 }
 
-func flattenPollingSnsTopicOrSubscriptionArn(v PollingSnsTopicOrSubscriptionArn) []map[string]interface{} {
-	var snsTopicOrSubscriptionArn []map[string]interface{}
-	snsTopic := map[string]interface{}{
-		"is_success": v.IsSuccess,
-		"arn":        v.Arn,
-	}
-	snsTopicOrSubscriptionArn = append(snsTopicOrSubscriptionArn, snsTopic)
-	return snsTopicOrSubscriptionArn
-}
-
-func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) PollingSnsTopicOrSubscriptionArn {
-	paths := d.Get("path").([]interface{})
-	path := paths[0].(map[string]interface{})
-	snsConfig := path["sns_topic_or_subscription_arn"].([]interface{})
-	snsTopicOrSubscriptionArn := PollingSnsTopicOrSubscriptionArn{}
-
-	if len(snsConfig) > 0 {
-		for _, rawConfig := range snsConfig {
-			config := rawConfig.(map[string]interface{})
-			snsTopicOrSubscriptionArn.IsSuccess = config["is_success"].(bool)
-			snsTopicOrSubscriptionArn.Arn = config["arn"].(string)
-		}
-	}
-	return snsTopicOrSubscriptionArn
-}
-
 func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
 	auths := d.Get("authentication").([]interface{})
 	authSettings := PollingAuthentication{}
@@ -407,7 +364,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})

@@ -130,20 +130,4 @@ The following properties are common to ALL sources and can be used to configure 
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
 - `fields` - (Optional) Map containing key/value pairs.
 
-## Configuring SNS Subscription
-This is supported in the following resources.
- - `sumologic_cloudfront_source`
- - `sumologic_cloudtrail_source`
- - `sumologic_elb_source`
- - `sumologic_s3_audit_source`
- - `sumologic_s3_source`
-
-Steps to configure SNS subscription and sync the state in terrform:
-     - Step 1: Create the source via terraform.
-     - Step 2: Setup [SNS subscription][3] outside of terraform on Sumologic UI.
-     - Step 3: Run `terraform plan -refresh-only` to review the changes and verify the state with the SNS subscription information. Make sure only `sns_topic_or_subscription_arn` is updated. If SNS has been successfully configured and has received a subscription confirmation request `isSuccess` parameter will be true.
-     - Step 4: Apply the changes with `terraform apply -refresh-only`.
-
 [2]: https://en.wikipedia.org/wiki/Tz_database
-[3]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS_Sources#set-up-sns-in-aws-highly-recommended
-
