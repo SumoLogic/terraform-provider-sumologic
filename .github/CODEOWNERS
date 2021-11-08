@@ -3,9 +3,9 @@
 
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
-# @seansain, @sumovishal, @emichaeli will be requested for
+# @sumovishal, @emichaeli will be requested for
 # review when someone opens a pull request.
-*       @seansain @sumovishal @emichaeli
+*       @sumovishal @emichaeli
 
 # Code owners for collection sources
 /sumologic/*_source.go        @maimaisie @vsinghal13
