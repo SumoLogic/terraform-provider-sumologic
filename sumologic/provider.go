@@ -18,18 +18,13 @@ func Provider() terraform.ResourceProvider {
 		Schema: map[string]*schema.Schema{
 			"access_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSID", nil),
 			},
 			"access_key": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ACCESSKEY", nil),
-			},
-			"auth_jwt": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_AUTHJWT", nil),
 			},
 			"environment": {
 				Type:        schema.TypeString,
@@ -143,7 +138,7 @@ func resolveRedirectURL(accessId string, accessKey string, authJwt string) (stri
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessId := d.Get("access_id").(string)
 	accessKey := d.Get("access_key").(string)
-	authJwt := d.Get("auth_jwt").(string)
+	authJwt := os.Getenv("SUMOLOGIC_AUTHJWT")
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
 	isInAdminMode := d.Get("admin_mode").(bool)
@@ -151,23 +146,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	msg := ""
 	if authJwt == "" {
 		if accessId == "" || accessKey == "" {
-			msg = "sumologic provider: auth_jwt is not set;"
+			msg = "sumologic provider: "
 		}
 		if accessId == "" {
 			msg = fmt.Sprintf("%s access_id should be set;", msg)
 		}
 		if accessKey == "" {
 			msg = fmt.Sprintf("%s access_key should be set; ", msg)
-		}
-	} else {
-		if accessId != "" || accessKey != "" {
-			msg = "sumologic provider: auth_jwt is set;"
-		}
-		if accessId != "" {
-			msg = fmt.Sprintf("%s access_id should not be set;", msg)
-		}
-		if accessKey != "" {
-			msg = fmt.Sprintf("%s access_key should not be set; ", msg)
 		}
 	}
 
