@@ -7,6 +7,8 @@ import (
 )
 
 func TestAccDataSourceCSELogMappingVendorProduct_basic(t *testing.T) {
+	SkipCseTest(t)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
