@@ -1,5 +1,8 @@
-## 2.12.0 (Unreleased)
+## 2.11.2 (November 11, 2021)
 
+FEATURES:
+
+* Add support for SNS subscription in polling sources (GH-311)
 
 ## 2.11.1 (November 8, 2021)
 
