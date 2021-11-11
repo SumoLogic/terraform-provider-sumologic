@@ -19,6 +19,7 @@ type HttpClient interface {
 type Client struct {
 	AccessID      string
 	AccessKey     string
+	AuthJwt       string
 	Environment   string
 	BaseURL       *url.URL
 	IsInAdminMode bool
@@ -42,14 +43,18 @@ var endpoints = map[string]string{
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
 
-func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string) (*http.Request, error) {
+func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string, authJwt string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/"+ProviderVersion)
-	req.SetBasicAuth(accessID, accessKey)
+	if authJwt == "" {
+		req.SetBasicAuth(accessID, accessKey)
+	} else {
+		req.Header.Add("Authorization", "Bearer "+authJwt)
+	}
 	return req, nil
 }
 
@@ -66,7 +71,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 		return nil, nil, err
 	}
 
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,7 +105,7 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, "", err
 	}
@@ -135,7 +140,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +171,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)), s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +199,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
-	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +232,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, "", err
 	}
@@ -261,7 +266,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
-	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey)
+	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
 	}
@@ -289,10 +294,11 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func NewClient(accessID, accessKey, environment, base_url string, admin bool) (*Client, error) {
+func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin bool) (*Client, error) {
 	client := Client{
 		AccessID:      accessID,
 		AccessKey:     accessKey,
+		AuthJwt:       authJwt,
 		httpClient:    http.DefaultClient,
 		Environment:   environment,
 		IsInAdminMode: admin,

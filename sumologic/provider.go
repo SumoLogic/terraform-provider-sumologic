@@ -110,12 +110,16 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
-func resolveRedirectURL(accessId string, accessKey string) (string, error) {
+func resolveRedirectURL(accessId string, accessKey string, authJwt string) (string, error) {
 	req, err := http.NewRequest(http.MethodHead, "https://api.sumologic.com/api/v1/collectors", nil)
 	if err != nil {
 		return "", err
 	}
-	req.SetBasicAuth(accessId, accessKey)
+	if authJwt == "" {
+		req.SetBasicAuth(accessId, accessKey)
+	} else {
+		req.Header.Add("Authorization", "Bearer "+authJwt)
+	}
 	client := &http.Client{CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}}
@@ -135,22 +139,27 @@ func resolveRedirectURL(accessId string, accessKey string) (string, error) {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessId := d.Get("access_id").(string)
 	accessKey := d.Get("access_key").(string)
+	authJwt := os.Getenv("SUMOLOGIC_AUTHJWT")
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
 	isInAdminMode := d.Get("admin_mode").(bool)
 
 	msg := ""
-	if accessId == "" {
-		msg = "sumologic provider: access_id should be set;"
-	}
-
-	if accessKey == "" {
-		msg = fmt.Sprintf("%s access_key should be set; ", msg)
+	if authJwt == "" {
+		if accessId == "" || accessKey == "" {
+			msg = "sumologic provider: "
+		}
+		if accessId == "" {
+			msg = fmt.Sprintf("%s access_id should be set;", msg)
+		}
+		if accessKey == "" {
+			msg = fmt.Sprintf("%s access_key should be set; ", msg)
+		}
 	}
 
 	if environment == "" && baseUrl == "" {
 		log.Printf("Attempting to resolve redirection URL from access key/id")
-		url, err := resolveRedirectURL(accessId, accessKey)
+		url, err := resolveRedirectURL(accessId, accessKey, authJwt)
 		if err != nil {
 			log.Printf("[WARN] Unable to resolve redirection URL, %s", err)
 			environment = "us2"
@@ -170,6 +179,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	return NewClient(
 		accessId,
 		accessKey,
+		authJwt,
 		environment,
 		baseUrl,
 		isInAdminMode,
