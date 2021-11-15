@@ -61,7 +61,7 @@ In addition to the common properties, the following arguments are supported:
      + `sns_topic_or_subscription_arn` - (Computed) This is a computed field for SNS topic/subscription ARN.
 
 ### See also
-  * [Common Source Properties](https://github.com/SumoLogic/tree/master/website#common-source-properties)
+  * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
   * [Configuring SNS Subscription](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#configuring-sns-subscription)
 
 ## Attributes Reference
