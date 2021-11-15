@@ -48,7 +48,7 @@ resource "sumologic_collector" "collector" {
 
 ## Argument reference
 
-In addition to the common properties, the following arguments are supported:
+In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
 - `content_type`        - (Optional) When configuring a HTTP Traces Source, set this property to `Zipkin`. When configuring a Kinesis Logs Source, set this property to `KinesisLog`. This should only be used when creating a Traces or Kinesis Log source.
