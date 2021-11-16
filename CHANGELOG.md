@@ -1,4 +1,8 @@
-## 2.12.0 (Unreleased)
+## 2.11.3 (Unreleased)
+
+BUG FIXES:
+
+* Fix provider crash when user / role data source is declared with a non-existent identifier (GH-316)
 
 ## 2.11.2 (November 11, 2021)
 
