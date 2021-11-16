@@ -59,6 +59,9 @@ func dataSourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return fmt.Errorf("user with id %v not found: %v", id, err)
 		}
+		if user == nil {
+			return fmt.Errorf("user with id %v not found", id)
+		}
 	} else {
 		if userEmail, ok := d.GetOk("email"); ok {
 			email := userEmail.(string)
@@ -101,6 +104,9 @@ func (s *Client) GetUserByEmail(email string) (*User, error) {
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
+	}
+	if len(response.User) == 0 {
+		return nil, fmt.Errorf("user with email address '%s' does not exist", email)
 	}
 
 	return &response.User[0], nil
