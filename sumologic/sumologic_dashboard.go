@@ -11,6 +11,9 @@ func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 	if err != nil {
 		return nil, err
 	}
+	if data == nil {
+		return nil, nil
+	}
 
 	var dashboard Dashboard
 	err = json.Unmarshal(data, &dashboard)

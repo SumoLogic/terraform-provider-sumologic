@@ -1,5 +1,11 @@
 ## 2.12.0 (Unreleased)
 
+## 2.11.4 (November 19, 2021)
+
+BUG FIXES:
+
+* Fix unexpected end of JSON input error in folder and dashboard resources (GH-319)
+
 ## 2.11.3 (November 17, 2021)
 
 BUG FIXES:
