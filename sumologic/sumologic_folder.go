@@ -14,6 +14,9 @@ func (s *Client) GetFolder(id string) (*Folder, error) {
 	if err != nil {
 		return nil, err
 	}
+	if rawFolder == nil {
+		return nil, nil
+	}
 
 	var folder Folder
 	err = json.Unmarshal(rawFolder, &folder)
