@@ -11,7 +11,7 @@ import (
 )
 
 func resourceSumologicKinesisLogSource() *schema.Resource {
-    kinesisLogSource := resourceSumologicSource()
+	kinesisLogSource := resourceSumologicSource()
 	kinesisLogSource.Create = resourceSumologicKinesisLogSourceCreate
 	kinesisLogSource.Read = resourceSumologicKinesisLogSourceRead
 	kinesisLogSource.Update = resourceSumologicKinesisLogSourceUpdate
@@ -76,14 +76,14 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-                "path_expression": {
+				"path_expression": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"scan_interval": {
-				    Type:         schema.TypeInt,
-					Optional:     true,
-				    Default:      300000,
+					Type:     schema.TypeInt,
+					Optional: true,
+					Default:  300000,
 				},
 			},
 		},
@@ -202,12 +202,12 @@ func getKinesisLogPathSettings(d *schema.ResourceData) (KinesisLogPath, error) {
 		path := paths[0].(map[string]interface{})
 		switch pathType := path["type"].(string); pathType {
 		case "KinesisLogPath":
-		    pathSettings.Type = pathType
-		    pathSettings.BucketName = path["bucket_name"].(string)
-		    pathSettings.PathExpression = path["path_expression"].(string)
-		    pathSettings.ScanInterval = path["scan_interval"].(int)
+			pathSettings.Type = pathType
+			pathSettings.BucketName = path["bucket_name"].(string)
+			pathSettings.PathExpression = path["path_expression"].(string)
+			pathSettings.ScanInterval = path["scan_interval"].(int)
 		case "NoPathExpression":
-		    pathSettings.Type = pathType
+			pathSettings.Type = pathType
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)
@@ -240,7 +240,7 @@ func getKinesisLogAuthentication(d *schema.ResourceData) (PollingAuthentication,
 				authSettings.Region = auth["region"].(string)
 			}
 		case "NoAuthentication":
-		    authSettings.Type = "NoAuthentication"
+			authSettings.Type = "NoAuthentication"
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
@@ -257,10 +257,10 @@ func getKinesisLogThirdPartyPathAttributes(kinesisLogResource []KinesisLogResour
 
 	for _, t := range kinesisLogResource {
 		mapping := map[string]interface{}{
-			"type":             t.Path.Type,
-			"bucket_name":      t.Path.BucketName,
-			"path_expression":  t.Path.PathExpression,
-			"scan_interval":    t.Path.ScanInterval,
+			"type":            t.Path.Type,
+			"bucket_name":     t.Path.BucketName,
+			"path_expression": t.Path.PathExpression,
+			"scan_interval":   t.Path.ScanInterval,
 		}
 		s = append(s, mapping)
 	}

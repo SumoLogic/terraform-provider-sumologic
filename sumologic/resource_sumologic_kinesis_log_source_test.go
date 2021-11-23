@@ -165,15 +165,15 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
 	content_type  = "KinesisLog"
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "AWSRoleBasedAuthentication"
-		role_arn = "%s"
-	  }
+    type = "AWSRoleBasedAuthentication"
+    role_arn = "%s"
+  }
 	path {
 		type = "KinesisLogPath"
-        bucket_name     = "%s"
-        path_expression = "*"
-        scan_interval   = 30000
-	  }
+    bucket_name     = "%s"
+    path_expression = "*"
+    scan_interval   = 30000
+	}
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }
@@ -193,11 +193,10 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
 	content_type  = "KinesisLog"
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-        type = "NoAuthentication"
-      }
-	  path {
+    type = "NoAuthentication"
+  }
+	path {
 		type = "NoPathExpression"
-	  }
 	}
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory)

@@ -1,8 +1,8 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_log_metrics_source"
+page_title: "SumoLogic: sumologic_kinesis_log_source"
 description: |-
-  Provides a Sumologic Kinesis Log source. This source is used to integrate with Metrics Stream via Kinesis Firehose from AWS.
+  Provides a Sumologic Kinesis Log source. This source is used to integrate with Log Stream via Kinesis Firehose from AWS.
 ---
 
 # sumologic_kinesis_log_source
@@ -67,15 +67,15 @@ locals {
 In addition to the common properties, the following arguments are supported:
 
  - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
- - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
+ - `authentication` - (Optional) Authentication details for connecting to the S3 bucket.
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication` or `NoAuthentication`
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
      + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
- - `path` - (Required) The location to scan for new data.
+ - `path` - (Optional) The location of S3 bucket for failed Kinesis log data.
      + `type` - (Required) Must be either `KinesisLogPath` or `NoPathExpression`
-     + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `S3BucketPathExpression`. 
-     + `path_expression` - (Optional) The path to the data. This is needed if using type `S3BucketPathExpression`. For Kinesis log source, it must includes `http-endpoint-failed/`.
+     + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `KinesisLogPath`. 
+     + `path_expression` - (Optional) The path to the data. This is needed if using type `KinesisLogPath`. For Kinesis log source, it must includes `http-endpoint-failed/`.
      + `scan_interval` - (Optional) The Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
 
 ### See also
@@ -91,7 +91,7 @@ The following attributes are exported:
 Kinesis Log sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_log_metrics_source.test 123/456
+terraform import sumologic_kinesis_log_source.test 123/456
 ```
 
 HTTP sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:

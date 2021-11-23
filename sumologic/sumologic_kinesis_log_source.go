@@ -7,9 +7,9 @@ import (
 
 type KinesisLogSource struct {
 	Source
-	MessagePerRequest bool                      `json:"messagePerRequest"`
-	URL               string                    `json:"url,omitempty"`
-	ThirdPartyRef     KinesisLogThirdPartyRef   `json:"thirdPartyRef"`
+	MessagePerRequest bool                    `json:"messagePerRequest"`
+	URL               string                  `json:"url,omitempty"`
+	ThirdPartyRef     KinesisLogThirdPartyRef `json:"thirdPartyRef"`
 }
 
 type KinesisLogThirdPartyRef struct {
@@ -17,16 +17,16 @@ type KinesisLogThirdPartyRef struct {
 }
 
 type KinesisLogResource struct {
-	ServiceType    string                   `json:"serviceType"`
-	Authentication PollingAuthentication   `json:"authentication,omitempty"`
-	Path           KinesisLogPath          `json:"path,omitempty"`
+	ServiceType    string                `json:"serviceType"`
+	Authentication PollingAuthentication `json:"authentication,omitempty"`
+	Path           KinesisLogPath        `json:"path,omitempty"`
 }
 
 type KinesisLogPath struct {
-	Type              string    `json:"type"`
-    BucketName        string    `json:"bucketName,omitempty"`
-    PathExpression    string    `json:"pathExpression,omitempty"`
-	ScanInterval      int       `json:"scanInterval,omitempty"`
+	Type           string `json:"type"`
+	BucketName     string `json:"bucketName,omitempty"`
+	PathExpression string `json:"pathExpression,omitempty"`
+	ScanInterval   int    `json:"scanInterval,omitempty"`
 }
 
 func (s *Client) CreateKinesisLogSource(kinesisLogSource KinesisLogSource, collectorID int) (int, error) {
