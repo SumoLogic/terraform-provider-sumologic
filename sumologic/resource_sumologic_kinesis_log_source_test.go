@@ -171,7 +171,7 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
 	path {
 		type = "KinesisLogPath"
     bucket_name     = "%s"
-    path_expression = "*"
+    path_expression = "http-endpoint-failed/*"
     scan_interval   = 30000
 	}
 }
