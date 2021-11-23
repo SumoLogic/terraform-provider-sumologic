@@ -8,6 +8,13 @@ description: |-
 # sumologic_admin_recommended_folder
 Provides an easy way to retrieve the Admin Recommended Folder.
 
+In order to use the Admin Recommended Folder, you should configure the provider to run in admin mode:
+```hcl
+provider "sumologic" {
+    ...
+    admin_mode = true
+}
+```
 
 ## Example Usage
 ```hcl
