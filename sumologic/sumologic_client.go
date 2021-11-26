@@ -176,6 +176,10 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 		return nil, err
 	}
 
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 
