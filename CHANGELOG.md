@@ -4,7 +4,7 @@
 
 BUG FIXES:
 
-* Set admin mode in PostRawPayload method (GH-XXX)
+* Set admin mode in PostRawPayload method (GH-322)
 
 ## 2.11.4 (November 19, 2021)
 
