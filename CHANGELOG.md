@@ -1,5 +1,11 @@
 ## 2.12.0 (Unreleased)
 
+## 2.11.5 (Unreleased)
+
+BUG FIXES:
+
+* Set admin mode in PostRawPayload method (GH-322)
+
 ## 2.11.4 (November 19, 2021)
 
 BUG FIXES:
@@ -25,7 +31,7 @@ FEATURES:
 * **New Datasource:** sumologic_user (GH-299)
 
 BUG FIXES:
- 
+
 * Fix occurrence_type for metrics resolution conditions (GH-297)
 * Relaxed validation for monitor time range (GH-306)
 
@@ -39,7 +45,7 @@ FEATURES:
 * **New Resource:** sumologic_cse_insights_resolution (GH-274)
 * **New Resource:** sumologic_cse_insights_status (GH-274)
 * **New Resource:** sumologic_cse_insights_configuration (GH-274)
-* **New Resource:** sumologic_cse_log_mapping (GH-284) 
+* **New Resource:** sumologic_cse_log_mapping (GH-284)
 * **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
 * **New Resource:** sumologic_cse_aggregation_rule (GH-290)
 * **New Resource:** sumologic_cse_chain_rule (GH-290)
