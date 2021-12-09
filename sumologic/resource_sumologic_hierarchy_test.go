@@ -122,7 +122,8 @@ func TestAccSumologicHierarchy_update(t *testing.T) {
 	var hierarchy Hierarchy
 	testName, testFilter, testLevel := getRandomizedParamsForHierarchy()
 
-	testUpdatedName, testUpdatedFilter, testUpdatedLevel := getRandomizedParamsForHierarchy()
+	// hierarchy names are immutable
+	_, testUpdatedFilter, testUpdatedLevel := getRandomizedParamsForHierarchy()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -151,11 +152,11 @@ func TestAccSumologicHierarchy_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicHierarchyUpdate(testUpdatedName, testUpdatedFilter, testUpdatedLevel),
+				Config: testAccSumologicHierarchyUpdate(testName, testUpdatedFilter, testUpdatedLevel),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckHierarchyExists("sumologic_hierarchy.test", &hierarchy, t),
 					resource.TestCheckResourceAttrSet("sumologic_hierarchy.test", "id"),
-					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testUpdatedName),
+					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.key", testUpdatedFilter.Key),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "filter.0.value", testUpdatedFilter.Value),
 					resource.TestCheckResourceAttr("sumologic_hierarchy.test", "level.0.entity_type",
