@@ -46,7 +46,7 @@ func TestAccSumologicKinesisLogSource_update(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
-	kinesisLogResourceName := "sumologic_kinesis_Log_source.kinesisLog"
+	kinesisLogResourceName := "sumologic_kinesis_log_source.kinesisLog"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
