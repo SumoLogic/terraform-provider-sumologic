@@ -1,6 +1,6 @@
 ## 2.12.0 (Unreleased)
 
-## 2.11.5 (Unreleased)
+## 2.11.5 (December 14, 2021)
 
 BUG FIXES:
 
