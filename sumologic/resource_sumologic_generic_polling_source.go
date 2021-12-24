@@ -24,7 +24,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -49,7 +49,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -64,6 +64,43 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Optional: true,
 				},
 				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"project_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"private_key_id": {
+					Type:      schema.TypeString,
+					Sensitive: true,
+					Optional:  true,
+				},
+				"private_key": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_email": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"auth_uri": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"token_uri": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"auth_provider_x509_cert_url": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_x509_cert_url": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
@@ -82,7 +119,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsInventoryPath", "AwsXRayPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -100,6 +137,13 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					},
 				},
 				"limit_to_namespaces": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+				"limit_to_services": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Schema{
@@ -273,6 +317,7 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"path_expression":               t.Path.PathExpression,
 			"limit_to_regions":              t.Path.LimitToRegions,
 			"limit_to_namespaces":           t.Path.LimitToNamespaces,
+			"limit_to_services":             t.Path.LimitToServices,
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
 		}
@@ -287,11 +332,20 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"type":       t.Authentication.Type,
-			"access_key": t.Authentication.AwsID,
-			"secret_key": t.Authentication.AwsKey,
-			"role_arn":   t.Authentication.RoleARN,
-			"region":     t.Authentication.Region,
+			"type":                        t.Authentication.Type,
+			"access_key":                  t.Authentication.AwsID,
+			"secret_key":                  t.Authentication.AwsKey,
+			"role_arn":                    t.Authentication.RoleARN,
+			"region":                      t.Authentication.Region,
+			"project_id":                  t.Authentication.ProjectId,
+			"private_key_id":              t.Authentication.PrivateKeyId,
+			"private_key":                 t.Authentication.PrivateKey,
+			"client_email":                t.Authentication.ClientEmail,
+			"client_id":                   t.Authentication.ClientId,
+			"auth_uri":                    t.Authentication.AuthUrl,
+			"token_uri":                   t.Authentication.TokenUrl,
+			"auth_provider_x509_cert_url": t.Authentication.AuthProviderX509CertUrl,
+			"client_x509_cert_url":        t.Authentication.ClientX509CertUrl,
 		}
 		s = append(s, mapping)
 	}
@@ -362,6 +416,19 @@ func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) PollingSnsTopic
 	return snsTopicOrSubscriptionArn
 }
 
+func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth map[string]interface{}) {
+	authSettings.Type = "service_account"
+	authSettings.ProjectId = auth["project_id"].(string)
+	authSettings.PrivateKeyId = auth["private_key_id"].(string)
+	authSettings.PrivateKey = auth["private_key"].(string)
+	authSettings.ClientEmail = auth["client_email"].(string)
+	authSettings.ClientId = auth["client_id"].(string)
+	authSettings.AuthUrl = auth["auth_uri"].(string)
+	authSettings.TokenUrl = auth["token_uri"].(string)
+	authSettings.AuthProviderX509CertUrl = auth["auth_provider_x509_cert_url"].(string)
+	authSettings.ClientX509CertUrl = auth["client_x509_cert_url"].(string)
+}
+
 func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
 	auths := d.Get("authentication").([]interface{})
 	authSettings := PollingAuthentication{}
@@ -386,6 +453,9 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			if auth["region"] != nil {
 				authSettings.Region = auth["region"].(string)
 			}
+		case "service_account":
+			addGcpServiceAccountDetailsToAuth(&authSettings, auth)
+
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
@@ -394,6 +464,29 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 	}
 
 	return authSettings, nil
+}
+
+func getLimitToRegions(path map[string]interface{}) []string {
+	rawLimitToRegions := path["limit_to_regions"].([]interface{})
+	limitToRegions := make([]string, len(rawLimitToRegions))
+	for i, v := range rawLimitToRegions {
+		limitToRegions[i] = v.(string)
+	}
+	return limitToRegions
+}
+
+func getLimitToServices(path map[string]interface{}) []string {
+	rawLimitToServices := path["limit_to_services"].([]interface{})
+	limitToServices := make([]string, len(rawLimitToServices))
+	for i, v := range rawLimitToServices {
+		limitToServices[i] = v.(string)
+	}
+	return limitToServices
+}
+
+func addGcpMetricsPathSettings(pathSettings *PollingPath, path map[string]interface{}) {
+	pathSettings.LimitToRegions = getLimitToRegions(path)
+	pathSettings.LimitToServices = getLimitToServices(path)
 }
 
 func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
@@ -440,6 +533,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
+		case "GcpMetricsPath":
+			pathSettings.Type = pathType
+			addGcpMetricsPathSettings(&pathSettings, path)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)
