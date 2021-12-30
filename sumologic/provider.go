@@ -91,6 +91,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_password_policy":                    resourceSumologicPasswordPolicy(),
 			"sumologic_saml_configuration":                 resourceSumologicSamlConfiguration(),
 			"sumologic_kinesis_metrics_source":             resourceSumologicKinesisMetricsSource(),
+			"sumologic_kinesis_log_source":                 resourceSumologicKinesisLogSource(),
 			"sumologic_token":                              resourceSumologicToken(),
 			"sumologic_policies":                           resourceSumologicPolicies(),
 			"sumologic_hierarchy":                          resourceSumologicHierarchy(),
