@@ -72,9 +72,8 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Optional: true,
 				},
 				"private_key_id": {
-					Type:      schema.TypeString,
-					Sensitive: true,
-					Optional:  true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"private_key": {
 					Type:     schema.TypeString,
