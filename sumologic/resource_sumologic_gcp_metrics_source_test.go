@@ -3,84 +3,92 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func shouldTestGcpMetricsSource() bool {
+	return !strings.EqualFold(os.Getenv("SUMOLOGIC_ENABLE_GCP_METRICS_ACC_TESTS"), "false")
+}
+
 func TestAccSumologicGcpMetricsSource_create(t *testing.T) {
-	var GcpMetricsSource PollingSource
-	var collector Collector
-	cName, cDescription, cCategory := getRandomizedParams()
-	sName, sDescription, sCategory := getRandomizedParams()
-	GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { getServiceAccountCreds(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGcpMetricsSourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
-					testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
-					testAccCheckCollectorExists("sumologic_collector.test", &collector),
-					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
-					resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sName),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescription),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
-				),
+	if shouldTestGcpMetricsSource() {
+		var GcpMetricsSource PollingSource
+		var collector Collector
+		cName, cDescription, cCategory := getRandomizedParams()
+		sName, sDescription, sCategory := getRandomizedParams()
+		GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { getServiceAccountCreds(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckGcpMetricsSourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
+						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
+						testAccCheckCollectorExists("sumologic_collector.test", &collector),
+						testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
+						resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sName),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescription),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+					),
+				},
 			},
-		},
-	})
+		})
+	}
 }
 
 func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
-	var GcpMetricsSource PollingSource
-	cName, cDescription, cCategory := getRandomizedParams()
-	sName, sDescription, sCategory := getRandomizedParams()
-	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
-	GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { getServiceAccountCreds(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHTTPSourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
-					testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
-					resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sName),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescription),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
-				),
+	if shouldTestGcpMetricsSource() {
+		var GcpMetricsSource PollingSource
+		cName, cDescription, cCategory := getRandomizedParams()
+		sName, sDescription, sCategory := getRandomizedParams()
+		sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
+		GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { getServiceAccountCreds(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckHTTPSourceDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
+						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
+						resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sName),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescription),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+					),
+				},
+				{
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
+						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+						resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sNameUpdated),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescriptionUpdated),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategoryUpdated),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+					),
+				},
 			},
-			{
-				Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
-					testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
-					resource.TestCheckResourceAttrSet(GcpMetricsResourceName, "id"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "name", sNameUpdated),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "description", sDescriptionUpdated),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategoryUpdated),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
-					resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
-				),
-			},
-		},
-	})
+		})
+	}
 }
 
 func testAccCheckGcpMetricsSourceDestroy(s *terraform.State) error {
@@ -169,23 +177,21 @@ type ServiceAccountCreds struct {
 func getServiceAccountCreds(t *testing.T) ServiceAccountCreds {
 	var err error
 	contentBytes := []byte("")
-	serviceAccountDetailsFileEnvName := "SUMOLOGIC_GOOGLE_APPLICATION_CREDENTIALS"
+	serviceAccountDetailsJsonEnvName := "SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS"
 
-	serviceAccountDetailsFile, isEnvVarDefined := os.LookupEnv(serviceAccountDetailsFileEnvName)
+	serviceAccountDetailsJson, isEnvVarDefined := os.LookupEnv(serviceAccountDetailsJsonEnvName)
 	if !isEnvVarDefined {
-		t.Fatal(fmt.Sprintf("Environment variable %#v has to be defined", serviceAccountDetailsFileEnvName))
-	} else if len(serviceAccountDetailsFile) == 0 {
-		t.Fatal(fmt.Sprintf("Environment variable %#v can not be empty string", serviceAccountDetailsFileEnvName))
-	} else if _, statErr := os.Stat(serviceAccountDetailsFile); statErr != nil {
-		t.Fatal(fmt.Sprintf("Environment variable %#v points to non-existing file %#v", serviceAccountDetailsFileEnvName, serviceAccountDetailsFile))
-	} else {
-		contentBytes, err = ioutil.ReadFile(serviceAccountDetailsFile)
+		t.Fatal(fmt.Sprintf("Environment variable %#v has to be defined", serviceAccountDetailsJsonEnvName))
+	} else if len(serviceAccountDetailsJson) == 0 {
+		t.Fatal(fmt.Sprintf("Environment variable %#v can not be empty string", serviceAccountDetailsJsonEnvName))
 	}
-	if err != nil {
-		t.Fatal(fmt.Sprintf("Failed to read %#v", serviceAccountDetailsFile))
-	}
+
+	contentBytes = []byte(serviceAccountDetailsJson)
 	var serviceAccountCreds ServiceAccountCreds
-	json.Unmarshal(contentBytes, &serviceAccountCreds)
+	err = json.Unmarshal(contentBytes, &serviceAccountCreds)
+	if err != nil {
+		t.Fatal(fmt.Sprintf("Failed to parse content pointed by environment variable %#v", serviceAccountDetailsJsonEnvName))
+	}
 	return serviceAccountCreds
 }
 
