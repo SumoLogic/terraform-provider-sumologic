@@ -39,7 +39,7 @@ EOPK
 
   path {
     type = "GcpMetricsPath"
-    limit_to_regions = ["us-east1", "us-central-1", "asia-south1"]
+    limit_to_regions = ["us-east1", "us-central1", "asia-south1"]
     limit_to_services = ["Compute Engine", "Firebase", "App Engine"]
   }
 
