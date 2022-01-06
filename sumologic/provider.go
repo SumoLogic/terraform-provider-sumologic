@@ -58,6 +58,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cse_threshold_rule":                 resourceSumologicCSEThresholdRule(),
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
+			"sumologic_local_file_source":                  resourceSumologicLocalFileSource(),
 			"sumologic_gcp_source":                         resourceSumologicGCPSource(),
 			"sumologic_polling_source":                     resourceSumologicPollingSource(),
 			"sumologic_s3_source":                          resourceSumologicGenericPollingSource(),
