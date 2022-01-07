@@ -25,11 +25,20 @@ type PollingResource struct {
 }
 
 type PollingAuthentication struct {
-	Type    string `json:"type"`
-	AwsID   string `json:"awsId"`
-	AwsKey  string `json:"awsKey"`
-	RoleARN string `json:"roleARN"`
-	Region  string `json:"region,omitempty"`
+	Type                    string `json:"type"`
+	AwsID                   string `json:"awsId"`
+	AwsKey                  string `json:"awsKey"`
+	RoleARN                 string `json:"roleARN"`
+	Region                  string `json:"region,omitempty"`
+	ProjectId               string `json:"project_id"`
+	PrivateKeyId            string `json:"private_key_id"`
+	PrivateKey              string `json:"private_key"`
+	ClientEmail             string `json:"client_email"`
+	ClientId                string `json:"client_id"`
+	AuthUrl                 string `json:"auth_uri"`
+	TokenUrl                string `json:"token_uri"`
+	AuthProviderX509CertUrl string `json:"auth_provider_x509_cert_url"`
+	ClientX509CertUrl       string `json:"client_x509_cert_url"`
 }
 
 type PollingPath struct {
@@ -38,6 +47,7 @@ type PollingPath struct {
 	PathExpression            string                           `json:"pathExpression,omitempty"`
 	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
 	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
+	LimitToServices           []string                         `json:"limitToServices,omitempty"`
 	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
 	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 }

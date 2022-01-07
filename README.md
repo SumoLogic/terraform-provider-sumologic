@@ -53,7 +53,11 @@ Then run `terraform init` to initialize it.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests *create real resources*, and often cost money to run. The environment variables `SUMOLOGIC_ACCESSID`, `SUMOLOGIC_ACCESSKEY`, and `SUMOLOGIC_ENVIRONMENT` must also be set for acceptance tests to work properly.
+*Note:* 
+- Acceptance tests *create real resources*, and often cost money to run. The environment variables `SUMOLOGIC_ACCESSID`, `SUMOLOGIC_ACCESSKEY`, and `SUMOLOGIC_ENVIRONMENT` must also be set for acceptance tests to work properly.
+- Environment variable `SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS` must be set for gcp metrics acceptance tests to work properly (ex. below).
+    - export SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS=`cat /path/to/service_acccount.json`
+    - Set Environment variable `SUMOLOGIC_ENABLE_GCP_METRICS_ACC_TESTS` to false, to disable acceptance test for Gcp Metrics. 
 
 [0]: https://help.sumologic.com/Manage/Security/Access-Keys
 [1]: https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security

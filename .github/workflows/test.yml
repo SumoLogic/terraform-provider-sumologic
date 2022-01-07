@@ -91,6 +91,7 @@ jobs:
         SUMOLOGIC_ENVIRONMENT:  ${{ secrets.SUMOLOGIC_ENVIRONMENT }}
         SUMOLOGIC_TEST_BUCKET_NAME:  ${{ secrets.SUMOLOGIC_TEST_BUCKET_NAME }}
         SUMOLOGIC_TEST_ROLE_ARN:  ${{ secrets.SUMOLOGIC_TEST_ROLE_ARN }}
+        SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS:  ${{ secrets.SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS }}
 
       # disable go test timeout. We rely on GitHub action timeout.
       run: |
