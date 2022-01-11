@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -149,7 +150,25 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						Type: schema.TypeString,
 					},
 				},
-
+				"custom_services": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"service_name": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"prefixes": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+						},
+					},
+				},
 				"tag_filters": {
 					Type:     schema.TypeList,
 					Optional: true,
@@ -317,6 +336,7 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"limit_to_regions":              t.Path.LimitToRegions,
 			"limit_to_namespaces":           t.Path.LimitToNamespaces,
 			"limit_to_services":             t.Path.LimitToServices,
+			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
 		}
@@ -349,6 +369,38 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 		s = append(s, mapping)
 	}
 	return s
+}
+
+func flattenCustomServices(v []string) []map[string]interface{} {
+	var custom_services []map[string]interface{}
+	for _, d := range v {
+		custom_service_name_and_prefixes := strings.Split(d, "=")
+		custom_service_name := custom_service_name_and_prefixes[0]
+		custom_service_prefixes := strings.Split(custom_service_name_and_prefixes[1], ";")
+		custom_service := map[string]interface{}{
+			"service_name": custom_service_name,
+			"prefixes":     custom_service_prefixes,
+		}
+		custom_services = append(custom_services, custom_service)
+	}
+	return custom_services
+}
+
+func getCustomServices(path map[string]interface{}) []string {
+	var customServices []string
+	rawCustomServicesConfig := path["custom_services"].([]interface{})
+	for _, rawCustomServiceConfig := range rawCustomServicesConfig {
+		customServiceConfig := rawCustomServiceConfig.(map[string]interface{})
+		customServiceName := customServiceConfig["service_name"].(string)
+		customServicePrefixesInterface := customServiceConfig["prefixes"].([]interface{})
+		var customServicePrefixes []string
+		for _, v := range customServicePrefixesInterface {
+			customServicePrefixes = append(customServicePrefixes, v.(string))
+		}
+		customServices = append(customServices,
+			fmt.Sprintf("%s=%s", customServiceName, strings.Join(customServicePrefixes[:], ";")))
+	}
+	return customServices
 }
 
 func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
@@ -486,6 +538,7 @@ func getLimitToServices(path map[string]interface{}) []string {
 func addGcpMetricsPathSettings(pathSettings *PollingPath, path map[string]interface{}) {
 	pathSettings.LimitToRegions = getLimitToRegions(path)
 	pathSettings.LimitToServices = getLimitToServices(path)
+	pathSettings.CustomServices = getCustomServices(path)
 }
 
 func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {

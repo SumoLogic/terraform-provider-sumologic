@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -22,6 +23,7 @@ func TestAccSumologicGcpMetricsSource_create(t *testing.T) {
 		var collector Collector
 		cName, cDescription, cCategory := getRandomizedParams()
 		sName, sDescription, sCategory := getRandomizedParams()
+		customServicePrefix := acctest.RandomWithPrefix("compute.googleapis.com")
 		GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { getServiceAccountCreds(t) },
@@ -29,7 +31,7 @@ func TestAccSumologicGcpMetricsSource_create(t *testing.T) {
 			CheckDestroy: testAccCheckGcpMetricsSourceDestroy,
 			Steps: []resource.TestStep{
 				{
-					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory, customServicePrefix),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
 						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
@@ -41,6 +43,9 @@ func TestAccSumologicGcpMetricsSource_create(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.service_name", "compute_instance_and_guests"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", customServicePrefix),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.1", "compute.googleapis.com/guest/"),
 					),
 				},
 			},
@@ -54,6 +59,8 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 		cName, cDescription, cCategory := getRandomizedParams()
 		sName, sDescription, sCategory := getRandomizedParams()
 		sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
+		customServicePrefix := acctest.RandomWithPrefix("compute.googleapis.com")
+		updatedCustomServicePrefix := acctest.RandomWithPrefix("compute.googleapis.com")
 		GcpMetricsResourceName := "sumologic_gcp_metrics_source.gcp_metrics_source"
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { getServiceAccountCreds(t) },
@@ -61,7 +68,7 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 			CheckDestroy: testAccCheckHTTPSourceDestroy,
 			Steps: []resource.TestStep{
 				{
-					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory),
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sName, sDescription, sCategory, customServicePrefix),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
 						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sName, sDescription, sCategory),
@@ -71,10 +78,11 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategory),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", customServicePrefix),
 					),
 				},
 				{
-					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, updatedCustomServicePrefix),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckGcpMetricsSourceExists(GcpMetricsResourceName, &GcpMetricsSource),
 						testAccCheckGcpMetricsSourceValues(&GcpMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -84,6 +92,7 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "category", sCategoryUpdated),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "content_type", "GcpMetrics"),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
+						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", updatedCustomServicePrefix),
 					),
 				},
 			},
@@ -195,7 +204,7 @@ func getServiceAccountCreds(t *testing.T) ServiceAccountCreds {
 	return serviceAccountCreds
 }
 
-func testAccSumologicGcpMetricsSourceConfig(t *testing.T, cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
+func testAccSumologicGcpMetricsSourceConfig(t *testing.T, cName, cDescription, cCategory, sName, sDescription, sCategory, customServicePrefix string) string {
 	cred := getServiceAccountCreds(t)
 	srcStr := fmt.Sprintf(`
 	resource "sumologic_collector" "test" {
@@ -207,33 +216,41 @@ func testAccSumologicGcpMetricsSourceConfig(t *testing.T, cName, cDescription, c
 		name = "%s"
 		description = "%s"
 		category = "%s"
-		content_type  = "GcpMetrics"
+		content_type = "GcpMetrics"
 		scan_interval = 300000
-		paused        = false
+		paused = false
 		collector_id = "${sumologic_collector.test.id}"
 		authentication {
-            type = "%s"
-            project_id = "%s"
-            private_key_id = "%s"
-            private_key = <<EOPK
+			type = "%s"
+			project_id = "%s"
+			private_key_id = "%s"
+			private_key = <<EOPK
 %sEOPK
-            client_email = "%s"
-            client_id = "%s"
-            auth_uri = "%s"
-            token_uri = "%s"
-            auth_provider_x509_cert_url = "%s"
-            client_x509_cert_url = "%s"
-		  }
-		  path {
-			type = "GcpMetricsPath"
-            limit_to_regions = ["asia-south1"]
-            limit_to_services = ["Compute Engine", "CloudSQL"]
-		  }
-		  lifecycle {
-			ignore_changes = [authentication[0].private_key]
-          }
+			client_email = "%s"
+			client_id = "%s"
+			auth_uri = "%s"
+			token_uri = "%s"
+			auth_provider_x509_cert_url = "%s"
+			client_x509_cert_url = "%s"
 		}
+		path {
+			type = "GcpMetricsPath"
+			limit_to_regions = ["asia-south1"]
+			limit_to_services = ["Compute Engine", "CloudSQL"]
+			custom_services {
+				service_name = "mysql"
+				prefixes = ["cloudsql.googleapis.com/database/mysql/","cloudsql.googleapis.com/database/memory/","cloudsql.googleapis.com/database/cpu","cloudsql.googleapis.com/database/disk"]
+			}
+			custom_services {
+				service_name = "compute_instance_and_guests"
+				prefixes = ["%s" ,"compute.googleapis.com/guest/", "compute.googleapis.com/instance/"]
+			}
+		}
+		lifecycle {
+			ignore_changes = [authentication[0].private_key]
+		}
+}
 	`, cName, cDescription, cCategory, sName, sDescription, sCategory,
-		cred.Type, cred.ProjectId, cred.PrivateKeyId, cred.PrivateKey, cred.ClientEmail, cred.ClientId, cred.AuthUri, cred.TokenUri, cred.AuthProviderX509CertUrl, cred.ClientX509CertUrl)
+		cred.Type, cred.ProjectId, cred.PrivateKeyId, cred.PrivateKey, cred.ClientEmail, cred.ClientId, cred.AuthUri, cred.TokenUri, cred.AuthProviderX509CertUrl, cred.ClientX509CertUrl, customServicePrefix)
 	return srcStr
 }

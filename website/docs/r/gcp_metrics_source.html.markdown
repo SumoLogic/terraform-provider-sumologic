@@ -41,6 +41,14 @@ EOPK
     type = "GcpMetricsPath"
     limit_to_regions = ["us-east1", "us-central1", "asia-south1"]
     limit_to_services = ["Compute Engine", "Firebase", "App Engine"]
+    custom_services = {
+        service_name = "mysql"
+        prefixes = ["cloudsql.googleapis.com/database/mysql/","cloudsql.googleapis.com/database/memory/","cloudsql.googleapis.com/database/cpu","cloudsql.googleapis.com/database/disk"]
+    }
+    custom_services = {
+        service_name = "compute_instance_and_guests"
+        prefixes = ["compute.googleapis.com/instance/","compute.googleapis.com/guest/"]
+    }
   }
 
   lifecycle {
@@ -77,6 +85,9 @@ In addition to the [Common Source Properties](https://registry.terraform.io/prov
      + `type` - (Required) Type of polling source. This has to be `GcpMetricsPath`.
      + `limit_to_regions` - (Optional) List of regions for which metrics would be collected (Empty to collect from all regions)
      + `limit_to_services` - (Required) List of services from which metrics would be collected
+     + `custom_services` - (Optional) Sumoloigc provides list of services that can be used in limit_to_services for which metrics would be collected. Custom Services allow you to define your own service w.r.t. metric collection. You can provide list of metric prefixes that should be collected as part of the custom service. This provides fine-grain control w.r.t. what all metrics are ingested by sumologic.
+          + `service_name` - Name of the custom service you want to define.
+          + `prefixes` - List of metric type prefixes. Eg: `["compute.googleapis.com/instance/","compute.googleapis.com/guest/"]`
  - `lifecycle` - (Required) describe fields that should be ignored by terraform while doing comparision i.e. Sumologic backend will return `private_key` as `********` 
 
 ### See also
