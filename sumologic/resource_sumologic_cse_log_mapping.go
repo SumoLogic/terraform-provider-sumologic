@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 )
@@ -100,7 +101,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 							Optional: true,
 						},
 						"split_index": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Optional: true,
 						},
 						"field_join": {
@@ -354,7 +355,7 @@ func resourceToCSELogMappingField(data interface{}) CSELogMappingField {
 		field.AlternateValues = resourceStringArrayToStringArray(fieldObj["alternate_values"].([]interface{}))
 		field.TimeZone = fieldObj["time_zone"].(string)
 		field.SplitDelimiter = fieldObj["split_delimiter"].(string)
-		field.SplitIndex = fieldObj["split_index"].(string)
+		field.SplitIndex = fmt.Sprint(fieldObj["split_index"].(int))
 		field.FieldJoin = resourceStringArrayToStringArray(fieldObj["field_join"].([]interface{}))
 		field.JoinDelimiter = fieldObj["join_delimiter"].(string)
 		field.FormatParameters = resourceStringArrayToStringArray(fieldObj["format_parameters"].([]interface{}))

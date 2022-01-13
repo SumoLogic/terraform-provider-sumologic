@@ -28,7 +28,7 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
     alternate_values = ["altValue"]
     time_zone = "UTC"
     split_delimiter = ","
-    split_index = "index"
+    split_index = 0
     field_join = ["and"]
     join_delimiter = ""
     format_parameters = ["param"]
@@ -72,6 +72,7 @@ The following arguments are supported:
 - `alternate_values` - (Optional) List of alternate values.
 - `time_zone` - (Optional) Time zone.
 - `split_delimiter` - (Optional) Split delimiter to be used. (some example: ",", "-", "|")
+- `split_index` - (Optional) The index value to select (starting at zero)
 - `field_join` - (Optional) List of field join values.
 - `join_delimiter` - (Optional) Join delimiter.
 - `format_parameters` - (Optional) List of format parameters.

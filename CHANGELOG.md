@@ -1,5 +1,9 @@
 ## 2.12.0 (Unreleased)
 
+BUG FIXES:
+
+* sumologic_cse_log_mapping split_index as int (GH-333)
+
 ## 2.11.5 (December 14, 2021)
 
 BUG FIXES:
