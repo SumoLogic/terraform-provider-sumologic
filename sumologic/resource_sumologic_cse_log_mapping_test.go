@@ -34,7 +34,7 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 		AlternateValues:  []string{"altValue"},
 		TimeZone:         "UTC",
 		SplitDelimiter:   ",",
-		SplitIndex:       "index",
+		SplitIndex:       "0",
 		FieldJoin:        []string{"and"},
 		JoinDelimiter:    "",
 		FormatParameters: []string{"param"},
