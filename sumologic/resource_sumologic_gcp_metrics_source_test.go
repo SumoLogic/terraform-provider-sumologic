@@ -220,6 +220,11 @@ func testAccSumologicGcpMetricsSourceConfig(t *testing.T, cName, cDescription, c
 		scan_interval = 300000
 		paused = false
 		collector_id = "${sumologic_collector.test.id}"
+		 filters {
+			name        = "Exclude Comments"
+			filter_type = "Exclude"
+			regexp      = "#.*"
+		}
 		authentication {
 			type = "%s"
 			project_id = "%s"
