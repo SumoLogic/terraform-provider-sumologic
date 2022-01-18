@@ -356,8 +356,6 @@ with the settings of the parent panel.
 - `description` - (Optional) Description of the panel.
 - `time_range` - (Block List, Max: 1, Optional) Time range of the panel. See [time_range schema](#schema-for-time_range)
 for details.
-- `coloring_rule` - (Block List, Optional) Coloring rules for the panel. See [coloring_rule schema](#schema-for-coloring_rule)
-for details.
 - `linked_dashboard` - (Block List, Optional) A list of linked dashboards. See
 [linked_dashboard schema](#schema-for-linked_dashboard) for details.
 
@@ -385,16 +383,6 @@ One of `Basic` or `Advanced`.
 - `parameter` - (Block List, Required) A list of operator parameters for the operator data.
     - `key` - (Required) The key of the operator parameter.
     - `value` - (Required) The value of the operator parameter.
-
-### Schema for `coloring_rule`
-- `scope` - (Required) Regex string to match queries to apply coloring to.
-- `single_series_aggregate_function` - (Required) Function to aggregate one series into one single value.
-- `multiple_series_aggregate_function` - (Required) Function to aggregate the aggregate values of multiple time series
-into one single value.
-- `color_threshold` - (Block List, Optional) A list of color threshold object.
-    - `color` - (Required) Color for the threshold.
-    - `min` - (Optional) Absolute inclusive threshold to color by.
-    - `max` - (Optional) Absolute exclusive threshold to color by.
 
 ### Schema for `linked_dashboard`
 - `id` - (Required) Identifier of the linked dashboard.
