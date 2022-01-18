@@ -467,7 +467,7 @@ func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) PollingSnsTopic
 	return snsTopicOrSubscriptionArn
 }
 
-func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth map[string]interface{}) {
+func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth map[string]interface{}) error {
 	authSettings.Type = "service_account"
 	authSettings.ProjectId = auth["project_id"].(string)
 	authSettings.PrivateKeyId = auth["private_key_id"].(string)
@@ -478,6 +478,23 @@ func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth
 	authSettings.TokenUrl = auth["token_uri"].(string)
 	authSettings.AuthProviderX509CertUrl = auth["auth_provider_x509_cert_url"].(string)
 	authSettings.ClientX509CertUrl = auth["client_x509_cert_url"].(string)
+
+	errTxt := ""
+	if len(strings.Trim(authSettings.ProjectId, " \t")) == 0 {
+		errTxt = errTxt + "\nproject_id is mandator while using service_account authentication"
+	}
+	if len(authSettings.ClientEmail) == 0 {
+		errTxt = errTxt + "\nclient_email is mandator while using service_account authentication"
+	}
+	if len(authSettings.PrivateKey) == 0 {
+		errTxt = errTxt + "\nprivate_key is mandator while using service_account authentication"
+	}
+
+	if len(errTxt) == 0 {
+		return nil
+	} else {
+		return errors.New(errTxt)
+	}
 }
 
 func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
@@ -505,7 +522,10 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 				authSettings.Region = auth["region"].(string)
 			}
 		case "service_account":
-			addGcpServiceAccountDetailsToAuth(&authSettings, auth)
+			err := addGcpServiceAccountDetailsToAuth(&authSettings, auth)
+			if err != nil {
+				return authSettings, err
+			}
 
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
