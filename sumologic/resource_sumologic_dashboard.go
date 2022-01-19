@@ -91,6 +91,10 @@ func resourceSumologicDashboard() *schema.Resource {
 					},
 				},
 			},
+			"domain": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"refresh_interval": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -705,6 +709,7 @@ func resourceToDashboard(d *schema.ResourceData) Dashboard {
 		Description:      d.Get("description").(string),
 		FolderId:         d.Get("folder_id").(string),
 		TopologyLabelMap: topologyLabel,
+		Domain:           d.Get("domain").(string),
 		RefreshInterval:  d.Get("refresh_interval").(int),
 		TimeRange:        timeRange,
 		Panels:           panels,
@@ -1102,6 +1107,9 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 	if err := d.Set("folder_id", dashboard.FolderId); err != nil {
 		return err
 	}
+	if err := d.Set("domain", dashboard.Domain); err != nil {
+		return err
+	}
 	if err := d.Set("refresh_interval", dashboard.RefreshInterval); err != nil {
 		return err
 	}
@@ -1140,10 +1148,11 @@ func setDashboard(d *schema.ResourceData, dashboard *Dashboard) error {
 	}
 
 	log.Println("=====================================================================")
-	log.Printf("title: %+v\n", d.Get("title"))
-	log.Printf("description: %+v\n", d.Get("description"))
-	log.Printf("folder_id: %+v\n", d.Get("folder_id"))
+	log.Printf("title: %s\n", d.Get("title"))
+	log.Printf("description: %s\n", d.Get("description"))
+	log.Printf("folder_id: %s\n", d.Get("folder_id"))
 	log.Printf("topology_label_map: %+v\n", d.Get("topology_label_map"))
+	log.Printf("domain: %s\n", d.Get("domain"))
 	log.Printf("time_range: %+v\n", d.Get("time_range"))
 	log.Printf("panel: %+v\n", d.Get("panel"))
 	log.Printf("layout: %+v\n", d.Get("layout"))

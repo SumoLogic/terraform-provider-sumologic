@@ -40,6 +40,8 @@ resource "sumologic_dashboard" "api-dashboard" {
 		}
 	}
 
+	domain = "app"
+
 	## text panel
 	panel {
 		text_panel {
@@ -277,6 +279,7 @@ personal folder.
 - `topology_label_map` - (Block List, Max: 1, Optional) Topology labels for the dashboard. See
 [topology label map schema](#schema-for-topology_label_map)
 for details.
+- `domain` - (Optional) Domain of the dashboard. If set denotes that the dashboard concerns a given domain.
 - `time_range` - (Block List, Max: 1, Required) Time range of the dashboard. See [time range schema](#schema-for-time_range)
 for details.
 - `panel` - (Block List, Optional) A list of panels in the dashboard. See [panel schema](#schema-for-panel) for details.

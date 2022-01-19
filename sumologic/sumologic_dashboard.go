@@ -58,6 +58,7 @@ type Dashboard struct {
 	Description      string         `json:"description"`
 	FolderId         string         `json:"folderId"`
 	TopologyLabelMap *TopologyLabel `json:"topologyLabelMap"`
+	Domain           string         `json:"domain"`
 	RefreshInterval  int            `json:"refreshInterval"`
 	TimeRange        interface{}    `json:"timeRange"`
 	Panels           []interface{}  `json:"panels"`

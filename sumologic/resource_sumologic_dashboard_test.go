@@ -50,7 +50,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 	description := "Test dashboard description"
 	theme := "Dark"
 	refreshInterval := 120
-
+	// domain := "aws"
 	literalRangeName := "today"
 	textPanel := TextPanel{
 		Key:   "text-panel-001",
