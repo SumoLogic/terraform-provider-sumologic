@@ -48,6 +48,7 @@ type PollingPath struct {
 	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
 	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
 	LimitToServices           []string                         `json:"limitToServices,omitempty"`
+	CustomServices            []string                         `json:"customServices,omitempty"`
 	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
 	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 }
