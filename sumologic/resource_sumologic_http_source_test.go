@@ -14,6 +14,7 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 	var httpSource HTTPSource
 	var httpTraceSource HTTPSource
 	var kinesisLogSource HTTPSource
+	var httpOtlpSource HTTPSource
 	var collector Collector
 	cName := acctest.RandomWithPrefix("tf-acc-test")
 	cDescription := acctest.RandomWithPrefix("tf-acc-test")
@@ -27,16 +28,20 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 	kName := acctest.RandomWithPrefix("tf-acc-test")
 	kDescription := acctest.RandomWithPrefix("tf-acc-test")
 	kCategory := acctest.RandomWithPrefix("tf-acc-test")
+	oName := acctest.RandomWithPrefix("tf-acc-test")
+	oDescription := acctest.RandomWithPrefix("tf-acc-test")
+	oCategory := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_http_source.http"
 	tracingResourceName := "sumologic_http_source.traces"
 	kinesisResourceName := "sumologic_http_source.kinesisLog"
+	otlpResourceName := "sumologic_http_source.otlp"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory),
+				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sName, sDescription, sCategory),
@@ -46,6 +51,8 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 					testAccCheckHTTPSourceValues(&httpTraceSource, tName, tDescription, tCategory),
 					testAccCheckHTTPSourceExists(kinesisResourceName, &kinesisLogSource),
 					testAccCheckHTTPSourceValues(&kinesisLogSource, kName, kDescription, kCategory),
+					testAccCheckHTTPSourceExists(otlpResourceName, &httpOtlpSource),
+                    testAccCheckHTTPSourceValues(&httpOtlpSource, oName, oDescription, oCategory),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "url"),
 					resource.TestCheckResourceAttr(resourceName, "name", sName),
@@ -64,6 +71,12 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(kinesisResourceName, "description", kDescription),
 					resource.TestCheckResourceAttr(kinesisResourceName, "category", kCategory),
 					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
+					resource.TestCheckResourceAttrSet(otlpResourceName, "id"),
+					resource.TestCheckResourceAttrSet(otlpResourceName, "url"),
+					resource.TestCheckResourceAttr(otlpResourceName, "name", oName),
+					resource.TestCheckResourceAttr(otlpResourceName, "description", oDescription),
+					resource.TestCheckResourceAttr(otlpResourceName, "category", oCategory),
+					resource.TestCheckResourceAttr(otlpResourceName, "content_type", "Otlp"),
 				),
 			},
 		},
@@ -86,19 +99,23 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 	kName := acctest.RandomWithPrefix("tf-acc-test")
 	kDescription := acctest.RandomWithPrefix("tf-acc-test")
 	kCategory := acctest.RandomWithPrefix("tf-acc-test")
+	oName := acctest.RandomWithPrefix("tf-acc-test")
+	oDescription := acctest.RandomWithPrefix("tf-acc-test")
+	oCategory := acctest.RandomWithPrefix("tf-acc-test")
 	sNameUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	sDescriptionUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	sCategoryUpdated := acctest.RandomWithPrefix("tf-acc-test")
 	resourceName := "sumologic_http_source.http"
 	tracingResourceName := "sumologic_http_source.traces"
 	kinesisResourceName := "sumologic_http_source.kinesisLog"
+	otlpResourceName := "sumologic_http_source.otlp"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory),
+				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sName, sDescription, sCategory),
@@ -106,6 +123,8 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 					testAccCheckHTTPSourceValues(&httpTraceSource, tName, tDescription, tCategory),
 					testAccCheckHTTPSourceExists(kinesisResourceName, &kinesisLogSource),
 					testAccCheckHTTPSourceValues(&kinesisLogSource, kName, kDescription, kCategory),
+					testAccCheckHTTPSourceExists(otlpResourceName, &httpOtlpSource),
+					testAccCheckHTTPSourceValues(&httpOtlpSource, oName, oDescription, oCategory),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "url"),
 					resource.TestCheckResourceAttr(resourceName, "name", sName),
@@ -124,10 +143,16 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(kinesisResourceName, "description", kDescription),
 					resource.TestCheckResourceAttr(kinesisResourceName, "category", kCategory),
 					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
+					resource.TestCheckResourceAttrSet(otlpResourceName, "id"),
+					resource.TestCheckResourceAttrSet(otlpResourceName, "url"),
+					resource.TestCheckResourceAttr(otlpResourceName, "name", oName),
+					resource.TestCheckResourceAttr(otlpResourceName, "description", oDescription),
+					resource.TestCheckResourceAttr(otlpResourceName, "category", oCategory),
+					resource.TestCheckResourceAttr(otlpResourceName, "content_type", "Otlp"),
 				),
 			},
 			{
-				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, tName, tDescription, tCategory, kName, kDescription, kCategory),
+				Config: testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckHTTPSourceExists(resourceName, &httpSource),
 					testAccCheckHTTPSourceValues(&httpSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -138,6 +163,7 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "category", sCategoryUpdated),
 					resource.TestCheckResourceAttr(tracingResourceName, "content_type", "Zipkin"),
 					resource.TestCheckResourceAttr(kinesisResourceName, "content_type", "KinesisLog"),
+					resource.TestCheckResourceAttr(otlpResourceName, "content_type", "Otlp"),
 				),
 			},
 		},
@@ -256,5 +282,13 @@ resource "sumologic_http_source" "kinesisLog" {
 	content_type = "KinesisLog"
 	collector_id = "${sumologic_collector.test.id}"
 }
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory)
+
+resource "sumologic_http_source" "otlp" {
+	name = "%s"
+	description = "%s"
+	category = "%s"
+	content_type = "Otlp"
+	collector_id = "${sumologic_collector.test.id}"
+}
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory)
 }
