@@ -52,7 +52,7 @@ func TestAccSumologicHTTPSource_create(t *testing.T) {
 					testAccCheckHTTPSourceExists(kinesisResourceName, &kinesisLogSource),
 					testAccCheckHTTPSourceValues(&kinesisLogSource, kName, kDescription, kCategory),
 					testAccCheckHTTPSourceExists(otlpResourceName, &httpOtlpSource),
-                    testAccCheckHTTPSourceValues(&httpOtlpSource, oName, oDescription, oCategory),
+					testAccCheckHTTPSourceValues(&httpOtlpSource, oName, oDescription, oCategory),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "url"),
 					resource.TestCheckResourceAttr(resourceName, "name", sName),
@@ -87,6 +87,7 @@ func TestAccSumologicHTTPSource_update(t *testing.T) {
 	var httpSource HTTPSource
 	var httpTraceSource HTTPSource
 	var kinesisLogSource HTTPSource
+	var httpOtlpSource HTTPSource
 	cName := acctest.RandomWithPrefix("tf-acc-test")
 	cDescription := acctest.RandomWithPrefix("tf-acc-test")
 	cCategory := acctest.RandomWithPrefix("tf-acc-test")
