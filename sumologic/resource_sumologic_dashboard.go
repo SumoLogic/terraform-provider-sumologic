@@ -132,7 +132,7 @@ func resourceSumologicDashboard() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"Light", "Dark"}, true),
 				Default:      "Light",
 			},
-			// TODO Do we need this field in terraform?
+			// TODO: This field is NOT supported. Remove it.
 			"coloring_rule": {
 				Type:     schema.TypeList,
 				Optional: true,
