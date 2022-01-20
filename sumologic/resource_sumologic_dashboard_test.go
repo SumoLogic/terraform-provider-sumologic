@@ -11,6 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+var firstLabelKey = "service"
+var secondLabelKey = "env"
+var topologyLabel = TopologyLabel{
+	Data: map[string][]string{
+		firstLabelKey:  {"collection-proxy"},
+		secondLabelKey: {"dev", "prod"},
+	},
+}
+
 func TestAccSumologicDashboard_basic(t *testing.T) {
 	testNameSuffix := acctest.RandString(16)
 	title := "terraform_test_dashboard_" + testNameSuffix
@@ -41,8 +50,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 	description := "Test dashboard description"
 	theme := "Dark"
 	refreshInterval := 120
-	topologyLabel := "service"
-	topologyLabelValue := "collection-proxy"
+
 	literalRangeName := "today"
 	textPanel := TextPanel{
 		Key:   "text-panel-001",
@@ -77,7 +85,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
-					topologyLabel, topologyLabelValue, literalRangeName, textPanel, layout, variable),
+					topologyLabel, literalRangeName, textPanel, layout, variable),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDashboardExists("sumologic_dashboard.tf_crud_test", &dashboard, t),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -89,9 +97,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"theme", theme),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"topology_label_map.0.data.0.label", topologyLabel),
-					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"topology_label_map.0.data.0.values.0", topologyLabelValue),
+						"topology_label_map.0.data.#", "2"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"time_range.#", "1"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -124,8 +130,6 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	description := "Test dashboard description"
 	theme := "Dark"
 	refreshInterval := 120
-	topologyLabel := "service"
-	topologyLabelValue := "collection-proxy"
 	literalRangeName := "today"
 	textPanel := TextPanel{
 		Key:   "text-panel-001",
@@ -155,7 +159,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	// updated config
 	newTheme := "Light"
 	newRefreshInterval := 300
-	newTopologyLabelValue := "collection-cluster"
+	newFirstLabelValue := "collection-cluster"
 	newLiteralRangeName := "week"
 	searchPanel := SumoSearchPanel{
 		Key:   "search-panel-001",
@@ -207,7 +211,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
-					topologyLabel, topologyLabelValue, literalRangeName, textPanel, layout, csvVariable),
+					topologyLabel, literalRangeName, textPanel, layout, csvVariable),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDashboardExists("sumologic_dashboard.tf_crud_test", &dashboard, t),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -217,7 +221,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"theme", theme),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"topology_label_map.0.data.0.values.0", topologyLabelValue),
+						"topology_label_map.0.data.#", "2"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"time_range.0.begin_bounded_time_range.0.from.0.literal_time_range.0.range_name",
 						literalRangeName),
@@ -237,7 +241,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 			},
 			{
 				Config: dashboardUpdateConfig(title, description, newTheme, newRefreshInterval,
-					topologyLabel, newTopologyLabelValue, newLiteralRangeName, textPanel, searchPanel,
+					firstLabelKey, newFirstLabelValue, newLiteralRangeName, textPanel, searchPanel,
 					newLayout, newVariables),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDashboardExists("sumologic_dashboard.tf_crud_test", &dashboard, t),
@@ -248,7 +252,11 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"theme", newTheme),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"topology_label_map.0.data.0.values.0", newTopologyLabelValue),
+						"topology_label_map.0.data.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
+						"topology_label_map.0.data.0.label", firstLabelKey),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
+						"topology_label_map.0.data.0.values.0", newFirstLabelValue),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"time_range.0.begin_bounded_time_range.0.from.0.literal_time_range.0.range_name",
 						newLiteralRangeName),
@@ -391,8 +399,8 @@ func dashboardImportConfig(title string) string {
 }
 
 func dashboardCreateConfig(title string, description string, theme string, refreshInterval int,
-	topologyLabel string, topologyLabelValue string, rangeName string, textPanel TextPanel,
-	layout GridLayout, variable Variable) string {
+	topologyLabel TopologyLabel, rangeName string, textPanel TextPanel, layout GridLayout,
+	variable Variable) string {
 
 	return fmt.Sprintf(`
 		data "sumologic_personal_folder" "personalFolder" {}
@@ -406,6 +414,10 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 				data {
 					label = "%s"
 					values = ["%s"]
+				}
+				data {
+					label = "%s"
+					values = ["%s", "%s"]
 				}
 			}
 			time_range {
@@ -448,8 +460,9 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 				hide_from_ui = false
 			}
 		}`,
-		title, description, refreshInterval, theme, topologyLabel, topologyLabelValue, rangeName,
-		textPanel.Key, textPanel.Title, textPanel.Text,
+		title, description, refreshInterval, theme, firstLabelKey, topologyLabel.Data[firstLabelKey][0],
+		secondLabelKey, topologyLabel.Data[secondLabelKey][0], topologyLabel.Data[secondLabelKey][1],
+		rangeName, textPanel.Key, textPanel.Title, textPanel.Text,
 		layout.LayoutStructures[0].Key, variable.Name, variable.DisplayName, variable.DefaultValue,
 		variable.SourceDefinition.(CsvVariableSourceDefinition).Values,
 	)
