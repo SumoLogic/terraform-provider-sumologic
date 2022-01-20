@@ -251,7 +251,7 @@ func testAccCheckHTTPSourceValues(httpSource *HTTPSource, name, description, cat
 	}
 }
 
-func testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory string) string {
+func testAccSumologicHTTPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
