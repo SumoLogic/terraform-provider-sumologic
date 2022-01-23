@@ -69,7 +69,7 @@ func resourceSumologicDashboard() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -948,9 +948,9 @@ func getTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 }
 
 func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
-	if items := tfTopologyLabel["data"].([]interface{}); len(items) >= 1 {
+	if items := tfTopologyLabel["data"].(*schema.Set); items.Len() >= 1 {
 		labelMap := make(map[string][]string)
-		for _, item := range items {
+		for _, item := range items.List() {
 			dataItem := item.(map[string]interface{})
 			key := dataItem["label"].(string)
 			itemValues := dataItem["values"].([]interface{})
@@ -960,6 +960,7 @@ func getTopologyLabel(tfTopologyLabel map[string]interface{}) *TopologyLabel {
 			}
 			labelMap[key] = values
 		}
+
 		return &TopologyLabel{
 			Data: labelMap,
 		}
