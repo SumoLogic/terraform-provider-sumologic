@@ -481,13 +481,13 @@ func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth
 
 	errTxt := ""
 	if len(strings.Trim(authSettings.ProjectId, " \t")) == 0 {
-		errTxt = errTxt + "\nproject_id is mandator while using service_account authentication"
+		errTxt = errTxt + "\nproject_id is mandatory while using service_account authentication"
 	}
 	if len(authSettings.ClientEmail) == 0 {
-		errTxt = errTxt + "\nclient_email is mandator while using service_account authentication"
+		errTxt = errTxt + "\nclient_email is mandatory while using service_account authentication"
 	}
 	if len(authSettings.PrivateKey) == 0 {
-		errTxt = errTxt + "\nprivate_key is mandator while using service_account authentication"
+		errTxt = errTxt + "\nprivate_key is mandatory while using service_account authentication"
 	}
 
 	if len(errTxt) == 0 {
