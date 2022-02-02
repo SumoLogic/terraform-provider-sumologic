@@ -3,6 +3,7 @@
 BUG FIXES:
 
 * sumologic_cse_log_mapping split_index as int (GH-333)
+* Gcp Metrics Source (GH-329, 332)
 
 ENHANCEMENTS:
 
