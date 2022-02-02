@@ -9,7 +9,7 @@ import (
 
 func resourceSumologicPermissions() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSumologicPermissionsCreate, // ?
+		Create: resourceSumologicPermissionsCreate,
 		Read:   resourceSumologicPermissionsRead,
 		Delete: resourceSumologicPermissionsDelete,
 		Update: resourceSumologicPermissionsUpdate,
@@ -55,7 +55,7 @@ func resourceSumologicPermissionsCreate(d *schema.ResourceData, meta interface{}
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		err := c.UpdatePermissions(PermissionsRequest{
+		id, err := c.UpdatePermissions(PermissionsRequest{
 			PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").([]interface{}), d.Get("content_id").(string)),
 			NotifyRecipients:        d.Get("notify_recipient").(bool),
 			NotificationMessage:     d.Get("notification_message").(string),
@@ -64,10 +64,10 @@ func resourceSumologicPermissionsCreate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-		d.SetId(d.Get("content_id").(string))
+		d.SetId(id)
 	}
 
-	return resourceSumologicCSEAggregationRuleRead(d, meta)
+	return resourceSumologicPermissionsRead(d, meta)
 }
 
 func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) error {
@@ -78,16 +78,22 @@ func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) 
 
 	permissionsResponse, err := c.GetPermissions(id)
 	if err != nil {
-		log.Printf("[WARN] Permissions not found when looking by id: %s, err: %v", id, err)
+		log.Printf("[WARN] Error when get permissions by id: %s, err: %v", id, err)
+		return err
 	}
 
 	if permissionsResponse == nil {
-		log.Printf("[WARN] CSE Aggregation Rule not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] Permission not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return nil
 	}
 
-	d.Set("permission", permissionsArrayToResource(permissionsResponse.ExplicitPermissions))
+	creatorId, _ := getCreatorId(id, meta)
+	if creatorId == "" {
+		log.Printf("[WARN] Creator id is empty for this content %v", id)
+	}
+
+	d.Set("permission", permissionsArrayToResource(permissionsResponse.ExplicitPermissions, creatorId))
 
 	return nil
 }
@@ -107,10 +113,32 @@ func resourceSumologicPermissionsUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	if err = c.UpdatePermissions(permissionRequest, d.Id()); err != nil {
+	if _, err = c.UpdatePermissions(permissionRequest, d.Id()); err != nil {
 		return err
 	}
 	return resourceSumologicPermissionsRead(d, meta)
+}
+
+func getCreatorId(contentId string, meta interface{}) (string, error) {
+	c := meta.(*Client)
+	path, err := c.GetContentPath(contentId)
+	if err != nil {
+		log.Printf("[WARN] Cannot get path for content %v - %v", contentId, err)
+		return "", err
+	}
+	if path == "" {
+		log.Printf("[WARN] Path is empty %v", contentId)
+		return "", nil
+	}
+	creatorId, err := c.GetCreatorId(path)
+	if err != nil {
+		log.Printf("[WARN] Cannot get content by path %v - %v", contentId, err)
+		return "", err
+	}
+	if creatorId == "" {
+		log.Printf("[WARN] Creator ID is empty %v", contentId)
+	}
+	return creatorId, nil
 }
 
 func resourceToPermissionsArray(resourcePermissions []interface{}, contentId string) []Permission {
@@ -129,15 +157,19 @@ func resourceToPermissionsArray(resourcePermissions []interface{}, contentId str
 	return result
 }
 
-func permissionsArrayToResource(permissions []Permission) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(permissions))
+func permissionsArrayToResource(permissions []Permission, creatorId string) []map[string]interface{} {
 
-	for i, permission := range permissions {
-		result[i] = map[string]interface{}{
+	result := make([]map[string]interface{}, 0)
+
+	for _, permission := range permissions {
+		if permission.SourceType == "user" && permission.SourceId == creatorId {
+			continue
+		}
+		result = append(result, map[string]interface{}{
 			"permission_name": permission.PermissionName,
 			"source_type":     permission.SourceType,
 			"source_id":       permission.SourceId,
-		}
+		})
 	}
 
 	return result
