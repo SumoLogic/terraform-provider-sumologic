@@ -5,6 +5,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * Add backoff on http 429s (GH-338)
+* Add `domain` field to the dashboard resource (GH-341)
 
 BUG FIXES:
 * Fix to allow more than one topology_label for Dashboard resource (GH-336)
