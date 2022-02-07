@@ -1,9 +1,10 @@
-## 2.12.0 (Unreleased)
+## 2.12.0 (February 7, 2022)
 
 FEATURES:
 * **New Resource:** Gcp Metrics Source `sumologic_gcp_metrics_source` (GH-329, 332)
 
 ENHANCEMENTS:
+* Add support for OTLP in HTTP source resource (GH-335)
 * Add backoff on http 429s (GH-338)
 * Add `domain` field to the dashboard resource (GH-341)
 
