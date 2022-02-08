@@ -28,7 +28,7 @@ func resourceSumologicPermissions() *schema.Resource {
 				Required: true,
 			},
 			"permission": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -56,7 +56,7 @@ func resourceSumologicPermissionsCreate(d *schema.ResourceData, meta interface{}
 
 	if d.Id() == "" {
 		id, err := c.UpdatePermissions(PermissionsRequest{
-			PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").([]interface{}), d.Get("content_id").(string)),
+			PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").(*schema.Set), d.Get("content_id").(string)),
 			NotifyRecipients:        d.Get("notify_recipient").(bool),
 			NotificationMessage:     d.Get("notification_message").(string),
 		}, d.Get("content_id").(string))
@@ -99,6 +99,7 @@ func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSumologicPermissionsDelete(d *schema.ResourceData, meta interface{}) error {
+	resourceSumologicPermissionsRead(d, meta)
 	c := meta.(*Client)
 	permissionRequest, err := resourceToPermissionRequest(d)
 	if err != nil {
@@ -113,6 +114,7 @@ func resourceSumologicPermissionsUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	resourceSumologicPermissionsDelete(d, meta)
 	if _, err = c.UpdatePermissions(permissionRequest, d.Id()); err != nil {
 		return err
 	}
@@ -141,10 +143,10 @@ func getCreatorId(contentId string, meta interface{}) (string, error) {
 	return creatorId, nil
 }
 
-func resourceToPermissionsArray(resourcePermissions []interface{}, contentId string) []Permission {
-	result := make([]Permission, len(resourcePermissions))
+func resourceToPermissionsArray(resourcePermissions *schema.Set, contentId string) []Permission {
+	result := make([]Permission, resourcePermissions.Len())
 
-	for i, resourcePermission := range resourcePermissions {
+	for i, resourcePermission := range resourcePermissions.List() {
 		PermissionMap := resourcePermission.(map[string]interface{})
 		result[i] = Permission{
 			PermissionName: PermissionMap["permission_name"].(string),
@@ -182,7 +184,7 @@ func resourceToPermissionRequest(d *schema.ResourceData) (PermissionsRequest, er
 	}
 
 	return PermissionsRequest{
-		PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").([]interface{}), id),
+		PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").(*schema.Set), id),
 		NotifyRecipients:        d.Get("notify_recipient").(bool),
 		NotificationMessage:     d.Get("notification_message").(string),
 	}, nil
