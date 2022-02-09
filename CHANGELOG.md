@@ -1,3 +1,8 @@
+## 2.12.1 (Unreleased)
+
+ENHANCEMENTS:
+* Add support for importing folder resource (GH-345)
+
 ## 2.12.0 (February 7, 2022)
 
 FEATURES:
