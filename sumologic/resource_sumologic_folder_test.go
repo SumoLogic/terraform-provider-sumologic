@@ -11,7 +11,7 @@ import (
 
 func TestAccFolder_basic(t *testing.T) {
 	var folder Folder
-  rName := acctest.RandString(10)
+	rName := acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
