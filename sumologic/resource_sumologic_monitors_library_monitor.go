@@ -368,8 +368,9 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"occurrence_type": &occurrenceTypeOptSchema,
 		}),
 	}),
 	"warning": nested(true, schemaMap{
@@ -380,8 +381,9 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"occurrence_type": &occurrenceTypeOptSchema,
 		}),
 	}),
 }
@@ -440,6 +442,12 @@ var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 var occurrenceTypeSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Required:     true,
+	ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
+}
+
+var occurrenceTypeOptSchema = schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
 	ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
 }
 
@@ -767,7 +775,8 @@ func metricsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCo
 	}
 	triggerConditions := base.cloneReadingFromNestedBlocks(block)
 	for i, _ := range triggerConditions {
-		if triggerConditions[i].TriggerType == "ResolvedCritical" || triggerConditions[i].TriggerType == "ResolvedWarning" {
+		if (triggerConditions[i].TriggerType == "ResolvedCritical" && triggerConditions[i].OccurrenceType == "") ||
+			(triggerConditions[i].TriggerType == "ResolvedWarning" && triggerConditions[i].OccurrenceType == "") {
 			triggerConditions[i].OccurrenceType = "Always"
 		}
 	}
@@ -943,6 +952,11 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
+			if condition.OccurrenceType == "AtLeastOnce" {
+				criticalRslv["occurrence_type"] = condition.OccurrenceType
+			} else {
+				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
+			}
 		case "Warning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
@@ -954,6 +968,11 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			warningDict["time_range"] = condition.PositiveTimeRange()
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
+			if condition.OccurrenceType == "AtLeastOnce" {
+				criticalRslv["occurrence_type"] = condition.OccurrenceType
+			} else {
+				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
+			}
 		}
 	}
 	if !hasCritical {
@@ -1210,6 +1229,11 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if critical, ok := fromSingletonArray(block, "critical"); ok {
 		criticalCondition.readFrom(critical)
 		resolvedCriticalCondition.readFrom(critical)
+		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
+			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
+			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
+			resolvedCriticalCondition.OccurrenceType = ""
+		}
 		if alert, ok := fromSingletonArray(critical, "alert"); ok {
 			criticalCondition.readFrom(alert)
 		}
@@ -1221,6 +1245,11 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)
 		resolvedWarningCondition.readFrom(warning)
+		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
+			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
+			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
+			resolvedCriticalCondition.OccurrenceType = ""
+		}
 		if alert, ok := fromSingletonArray(warning, "alert"); ok {
 			warningCondition.readFrom(alert)
 		}
