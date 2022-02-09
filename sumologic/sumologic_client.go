@@ -313,6 +313,8 @@ func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 10
 	retryClient.CheckRetry = checkRetry
+	// Disable DEBUG logs (https://github.com/hashicorp/go-retryablehttp/issues/31)
+	retryClient.Logger = nil
 
 	client := Client{
 		AccessID:      accessID,
