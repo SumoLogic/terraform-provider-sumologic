@@ -2,6 +2,7 @@
 
 ENHANCEMENTS:
 * Add support for importing folder resource (GH-345)
+* Allow AtLeastOnce resolution conditions for Metrics monitors  (GH-346)
 
 ## 2.12.0 (February 7, 2022)
 
