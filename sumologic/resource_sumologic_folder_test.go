@@ -9,6 +9,27 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestAccFolder_basic(t *testing.T) {
+	var folder Folder
+	rName := acctest.RandString(10)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFolderDestroy(folder),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicFolder(rName),
+			},
+			{
+				ResourceName:      "sumologic_folder.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccFolder_create(t *testing.T) {
 	var folder Folder
 	rName := acctest.RandString(10)

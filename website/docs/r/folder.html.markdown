@@ -27,6 +27,13 @@ The following arguments are supported:
 - `parent_id` - (Required) The ID of the folder in which you want to create the new folder.
 - `description` - (Optional) The description of the folder.
 
+## Import
+Folders can be imported using the folder id, e.g.:
+
+```hcl
+terraform import sumologic_folder.folder 00000000094D2B18
+```
+
 ### Timeouts
 
 `sumologic_folder` provides the following [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
