@@ -2,6 +2,7 @@
 
 ENHANCEMENTS:
 * Add support for importing folder resource (GH-345)
+* Allow AtLeastOnce resolution conditions for Metrics monitors  (GH-346)
 
 ## 2.12.0 (February 7, 2022)
 
@@ -12,7 +13,6 @@ ENHANCEMENTS:
 * Add support for OTLP in HTTP source resource (GH-335)
 * Add backoff on http 429s (GH-338)
 * Add `domain` field to the dashboard resource (GH-341)
-* Allow AtLeastOnce resolution conditions for Metrics monitors  (GH-346)
 
 BUG FIXES:
 * Fix to allow more than one topology_label for Dashboard resource (GH-336)
