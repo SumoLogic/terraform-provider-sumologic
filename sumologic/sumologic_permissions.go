@@ -23,7 +23,9 @@ func (s *Client) GetPermissions(id string) (*PermissionsResponse, error) {
 	return &contentPermssionsResponse, nil
 }
 
-func (s *Client) UpdatePermissions(contentPermissionsRequest PermissionsRequest, id string) (string, error) {
+func (s *Client) UpdatePermissions(contentPermissionsRequest PermissionsRequest,
+	id string) (string, error) {
+
 	url := fmt.Sprintf("v2/content/%s/permissions/add", id)
 	_, err := s.Put(url, contentPermissionsRequest)
 	return id, err
@@ -75,9 +77,9 @@ type PermissionsResponse struct {
 }
 
 type PermissionsRequest struct {
-	PermissionAssignmentype []Permission `json:"contentPermissionAssignments"`
-	NotifyRecipients        bool         `json:"notifyRecipients"`
-	NotificationMessage     string       `json:"notificationMessage"`
+	Permissions         []Permission `json:"contentPermissionAssignments"`
+	NotifyRecipients    bool         `json:"notifyRecipients"`
+	NotificationMessage string       `json:"notificationMessage"`
 }
 
 type Permission struct {

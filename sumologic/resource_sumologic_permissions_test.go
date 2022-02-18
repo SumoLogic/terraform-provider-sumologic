@@ -17,13 +17,16 @@ func TestAccPermission_create(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+				Config: testAccSumologicPermission(
+					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notification_message", "create"),
-					// need to figure out how to test TypeSet
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notification_message", "create"),
+					// Need to upgrade to plugin SDKv2 to test TypeSet objects
 				),
 			},
 		},
@@ -39,20 +42,26 @@ func TestAccPermission_update(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+				Config: testAccSumologicPermission(
+					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notification_message", "create"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notification_message", "create"),
 				),
 			}, {
-				Config: testAccSumologicPermissionUpdate(otherResource, true, "update", "user", "sumologic_user.permission_test_user"),
+				Config: testAccSumologicPermissionUpdate(
+					otherResource, true, "update", "user", "sumologic_user.permission_test_user"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notify_recipient", "true"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notification_message", "update"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notify_recipient", "true"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notification_message", "update"),
 				),
 			},
 		},
@@ -68,12 +77,15 @@ func TestAccPermission_delete(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+				Config: testAccSumologicPermission(
+					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
-					resource.TestCheckResourceAttr("sumologic_content_permission.content_permission_test", "notification_message", "create"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notify_recipient", "false"),
+					resource.TestCheckResourceAttr(
+						"sumologic_content_permission.content_permission_test", "notification_message", "create"),
 				),
 			}, {
 				Config: testAccSumologicPermissionDelete(),
@@ -94,7 +106,7 @@ func testAccCheckPermissionDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("CSE Chain Rule destruction check: CSE Chain Rule ID is not set")
+			return fmt.Errorf("Content Permission ID is not set")
 		}
 		id := rs.Primary.ID
 		u, err := client.GetPermissions(id)
@@ -102,7 +114,7 @@ func testAccCheckPermissionDestroy(s *terraform.State) error {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
 		if u != nil {
-			return fmt.Errorf("content still exists")
+			return fmt.Errorf("Content and permissions still exists")
 		}
 	}
 	return nil
@@ -141,7 +153,8 @@ func testAccCheckPermissionDelete(name string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckPermissionExists(name string, response *PermissionsResponse, t *testing.T) resource.TestCheckFunc {
+func testAccCheckPermissionExists(name string, response *PermissionsResponse,
+	t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -174,45 +187,47 @@ func testAccCheckPermissionAttributes(name string) resource.TestCheckFunc {
 	}
 }
 
-func testAccSumologicPermission(resource string, notify_recipient bool, notification_message string, source_type string, source_id string) string {
+func testAccSumologicPermission(resource string, notify_recipient bool, notification_message string,
+	source_type string, source_id string) string {
 	return fmt.Sprintf(`
-	%s
+		%s
 
-	resource "sumologic_content_permission" "content_permission_test" {
-		content_id = sumologic_content.permission_test_content.id
-		notify_recipient = %t
-		notification_message = "%s"
-		permission {
-			permission_name = "View"
-			source_type = "%s"
-			source_id = %s.id
-		}
-	}
-	
-`, resource, notify_recipient, notification_message, source_type, source_id)
+		resource "sumologic_content_permission" "content_permission_test" {
+			content_id = sumologic_content.permission_test_content.id
+			notify_recipient = %t
+			notification_message = "%s"
+			permission {
+				permission_name = "View"
+				source_type = "%s"
+				source_id = %s.id
+			}
+		}`,
+		resource, notify_recipient, notification_message, source_type, source_id,
+	)
 }
 
-func testAccSumologicPermissionUpdate(resource string, notify_recipient bool, notification_message string, source_type string, source_id string) string {
+func testAccSumologicPermissionUpdate(resource string, notify_recipient bool,
+	notification_message string, source_type string, source_id string) string {
 	return fmt.Sprintf(`
-	%s
+		%s
 
-	resource "sumologic_content_permission" "content_permission_test" {
-		content_id = sumologic_content.permission_test_content.id
-		notify_recipient = %t
-		notification_message = "%s"
-		permission {
-			permission_name = "View"
-			source_type = "role"
-			source_id = sumologic_role.permission_test_role.id
-		}
-		permission {
-			permission_name = "View"
-			source_type = "%s"
-			source_id = %s.id
-		}
-	}
-	
-`, resource, notify_recipient, notification_message, source_type, source_id)
+		resource "sumologic_content_permission" "content_permission_test" {
+			content_id = sumologic_content.permission_test_content.id
+			notify_recipient = %t
+			notification_message = "%s"
+			permission {
+				permission_name = "View"
+				source_type = "role"
+				source_id = sumologic_role.permission_test_role.id
+			}
+			permission {
+				permission_name = "View"
+				source_type = "%s"
+				source_id = %s.id
+			}
+		}`,
+		resource, notify_recipient, notification_message, source_type, source_id,
+	)
 }
 
 func testAccSumologicPermissionDelete() string {
@@ -220,29 +235,28 @@ func testAccSumologicPermissionDelete() string {
 }
 
 var otherResource = `
-data "sumologic_personal_folder" "personalFolder" {}
+	data "sumologic_personal_folder" "personalFolder" {}
 
-resource "sumologic_content" "permission_test_content" {
-	parent_id = data.sumologic_personal_folder.personalFolder.id
-	config = jsonencode({
-		"type": "FolderSyncDefinition",
-		"name": "test_permission_resource_folder",
-		"description": "",
-		"children": []
-	})
-}
+	resource "sumologic_content" "permission_test_content" {
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		config = jsonencode({
+			"type": "FolderSyncDefinition",
+			"name": "test_permission_resource_folder",
+			"description": "",
+			"children": []
+		})
+	}
 
-resource "sumologic_role" "permission_test_role" {
-  name        = "permission_test_role"
-  description = "Testing content permission resource"
-}
+	resource "sumologic_role" "permission_test_role" {
+		name        = "permission_test_role"
+		description = "Testing content permission resource"
+	}
 
-resource "sumologic_user" "permission_test_user" {
-first_name   = "test"
-last_name    = "permission"
-email        = "testpermission@gmail.com"
-is_active    = true
-role_ids     = [sumologic_role.permission_test_role.id]
-transfer_to  = ""
-}
-`
+	resource "sumologic_user" "permission_test_user" {
+		first_name   = "test"
+		last_name    = "permission"
+		email        = "testpermission@gmail.com"
+		is_active    = true
+		role_ids     = [sumologic_role.permission_test_role.id]
+		transfer_to  = ""
+	}`

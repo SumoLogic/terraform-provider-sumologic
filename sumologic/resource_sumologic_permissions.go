@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicPermissions() *schema.Resource {
@@ -13,6 +14,9 @@ func resourceSumologicPermissions() *schema.Resource {
 		Read:   resourceSumologicPermissionsRead,
 		Delete: resourceSumologicPermissionsDelete,
 		Update: resourceSumologicPermissionsUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"content_id": {
@@ -25,7 +29,8 @@ func resourceSumologicPermissions() *schema.Resource {
 			},
 			"notification_message": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Default:  "",
 			},
 			"permission": {
 				Type:     schema.TypeSet,
@@ -35,10 +40,13 @@ func resourceSumologicPermissions() *schema.Resource {
 						"permission_name": {
 							Type:     schema.TypeString,
 							Required: true,
+							ValidateFunc: validation.StringInSlice(
+								[]string{"View", "GrantView", "Edit", "GrantEdit", "Manage", "GrantManage"}, false),
 						},
 						"source_type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"user", "role", "org"}, false),
 						},
 						"source_id": {
 							Type:     schema.TypeString,
@@ -56,9 +64,10 @@ func resourceSumologicPermissionsCreate(d *schema.ResourceData, meta interface{}
 
 	if d.Id() == "" {
 		id, err := c.UpdatePermissions(PermissionsRequest{
-			PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").(*schema.Set), d.Get("content_id").(string)),
-			NotifyRecipients:        d.Get("notify_recipient").(bool),
-			NotificationMessage:     d.Get("notification_message").(string),
+			Permissions: resourceToPermissionsArray(d.Get("permission").(*schema.Set),
+				d.Get("content_id").(string)),
+			NotifyRecipients:    d.Get("notify_recipient").(bool),
+			NotificationMessage: d.Get("notification_message").(string),
 		}, d.Get("content_id").(string))
 
 		if err != nil {
@@ -78,12 +87,13 @@ func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) 
 
 	permissionsResponse, err := c.GetPermissions(id)
 	if err != nil {
-		log.Printf("[WARN] Error when get permissions by id: %s, err: %v", id, err)
+		log.Printf("[WARN] Error getting permissions for content(id=%s), err: %v", id, err)
 		return err
 	}
 
 	if permissionsResponse == nil {
-		log.Printf("[WARN] Permission not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] Permissions not found for content(id=%s), removing from state. err: %v",
+			id, err)
 		d.SetId("")
 		return nil
 	}
@@ -93,7 +103,9 @@ func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[WARN] Creator id is empty for this content %v", id)
 	}
 
-	d.Set("permission", permissionsArrayToResource(permissionsResponse.ExplicitPermissions, creatorId))
+	d.Set("permission",
+		permissionsArrayToResource(permissionsResponse.ExplicitPermissions, creatorId))
+	log.Printf("[WARN] Content id %v", d.Get("content_id"))
 
 	return nil
 }
@@ -184,8 +196,8 @@ func resourceToPermissionRequest(d *schema.ResourceData) (PermissionsRequest, er
 	}
 
 	return PermissionsRequest{
-		PermissionAssignmentype: resourceToPermissionsArray(d.Get("permission").(*schema.Set), id),
-		NotifyRecipients:        d.Get("notify_recipient").(bool),
-		NotificationMessage:     d.Get("notification_message").(string),
+		Permissions:         resourceToPermissionsArray(d.Get("permission").(*schema.Set), id),
+		NotifyRecipients:    d.Get("notify_recipient").(bool),
+		NotificationMessage: d.Get("notification_message").(string),
 	}, nil
 }
