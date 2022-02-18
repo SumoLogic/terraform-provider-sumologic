@@ -87,8 +87,6 @@ permissions.
 - `permission` - (Required) Permission block defining permission on the content. See
 [permission schema](#schema-for-permission) for details.
 
-## Attributes reference
-
 ### Schema for `permission`
 - `permission_name` - (Required) Content permission name. Valid values are `View`, `GrantView`,
 `Edit`, `GrantEdit`, `Manage`, and `GrantManage`. You can read more about permission levels
@@ -98,3 +96,10 @@ and `org`.
 - `source_id` - (Required) An identifier that belongs to the source type chosen above. For example,
 if the `sourceType` is set to `user`, `sourceId` should be identifier of the user you want to share
 content with (same goes for role and org source type).
+
+## Import
+Permisions on a content item can be imported using the content identifier, e.g.:
+```hcl
+// import permissions for content item with identifier = 0000000008E0183E
+terraform import sumologic_content_permission.dashboard_permission_import 0000000008E0183E
+```

@@ -17,7 +17,7 @@ func TestAccPermission_create(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(
+				Config: testAccSumologicPermissionCreate(
 					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
@@ -42,7 +42,7 @@ func TestAccPermission_update(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(
+				Config: testAccSumologicPermissionCreate(
 					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
@@ -77,7 +77,7 @@ func TestAccPermission_delete(t *testing.T) {
 		CheckDestroy: testAccCheckPermissionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicPermission(
+				Config: testAccSumologicPermissionCreate(
 					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
@@ -187,7 +187,7 @@ func testAccCheckPermissionAttributes(name string) resource.TestCheckFunc {
 	}
 }
 
-func testAccSumologicPermission(resource string, notify_recipient bool, notification_message string,
+func testAccSumologicPermissionCreate(resource string, notify_recipient bool, notification_message string,
 	source_type string, source_id string) string {
 	return fmt.Sprintf(`
 		%s
