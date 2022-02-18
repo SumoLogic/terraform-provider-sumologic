@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -24,7 +25,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -49,7 +50,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -64,6 +65,42 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Optional: true,
 				},
 				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"project_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"private_key_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"private_key": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_email": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"auth_uri": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"token_uri": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"auth_provider_x509_cert_url": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_x509_cert_url": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
@@ -82,7 +119,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsInventoryPath", "AwsXRayPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -106,7 +143,32 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						Type: schema.TypeString,
 					},
 				},
-
+				"limit_to_services": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
+				"custom_services": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"service_name": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"prefixes": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+						},
+					},
+				},
 				"tag_filters": {
 					Type:     schema.TypeList,
 					Optional: true,
@@ -273,6 +335,8 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"path_expression":               t.Path.PathExpression,
 			"limit_to_regions":              t.Path.LimitToRegions,
 			"limit_to_namespaces":           t.Path.LimitToNamespaces,
+			"limit_to_services":             t.Path.LimitToServices,
+			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
 		}
@@ -287,15 +351,56 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"type":       t.Authentication.Type,
-			"access_key": t.Authentication.AwsID,
-			"secret_key": t.Authentication.AwsKey,
-			"role_arn":   t.Authentication.RoleARN,
-			"region":     t.Authentication.Region,
+			"type":                        t.Authentication.Type,
+			"access_key":                  t.Authentication.AwsID,
+			"secret_key":                  t.Authentication.AwsKey,
+			"role_arn":                    t.Authentication.RoleARN,
+			"region":                      t.Authentication.Region,
+			"project_id":                  t.Authentication.ProjectId,
+			"private_key_id":              t.Authentication.PrivateKeyId,
+			"private_key":                 t.Authentication.PrivateKey,
+			"client_email":                t.Authentication.ClientEmail,
+			"client_id":                   t.Authentication.ClientId,
+			"auth_uri":                    t.Authentication.AuthUrl,
+			"token_uri":                   t.Authentication.TokenUrl,
+			"auth_provider_x509_cert_url": t.Authentication.AuthProviderX509CertUrl,
+			"client_x509_cert_url":        t.Authentication.ClientX509CertUrl,
 		}
 		s = append(s, mapping)
 	}
 	return s
+}
+
+func flattenCustomServices(v []string) []map[string]interface{} {
+	var custom_services []map[string]interface{}
+	for _, d := range v {
+		custom_service_name_and_prefixes := strings.Split(d, "=")
+		custom_service_name := custom_service_name_and_prefixes[0]
+		custom_service_prefixes := strings.Split(custom_service_name_and_prefixes[1], ";")
+		custom_service := map[string]interface{}{
+			"service_name": custom_service_name,
+			"prefixes":     custom_service_prefixes,
+		}
+		custom_services = append(custom_services, custom_service)
+	}
+	return custom_services
+}
+
+func getCustomServices(path map[string]interface{}) []string {
+	var customServices []string
+	rawCustomServicesConfig := path["custom_services"].([]interface{})
+	for _, rawCustomServiceConfig := range rawCustomServicesConfig {
+		customServiceConfig := rawCustomServiceConfig.(map[string]interface{})
+		customServiceName := customServiceConfig["service_name"].(string)
+		customServicePrefixesInterface := customServiceConfig["prefixes"].([]interface{})
+		var customServicePrefixes []string
+		for _, v := range customServicePrefixesInterface {
+			customServicePrefixes = append(customServicePrefixes, v.(string))
+		}
+		customServices = append(customServices,
+			fmt.Sprintf("%s=%s", customServiceName, strings.Join(customServicePrefixes[:], ";")))
+	}
+	return customServices
 }
 
 func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
@@ -362,6 +467,36 @@ func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) PollingSnsTopic
 	return snsTopicOrSubscriptionArn
 }
 
+func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth map[string]interface{}) error {
+	authSettings.Type = "service_account"
+	authSettings.ProjectId = auth["project_id"].(string)
+	authSettings.PrivateKeyId = auth["private_key_id"].(string)
+	authSettings.PrivateKey = auth["private_key"].(string)
+	authSettings.ClientEmail = auth["client_email"].(string)
+	authSettings.ClientId = auth["client_id"].(string)
+	authSettings.AuthUrl = auth["auth_uri"].(string)
+	authSettings.TokenUrl = auth["token_uri"].(string)
+	authSettings.AuthProviderX509CertUrl = auth["auth_provider_x509_cert_url"].(string)
+	authSettings.ClientX509CertUrl = auth["client_x509_cert_url"].(string)
+
+	errTxt := ""
+	if len(strings.Trim(authSettings.ProjectId, " \t")) == 0 {
+		errTxt = errTxt + "\nproject_id is mandatory while using service_account authentication"
+	}
+	if len(authSettings.ClientEmail) == 0 {
+		errTxt = errTxt + "\nclient_email is mandatory while using service_account authentication"
+	}
+	if len(authSettings.PrivateKey) == 0 {
+		errTxt = errTxt + "\nprivate_key is mandatory while using service_account authentication"
+	}
+
+	if len(errTxt) == 0 {
+		return nil
+	} else {
+		return errors.New(errTxt)
+	}
+}
+
 func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, error) {
 	auths := d.Get("authentication").([]interface{})
 	authSettings := PollingAuthentication{}
@@ -386,6 +521,12 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			if auth["region"] != nil {
 				authSettings.Region = auth["region"].(string)
 			}
+		case "service_account":
+			err := addGcpServiceAccountDetailsToAuth(&authSettings, auth)
+			if err != nil {
+				return authSettings, err
+			}
+
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
@@ -394,6 +535,30 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 	}
 
 	return authSettings, nil
+}
+
+func getLimitToRegions(path map[string]interface{}) []string {
+	rawLimitToRegions := path["limit_to_regions"].([]interface{})
+	limitToRegions := make([]string, len(rawLimitToRegions))
+	for i, v := range rawLimitToRegions {
+		limitToRegions[i] = v.(string)
+	}
+	return limitToRegions
+}
+
+func getLimitToServices(path map[string]interface{}) []string {
+	rawLimitToServices := path["limit_to_services"].([]interface{})
+	limitToServices := make([]string, len(rawLimitToServices))
+	for i, v := range rawLimitToServices {
+		limitToServices[i] = v.(string)
+	}
+	return limitToServices
+}
+
+func addGcpMetricsPathSettings(pathSettings *PollingPath, path map[string]interface{}) {
+	pathSettings.LimitToRegions = getLimitToRegions(path)
+	pathSettings.LimitToServices = getLimitToServices(path)
+	pathSettings.CustomServices = getCustomServices(path)
 }
 
 func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
@@ -440,6 +605,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
+		case "GcpMetricsPath":
+			pathSettings.Type = pathType
+			addGcpMetricsPathSettings(&pathSettings, path)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)

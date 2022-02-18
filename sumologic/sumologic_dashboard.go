@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 func (s *Client) GetDashboard(id string) (*Dashboard, error) {
@@ -20,6 +21,7 @@ func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[GetDashboard] response: %+v\n", dashboard)
 	return &dashboard, nil
 }
 
@@ -34,6 +36,7 @@ func (s *Client) CreateDashboard(dashboardReq Dashboard) (*Dashboard, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[CreateDashboard] response: %+v\n", dashboard)
 	return &dashboard, nil
 }
 
@@ -55,6 +58,7 @@ type Dashboard struct {
 	Description      string         `json:"description"`
 	FolderId         string         `json:"folderId"`
 	TopologyLabelMap *TopologyLabel `json:"topologyLabelMap"`
+	Domain           string         `json:"domain"`
 	RefreshInterval  int            `json:"refreshInterval"`
 	TimeRange        interface{}    `json:"timeRange"`
 	Panels           []interface{}  `json:"panels"`

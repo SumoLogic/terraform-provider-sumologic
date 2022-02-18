@@ -9,6 +9,7 @@ require (
 	github.com/go-errors/errors v1.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/hashicorp/go-hclog v0.16.2 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab // indirect

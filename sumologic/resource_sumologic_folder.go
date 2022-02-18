@@ -13,9 +13,9 @@ func resourceSumologicFolder() *schema.Resource {
 		Read:   resourceSumologicFolderRead,
 		Delete: resourceSumologicFolderDelete,
 		Update: resourceSumologicFolderUpdate,
-		//		Importer: &schema.ResourceImporter{
-		//			State: resourceSumologicFolderImport,
-		//		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"parent_id": {
