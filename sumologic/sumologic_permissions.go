@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 func (s *Client) GetPermissions(id string) (*PermissionsResponse, error) {
@@ -44,31 +45,32 @@ func (s *Client) GetContentPath(id string) (string, error) {
 		return "", err
 	}
 	if data == nil {
-		return "", nil
+		return "", fmt.Errorf("Cannot find path of content='%s'", id)
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(data, &m)
+	rsp := make(map[string]interface{})
+	err = json.Unmarshal(data, &rsp)
 	if err != nil {
 		return "", err
 	}
-	return m["path"].(string), nil
+	return rsp["path"].(string), nil
 }
 
 func (s *Client) GetCreatorId(path string) (string, error) {
-	url := fmt.Sprintf("v2/content/path?path=%s", path)
+	url := fmt.Sprintf("v2/content/path?path=%s", url.QueryEscape(path))
 	data, _, err := s.Get(url)
 	if err != nil {
 		return "", err
 	}
 	if data == nil {
-		return "", nil
+		return "", fmt.Errorf("Cannot find content by path='%s'", path)
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(data, &m)
+
+	rsp := make(map[string]interface{})
+	err = json.Unmarshal(data, &rsp)
 	if err != nil {
 		return "", err
 	}
-	return m["createdBy"].(string), nil
+	return rsp["createdBy"].(string), nil
 }
 
 type PermissionsResponse struct {

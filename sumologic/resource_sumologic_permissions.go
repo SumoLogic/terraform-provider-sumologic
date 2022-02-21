@@ -98,9 +98,10 @@ func resourceSumologicPermissionsRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	creatorId, _ := getCreatorId(id, meta)
-	if creatorId == "" {
-		log.Printf("[WARN] Creator id is empty for this content %v", id)
+	creatorId, err := getCreatorId(id, meta)
+	if err != nil {
+		log.Printf("[ERROR] Cannot find owner of content %s", id)
+		return err
 	}
 
 	d.Set("permission",
@@ -137,21 +138,16 @@ func getCreatorId(contentId string, meta interface{}) (string, error) {
 	c := meta.(*Client)
 	path, err := c.GetContentPath(contentId)
 	if err != nil {
-		log.Printf("[WARN] Cannot get path for content %v - %v", contentId, err)
+		log.Printf("[ERROR] Cannot get path for content %s - %v", contentId, err)
 		return "", err
 	}
-	if path == "" {
-		log.Printf("[WARN] Path is empty %v", contentId)
-		return "", nil
-	}
+
 	creatorId, err := c.GetCreatorId(path)
 	if err != nil {
-		log.Printf("[WARN] Cannot get content by path %v - %v", contentId, err)
+		log.Printf("[ERROR] Cannot find owner of content %s - %v", contentId, err)
 		return "", err
 	}
-	if creatorId == "" {
-		log.Printf("[WARN] Creator ID is empty %v", contentId)
-	}
+	log.Printf("[DEBUG] content=%s, path='%s', owner=%s", contentId, path, creatorId)
 	return creatorId, nil
 }
 

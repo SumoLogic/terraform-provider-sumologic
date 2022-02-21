@@ -98,7 +98,6 @@ func TestAccPermission_delete(t *testing.T) {
 }
 
 func testAccCheckPermissionDestroy(s *terraform.State) error {
-	// keep it here at this moment
 	client := testAccProvider.Meta().(*Client)
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "sumologic_content_permission" {
@@ -140,9 +139,9 @@ func testAccCheckPermissionDelete(name string) resource.TestCheckFunc {
 		if s == nil {
 			return fmt.Errorf("All permissions have been deleted")
 		}
-		creatorId, _ := getCreatorId(contentId, meta)
-		if creatorId == "" {
-			return fmt.Errorf("Empty creator's id")
+		creatorId, err := getCreatorId(contentId, meta)
+		if err != nil {
+			return err
 		}
 		for _, permission := range permissions.ExplicitPermissions {
 			if creatorId != permission.SourceId || permission.SourceType != "user" {

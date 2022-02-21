@@ -12,7 +12,7 @@ org. You can read more [here](https://help.sumologic.com/Manage/Content_Sharing/
 There are three permission levels `View`, `Edit` and `Manage`. You can read more about different
 levels [here](https://help.sumologic.com/Manage/Content_Sharing/Share-Content#available-permission-levels).
 
--> When you add a new permission to a content, all the lower level permissions are added by default.
+~> When you add a new permission to a content, all the lower level permissions are added by default.
 For example, giving a user "Manage" permission on a content, implicitly gives them "Edit" and "View"
 permissions on the content. Due to this behavior, when you add a higher level permission, you must
 also add all the lower level permissions. For example, when you give a user "Edit" permission via
