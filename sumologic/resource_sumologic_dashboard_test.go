@@ -24,11 +24,10 @@ func TestAccSumologicDashboard_basic(t *testing.T) {
 	testNameSuffix := acctest.RandString(16)
 	title := "terraform_test_dashboard_" + testNameSuffix
 
-	var dashboard Dashboard
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDashboardDestroy(dashboard),
+		CheckDestroy: testAccCheckDashboardDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardImportConfig(title),
@@ -81,7 +80,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDashboardDestroy(dashboard),
+		CheckDestroy: testAccCheckDashboardDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
@@ -211,7 +210,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDashboardDestroy(dashboard),
+		CheckDestroy: testAccCheckDashboardDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
@@ -301,12 +300,22 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	})
 }
 
-func testAccCheckDashboardDestroy(dashboard Dashboard) resource.TestCheckFunc {
+func testAccCheckDashboardDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
-		_, err := client.GetDashboard(dashboard.ID)
-		if err == nil {
-			return fmt.Errorf("Dashboard (id=%s) still exists", dashboard.ID)
+		for _, r := range s.RootModule().Resources {
+			if r.Type != "sumologic_dashboard" {
+				continue
+			}
+
+			id := r.Primary.ID
+			dashboard, err := client.GetDashboard(id)
+			if err != nil {
+				return fmt.Errorf("Encountered an error: " + err.Error())
+			}
+			if dashboard != nil {
+				return fmt.Errorf("Dashboard (id=%s) still exists", id)
+			}
 		}
 		return nil
 	}
