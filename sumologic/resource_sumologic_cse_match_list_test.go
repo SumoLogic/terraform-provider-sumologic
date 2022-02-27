@@ -46,16 +46,16 @@ func TestAccSumologicSCEMatchList_update(t *testing.T) {
 	var matchList CSEMatchListGet
 	nActive := true
 	nDefaultTtl := 10800
-	nDescription := "New Match List Description"
-	nName := "Match List Name"
+	nDescription := "New Match List Description2"
+	nName := "Match List Name2"
 	nTargetColumn := "SrcIp"
 	liActive := true
-	liDescription := "Match List Item Description"
+	liDescription := "Match List Item Description2"
 	liValue := "value"
 	liExpiration := "2122-02-27T04:00:00"
 	uDefaultTtl := 3600
-	uDescription := "Updated Match List Description"
-	uliDescription := "Updated Match List item Description"
+	uDescription := "Updated Match List Description2"
+	uliDescription := "Updated Match List item Description2"
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	resource.Test(t, resource.TestCase{
