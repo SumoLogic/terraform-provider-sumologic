@@ -8,54 +8,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicSCEMatchList_create(t *testing.T) {
+func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	var matchList CSEMatchListGet
 	nActive := true
 	nDefaultTtl := 10800
 	nDescription := "New Match List Description"
-	nName := "Match List Name"
+	nName := "Match List Name2"
 	nTargetColumn := "SrcIp"
 	liActive := true
 	liDescription := "Match List Item Description"
 	liValue := "value"
 	liExpiration := "2122-02-27T04:00:00"
-
-	resourceName := "sumologic_cse_match_list.match_list"
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCSEMatchListDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreateCSEMatchListConfig(nActive, nDefaultTtl, nDescription, nName, nTargetColumn, liActive, liDescription, liExpiration, liValue),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccSumologicSCEMatchList_update(t *testing.T) {
-	SkipCseTest(t)
-
-	var matchList CSEMatchListGet
-	nActive := true
-	nDefaultTtl := 10800
-	nDescription := "New Match List Description2"
-	nName := "Match List Name2"
-	nTargetColumn := "SrcIp"
-	liActive := true
-	liDescription := "Match List Item Description2"
-	liValue := "value"
-	liExpiration := "2122-02-27T04:00:00"
 	uDefaultTtl := 3600
-	uDescription := "Updated Match List Description2"
-	uliDescription := "Updated Match List item Description2"
+	uDescription := "Updated Match List Description"
+	uliDescription := "Updated Match List item Description"
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	resource.Test(t, resource.TestCase{
