@@ -211,7 +211,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 
 			// Calling Sleep method, adding items might take a while before items retrieved in next section
 			// Need to find a better way since feels super hacky
-			time.Sleep(30 * time.Second)
+			time.Sleep(15 * time.Second)
 
 		}
 
@@ -270,7 +270,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 		// Calling Sleep method, adding items might take a while before items retrieved in next section
 		// Need to find a better way since feels super hacky
-		time.Sleep(30 * time.Second)
+		time.Sleep(15 * time.Second)
 	}
 
 	return resourceSumologicCSEMatchListRead(d, meta)
