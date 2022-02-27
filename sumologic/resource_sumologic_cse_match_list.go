@@ -17,10 +17,6 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"active": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 			"default_ttl": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -65,10 +61,6 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
-						},
-						"active": {
-							Type:     schema.TypeBool,
-							Required: true,
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -143,7 +135,6 @@ func setItems(d *schema.ResourceData, items []CSEMatchListItemGet) {
 	for _, t := range items {
 		mapping := map[string]interface{}{
 			"id":          t.ID,
-			"active":      t.Active,
 			"description": t.Meta.Description,
 			"expiration":  t.Expiration,
 			"value":       t.Value,
@@ -184,7 +175,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 
 	if d.Id() == "" {
 		id, err := c.CreateCSEMatchList(CSEMatchListPost{
-			Active:       d.Get("active").(bool),
+			Active:       true,
 			DefaultTtl:   d.Get("default_ttl").(int),
 			Description:  d.Get("description").(string),
 			Name:         d.Get("name").(string),
@@ -227,7 +218,7 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 		itemObj := itemsSlice[0].(map[string]interface{})
 		item.ID = itemObj["id"].(string)
 		item.Description = itemObj["description"].(string)
-		item.Active = itemObj["active"].(bool)
+		item.Active = true
 		item.Expiration = itemObj["expiration"].(string)
 		item.Value = itemObj["value"].(string)
 	}
@@ -284,7 +275,7 @@ func resourceToCSEMatchList(d *schema.ResourceData) (CSEMatchListPost, error) {
 
 	return CSEMatchListPost{
 		ID:           id,
-		Active:       d.Get("active").(bool),
+		Active:       true,
 		DefaultTtl:   d.Get("default_ttl").(int),
 		Description:  d.Get("description").(string),
 		Name:         d.Get("name").(string),

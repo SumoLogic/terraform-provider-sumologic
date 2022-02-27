@@ -12,12 +12,10 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	var matchList CSEMatchListGet
-	nActive := true
 	nDefaultTtl := 10800
 	nDescription := "New Match List Description"
 	nName := "Match List Name"
 	nTargetColumn := "SrcIp"
-	liActive := true
 	liDescription := "Match List Item Description"
 	liValue := "value"
 	liExpiration := "2122-02-27T04:00:00"
@@ -32,7 +30,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEMatchListConfig(nActive, nDefaultTtl, nDescription, nName, nTargetColumn, liActive, liDescription, liExpiration, liValue),
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
@@ -40,7 +38,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: testCreateCSEMatchListConfig(nActive, uDefaultTtl, uDescription, nName, nTargetColumn, liActive, uliDescription, liExpiration, liValue),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
@@ -73,22 +71,20 @@ func testAccCSEMatchListDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEMatchListConfig(nActive bool, nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liActive bool, liDescription string, liExpiration string, liValue string) string {
+func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_match_list" "match_list" {
-	active = "%t"
 	default_ttl = "%d"
 	description = "%s"
 	name = "%s"
 	target_column = "%s"
 	items {
-		active = "%t"
 		description = "%s"
 		expiration = "%s"
 		value = "%s"
 	}
 }
-`, nActive, nDefaultTtl, nDescription, nName, nTargetColumn, liActive, liDescription, liExpiration, liValue)
+`, nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue)
 }
 
 func testCheckCSEMatchListExists(n string, matchList *CSEMatchListGet) resource.TestCheckFunc {

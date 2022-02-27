@@ -29,7 +29,6 @@ resource "sumologic_cse_match_list" "match_list" {
 
 The following arguments are supported:
 
-- `active` - (Optional) Match list active flag. Default True.
 - `default_ttl` - (Required) The match list time to live. Specified in seconds.
 - `description` - (Required) Match list description.
 - `name` - (Required) Match list name.
@@ -37,7 +36,6 @@ The following arguments are supported:
 - `items` - (Optional) List of match list items. See [match_list_item schema](#schema-for-match_list_item) for details.
 
 ### Schema for `match_list_item`
-- `acive` - (Required) Match list item active flag.
 - `description` - (Required) Match list item description.
 - `value` - (Optional) Match list item value.
 - `expiration` - (Optional) Match list item expiration. (Format: YYYY-MM-DDTHH:mm:ss)
