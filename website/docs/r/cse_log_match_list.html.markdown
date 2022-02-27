@@ -11,13 +11,11 @@ Provides a Sumologic CSE Match List.
 ## Example Usage
 ```hcl
 resource "sumologic_cse_match_list" "match_list" {
-  active = true
   default_ttl = 10800
   description = "Match list description"
   name = "Match list name"
   target_column = "SrcIp"
   items {
-    active = true
     description = "Match list item description"
     value = "action"
     expiration = "2022-02-27T04:00:00"
