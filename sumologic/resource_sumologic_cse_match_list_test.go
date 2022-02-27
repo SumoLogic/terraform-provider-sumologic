@@ -15,7 +15,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	nActive := true
 	nDefaultTtl := 10800
 	nDescription := "New Match List Description"
-	nName := "Match List Name2"
+	nName := "Match List Name"
 	nTargetColumn := "SrcIp"
 	liActive := true
 	liDescription := "Match List Item Description"
