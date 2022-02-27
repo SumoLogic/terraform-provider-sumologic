@@ -4,8 +4,7 @@
 
 FEATURES:
 * **New Resource:** sumologic_content_permission (GH-340)
-* **New Resource:** sumologic_cse_match_list (GH-XXX)
-* **New Resource:** sumologic_cse_match_list_item (GH-XXX)
+* **New Resource:** sumologic_cse_match_list (GH-353)
 
 
 

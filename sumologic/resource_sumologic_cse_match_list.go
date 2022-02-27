@@ -3,6 +3,7 @@ package sumologic
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
+	"time"
 )
 
 func resourceSumologicCSEMatchList() *schema.Resource {
@@ -27,7 +28,7 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
 			},
 			"name": {
@@ -42,23 +43,50 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 			},
 			"created": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Computed: true,
 			},
 			"created_by": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Computed: true,
 			},
 			"last_updated": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Computed: true,
 			},
 			"last_updated_by": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"items": {
+				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"active": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: false,
+						},
+						"expiration": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: false,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: false,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -92,13 +120,62 @@ func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{})
 	d.Set("last_updated", CSEMatchList.LastUpdated)
 	d.Set("last_updated_by", CSEMatchList.LastUpdatedBy)
 
+	//items
+	var CSEMatchListItems *CSEMatchListItemsInMatchListGet
+
+	CSEMatchListItems, err2 := c.GetCSEMatchListItemsInMatchList(id)
+	if err2 != nil {
+		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", id, err2)
+	}
+	if CSEMatchListItems == nil {
+		d.Set("items", nil)
+	} else {
+		setItems(d, CSEMatchListItems.CSEMatchListItemsGetObjects)
+	}
+
 	return nil
+}
+
+func setItems(d *schema.ResourceData, items []CSEMatchListItemGet) {
+
+	var i []map[string]interface{}
+
+	for _, t := range items {
+		mapping := map[string]interface{}{
+			"id":          t.ID,
+			"active":      t.Active,
+			"description": t.Meta.Description,
+			"expiration":  t.Expiration,
+			"value":       t.Value,
+		}
+		i = append(i, mapping)
+	}
+
+	d.Set("items", i)
+
 }
 
 func resourceSumologicCSEMatchListDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	return c.DeleteCSEMatchList(d.Id())
+	//Match list items
+	itemsData := d.Get("items").([]interface{})
+	var items []CSEMatchListItemPost
+	for _, data := range itemsData {
+		items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
+	}
+
+	if len(items) > 0 {
+		for _, item := range items {
+			err2 := c.DeleteCSEMatchListItem(item.ID)
+			if err2 != nil {
+				log.Printf("[WARN] An error occurred while updating match list item wiht id: %s, err: %v", item.ID, err2)
+			}
+		}
+	}
+
+	err := c.DeleteCSEMatchList(d.Id())
+	return err
 
 }
 
@@ -118,20 +195,82 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 			return err
 		}
 		d.SetId(id)
+
+		//Match list items
+		itemsData := d.Get("items").([]interface{})
+		var items []CSEMatchListItemPost
+		for _, data := range itemsData {
+			items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
+		}
+
+		if len(items) > 0 {
+			err2 := c.CreateCSEMatchListItems(items, id)
+			if err2 != nil {
+				log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", id, err2)
+			}
+
+			// Calling Sleep method, adding items might take a while before items retrieved in next section
+			// Need to find a better way since feels super hacky
+			time.Sleep(30 * time.Second)
+
+		}
+
 	}
 
-	return resourceSumologicCSEMatchListUpdate(d, meta)
+	return resourceSumologicCSEMatchListRead(d, meta)
+}
+
+func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
+	itemsSlice := data.([]interface{})
+	item := CSEMatchListItemPost{}
+	if len(itemsSlice) > 0 {
+		itemObj := itemsSlice[0].(map[string]interface{})
+		item.ID = itemObj["id"].(string)
+		item.Description = itemObj["description"].(string)
+		item.Active = itemObj["active"].(bool)
+		item.Expiration = itemObj["expiration"].(string)
+		item.Value = itemObj["value"].(string)
+	}
+	return item
 }
 
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
-	CSEMatchList, err := resourceToCSEMatchList(d)
+	CSEMatchListPost, err := resourceToCSEMatchList(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEMatchList(CSEMatchList); err != nil {
+	if err = c.UpdateCSEMatchList(CSEMatchListPost); err != nil {
 		return err
+	}
+
+	//Match list items
+	itemsData := d.Get("items").([]interface{})
+	var items []CSEMatchListItemPost
+	for _, data := range itemsData {
+		items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
+	}
+
+	if len(items) > 0 {
+		for _, item := range items {
+			CSEMatchListItem, er := c.GetCSEMatchListItem(item.ID)
+			log.Printf("[WARN] An error occurred while getting match list item wiht id: %s, err: %v", item.ID, er)
+			if CSEMatchListItem != nil {
+				err3 := c.UpdateCSEMatchListItem(item)
+				if err3 != nil {
+					log.Printf("[WARN] An error occurred while updating match list item wiht id: %s, err: %v", item.ID, err3)
+				}
+			} else {
+				err4 := c.CreateCSEMatchListItems(items, d.Id())
+				if err4 != nil {
+					log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", d.Id(), err4)
+				}
+			}
+		}
+		// Calling Sleep method, adding items might take a while before items retrieved in next section
+		// Need to find a better way since feels super hacky
+		time.Sleep(30 * time.Second)
 	}
 
 	return resourceSumologicCSEMatchListRead(d, meta)

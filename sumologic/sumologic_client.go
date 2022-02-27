@@ -268,6 +268,40 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	return d, resp.Header.Get("ETag"), nil
 }
 
+func (s *Client) GetWithPayload(urlPath string, payload interface{}) ([]byte, string, error) {
+	relativeURL, _ := url.Parse(urlPath)
+	sumoURL := s.BaseURL.ResolveReference(relativeURL)
+
+	body, _ := json.Marshal(payload)
+	req, err := createNewRequest(http.MethodGet, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
+	<-rateLimiter.C
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode == 404 {
+		return nil, "", nil
+	} else if resp.StatusCode >= 400 {
+		return nil, "", errors.New(string(d))
+	}
+
+	return d, resp.Header.Get("ETag"), nil
+}
+
 func (s *Client) Delete(urlPath string) ([]byte, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
