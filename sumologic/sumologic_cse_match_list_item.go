@@ -24,13 +24,9 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	return &response.CSEMatchListItemGet, nil
 }
 
-func (s *Client) GetCSEMatchListItemsInMatchList(MatcListId string) (*CSEMatchListItemsInMatchListGet, error) {
+func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
 
-	request := CSEMatchListItemsRequest{
-		ListIds: []string{MatcListId},
-	}
-
-	data, _, err := s.GetWithPayload("sec/v1/match-list-items", request)
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds[%s]", MatchListId))
 	if err != nil {
 		return nil, err
 	}
@@ -102,10 +98,6 @@ type CSEMatchListItemRequestUpdate struct {
 
 type CSEMatchListItemResponse struct {
 	CSEMatchListItemGet CSEMatchListItemGet `json:"data"`
-}
-
-type CSEMatchListItemsRequest struct {
-	ListIds []string `json:"listIds"`
 }
 
 type CSEMatchListItemsInMatchListResponse struct {

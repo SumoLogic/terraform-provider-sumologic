@@ -44,6 +44,12 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
 				),
 			},
+			{
+				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckMatchListItemsEmpty(resourceName),
+				),
+			},
 		},
 	})
 }
@@ -87,6 +93,17 @@ resource "sumologic_cse_match_list" "match_list" {
 `, nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue)
 }
 
+func testDeleteCSEMatchListItemConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_match_list" "match_list" {
+	default_ttl = "%d"
+	description = "%s"
+	name = "%s"
+	target_column = "%s"
+}
+`, nDefaultTtl, nDescription, nName, nTargetColumn)
+}
+
 func testCheckCSEMatchListExists(n string, matchList *CSEMatchListGet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -109,7 +126,7 @@ func testCheckCSEMatchListExists(n string, matchList *CSEMatchListGet) resource.
 	}
 }
 
-func testCheckCSEMatchListItemExists(n string, matchListItem *CSEMatchListItemGet) resource.TestCheckFunc {
+func testCheckMatchListItemsEmpty(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -121,12 +138,14 @@ func testCheckCSEMatchListItemExists(n string, matchListItem *CSEMatchListItemGe
 		}
 
 		c := testAccProvider.Meta().(*Client)
-		matchListResp, err := c.GetCSEMatchListItem(rs.Primary.ID)
+		matchListResp, err := c.GetCSEMatchListItemsInMatchList(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
 
-		*matchListItem = *matchListResp
+		if len(matchListResp.CSEMatchListItemsGetObjects) != 0 {
+			return fmt.Errorf("match list items not empty")
+		}
 
 		return nil
 	}

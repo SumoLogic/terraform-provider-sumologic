@@ -27,7 +27,7 @@ resource "sumologic_cse_match_list" "match_list" {
 
 The following arguments are supported:
 
-- `default_ttl` - (Required) The match list time to live. Specified in seconds.
+- `default_ttl` - (Optional) The default time to live for match list items added through the UI. Specified in seconds.
 - `description` - (Required) Match list description.
 - `name` - (Required) Match list name.
 - `target_column` - (Required) Target column. (possible values: Hostname, FileHash, Url, SrcIp, DstIp, Domain, Username, Ip, Asn, Isp, Org, SrcAsn, SrcIsp, SrcOrg, DstAsn, DstIsp, DstOrg or any custom column.)
@@ -44,7 +44,7 @@ The following attributes are exported:
 
 ## Import
 
-Mach List can be imported using the field id, e.g.:
+Match List can be imported using the field id, e.g.:
 ```hcl
 terraform import sumologic_cse_match_list.match_list id
 ```

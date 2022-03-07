@@ -19,7 +19,7 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"default_ttl": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"description": {
@@ -130,41 +130,24 @@ func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{})
 
 func setItems(d *schema.ResourceData, items []CSEMatchListItemGet) {
 
-	var i []map[string]interface{}
+	var its []map[string]interface{}
 
 	for _, t := range items {
-		mapping := map[string]interface{}{
+		item := map[string]interface{}{
 			"id":          t.ID,
 			"description": t.Meta.Description,
 			"expiration":  t.Expiration,
 			"value":       t.Value,
 		}
-		i = append(i, mapping)
+		its = append(its, item)
 	}
 
-	d.Set("items", i)
+	d.Set("items", its)
 
 }
 
 func resourceSumologicCSEMatchListDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-
-	//Match list items
-	itemsData := d.Get("items").([]interface{})
-	var items []CSEMatchListItemPost
-	for _, data := range itemsData {
-		items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
-	}
-
-	if len(items) > 0 {
-		for _, item := range items {
-			err2 := c.DeleteCSEMatchListItem(item.ID)
-			if err2 != nil {
-				log.Printf("[WARN] An error occurred while updating match list item wiht id: %s, err: %v", item.ID, err2)
-			}
-		}
-	}
-
 	err := c.DeleteCSEMatchList(d.Id())
 	return err
 
@@ -191,7 +174,9 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		itemsData := d.Get("items").([]interface{})
 		var items []CSEMatchListItemPost
 		for _, data := range itemsData {
-			items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
+			item, _ := resourceToCSEMatchListItem([]interface{}{data})
+			items = append(items, item)
+
 		}
 
 		if len(items) > 0 {
@@ -211,7 +196,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 	return resourceSumologicCSEMatchListRead(d, meta)
 }
 
-func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
+func resourceToCSEMatchListItem(data interface{}) (CSEMatchListItemPost, string) {
 	itemsSlice := data.([]interface{})
 	item := CSEMatchListItemPost{}
 	if len(itemsSlice) > 0 {
@@ -222,7 +207,7 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 		item.Expiration = itemObj["expiration"].(string)
 		item.Value = itemObj["value"].(string)
 	}
-	return item
+	return item, item.ID
 }
 
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -238,19 +223,30 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 
 	//Match list items
 	itemsData := d.Get("items").([]interface{})
+	var itemIds []string
 	var items []CSEMatchListItemPost
 	for _, data := range itemsData {
-		items = append(items, resourceToCSEMatchListItem([]interface{}{data}))
+		item, id := resourceToCSEMatchListItem([]interface{}{data})
+		items = append(items, item)
+		itemIds = append(itemIds, id)
+
 	}
 
 	if len(items) > 0 {
 		for _, item := range items {
 			CSEMatchListItem, er := c.GetCSEMatchListItem(item.ID)
-			log.Printf("[WARN] An error occurred while getting match list item wiht id: %s, err: %v", item.ID, er)
+			log.Printf("[WARN] An error occurred while getting match list item with id: %s, err: %v", item.ID, er)
 			if CSEMatchListItem != nil {
-				err3 := c.UpdateCSEMatchListItem(item)
-				if err3 != nil {
-					log.Printf("[WARN] An error occurred while updating match list item wiht id: %s, err: %v", item.ID, err3)
+				if contains(itemIds, CSEMatchListItem.ID) {
+					err3 := c.UpdateCSEMatchListItem(item)
+					if err3 != nil {
+						log.Printf("[WARN] An error occurred while updating match list item with id: %s, err: %v", item.ID, err3)
+					}
+				} else {
+					err3 := c.DeleteCSEMatchListItem(CSEMatchListItem.ID)
+					if err3 != nil {
+						log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", CSEMatchListItem.ID, err3)
+					}
 				}
 			} else {
 				err4 := c.CreateCSEMatchListItems(items, d.Id())
@@ -259,12 +255,39 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 				}
 			}
 		}
-		// Calling Sleep method, adding items might take a while before items retrieved in next section
-		// Need to find a better way since feels super hacky
-		time.Sleep(15 * time.Second)
+	} else {
+		var CSEMatchListItems *CSEMatchListItemsInMatchListGet
+
+		CSEMatchListItems, err2 := c.GetCSEMatchListItemsInMatchList(d.Id())
+		if err2 != nil {
+			log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err2)
+		}
+		if CSEMatchListItems != nil {
+
+			for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
+				err3 := c.DeleteCSEMatchListItem(t.ID)
+				if err3 != nil {
+					log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", t.ID, err3)
+				}
+			}
+		}
 	}
 
+	// Calling Sleep method, adding/deleting items might take a while before items retrieved in next section
+	// Need to find a better way since feels super hacky
+	time.Sleep(15 * time.Second)
+
 	return resourceSumologicCSEMatchListRead(d, meta)
+}
+
+func contains(slice []string, item string) bool {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	_, ok := set[item]
+	return ok
 }
 
 func resourceToCSEMatchList(d *schema.ResourceData) (CSEMatchListPost, error) {
