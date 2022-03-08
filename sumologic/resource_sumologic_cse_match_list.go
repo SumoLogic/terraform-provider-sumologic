@@ -242,9 +242,9 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 					log.Printf("[WARN] An error occurred while updating match list item with id: %s, err: %v", item.ID, err3)
 				}
 			} else {
-				err4 := c.CreateCSEMatchListItems(items, d.Id())
+				err4 := c.CreateCSEMatchListItems([]CSEMatchListItemPost{item}, d.Id())
 				if err4 != nil {
-					log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", d.Id(), err4)
+					log.Printf("[WARN] An error occurred while adding match list item to match list id: %s, err: %v", d.Id(), err4)
 				}
 			}
 		}
