@@ -227,27 +227,18 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	var items []CSEMatchListItemPost
 	for _, data := range itemsData {
 		item, id := resourceToCSEMatchListItem([]interface{}{data})
+		item.ID = ""
 		items = append(items, item)
 		itemIds = append(itemIds, id)
 
 	}
 
 	if len(items) > 0 {
-		for _, item := range items {
-			CSEMatchListItem, er := c.GetCSEMatchListItem(item.ID)
-			log.Printf("[WARN] An error occurred while getting match list item with id: %s, err: %v", item.ID, er)
-			if CSEMatchListItem != nil {
-				err3 := c.UpdateCSEMatchListItem(item)
-				if err3 != nil {
-					log.Printf("[WARN] An error occurred while updating match list item with id: %s, err: %v", item.ID, err3)
-				}
-			} else {
-				err4 := c.CreateCSEMatchListItems([]CSEMatchListItemPost{item}, d.Id())
-				if err4 != nil {
-					log.Printf("[WARN] An error occurred while adding match list item to match list id: %s, err: %v", d.Id(), err4)
-				}
-			}
+		err2 := c.CreateCSEMatchListItems(items, d.Id())
+		if err2 != nil {
+			log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", d.Id(), err2)
 		}
+
 	}
 
 	var CSEMatchListItems *CSEMatchListItemsInMatchListGet
