@@ -16,8 +16,8 @@ resource "sumologic_cse_match_list" "match_list" {
   name = "Match list name"
   target_column = "SrcIp"
   items {
-    description = "Match list item description"
-    value = "action"
+    description = "IP address"
+    value = "192.168.0.1"
     expiration = "2022-02-27T04:00:00"
   }
 }
