@@ -1,12 +1,10 @@
 ## 2.14.0 (Unreleased)
+* **New Resource:** sumologic_cse_match_list (GH-353)
 
 ## 2.13.0 (February 24, 2022)
 
 FEATURES:
 * **New Resource:** sumologic_content_permission (GH-340)
-* **New Resource:** sumologic_cse_match_list (GH-353)
-
-
 
 ENHANCEMENTS:
 * Add support for importing folder resource (GH-345)

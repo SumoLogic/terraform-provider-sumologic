@@ -237,16 +237,9 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 			CSEMatchListItem, er := c.GetCSEMatchListItem(item.ID)
 			log.Printf("[WARN] An error occurred while getting match list item with id: %s, err: %v", item.ID, er)
 			if CSEMatchListItem != nil {
-				if contains(itemIds, CSEMatchListItem.ID) {
-					err3 := c.UpdateCSEMatchListItem(item)
-					if err3 != nil {
-						log.Printf("[WARN] An error occurred while updating match list item with id: %s, err: %v", item.ID, err3)
-					}
-				} else {
-					err3 := c.DeleteCSEMatchListItem(CSEMatchListItem.ID)
-					if err3 != nil {
-						log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", CSEMatchListItem.ID, err3)
-					}
+				err3 := c.UpdateCSEMatchListItem(item)
+				if err3 != nil {
+					log.Printf("[WARN] An error occurred while updating match list item with id: %s, err: %v", item.ID, err3)
 				}
 			} else {
 				err4 := c.CreateCSEMatchListItems(items, d.Id())
@@ -255,16 +248,18 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 				}
 			}
 		}
-	} else {
-		var CSEMatchListItems *CSEMatchListItemsInMatchListGet
+	}
 
-		CSEMatchListItems, err2 := c.GetCSEMatchListItemsInMatchList(d.Id())
-		if err2 != nil {
-			log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err2)
-		}
-		if CSEMatchListItems != nil {
+	var CSEMatchListItems *CSEMatchListItemsInMatchListGet
 
-			for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
+	CSEMatchListItems, err2 := c.GetCSEMatchListItemsInMatchList(d.Id())
+	if err2 != nil {
+		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err2)
+	}
+	if CSEMatchListItems != nil {
+
+		for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
+			if !contains(itemIds, t.ID) {
 				err3 := c.DeleteCSEMatchListItem(t.ID)
 				if err3 != nil {
 					log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", t.ID, err3)
