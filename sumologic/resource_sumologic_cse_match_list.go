@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"time"
@@ -185,10 +187,28 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 				log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", id, err2)
 			}
 
-			// Calling Sleep method, adding items might take a while before items retrieved in next section
-			// Need to find a better way since feels super hacky
-			time.Sleep(15 * time.Second)
+		}
 
+		createStateConf := &resource.StateChangeConf{
+			Target: []string{
+				fmt.Sprint(len(items)),
+			},
+			Refresh: func() (interface{}, string, error) {
+				resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
+				if err != nil {
+					return 0, "", err
+				}
+				return resp, fmt.Sprint(len(resp.CSEMatchListItemsGetObjects)), nil
+			},
+			Timeout:                   d.Timeout(schema.TimeoutCreate),
+			Delay:                     10 * time.Second,
+			MinTimeout:                5 * time.Second,
+			ContinuousTargetOccurence: 1,
+		}
+
+		_, err = createStateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf("error waiting for match list (%s) to be created: %s", d.Id(), err)
 		}
 
 	}
@@ -259,9 +279,27 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	// Calling Sleep method, adding/deleting items might take a while before items retrieved in next section
-	// Need to find a better way since feels super hacky
-	time.Sleep(15 * time.Second)
+	createStateConf := &resource.StateChangeConf{
+		Target: []string{
+			fmt.Sprint(len(items)),
+		},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
+			if err != nil {
+				return 0, "", err
+			}
+			return resp, fmt.Sprint(len(resp.CSEMatchListItemsGetObjects)), nil
+		},
+		Timeout:                   d.Timeout(schema.TimeoutUpdate),
+		Delay:                     10 * time.Second,
+		MinTimeout:                5 * time.Second,
+		ContinuousTargetOccurence: 1,
+	}
+
+	_, err = createStateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
+	}
 
 	return resourceSumologicCSEMatchListRead(d, meta)
 }
