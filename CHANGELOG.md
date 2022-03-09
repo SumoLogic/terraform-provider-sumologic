@@ -1,4 +1,5 @@
 ## 2.14.0 (Unreleased)
+* **New Resource:** sumologic_cse_match_list (GH-353)
 
 ## 2.13.0 (February 24, 2022)
 
