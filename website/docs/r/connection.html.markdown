@@ -49,7 +49,7 @@ The following arguments are supported:
 - `custom_headers` - (Optional) Map of custom webhook headers
 - `default_payload` - (Required) Default payload of the webhook.
 - `connection_subtype` - (Optional) The subtype of the connection. Valid values are `Incident` and `Event`. NOTE: This is only used for the `ServiceNow` webhook type.
-- `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `PagerDuty`, `Slack`, `Webhook`, `NewRelic`, `MicrosoftTeams`, and `ServiceNow`. Default: `Webhook`
+- `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `PagerDuty`, `Slack`, `Webhook`, `NewRelic`, `MicrosoftTeams`, `ServiceNow`, and `SumoCloudSOAR`. Default: `Webhook`
 
 Additional data provided in state
 

@@ -77,7 +77,7 @@ func resourceSumologicConnection() *schema.Resource {
 			"webhook_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie", "MicrosoftTeams", "ServiceNow"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"AWSLambda", "Azure", "Datadog", "HipChat", "PagerDuty", "Slack", "Webhook", "NewRelic", "Jira", "Opsgenie", "MicrosoftTeams", "ServiceNow", "SumoCloudSOAR"}, false),
 				Default:      "Webhook",
 			},
 			"connection_subtype": {
