@@ -1,8 +1,12 @@
-## 2.14.0 (Unreleased)
+## 2.15.0 (Unreleased)
+
+## 2.14.0 (March 30, 2022)
+
+FEATURES:
 * **New Resource:** sumologic_cse_match_list (GH-353)
 
 ENHANCEMENTS:
-* Add support for SumoCloudSOAR webhook connection
+* Add support for SumoCloudSOAR webhook connection (GH-352)
 
 ## 2.13.0 (February 24, 2022)
 
