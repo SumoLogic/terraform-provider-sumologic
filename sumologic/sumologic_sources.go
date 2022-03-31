@@ -30,8 +30,6 @@ type Source struct {
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
 	Url                        string                 `json:"url,omitempty"`
 	ContentType                string                 `json:"contentType,omitempty"`
-	PathExpression             string                 `json:"pathExpression,omitempty"`
-	Encoding                   string                 `json:"encoding,omitempty"`
 }
 
 type DefaultDateFormat struct {

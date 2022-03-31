@@ -133,6 +133,7 @@ func TestAccSumologicLocalFileSource_update(t *testing.T) {
 					testAccCheckLocalFileSourceValues(&localFileSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "pathExpression"),
+					resource.TestCheckResourceAttrSet(resourceName, "denylist"),
 					resource.TestCheckResourceAttr(resourceName, "name", sNameUpdated),
 					resource.TestCheckResourceAttr(resourceName, "description", sDescriptionUpdated),
 					resource.TestCheckResourceAttr(resourceName, "category", sCategoryUpdated),

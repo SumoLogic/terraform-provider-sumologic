@@ -7,6 +7,9 @@ import (
 
 type LocalFileSource struct {
 	Source
+	PathExpression string   `json:"pathExpression,omitempty"`
+	Encoding       string   `json:"encoding,omitempty"`
+	DenyList       []string `json:"denylist,omitempty"`
 }
 
 func (s *Client) CreateLocalFileSource(source LocalFileSource, collectorID int) (int, error) {
@@ -47,11 +50,11 @@ func (s *Client) GetLocalFileSource(collectorID, sourceID int) (*LocalFileSource
 		return nil, nil
 	}
 
-	type Response struct {
+	type LocalFileSourceResponse struct {
 		Source LocalFileSource `json:"source"`
 	}
 
-	var response Response
+	var response LocalFileSourceResponse
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {

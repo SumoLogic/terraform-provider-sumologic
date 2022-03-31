@@ -71,13 +71,19 @@ func resourceSumologicLocalFileSourceUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceToLocalFileSource(d *schema.ResourceData) LocalFileSource {
+	rawDenyList := d.Get("deny_list").(*schema.Set).List()
+	var denylist []string
+	for _, j := range rawDenyList {
+		denylist = append(denylist, j.(string))
+	}
 	source := resourceToSource(d)
 	source.Type = "LocalFile"
-	source.PathExpression = d.Get("path_expression").(string)
-	source.Encoding = d.Get("encoding").(string)
 
 	localFileSource := LocalFileSource{
-		Source: source,
+		Source:         source,
+		PathExpression: d.Get("path_expression").(string),
+		Encoding:       d.Get("encoding").(string),
+		DenyList:       denylist,
 	}
 
 	return localFileSource
@@ -105,6 +111,7 @@ func resourceSumologicLocalFileSourceRead(d *schema.ResourceData, meta interface
 	}
 	d.Set("path_expression", source.PathExpression)
 	d.Set("encoding", source.Encoding)
+	d.Set("deny_list", source.DenyList)
 
 	return nil
 }
