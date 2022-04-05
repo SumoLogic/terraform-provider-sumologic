@@ -12,7 +12,7 @@ Provides the ability to create, read, delete, and update SLOs.
 ```hcl
 resource "sumologic_slo" "slo_tf_test" {
   name        = "slo-tf-test1"
-  description = "example SLO monitors created with slogen with apis"
+  description = "example SLO created with terraform"
   parent_id   = "0000000000000001"
   signal_type = "Latency"
   service     = "auth"
