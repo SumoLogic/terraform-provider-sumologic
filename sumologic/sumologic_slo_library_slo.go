@@ -93,6 +93,25 @@ func (s *Client) UpdateSLO(slo SLOLibrarySLO) error {
 	return err
 }
 
+func (s *Client) MoveSLOLibraryToFolder(slo SLOLibrarySLO) error {
+	urlWithoutParams := SLOBaseApiUrl + "/%s"
+	paramString := ""
+	sprintfArgs := []interface{}{}
+	sprintfArgs = append(sprintfArgs, slo.ID)
+
+	paramString += "?"
+	queryParam := fmt.Sprintf("parentId=%s&", slo.ParentID)
+	paramString += queryParam
+
+	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+
+	slo.ID = ""
+
+	_, err := s.Put(urlWithParams, slo)
+
+	return err
+}
+
 // ---------- TYPES ----------
 
 type SLOLibrarySLO struct {
@@ -118,16 +137,20 @@ type SLOLibrarySLO struct {
 }
 
 type SLOCompliance struct {
-	ComplianceType string `json:"compliance_type"` // string^(Window|Request)$
-	Target         int    `json:"target"`          // [0..100]
-	Timezone       string `json:"timezone"`        // IANA Time Zone Database
-	Size           string `json:"size"`            // Must be a multiple of days (minimum 1d, and maximum 14d)
+	ComplianceType string `json:"complianceType"` // string^(Window|Request)$
+	Target         int    `json:"target"`         // [0..100]
+	Timezone       string `json:"timezone"`       // IANA Time Zone Database
+	Size           string `json:"size"`           // Must be a multiple of days (minimum 1d, and maximum 14d)
 }
 
 type SLOIndicator struct {
-	EvaluationType string          `json:"evaluation_type"` // string^(Window|Request)$
-	QueryType      string          `json:"query_type"`      // string^(Logs|Metrics)$
+	EvaluationType string          `json:"evaluationType"` // string^(Window|Request)$
+	QueryType      string          `json:"queryType"`      // string^(Logs|Metrics)$
 	Queries        []SLIQueryGroup `json:"queries"`
+	Threshold      float64         `json:"threshold"`
+	Op             string          `json:"op"`
+	Aggregation    string          `json:"aggregation"`
+	Size           string          `json:"size"`
 }
 
 type SLI struct {

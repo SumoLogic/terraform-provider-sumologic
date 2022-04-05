@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
@@ -113,35 +112,33 @@ func resourceSumologicSLO() *schema.Resource {
 			"signal_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ExactlyOneOf: []string{
-					"Latency", "Error", "Throughput", "Availability", "Other",
-				},
 			},
 			"compliance": {
-				Type:     schema.TypeMap,
-				Optional: false,
+				Type:     schema.TypeList,
+				Required: true,
+				//MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": {
+						"compliance_type": {
 							Type:     schema.TypeString,
-							Optional: false,
-							ExactlyOneOf: []string{
+							Required: true,
+							ValidateFunc: validation.StringInSlice([]string{
 								"Rolling",
 								"Calendar",
-							},
+							}, false),
 						},
 						"target": {
-							Type:         schema.TypeInt,
-							Optional:     false,
-							ValidateFunc: validation.IntBetween(0, 100),
+							Type:         schema.TypeFloat,
+							Required:     true,
+							ValidateFunc: validation.FloatBetween(0, 100),
 						},
 						"timezone": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"size": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"1d", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "11d", "12d", "13d", "14d",
 							}, false),
@@ -150,17 +147,18 @@ func resourceSumologicSLO() *schema.Resource {
 				},
 			},
 			"indicator": {
-				Type:     schema.TypeMap,
-				Optional: false,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"evaluation_type": {
 							Type:     schema.TypeString,
-							Optional: false,
-							ExactlyOneOf: []string{
-								"Threshold",
-								"Range",
-							},
+							Required: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"Window",
+								"Request",
+							}, false),
 						},
 						"queries": {
 							Type:     schema.TypeList,
@@ -184,32 +182,33 @@ func resourceSumologicSLO() *schema.Resource {
 								},
 							},
 						},
-						"queryType": {
-							Type:     schema.TypeInt,
-							Optional: false,
+						"query_type": {
+							Type:     schema.TypeString,
+							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"Logs", "Metrics",
 							}, false),
 						},
 						"threshold": {
 							Type:     schema.TypeFloat,
-							Optional: false,
+							Required: true,
 						},
 						"op": {
-							Type:     schema.TypeInt,
-							Optional: false,
+							Type:     schema.TypeString,
+							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"LessThan", "GreaterThan", "LessThanOrEqual", "GreaterThanOrEqual",
 							}, false),
 						},
 						"aggregation": {
-							Type:         schema.TypeInt,
-							Optional:     false,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "Avg",
 							ValidateFunc: validation.StringMatch(aggrRegex, `value must match : `+sloAggregationRegexString),
 						},
 						"size": {
-							Type:         schema.TypeInt,
-							Optional:     false,
+							Type:         schema.TypeString,
+							Required:     true,
 							ValidateFunc: validation.StringMatch(windowRegex, `value must match : `+sloAggregationRegexString),
 						},
 					},
@@ -250,6 +249,7 @@ func resourceSumologicSLOCreate(d *schema.ResourceData, meta interface{}) error 
 	if d.Id() == "" {
 		slo := resourceToSLO(d)
 		slo.Type = "SlosLibrarySlo"
+		slo.ContentType = "Slo"
 		if slo.ParentID == "" {
 			rootFolder, err := c.GetSLOLibraryFolder("root")
 			if err != nil {
@@ -293,19 +293,19 @@ func resourceSumologicSLORead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("modified_at", slo.ModifiedAt)
 	d.Set("modified_by", slo.ModifiedBy)
 	d.Set("parent_id", slo.ParentID)
-	d.Set("content_type", "slo")
+	d.Set("content_type", "Slo")
 	d.Set("is_mutable", slo.IsMutable)
 	d.Set("is_locked", slo.IsLocked)
 	d.Set("is_system", slo.IsSystem)
 	d.Set("service", slo.Service)
 	d.Set("application", slo.Application)
 	// set compliance
-	if err := d.Set("compliance", slo.Compliance); err != nil {
-		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
-	}
-	if err := d.Set("indicator", slo.Indicator); err != nil {
-		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
-	}
+	//if err := d.Set("compliance", []SLOCompliance{slo.Compliance}); err != nil {
+	//	return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
+	//}
+	//if err := d.Set("indicator", slo.Indicator); err != nil {
+	//	return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
+	//}
 
 	return nil
 }
@@ -323,8 +323,8 @@ func resourceToSLO(d *schema.ResourceData) SLOLibrarySLO {
 		ModifiedAt:  d.Get("modified_at").(string),
 		ModifiedBy:  d.Get("modified_by").(string),
 		ParentID:    d.Get("parent_id").(string),
-		ContentType: d.Get("content_type").(string),
-		Type:        d.Get("type").(string),
+		//ContentType: d.Get("content_type").(string),
+		//Type:        d.Get("type").(string),
 		IsSystem:    d.Get("is_system").(bool),
 		IsMutable:   d.Get("is_mutable").(bool),
 		IsLocked:    d.Get("is_locked").(bool),
@@ -337,7 +337,7 @@ func resourceToSLO(d *schema.ResourceData) SLOLibrarySLO {
 }
 
 func getSLOCompliance(d *schema.ResourceData) SLOCompliance {
-	complianceDict := d.Get("compliance").(map[string]interface{})
+	complianceDict := d.Get("compliance").([]interface{})[0].(map[string]interface{})
 	return SLOCompliance{
 		ComplianceType: complianceDict["compliance_type"].(string),
 		Target:         complianceDict["target"].(int),
@@ -347,17 +347,21 @@ func getSLOCompliance(d *schema.ResourceData) SLOCompliance {
 }
 
 func getSLOIndicator(d *schema.ResourceData) SLOIndicator {
-	indicatorDict := d.Get("indicator").(map[string]interface{})
+	indicatorDict := d.Get("indicator").([]interface{})[0].(map[string]interface{})
+	queriesRaw := indicatorDict["queries"].([]interface{})
 	return SLOIndicator{
 		EvaluationType: indicatorDict["evaluation_type"].(string),
 		QueryType:      indicatorDict["query_type"].(string),
-		Queries:        GetSLOIndicatorQueries(d),
+		Queries:        GetSLOIndicatorQueries(queriesRaw),
+		Threshold:      indicatorDict["threshold"].(float64),
+		Op:             indicatorDict["op"].(string),
+		Aggregation:    indicatorDict["aggregation"].(string),
+		Size:           indicatorDict["size"].(string),
 	}
 }
 
-func GetSLOIndicatorQueries(d *schema.ResourceData) []SLIQueryGroup {
+func GetSLOIndicatorQueries(queriesRaw []interface{}) []SLIQueryGroup {
 
-	queriesRaw := d.Get("queries").([]interface{})
 	queries := make([]SLIQueryGroup, len(queriesRaw))
 
 	for i := range queries {
@@ -369,7 +373,11 @@ func GetSLOIndicatorQueries(d *schema.ResourceData) []SLIQueryGroup {
 		qGroups := make([]SLIQuery, len(qGroupRaw))
 
 		for j := range qGroups {
-			qGroup := qGroupRaw[i].(SLIQuery)
+			qRaw := qGroupRaw[j].(map[string]interface{})
+			qGroup := SLIQuery{
+				RowId: qRaw["row_id"].(string),
+				Query: qRaw["query"].(string),
+			}
 			qGroups[j] = qGroup
 		}
 		queries[i].QueryGroup = qGroups
@@ -382,6 +390,13 @@ func resourceSumologicSLOUpdate(d *schema.ResourceData, meta interface{}) error 
 	c := meta.(*Client)
 	slo := resourceToSLO(d)
 	slo.Type = "SlosLibrarySloUpdate"
+	if d.HasChange("parent_id") {
+		err := c.MoveSLOLibraryToFolder(slo)
+		if err != nil {
+			return err
+		}
+	}
+
 	err := c.UpdateSLO(slo)
 	if err != nil {
 		return err
