@@ -325,6 +325,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
+			"alert_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 512),
+			},
 		},
 	}
 }
@@ -542,6 +548,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
 	d.Set("playbook", monitor.Playbook)
+	d.Set("alert_name", monitor.AlertName)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -1141,6 +1148,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		Status:             status,
 		GroupNotifications: d.Get("group_notifications").(bool),
 		Playbook:           d.Get("playbook").(string),
+		AlertName:          d.Get("alert_name").(string),
 	}
 }
 
@@ -1229,11 +1237,6 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if critical, ok := fromSingletonArray(block, "critical"); ok {
 		criticalCondition.readFrom(critical)
 		resolvedCriticalCondition.readFrom(critical)
-		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
-			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
-			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
-			resolvedCriticalCondition.OccurrenceType = ""
-		}
 		if alert, ok := fromSingletonArray(critical, "alert"); ok {
 			criticalCondition.readFrom(alert)
 		}
@@ -1245,11 +1248,6 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)
 		resolvedWarningCondition.readFrom(warning)
-		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
-			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
-			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
-			resolvedCriticalCondition.OccurrenceType = ""
-		}
 		if alert, ok := fromSingletonArray(warning, "alert"); ok {
 			warningCondition.readFrom(alert)
 		}
