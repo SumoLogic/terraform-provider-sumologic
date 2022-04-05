@@ -1237,6 +1237,11 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if critical, ok := fromSingletonArray(block, "critical"); ok {
 		criticalCondition.readFrom(critical)
 		resolvedCriticalCondition.readFrom(critical)
+		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
+			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
+			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
+			resolvedCriticalCondition.OccurrenceType = ""
+		}
 		if alert, ok := fromSingletonArray(critical, "alert"); ok {
 			criticalCondition.readFrom(alert)
 		}
@@ -1248,6 +1253,11 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)
 		resolvedWarningCondition.readFrom(warning)
+		if resolvedCriticalCondition.DetectionMethod == metricsStaticConditionDetectionMethod {
+			// do not inherit the top-level occurrence type into resolution blocks for MetricsStaticConditions
+			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
+			resolvedCriticalCondition.OccurrenceType = ""
+		}
 		if alert, ok := fromSingletonArray(warning, "alert"); ok {
 			warningCondition.readFrom(alert)
 		}
