@@ -52,10 +52,10 @@ The following arguments are supported:
 
 - `name` - (Required) The name of the SLO. The name must be alphanumeric.
 - `description` - (Optional) The description of the SLO.
-- `parent_id` - (Optional) The ID of the Monitor Folder that contains this monitor. Defaults to the root folder.
-- `signal_type` - (Optional) The type of monitor. Valid values are `Latency`, `Error`,`Throughput`,`Availability`
+- `parent_id` - (Optional) The ID of the SLO Folder that contains this SLO. Defaults to the root folder.
+- `signal_type` - (Optional) The type of SLO. Valid values are `Latency`, `Error`,`Throughput`,`Availability`
   , `Other`. Defaults to `Latency`.
-- `service` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
+- `service` - (Optional) The notifications the SLO will send when the respective trigger condition is met.
 - `application` - (Optional) Whether to group notifications for individual items that meet the trigger condition.
   Defaults to true.
 - `compliance` - (Required) The compliance settings for the SLO.

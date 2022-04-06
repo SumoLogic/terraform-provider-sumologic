@@ -27,7 +27,7 @@ func (s *Client) CreateSLOLibraryFolder(sloLibraryFolder SLOLibraryFolder, param
 	if err != nil {
 		return "", err
 	}
-	log.Printf("created monitor response: %v", data)
+	log.Printf("created SLO folder response: %v", data)
 
 	var createdSLOLibraryFolder SLOLibraryFolder
 

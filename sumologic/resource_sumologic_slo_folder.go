@@ -118,12 +118,12 @@ func resourceSumologicSLOLibraryFolderCreate(d *schema.ResourceData, meta interf
 			folder.ParentID = rootFolder.ID
 		}
 		paramMap["parentId"] = folder.ParentID
-		monitorDefinitionID, err := c.CreateSLOLibraryFolder(folder, paramMap)
+		SLOFolderID, err := c.CreateSLOLibraryFolder(folder, paramMap)
 		if err != nil {
 			return err
 		}
 
-		d.SetId(monitorDefinitionID)
+		d.SetId(SLOFolderID)
 	}
 	return resourceSumologicSLOLibraryFolderRead(d, meta)
 }
@@ -137,7 +137,7 @@ func resourceSumologicSLOLibraryFolderRead(d *schema.ResourceData, meta interfac
 	}
 
 	if folder == nil {
-		log.Printf("[WARN] Monitor Folder not found, removing from state: %v - %v", d.Id(), err)
+		log.Printf("[WARN] SLO Folder not found, removing from state: %v - %v", d.Id(), err)
 		d.SetId("")
 		return nil
 	}
