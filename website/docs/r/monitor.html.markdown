@@ -59,6 +59,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
   playbook = "{{Name}} should be fixed in 24 hours when {{TriggerType}} is triggered."
+  alert_name = "Alert {{ResultJson.my_field}} from {{Name}}"
 }
 ```
 
@@ -215,6 +216,7 @@ The following arguments are supported:
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 - `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
+- `alert_name` - (Optional) The display name when creating alerts. Monitor name will be used if `alert_name` is not provided. All template variables can be used in `alert_name` except `{{AlertName}}` and `{{ResultsJson}}`.
 
 Additional data provided in state:
 

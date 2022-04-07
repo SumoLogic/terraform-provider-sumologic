@@ -325,6 +325,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
+			"alert_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 512),
+			},
 		},
 	}
 }
@@ -542,6 +548,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
 	d.Set("playbook", monitor.Playbook)
+	d.Set("alert_name", monitor.AlertName)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -1141,6 +1148,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		Status:             status,
 		GroupNotifications: d.Get("group_notifications").(bool),
 		Playbook:           d.Get("playbook").(string),
+		AlertName:          d.Get("alert_name").(string),
 	}
 }
 

@@ -188,6 +188,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 			RunForTriggerTypes: testTriggerTypes,
 		},
 	}
+	testAlertName := "Alert from {{Name}}"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -210,6 +211,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
 				),
 			},
 		},
@@ -303,6 +305,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 			RunForTriggerTypes: testTriggerTypes,
 		},
 	}
+	testAlertName := "Alert from {{Name}}"
 
 	// updated fields
 	testUpdatedName := "terraform_test_monitor_" + testNameSuffix
@@ -362,6 +365,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 			RunForTriggerTypes: testUpdatedTriggerTypes,
 		},
 	}
+	testUpdatedAlertName := "Updated Alert from {{Name}}"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -385,6 +389,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testPlaybook),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
 				),
 			},
 			{
@@ -402,6 +407,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testUpdatedTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testUpdatedPlaybook),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testUpdatedAlertName),
 				),
 			},
 		},
@@ -516,6 +522,7 @@ resource "sumologic_monitor" "test" {
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 	playbook = "This is a test playbook"  
+	alert_name =  "Alert from {{Name}}"
 }`, testName)
 }
 
@@ -562,6 +569,7 @@ resource "sumologic_monitor" "test" {
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 	playbook = "This is an updated test playbook"
+	alert_name = "Updated Alert from {{Name}}"
 }`, testName)
 }
 

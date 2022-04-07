@@ -1,5 +1,8 @@
 ## 2.15.0 (Unreleased)
 
+FEATURES:
+* Add new optional `alert_name` field to resource/sumologic_monitor.
+
 ## 2.14.0 (March 30, 2022)
 
 FEATURES:
