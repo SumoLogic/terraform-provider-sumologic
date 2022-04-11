@@ -7,9 +7,8 @@ import (
 	"regexp"
 )
 
-const sloAggregationRegexString = `^(Avg|Min|Max|Sum|(p[5-9][0-9])(\.\d{1,3})?$)$`
-const sloAggregationWindowRegexString = `^[0-9]{1,2}(m|h)$` // TODO make it exact of min 1m and max 1h
-const sloContentType = "slo"
+const sloAggregationRegexString = `^(Avg|Min|Max|Sum|(p[5-9][0-9])(\.\d{1,3})?$)$` // TODO update it to allow lower pct values
+const sloAggregationWindowRegexString = `^[0-9]{1,2}(m|h)$`                        // TODO make it exact of min 1m and max 1h
 
 func resourceSumologicSLO() *schema.Resource {
 
@@ -28,8 +27,7 @@ func resourceSumologicSLO() *schema.Resource {
 			},
 			"use_row_count": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Required: true,
 			},
 			"field": {
 				Type:     schema.TypeString,
@@ -55,7 +53,7 @@ func resourceSumologicSLO() *schema.Resource {
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"version": {
 				Type:     schema.TypeInt,
@@ -92,26 +90,9 @@ func resourceSumologicSLO() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			//"content_type": {
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//	Default:  "Slo",
-			//	ExactlyOneOf: []string{
-			//		"Slo",
-			//	},
-			//},
-			//"type": {
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//	Default:  "SlosLibraryFolder",
-			//	ExactlyOneOf: []string{
-			//		"SlosLibrarySlo",
-			//		"SlosLibrarySloUpdate",
-			//	},
-			//},
 			"signal_type": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"compliance": {
 				Type:     schema.TypeList,
@@ -176,6 +157,8 @@ func resourceSumologicSLO() *schema.Resource {
 									},
 									"query_group": {
 										Type:     schema.TypeList,
+										MinItems: 1,
+										MaxItems: 6,
 										Required: true,
 										Elem:     queryGroupElemSchema,
 									},
@@ -209,7 +192,7 @@ func resourceSumologicSLO() *schema.Resource {
 						"size": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringMatch(windowRegex, `value must match : `+sloAggregationRegexString),
+							ValidateFunc: validation.StringMatch(windowRegex, `value must match : `+sloAggregationWindowRegexString),
 						},
 					},
 				},
@@ -340,7 +323,7 @@ func getSLOCompliance(d *schema.ResourceData) SLOCompliance {
 	complianceDict := d.Get("compliance").([]interface{})[0].(map[string]interface{})
 	return SLOCompliance{
 		ComplianceType: complianceDict["compliance_type"].(string),
-		Target:         complianceDict["target"].(int),
+		Target:         complianceDict["target"].(float64),
 		Timezone:       complianceDict["timezone"].(string),
 		Size:           complianceDict["size"].(string),
 	}
