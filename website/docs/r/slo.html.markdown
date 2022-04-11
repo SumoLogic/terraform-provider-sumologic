@@ -65,7 +65,7 @@ The following arguments are supported:
       , `GreaterThanOrEqual`.
     - `size` - (Required) The size of the window to use, minimum of `1m` and maximum of `1h`. Only applicable for Window based evaluation.
     - `query_type` - (Required) The type of query to use. Valid values are `Metrics` or `Logs`.
-    - `threshold` - (Required) Threshold for classifying window as successful or unsuccessful.
+    - `threshold` - (Required) Threshold for classifying window as successful or unsuccessful, i.e. the minimum value for `good windows / total events`.
     - `aggregation` - (Optional) Aggregation function applied over each window to arrive at SLI. Valid values are `Avg`
       , `Sum`, `Count`, `Max`, `Min` and `p[1-99]`.
     - `queries` - (Required) The queries to use.
@@ -73,7 +73,7 @@ The following arguments are supported:
           , `Threshold`.
         - `query_group` - (Required) List of queries to use.
             - `row_id` - (Required) The row ID to use.
-            - `query` - (Required) The query to use.
+            - `query` - (Required) The query string to use.
             - `use_row_count` - (Optional) Whether to use the row count. Defaults to false.
             - `field` - (Optional) Field of log query output to compare against. To be used only for logs based data
               type when `use_row_count` is false.
