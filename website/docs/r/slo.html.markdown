@@ -74,7 +74,7 @@ The following arguments are supported:
         - `query_group` - (Required) List of queries to use.
             - `row_id` - (Required) The row ID to use.
             - `query` - (Required) The query string to use.
-            - `use_row_count` - (Optional) Whether to use the row count. Defaults to false.
+            - `use_row_count` - (Required) Whether to use the row count. Defaults to false.
             - `field` - (Optional) Field of log query output to compare against. To be used only for logs based data
               type when `use_row_count` is false.
 
