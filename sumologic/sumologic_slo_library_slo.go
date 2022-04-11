@@ -137,10 +137,10 @@ type SLOLibrarySLO struct {
 }
 
 type SLOCompliance struct {
-	ComplianceType string `json:"complianceType"` // string^(Window|Request)$
-	Target         int    `json:"target"`         // [0..100]
-	Timezone       string `json:"timezone"`       // IANA Time Zone Database
-	Size           string `json:"size"`           // Must be a multiple of days (minimum 1d, and maximum 14d)
+	ComplianceType string  `json:"complianceType"` // string^(Window|Request)$
+	Target         float64 `json:"target"`         // [0..100]
+	Timezone       string  `json:"timezone"`       // IANA Time Zone Database
+	Size           string  `json:"size"`           // Must be a multiple of days (minimum 1d, and maximum 14d)
 }
 
 type SLOIndicator struct {
