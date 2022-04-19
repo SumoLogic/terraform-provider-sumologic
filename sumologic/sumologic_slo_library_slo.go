@@ -137,10 +137,12 @@ type SLOLibrarySLO struct {
 }
 
 type SLOCompliance struct {
-	ComplianceType string  `json:"complianceType"` // string^(Window|Request)$
-	Target         float64 `json:"target"`         // [0..100]
-	Timezone       string  `json:"timezone"`       // IANA Time Zone Database
-	Size           string  `json:"size"`           // Must be a multiple of days (minimum 1d, and maximum 14d)
+	ComplianceType string  `json:"complianceType"`       // string^(Window|Request)$
+	Target         float64 `json:"target"`               // [0..100]
+	Timezone       string  `json:"timezone"`             // IANA Time Zone Database
+	Size           string  `json:"size,omitempty"`       // Must be a multiple of days (minimum 1d, and maximum 14d)
+	WindowType     string  `json:"windowType,omitempty"` // string^(Daily|Weekly|Monthly|Yearly)$
+	StartFrom      string  `json:"startFrom,omitempty"`
 }
 
 type SLOIndicator struct {
@@ -148,9 +150,9 @@ type SLOIndicator struct {
 	QueryType      string          `json:"queryType"`      // string^(Logs|Metrics)$
 	Queries        []SLIQueryGroup `json:"queries"`
 	Threshold      float64         `json:"threshold"`
-	Op             string          `json:"op"`
-	Aggregation    string          `json:"aggregation"`
-	Size           string          `json:"size"`
+	Op             string          `json:"op,omitempty"`
+	Aggregation    string          `json:"aggregation,omitempty"`
+	Size           string          `json:"size,omitempty"`
 }
 
 type SLI struct {
