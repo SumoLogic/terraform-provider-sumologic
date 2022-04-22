@@ -120,9 +120,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
 						"detection_method": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition", "MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition", "LogsMissingDataCondition", "MetricsMissingDataCondition"}, false),
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition",
+								"MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition",
+								"LogsMissingDataCondition", "MetricsMissingDataCondition", "SloSliCondition",
+								"SloBurnRateCondition"}, false),
 						},
 					},
 				},
@@ -180,6 +183,22 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: metricsMissingDataTriggerConditionSchema,
+							},
+						},
+						sloSLIConditionFieldName: {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: sloSLITriggerConditionSchema,
+							},
+						},
+						sloBurnRateConditionFieldName: {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: sloBurnRateTriggerConditionSchema,
 							},
 						},
 					},
@@ -266,7 +285,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"monitor_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics", "Slo"}, false),
 			},
 
 			"evaluation_delay": {
@@ -325,7 +344,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
+			"slo_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"alert_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -442,6 +464,23 @@ var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 		Type:         schema.TypeString,
 		Required:     true,
 		ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries"}, false),
+	},
+}
+
+var sloSLITriggerConditionSchema = map[string]*schema.Schema{
+	"sli_threshold": {
+		Type:         schema.TypeFloat,
+		Required:     true,
+		ValidateFunc: validation.FloatBetween(0, 100),
+	},
+}
+
+var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
+	"time_range": &timeRangeSchema,
+	"burn_rate_threshold": {
+		Type:         schema.TypeFloat,
+		Required:     true,
+		ValidateFunc: validation.FloatAtLeast(0),
 	},
 }
 
@@ -765,6 +804,7 @@ func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerConditi
 	if sc, ok := fromSingletonArray(block, metricsMissingDataConditionFieldName); ok {
 		conditions = append(conditions, metricsMissingDataConditionBlockToJson(sc)...)
 	}
+
 	return conditions
 }
 
@@ -1087,19 +1127,23 @@ func jsonToMetricsMissingDataConditionBlock(conditions []TriggerCondition) map[s
 	return block
 }
 
-var logsStaticConditionFieldName = "logs_static_condition"
-var metricsStaticConditionFieldName = "metrics_static_condition"
-var logsOutlierConditionFieldName = "logs_outlier_condition"
-var metricsOutlierConditionFieldName = "metrics_outlier_condition"
-var logsMissingDataConditionFieldName = "logs_missing_data_condition"
-var metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
+const logsStaticConditionFieldName = "logs_static_condition"
+const metricsStaticConditionFieldName = "metrics_static_condition"
+const logsOutlierConditionFieldName = "logs_outlier_condition"
+const metricsOutlierConditionFieldName = "metrics_outlier_condition"
+const logsMissingDataConditionFieldName = "logs_missing_data_condition"
+const metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
+const sloSLIConditionFieldName = "slo_sli_condition"
+const sloBurnRateConditionFieldName = "slo_burn_rate_condition"
 
-var logsStaticConditionDetectionMethod = "LogsStaticCondition"
-var metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
-var logsOutlierConditionDetectionMethod = "LogsOutlierCondition"
-var metricsOutlierConditionDetectionMethod = "MetricsOutlierCondition"
-var logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
-var metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
+const logsStaticConditionDetectionMethod = "LogsStaticCondition"
+const metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
+const logsOutlierConditionDetectionMethod = "LogsOutlierCondition"
+const metricsOutlierConditionDetectionMethod = "MetricsOutlierCondition"
+const logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
+const metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
+const sloSLIConditionDetectionMethod = "SloSliCondition"
+const sloBurnRateConditionDetectionMethod = "SloBurnRateCondition"
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
