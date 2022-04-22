@@ -105,7 +105,7 @@ The following arguments are supported:
       b/w them can be found on
       the [slo help page](https://help.sumologic.com/Beta/SLO_Reliability_Management/Access_and_Create_SLOs)
         - [window_based_evaluation](#window_based_evaluation) - Evaluate SLI using successful/total windows.
-        - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence's of successful
+        - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence of successful
           events / total events over entire compliance period.
 
 #### window_based_evaluation
@@ -114,8 +114,8 @@ The following arguments are supported:
   based evaluation.
 - `query_type` - (Required) The type of query to use. Valid values are `Metrics` or `Logs`.
 - `threshold` - (Required) Threshold for classifying window as successful or unsuccessful, i.e. the minimum value
-  for `good windows / total events`.
-- `op` - (Required) The operator used to define a successful window or event. Valid values are `LessThan`
+  for `(good windows / total windows) * 100`.
+- `op` - (Required) The operator used to define a successful window. Valid values are `LessThan`
   , `LessThanOrEqual`, `GreaterThan`
   , `GreaterThanOrEqual`.
 - `aggregation` - (Optional) Aggregation function applied over each window to arrive at SLI. Valid values are `Avg`
