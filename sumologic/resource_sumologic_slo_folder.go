@@ -162,7 +162,22 @@ func resourceSumologicSLOLibraryFolderUpdate(d *schema.ResourceData, meta interf
 	c := meta.(*Client)
 	sloFolder := resourceToSLOLibraryFolder(d)
 	sloFolder.Type = "SlosLibraryFolderUpdate"
-	err := c.UpdateSLOLibraryFolder(sloFolder)
+	if d.HasChange("parent_id") {
+		err := c.MoveSLOLibraryToFolder(sloFolder.ID, sloFolder.ParentID)
+		if err != nil {
+			return err
+		}
+	}
+
+	updatedFolder, err := c.GetSLOLibraryFolder(d.Id())
+	if err != nil {
+		return err
+	}
+
+	sloFolder.ModifiedAt = updatedFolder.ModifiedAt
+	sloFolder.Version = updatedFolder.Version
+
+	err = c.UpdateSLOLibraryFolder(sloFolder)
 	if err != nil {
 		return err
 	}

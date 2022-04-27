@@ -44,7 +44,7 @@ func resourceSumologicSLO() *schema.Resource {
 		Type:     schema.TypeList,
 		Required: true,
 		MinItems: 1,
-		MaxItems: 1,
+		MaxItems: 6,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"query_group_type": {
@@ -113,7 +113,6 @@ func resourceSumologicSLO() *schema.Resource {
 			"aggregation": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "Avg",
 				ValidateFunc: validation.StringMatch(aggrRegex, `value must match : `+sloAggregationRegexString),
 			},
 			"size": {
@@ -309,7 +308,7 @@ func resourceSumologicSLOCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceSLORead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	slo, err := c.SLORead(d.Id(), nil)
+	slo, err := c.SLORead(d.Id())
 	if err != nil {
 		return err
 	}
@@ -623,11 +622,18 @@ func resourceSumologicSLOUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	slo.Type = "SlosLibrarySloUpdate"
 	if d.HasChange("parent_id") {
-		err := c.MoveSLOLibraryToFolder(*slo)
+		err := c.MoveSLOLibraryToFolder(slo.ID, slo.ParentID)
 		if err != nil {
 			return err
 		}
 	}
+	sloUpdated, err := c.SLORead(d.Id())
+
+	if err != nil {
+		return err
+	}
+	slo.Version = sloUpdated.Version
+	slo.ModifiedAt = sloUpdated.ModifiedAt
 
 	err = c.UpdateSLO(*slo)
 	if err != nil {

@@ -38,7 +38,7 @@ func (s *Client) CreateSLO(slo SLOLibrarySLO, paramMap map[string]string) (strin
 	return createdSLO.ID, nil
 }
 
-func (s *Client) SLORead(id string, paramMap map[string]string) (*SLOLibrarySLO, error) {
+func (s *Client) SLORead(id string) (*SLOLibrarySLO, error) {
 	urlWithoutParams := SLOBaseApiUrl + "/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
@@ -93,21 +93,19 @@ func (s *Client) UpdateSLO(slo SLOLibrarySLO) error {
 	return err
 }
 
-func (s *Client) MoveSLOLibraryToFolder(slo SLOLibrarySLO) error {
-	urlWithoutParams := SLOBaseApiUrl + "/%s"
+func (s *Client) MoveSLOLibraryToFolder(id, parentId string) error {
+	urlWithoutParams := SLOBaseApiUrl + "/%s/move"
 	paramString := ""
 	sprintfArgs := []interface{}{}
-	sprintfArgs = append(sprintfArgs, slo.ID)
+	sprintfArgs = append(sprintfArgs, id)
 
 	paramString += "?"
-	queryParam := fmt.Sprintf("parentId=%s&", slo.ParentID)
+	queryParam := fmt.Sprintf("parentId=%s&", parentId)
 	paramString += queryParam
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	slo.ID = ""
-
-	_, err := s.Put(urlWithParams, slo)
+	_, err := s.Post(urlWithParams, nil)
 
 	return err
 }

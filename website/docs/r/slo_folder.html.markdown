@@ -26,7 +26,7 @@ resource "sumologic_slo_folder" "tf_slo_folder" {
 
 resource "sumologic_slo_folder" "tf_slo_folder" {
   name        = "slo-tf-folder"
-  description = "Root folder for SLO created for testing"
+  description = "folder for SLO created for testing"
   parent_id   = "0000000000000001"
 }
 

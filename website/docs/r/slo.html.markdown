@@ -89,8 +89,8 @@ The following arguments are supported:
 - `parent_id` - (Optional) The ID of the SLO Folder that contains this SLO. Defaults to the root folder.
 - `signal_type` - (Required) The type of SLO. Valid values are `Latency`, `Error`, `Throughput`, `Availability`
   , `Other`. Defaults to `Latency`.
-- `service` - (Optional) The notifications the SLO will send when the respective trigger condition is met.
-- `application` - (Optional) Whether to group notifications for individual items that meet the trigger condition.
+- `service` - (Optional) Name of the service.
+- `application` - (Optional) Name of the application.
   Defaults to true.
 - `compliance` - (Required) The compliance settings for the SLO.
     - `compliance_type` - (Required) The type of compliance to use. Valid values are `Rolling` or `Calendar`.
