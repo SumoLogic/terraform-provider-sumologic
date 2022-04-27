@@ -484,7 +484,7 @@ func resourceToSLO(d *schema.ResourceData) (*SLOLibrarySLO, error) {
 		return nil, err
 	}
 
-	return &SLOLibrarySLO{
+	slo := SLOLibrarySLO{
 		ID:          d.Id(),
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -503,7 +503,14 @@ func resourceToSLO(d *schema.ResourceData) (*SLOLibrarySLO, error) {
 		Indicator:   *indicator,
 		Service:     d.Get("service").(string),
 		Application: d.Get("application").(string),
-	}, nil
+	}
+
+	err = verifySLOObject(slo)
+	if err != nil {
+		return nil, err
+	}
+
+	return &slo, nil
 }
 
 func getSLOCompliance(d *schema.ResourceData) *SLOCompliance {
@@ -656,5 +663,21 @@ func resourceSumologicSLODelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	return nil
+}
+
+func verifySLOObject(slo SLOLibrarySLO) error {
+
+	if slo.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+
+	for _, q := range slo.Indicator.Queries {
+		for _, qg := range q.QueryGroup {
+			if qg.Field != "" && qg.UseRowCount {
+				return fmt.Errorf("'field' for the query can not be specfied when 'use_row_count' is true")
+			}
+		}
+	}
 	return nil
 }
