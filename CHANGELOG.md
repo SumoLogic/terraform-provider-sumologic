@@ -3,6 +3,9 @@
 FEATURES:
 * Add new optional `alert_name` field to resource/sumologic_monitor.
 
+BUG FIXES:
+* Add CRITICAL as a valid value for cse_custom_insight severity field (GH-367)
+
 ## 2.14.0 (March 30, 2022)
 
 FEATURES:
