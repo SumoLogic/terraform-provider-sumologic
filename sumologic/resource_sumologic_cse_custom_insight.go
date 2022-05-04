@@ -43,7 +43,7 @@ func resourceSumologicCSECustomInsight() *schema.Resource {
 			"severity": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HIGH", "MEDIUM", "LOW"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"HIGH", "MEDIUM", "LOW", "CRITICAL"}, false),
 			},
 			"signal_names": {
 				Type:     schema.TypeList,
