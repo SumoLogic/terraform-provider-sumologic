@@ -87,6 +87,17 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
 	}
 
+	if collector.CollectorType == "Installable" {
+		d.Set("host_name", collector.HostName)
+		d.Set("ephemeral", collector.Ephemeral)
+		d.Set("source_sync_mode", collector.SourceSyncMode)
+		d.Set("cutoff_timestamp", collector.CutoffTimestamp)
+		d.Set("alive", collector.Alive)
+		d.Set("last_seen_alive", collector.LastSeenAlive)
+		d.Set("collector_version", collector.CollectorVersion)
+
+	}
+
 	return nil
 }
 

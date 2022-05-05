@@ -112,4 +112,9 @@ type Collector struct {
 	CollectorVersion string                 `json:"collectorVersion,omitempty"`
 	LastSeenAlive    int                    `json:"lastSeenAlive,omitempty"`
 	Alive            bool                   `json:"alive,omitempty"`
+	HostName         string                 `json:"hostName,omitempty"`
+	Ephemeral        bool                   `json:"ephemeral,omitempty"`
+	SourceSyncMode   string                 `json:"sourceSyncMode,omitempty"`
+	Targetcpu        int                    `json:"targetCpu,omitempty"`
+	CutoffTimestamp  int                    `json:"cutoffTimestamp,omitempty"`
 }
