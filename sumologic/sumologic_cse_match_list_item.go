@@ -106,6 +106,7 @@ type CSEMatchListItemsInMatchListResponse struct {
 
 type CSEMatchListItemsInMatchListGet struct {
 	CSEMatchListItemsGetObjects []CSEMatchListItemGet `json:"objects"`
+	Total                       int                   `json:"total"`
 }
 
 type CSEMatchListItemPost struct {

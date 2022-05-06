@@ -5,6 +5,7 @@ FEATURES:
 
 BUG FIXES:
 * Add CRITICAL as a valid value for cse_custom_insight severity field (GH-367)
+* Fix bug preventing to create more than 100 cse match list items within a cs_match_list (GH-368)
 
 ## 2.14.0 (March 30, 2022)
 
