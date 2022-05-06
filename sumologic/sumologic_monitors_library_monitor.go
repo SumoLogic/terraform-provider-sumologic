@@ -139,6 +139,7 @@ type MonitorsLibraryMonitor struct {
 	GroupNotifications bool                  `json:"groupNotifications"`
 	Playbook           string                `json:"playbook,omitempty"`
 	AlertName          string                `json:"alertName,omitempty"`
+	SloID              string                `json:"sloId,omitempty"`
 }
 
 type MonitorQuery struct {
