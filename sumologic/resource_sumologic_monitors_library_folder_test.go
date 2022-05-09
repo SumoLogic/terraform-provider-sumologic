@@ -29,6 +29,24 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 	expectedError01 := regexp.MustCompile(
 		".*expected obj_permission.0.subject_type to be one of \\[role org], got foo_invalid_subject_type.*")
 
+	config02 := `
+		resource "sumologic_monitor_folder" "test_monitorfolder" {
+				name        = "terraform_test_monitorfolder"
+				description = "terraform_test_monitorfolder_desc"
+				obj_permission {
+					subject_type = "role"
+					subject_id = "dummyID_01"
+					permissions = ["Create","Read","Update","Delete"] 
+				}
+				obj_permission {
+					subject_type = "role"
+					subject_id = "dummyID_02"
+					permissions = ["Create", "Read", "Invalid_Perm"]
+				}
+		}`
+	expectedError02 := regexp.MustCompile(
+		".*expected obj_permission.1.permissions.1 to be one of \\[Create Read Update Delete Manage], got Invalid_Perm.*")
+
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitorsLibraryFolderDestroy(),
@@ -38,31 +56,6 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 				PlanOnly:    true,
 				ExpectError: expectedError01,
 			},
-		},
-	})
-
-	config02 := `
-resource "sumologic_monitor_folder" "test_monitorfolder" {
-		name        = "terraform_test_monitorfolder"
-		description = "terraform_test_monitorfolder_desc"
-		obj_permission {
-			subject_type = "role"
-			subject_id = "dummyID_01"
-			permissions = ["Create","Read","Update","Delete"] 
-		}
-		obj_permission {
-			subject_type = "role"
-			subject_id = "dummyID_02"
-			permissions = ["Create", "Read", "Invalid_Perm"]
-		}
-}`
-	expectedError02 := regexp.MustCompile(
-		".*expected obj_permission.1.permissions.1 to be one of \\[Create Read Update Delete Manage], got Invalid_Perm.*")
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryFolderDestroy(),
-		Steps: []resource.TestStep{
 			{
 				Config:      config02,
 				PlanOnly:    true,
@@ -70,7 +63,6 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 			},
 		},
 	})
-
 }
 
 func TestAccSumologicMonitorsLibraryFolder_createWithFGP(t *testing.T) {
@@ -150,7 +142,6 @@ func TestAccSumologicMonitorsLibraryFolder_updateWithFGP(t *testing.T) {
 	})
 }
 
-//lintignore:AT006
 func TestAccSumologicMonitorsLibraryFolder_driftingCorrectionFGP(t *testing.T) {
 
 	// using the above lintignore, as we want to use multiple tests to emulate Drifting Detection and Correction
