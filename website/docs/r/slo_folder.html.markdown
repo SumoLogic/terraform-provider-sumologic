@@ -2,7 +2,7 @@
 layout: 'sumologic'
 page_title: 'SumoLogic: sumologic_slo_folder'
 description: |-
-  Provides the ability to create, read, delete, and update folders for SLOs.
+  Provides the ability to create, read, delete, and update folders for SLOs ([Beta feature](https://help.sumologic.com/Beta/SLO_Reliability_Management#beta-notices)).
 ---
 
 # sumologic_slo_folder

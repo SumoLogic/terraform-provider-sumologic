@@ -1,6 +1,6 @@
 ---
 layout: 'sumologic' page_title: 'SumoLogic: sumologic_slo' description: |- Provides the ability to create, read, delete,
-and update SLOs.
+and update SLOs ([Beta feature](https://help.sumologic.com/Beta/SLO_Reliability_Management#beta-notices)).
 ---
 
 # sumologic_slo
