@@ -150,7 +150,10 @@ func TestAccSumologicMonitorsLibraryFolder_updateWithFGP(t *testing.T) {
 	})
 }
 
+//lintignore:AT006
 func TestAccSumologicMonitorsLibraryFolder_driftingCorrectionFGP(t *testing.T) {
+
+	// using the above lintignore, as we want to use multiple tests to emulate Drifting Detection and Correction
 
 	testNameSuffix := acctest.RandString(16)
 	tfResourceKey := "sumologic_monitor_folder.test_monitorfolder"
