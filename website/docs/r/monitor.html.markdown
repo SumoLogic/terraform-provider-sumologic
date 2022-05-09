@@ -108,6 +108,73 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 }
 ```
 
+
+## Example SLO Monitors
+
+```hcl
+resource "sumologic_monitor" "tf_slo_monitor_1" {
+  name         = "SLO SLI monitor"
+  type         = "MonitorsLibraryMonitor"
+  is_disabled  = false
+  content_type = "Monitor"
+  monitor_type = "Slo"
+  slo_id = "0000000000000009"
+  evaluation_delay = "5m"
+  
+  trigger_conditions {
+    slo_sli_condition {
+      critical {
+        sli_threshold =  99.5
+      }
+      warning {
+        sli_threshold =  99.9
+      }
+    }
+  }
+  
+  notifications {
+    notification {
+      connection_type = "Email"
+      recipients      = ["abc@example.com"]
+      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
+      time_zone    = "PST"
+      message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+    }
+    run_for_trigger_types = ["Critical", "ResolvedCritical"]
+  }
+  playbook = "test playbook"
+}
+
+resource "sumologic_monitor" "tf_slo_monitor_2" {
+  name         = "SLO Burn rate monitor"
+  type         = "MonitorsLibraryMonitor"
+  is_disabled  = false
+  content_type = "Monitor"
+  monitor_type = "Slo"
+  slo_id = "0000000000000009"
+  evaluation_delay = "5m"
+  queries {
+    row_id = "A"
+    query  = "_sourceCategory=event-action info"
+  }
+  trigger_conditions {
+    slo_burn_rate_condition {
+      critical {
+        burn_rate_threshold =  10
+        time_range = "1d"
+      }
+      warning {
+        burn_rate_threshold =  5
+        time_range = "1d"
+      }
+    }
+  }
+  
+  #...
+}
+
+```
+
 ## Example Logs Monitor with Webhook Connection and Folder
 
 ```hcl
@@ -210,6 +277,8 @@ The following arguments are supported:
 - `monitor_type` - (Required) The type of monitor. Valid values:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
+  - `Slo`: A SLO based monitor  (beta).
+- `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
 - `queries` - (Required) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
 - `triggers` - (Deprecated) Defines the conditions of when to send notifications.
@@ -336,6 +405,19 @@ Here is a summary of arguments for each condition type (fields which are not mar
 #### metrics_missing_data_condition
   - `time_range` (Required)
   - `trigger_source` (Required)
+#### slo_sli_condition
+  - `critical`
+    - `sli_threshold` (Required)
+  - `warning`
+    - `sli_threshold` (Required)
+  
+#### slo_burn_rate_condition
+  - `critical`
+    - `time_range` (Required)
+    - `burn_rate_threshold` (Required)
+- `warning`
+    - `time_range` (Required)
+    - `burn_rate_threshold` (Required)
 
 ## The `triggers` block
 The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.
