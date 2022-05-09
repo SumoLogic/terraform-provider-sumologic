@@ -100,6 +100,7 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+
 			"obj_permission": GetCmfFgpObjPermSetSchema(),
 		},
 	}
