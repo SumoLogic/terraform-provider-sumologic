@@ -198,7 +198,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 				if err != nil {
 					return 0, "", err
 				}
-				return resp, fmt.Sprint(len(resp.CSEMatchListItemsGetObjects)), nil
+				return resp, fmt.Sprint(resp.Total), nil
 			},
 			Timeout:                   d.Timeout(schema.TimeoutCreate),
 			Delay:                     10 * time.Second,
@@ -288,7 +288,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 			if err != nil {
 				return 0, "", err
 			}
-			return resp, fmt.Sprint(len(resp.CSEMatchListItemsGetObjects)), nil
+			return resp, fmt.Sprint(resp.Total), nil
 		},
 		Timeout:                   d.Timeout(schema.TimeoutUpdate),
 		Delay:                     10 * time.Second,

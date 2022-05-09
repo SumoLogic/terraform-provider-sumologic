@@ -7,13 +7,12 @@ description: |-
 
 # sumologic_kinesis_log_source
 
-Provides a Sumologic Kinesis Log source. This source is used to ingest log via Kinesis Firehose from AWS.
+Provides a [Sumologic Kinesis Log source][2]. This source is used to ingest log via Kinesis Firehose from AWS.
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
 
 ## Example Usage
 ```hcl
-locals {
 
   resource "sumologic_kinesis_log_source" "kinesis_log_access_key" {
     name         = "Kinesis Log"
@@ -59,7 +58,7 @@ locals {
     name        = "my-collector"
     description = "Just testing this"
   }
-}
+
 ```
 
 ## Argument reference
@@ -85,7 +84,7 @@ In addition to the common properties, the following arguments are supported:
 The following attributes are exported:
 
 - `id` - The internal ID of the source.
-- `url` - The HTTP endpoint to used while creating Kinesis Firehose on AWS.
+- `url` - The HTTP endpoint to be used while creating Kinesis Firehose on AWS.
 
 ## Import
 Kinesis Log sources can be imported using the collector and source IDs (`collector/source`), e.g.:
@@ -101,3 +100,4 @@ terraform import sumologic_kinesis_log_source.test my-test-collector/my-test-sou
 ```
 
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
+[2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS_Kinesis_Firehose_for_Logs_Source
