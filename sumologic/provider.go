@@ -85,6 +85,8 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_connection":                         resourceSumologicConnection(),
 			"sumologic_monitor":                            resourceSumologicMonitorsLibraryMonitor(),
 			"sumologic_monitor_folder":                     resourceSumologicMonitorsLibraryFolder(),
+			"sumologic_slo":                                resourceSumologicSLO(),
+			"sumologic_slo_folder":                         resourceSumologicSLOLibraryFolder(),
 			"sumologic_ingest_budget_v2":                   resourceSumologicIngestBudgetV2(),
 			"sumologic_field":                              resourceSumologicField(),
 			"sumologic_lookup_table":                       resourceSumologicLookupTable(),
