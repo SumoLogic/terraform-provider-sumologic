@@ -407,14 +407,14 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `trigger_source` (Required)
 #### slo_sli_condition
   - `critical`
-    - `sli_threshold` (Required)
+    - `sli_threshold` (Required) : The remaining SLI error budget threshold percentage [0,100) .
   - `warning`
     - `sli_threshold` (Required)
   
 #### slo_burn_rate_condition
   - `critical`
-    - `time_range` (Required)
-    - `burn_rate_threshold` (Required)
+    - `time_range` (Required) : The relative time range for the burn rate percentage evaluation.
+    - `burn_rate_threshold` (Required) : The burn rate percentage threshold.
 - `warning`
     - `time_range` (Required)
     - `burn_rate_threshold` (Required)
