@@ -20,6 +20,11 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Logs"
   evaluation_delay = "5m"
+
+  queries {
+    row_id = "A"
+    query  = "_sourceCategory=event-action info"
+  }
   
   trigger_conditions {
     logs_static_condition {
@@ -72,7 +77,12 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Metrics"
   evaluation_delay = "1m"
-  
+
+  queries {
+    row_id = "A"
+    query  = "metric=CPU_Idle _sourceCategory=event-action"
+  }
+
   trigger_conditions {
     metrics_static_condition {
       critical {
@@ -148,10 +158,7 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
   monitor_type = "Slo"
   slo_id = "0000000000000009"
   evaluation_delay = "5m"
-  queries {
-    row_id = "A"
-    query  = "_sourceCategory=event-action info"
-  }
+
   trigger_conditions {
     slo_burn_rate_condition {
       critical {
