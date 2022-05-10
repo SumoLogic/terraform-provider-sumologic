@@ -893,6 +893,7 @@ func logsMissingDataConditionBlockToJson(block map[string]interface{}) []Trigger
 	alert := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
 		DetectionMethod: logsMissingDataConditionDetectionMethod,
+		TriggerType:     "MissingData",
 	}
 	resolution := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
