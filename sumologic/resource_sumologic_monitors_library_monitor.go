@@ -120,9 +120,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
 						"detection_method": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition", "MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition", "LogsMissingDataCondition", "MetricsMissingDataCondition"}, false),
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition",
+								"MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition",
+								"LogsMissingDataCondition", "MetricsMissingDataCondition", "SloSliCondition",
+								"SloBurnRateCondition"}, false),
 						},
 					},
 				},
@@ -180,6 +183,22 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: metricsMissingDataTriggerConditionSchema,
+							},
+						},
+						sloSLIConditionFieldName: {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: sloSLITriggerConditionSchema,
+							},
+						},
+						sloBurnRateConditionFieldName: {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: sloBurnRateTriggerConditionSchema,
 							},
 						},
 					},
@@ -266,7 +285,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"monitor_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics", "Slo"}, false),
 			},
 
 			"evaluation_delay": {
@@ -325,7 +344,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
+			"slo_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"alert_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -445,6 +467,42 @@ var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 	},
 }
 
+var sloSLITriggerConditionSchema = map[string]*schema.Schema{
+	"critical": nested(true, schemaMap{
+		"sli_threshold": {
+			Type:         schema.TypeFloat,
+			Required:     true,
+			ValidateFunc: validation.FloatBetween(0, 100),
+		},
+	}),
+	"warning": nested(true, schemaMap{
+		"sli_threshold": {
+			Type:         schema.TypeFloat,
+			Required:     true,
+			ValidateFunc: validation.FloatBetween(0, 100),
+		},
+	}),
+}
+
+var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
+	"critical": nested(true, schemaMap{
+		"time_range": &timeRangeSchema,
+		"burn_rate_threshold": {
+			Type:         schema.TypeFloat,
+			Required:     true,
+			ValidateFunc: validation.FloatAtLeast(0),
+		},
+	}),
+	"warning": nested(true, schemaMap{
+		"time_range": &timeRangeSchema,
+		"burn_rate_threshold": {
+			Type:         schema.TypeFloat,
+			Required:     true,
+			ValidateFunc: validation.FloatAtLeast(0),
+		},
+	}),
+}
+
 var occurrenceTypeSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Required:     true,
@@ -549,6 +607,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("group_notifications", monitor.GroupNotifications)
 	d.Set("playbook", monitor.Playbook)
 	d.Set("alert_name", monitor.AlertName)
+	d.Set("slo_id", monitor.SloID)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -765,6 +824,13 @@ func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerConditi
 	if sc, ok := fromSingletonArray(block, metricsMissingDataConditionFieldName); ok {
 		conditions = append(conditions, metricsMissingDataConditionBlockToJson(sc)...)
 	}
+	if sc, ok := fromSingletonArray(block, sloSLIConditionFieldName); ok {
+		conditions = append(conditions, sloSLIConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, sloBurnRateConditionFieldName); ok {
+		conditions = append(conditions, sloBurnConditionBlockToJson(sc)...)
+	}
+
 	return conditions
 }
 
@@ -846,6 +912,7 @@ func metricsMissingDataConditionBlockToJson(block map[string]interface{}) []Trig
 		DetectionMethod: metricsMissingDataConditionDetectionMethod,
 		TriggerType:     "MissingData",
 	}
+
 	resolution := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
 		TriggerSource:   block["trigger_source"].(string),
@@ -853,6 +920,22 @@ func metricsMissingDataConditionBlockToJson(block map[string]interface{}) []Trig
 		TriggerType:     "ResolvedMissingData",
 	}
 	return []TriggerCondition{alert, resolution}
+}
+
+func sloSLIConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		DetectionMethod: sloSLIConditionDetectionMethod,
+	}
+
+	return base.sloCloneReadingFromNestedBlocks(block)
+}
+
+func sloBurnConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		DetectionMethod: sloBurnRateConditionDetectionMethod,
+	}
+
+	return base.sloCloneReadingFromNestedBlocks(block)
 }
 
 // TriggerCondition JSON model to 'trigger_conditions' block
@@ -877,6 +960,10 @@ func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]inte
 			triggerConditionsBlock[logsOutlierConditionFieldName] = toSingletonArray(jsonToLogsOutlierConditionBlock(dataConditions))
 		case metricsOutlierConditionDetectionMethod:
 			triggerConditionsBlock[metricsOutlierConditionFieldName] = toSingletonArray(jsonToMetricsOutlierConditionBlock(dataConditions))
+		case sloSLIConditionDetectionMethod:
+			triggerConditionsBlock[sloSLIConditionFieldName] = toSingletonArray(jsonToSloSliConditionBlock(dataConditions))
+		case sloBurnRateConditionDetectionMethod:
+			triggerConditionsBlock[sloBurnRateConditionFieldName] = toSingletonArray(jsonToSloBurnRateConditionBlock(dataConditions))
 		}
 	}
 	if len(missingDataConditions) > 0 {
@@ -1072,6 +1159,63 @@ func jsonToMetricsOutlierConditionBlock(conditions []TriggerCondition) map[strin
 	return block
 }
 
+func jsonToSloSliConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	var criticalAlrt, warningAlrt = dict{}, dict{}
+	block := map[string]interface{}{}
+
+	block["critical"] = toSingletonArray(criticalAlrt)
+	block["warning"] = toSingletonArray(warningAlrt)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalAlrt["sli_threshold"] = condition.SLIThreshold
+		case "Warning":
+			hasWarning = true
+			warningAlrt["sli_threshold"] = condition.SLIThreshold
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
+func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+
+	var criticalAlrt, warningAlrt = dict{}, dict{}
+	block := map[string]interface{}{}
+
+	block["critical"] = toSingletonArray(criticalAlrt)
+	block["warning"] = toSingletonArray(warningAlrt)
+
+	var hasCritical, hasWarning = false, false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalAlrt["time_range"] = condition.TimeRange
+			criticalAlrt["burn_rate_threshold"] = condition.BurnRateThreshold
+		case "Warning":
+			hasWarning = true
+			warningAlrt["time_range"] = condition.TimeRange
+			warningAlrt["burn_rate_threshold"] = condition.BurnRateThreshold
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	if !hasWarning {
+		delete(block, "warning")
+	}
+	return block
+}
+
 func jsonToLogsMissingDataConditionBlock(conditions []TriggerCondition) map[string]interface{} {
 	block := map[string]interface{}{}
 	firstCondition := conditions[0]
@@ -1087,19 +1231,23 @@ func jsonToMetricsMissingDataConditionBlock(conditions []TriggerCondition) map[s
 	return block
 }
 
-var logsStaticConditionFieldName = "logs_static_condition"
-var metricsStaticConditionFieldName = "metrics_static_condition"
-var logsOutlierConditionFieldName = "logs_outlier_condition"
-var metricsOutlierConditionFieldName = "metrics_outlier_condition"
-var logsMissingDataConditionFieldName = "logs_missing_data_condition"
-var metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
+const logsStaticConditionFieldName = "logs_static_condition"
+const metricsStaticConditionFieldName = "metrics_static_condition"
+const logsOutlierConditionFieldName = "logs_outlier_condition"
+const metricsOutlierConditionFieldName = "metrics_outlier_condition"
+const logsMissingDataConditionFieldName = "logs_missing_data_condition"
+const metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
+const sloSLIConditionFieldName = "slo_sli_condition"
+const sloBurnRateConditionFieldName = "slo_burn_rate_condition"
 
-var logsStaticConditionDetectionMethod = "LogsStaticCondition"
-var metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
-var logsOutlierConditionDetectionMethod = "LogsOutlierCondition"
-var metricsOutlierConditionDetectionMethod = "MetricsOutlierCondition"
-var logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
-var metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
+const logsStaticConditionDetectionMethod = "LogsStaticCondition"
+const metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
+const logsOutlierConditionDetectionMethod = "LogsOutlierCondition"
+const metricsOutlierConditionDetectionMethod = "MetricsOutlierCondition"
+const logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
+const metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
+const sloSLIConditionDetectionMethod = "SloSliCondition"
+const sloBurnRateConditionDetectionMethod = "SloBurnRateCondition"
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
@@ -1149,6 +1297,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		GroupNotifications: d.Get("group_notifications").(bool),
 		Playbook:           d.Get("playbook").(string),
 		AlertName:          d.Get("alert_name").(string),
+		SloID:              d.Get("slo_id").(string),
 	}
 }
 
@@ -1212,6 +1361,10 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.Consecutive = v.(int)
 		case "direction":
 			condition.Direction = v.(string)
+		case "sli_threshold":
+			condition.SLIThreshold = v.(float64)
+		case "burn_rate_threshold":
+			condition.BurnRateThreshold = v.(float64)
 		default:
 		}
 	}
@@ -1265,6 +1418,24 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 			resolvedWarningCondition.readFrom(resolved)
 		}
 		conditions = append(conditions, warningCondition, resolvedWarningCondition)
+	}
+	return conditions
+}
+
+// adapted version of cloneReadingFromNestedBlocks for slo conditions
+func (base TriggerCondition) sloCloneReadingFromNestedBlocks(block map[string]interface{}) []TriggerCondition {
+	var conditions = []TriggerCondition{}
+	var criticalCondition, warningCondition = base, base
+	criticalCondition.TriggerType = "Critical"
+	warningCondition.TriggerType = "Warning"
+
+	if critical, ok := fromSingletonArray(block, "critical"); ok {
+		criticalCondition.readFrom(critical)
+		conditions = append(conditions, criticalCondition)
+	}
+	if warning, ok := fromSingletonArray(block, "warning"); ok {
+		warningCondition.readFrom(warning)
+		conditions = append(conditions, warningCondition)
 	}
 	return conditions
 }
