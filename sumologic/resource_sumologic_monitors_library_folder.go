@@ -164,6 +164,8 @@ func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta int
 		// if FGP endpoint is not enabled (not implemented), we should suppress this error
 		if !HasErrorCode(fgpErr.Error(), "not_implemented_yet") {
 			return fgpErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
 		}
 	} else {
 		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
@@ -208,6 +210,8 @@ func resourceSumologicMonitorsLibraryFolderUpdate(d *schema.ResourceData, meta i
 		// we should suppress this error
 		if !HasErrorCode(fgpGetErr.Error(), "not_implemented_yet") && len(permStmts) == 0 {
 			return fgpGetErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
 		}
 	}
 
