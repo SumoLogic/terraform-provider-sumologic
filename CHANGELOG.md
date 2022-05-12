@@ -2,6 +2,10 @@
 
 FEATURES:
 * Add new optional `alert_name` field to resource/sumologic_monitor.
+* **New Resource:** `sumologic_slo` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
+* **New Resource:** `sumologic_slo_folder` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
+* Add support for slo based monitors ([GH-363](https://github.com/SumoLogic/terraform-provider-sumologic/pull/363/files))
+
 
 BUG FIXES:
 * Add CRITICAL as a valid value for cse_custom_insight severity field (GH-367)
