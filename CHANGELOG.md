@@ -1,10 +1,11 @@
 ## 2.15.0 (Unreleased)
 
 FEATURES:
-* Add new optional `alert_name` field to resource/sumologic_monitor.
-* **New Resource:** `sumologic_slo` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
-* **New Resource:** `sumologic_slo_folder` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
-* Add support for slo based monitors ([GH-363](https://github.com/SumoLogic/terraform-provider-sumologic/pull/363/files))
+* **New Data Source:** `sumologic_folder` (GH-374)
+* **New Resource:** `sumologic_slo` (GH-362)
+* **New Resource:** `sumologic_slo_folder` (GH-362)
+* Add support for slo based monitors (GH-363)
+* Add new optional `alert_name` field to resource/sumologic_monitor (GH-359)
 
 
 BUG FIXES:
