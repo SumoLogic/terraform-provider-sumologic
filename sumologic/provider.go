@@ -106,6 +106,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_collector":                      dataSourceSumologicCollector(),
 			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
 			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
+			"sumologic_folder":                         dataSourceSumologicFolder(),
 			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
 			"sumologic_role":                           dataSourceSumologicRole(),
 			"sumologic_user":                           dataSourceSumologicUser(),
