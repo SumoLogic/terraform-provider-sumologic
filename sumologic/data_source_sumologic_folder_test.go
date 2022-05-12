@@ -31,7 +31,7 @@ func TestAccDataSourceFolder_folder_does_not_exist(t *testing.T) {
 			{
 				Config: folderConfig("/Library/Users/dgould+terraform@sumologic.com/doesNotExist"),
 				ExpectError: regexp.MustCompile(
-					"folder with path '/Library/Users/dgould+terraform@sumologic.com/doesNotExist' does not exist"),
+					"folder with path '/Library/Users/dgould\\+terraform@sumologic.com/doesNotExist' does not exist"),
 			},
 		},
 	})
