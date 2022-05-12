@@ -13,7 +13,7 @@ import (
 // NOTE: if the underlying testing organization has not got FGP enabled,
 // we would still encounter an "not_implemented_yet" error from "SetCmfFgp" call,
 // if the Terraform file (e.g. "main.tf") has Resources containing references to FGP,
-// even though we have suppressed "not_implemented_yet" error during "GetCmfFgp" call.
+// even though we have suppressed "not_implemented_yet" errors during "GetCmfFgp" call.
 
 func TestAccSumologicMonitorsLibraryFolder_fgpSchemaValidations(t *testing.T) {
 	config01 := `
