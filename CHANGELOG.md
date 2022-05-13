@@ -1,4 +1,7 @@
-## 2.15.0 (Unreleased)
+## 2.16.0 (Unreleased)
+
+
+## 2.15.0 (May 13, 2022)
 
 FEATURES:
 * **New Data Source:** `sumologic_folder` (GH-374)
