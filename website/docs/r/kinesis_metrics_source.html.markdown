@@ -199,6 +199,7 @@ resource "aws_cloudwatch_metric_stream" "main" {
   firehose_arn  = aws_kinesis_firehose_delivery_stream.kinesis_stream.arn
   output_format = "opentelemetry0.7"
 
+// Edit and uncomment below lines to add include_filter (or exclude_filter on similar lines)
 //  include_filter {
 //    namespace = "AWS/ApplicationELB"
 //  }
