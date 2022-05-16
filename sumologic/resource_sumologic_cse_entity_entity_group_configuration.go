@@ -18,7 +18,6 @@ func resourceSumologicCSEEntityEntityGroupConfiguration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"criticality": {
 				Type:     schema.TypeString,
-				Required: false,
 				Optional: true,
 				Default:  "",
 			},
