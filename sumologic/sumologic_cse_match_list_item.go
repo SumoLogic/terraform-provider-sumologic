@@ -25,8 +25,7 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 }
 
 func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
-
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds[%s]", MatchListId))
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s", MatchListId))
 	if err != nil {
 		return nil, err
 	}
