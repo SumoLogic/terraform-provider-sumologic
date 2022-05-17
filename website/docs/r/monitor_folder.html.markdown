@@ -8,6 +8,8 @@ description: |-
 # sumologic_monitor_folder
 
 Provides the ability to create, read, delete, and update folders for [Monitors][1].
+If Fine Grain Permission (FGP) feature is enabled with Monitors Content at one's Sumo Logic account, 
+one can also add those permission details under this monitor folder resource. 
 
 ## Example Monitor Folder
 
