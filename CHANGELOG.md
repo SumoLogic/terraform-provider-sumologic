@@ -1,9 +1,10 @@
 ## 2.16.0 (Unreleased)
 
-FEATURES: 
-* Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
 
 ## 2.15.1 (Unreleased)
+
+FEATURES: 
+* Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
 
 BUG FIXES:
 * Fix bug in cse match list items creation (was timing out due to StateChangeConf on an infinite loop) (GH-377)
