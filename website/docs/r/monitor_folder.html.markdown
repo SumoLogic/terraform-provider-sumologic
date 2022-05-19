@@ -8,8 +8,10 @@ description: |-
 # sumologic_monitor_folder
 
 Provides the ability to create, read, delete, and update folders for [Monitors][1].
-If Fine Grain Permission (FGP) feature is enabled with Monitors Content at one's Sumo Logic account, 
-one can also add those permission details under this monitor folder resource. 
+
+If Fine Grain Permission (FGP) feature is enabled with Monitors Content at one's Sumo Logic account, one can also set those permission details under this monitor folder resource. 
+
+For further details about FGP, please see this [Monitor Permission document][2]. 
 
 ## Example Monitor Folder
 
@@ -97,7 +99,7 @@ The following arguments are supported:
     - `Update` 
     - `Delete` 
     - `Manage`
-    
+
 Additional data provided in state:
 
 - `id` - (Computed) The identifier for this monitor folder.
@@ -111,3 +113,4 @@ terraform import sumologic_monitor_folder.tf_monitor_folder_1 0000000000ABC123
 ```
 
 [1]: https://help.sumologic.com/?cid=10020
+[2]: https://help.sumologic.com/Beta/Capabilities_and_Permissions_for_Monitors#set-permissions-for-a-monitors-folder
