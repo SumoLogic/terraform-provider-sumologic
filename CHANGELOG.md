@@ -1,7 +1,7 @@
-## 2.16.0 (Unreleased)
+## 2.17.0 (Unreleased)
 
 
-## 2.15.1 (May 20, 2022)
+## 2.16.0 (May 20, 2022)
 
 FEATURES: 
 * Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
