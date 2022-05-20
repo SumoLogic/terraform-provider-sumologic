@@ -99,7 +99,7 @@ The following arguments are supported:
     - `size` - (Required) The size of the compliance period to use.
       - For `Rolling` compliance type it must be a multiple of days e.g. `1d`, `2d`.
       - For `Calendar` compliance type the allowed values are `Week`, `Month`, `Quarter`.
-    - `start_from` - (Optional) Start of the calendar window. For week, it would be the day of the week (for e.g Sunday,
+    - `start_from` - Start of the calendar window. For `Week` its required and it would be the day of the week (for e.g. Sunday,
       Monday etc). For month, it will always be the first day of the month. For quarter, it would be the first month of
       the quarter (for e.g January, February etc.)
 - `indicator` - (Required) The service level indicator on which SLO is to be defined. more details on the difference

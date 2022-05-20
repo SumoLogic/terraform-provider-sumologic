@@ -520,15 +520,25 @@ func getSLOCompliance(d *schema.ResourceData) *SLOCompliance {
 	complianceType := complianceDict["compliance_type"].(string)
 
 	startFrom := ""
-	if complianceType == "Calendar" && complianceDict["start_from"] != nil {
-		startFrom = complianceDict["start_from"].(string)
+	windowType := ""
+	size := complianceDict["size"].(string)
+
+	if complianceType == "Calendar" {
+		// field windowType needs to be specified instead of `size` for calendar compliance
+		windowType = size
+		size = ""
+
+		if complianceDict["start_from"] != nil {
+			startFrom = complianceDict["start_from"].(string)
+		}
 	}
 
 	return &SLOCompliance{
 		ComplianceType: complianceType,
 		Target:         complianceDict["target"].(float64),
 		Timezone:       complianceDict["timezone"].(string),
-		Size:           complianceDict["size"].(string),
+		Size:           size,
+		WindowType:     windowType,
 		StartFrom:      startFrom,
 	}
 }
