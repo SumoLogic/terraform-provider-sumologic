@@ -100,8 +100,8 @@ The following arguments are supported:
       - For `Rolling` compliance type it must be a multiple of days e.g. `1d`, `2d`.
       - For `Calendar` compliance type the allowed values are `Week`, `Month`, `Quarter`.
     - `start_from` - Start of the calendar window. For `Week` its required and it would be the day of the week (for e.g. Sunday,
-      Monday etc). For month, it will always be the first day of the month. For quarter, it would be the first month of
-      the quarter (for e.g January, February etc.)
+      Monday etc).  For `Quarter` its required, it would be the first month of the start of quarter (for e.g. January, February etc.). 
+      For `Month` it's not required and is set to first day of the month.
 - `indicator` - (Required) The service level indicator on which SLO is to be defined. more details on the difference
   b/w them can be found on
   the [slo help page](https://help.sumologic.com/Beta/SLO_Reliability_Management/Access_and_Create_SLOs)
