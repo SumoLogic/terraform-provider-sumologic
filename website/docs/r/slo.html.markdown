@@ -97,16 +97,17 @@ The following arguments are supported:
     - `target` - (Required) The target value to use, must be a number between 0 and 100.
     - `timezone` - (Required) Time zone for the SLO compliance. Follow the format in the [IANA Time Zone Database][3].
     - `size` - (Required) The size of the compliance period to use.
-      For `Calendar` compliance type the allowed values are `Week`, `Month`, `Quarter`.
+      - For `Rolling` compliance type it must be a multiple of days e.g. `1d`, `2d`.
+      - For `Calendar` compliance type the allowed values are `Week`, `Month`, `Quarter`.
     - `start_from` - (Optional) Start of the calendar window. For week, it would be the day of the week (for e.g Sunday,
       Monday etc). For month, it will always be the first day of the month. For quarter, it would be the first month of
       the quarter (for e.g January, February etc.)
-    - `indicator` - (Required) The service level indicator on which SLO is to be defined. more details on the difference
-      b/w them can be found on
-      the [slo help page](https://help.sumologic.com/Beta/SLO_Reliability_Management/Access_and_Create_SLOs)
-        - [window_based_evaluation](#window_based_evaluation) - Evaluate SLI using successful/total windows.
-        - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence of successful
-          events / total events over entire compliance period.
+- `indicator` - (Required) The service level indicator on which SLO is to be defined. more details on the difference
+  b/w them can be found on
+  the [slo help page](https://help.sumologic.com/Beta/SLO_Reliability_Management/Access_and_Create_SLOs)
+    - [window_based_evaluation](#window_based_evaluation) - Evaluate SLI using successful/total windows.
+    - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence of successful
+      events / total events over entire compliance period.
 
 #### window_based_evaluation
 
