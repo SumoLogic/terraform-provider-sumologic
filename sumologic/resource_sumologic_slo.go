@@ -211,6 +211,7 @@ func resourceSumologicSLO() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
+								"Week", "Month", "Quarter",
 								"1d", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "11d", "12d", "13d", "14d",
 							}, false),
 						},
@@ -519,15 +520,25 @@ func getSLOCompliance(d *schema.ResourceData) *SLOCompliance {
 	complianceType := complianceDict["compliance_type"].(string)
 
 	startFrom := ""
-	if complianceType == "Calendar" && complianceDict["start_from"] != nil {
-		startFrom = complianceDict["start_from"].(string)
+	windowType := ""
+	size := complianceDict["size"].(string)
+
+	if complianceType == "Calendar" {
+		// field windowType needs to be specified instead of `size` for calendar compliance
+		windowType = size
+		size = ""
+
+		if complianceDict["start_from"] != nil {
+			startFrom = complianceDict["start_from"].(string)
+		}
 	}
 
 	return &SLOCompliance{
 		ComplianceType: complianceType,
 		Target:         complianceDict["target"].(float64),
 		Timezone:       complianceDict["timezone"].(string),
-		Size:           complianceDict["size"].(string),
+		Size:           size,
+		WindowType:     windowType,
 		StartFrom:      startFrom,
 	}
 }
