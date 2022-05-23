@@ -128,4 +128,283 @@ HTTP sources can be imported using the collector name and source name (`collecto
 terraform import sumologic_kinesis_metrics_source.test my-test-collector/my-test-source
 ```
 
+## Full Example (Including terraform for AWS asset creation)
+```hcl
+terraform {
+  required_providers {
+    sumologic = {
+      source = "sumologic/sumologic"
+    }
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
+provider "sumologic" {}
+provider "aws" {}
+
+locals {
+  account_id = ""
+  aws_access_key = ""
+  aws_secret_key = ""
+
+  description = "update your terraform description here"
+  identifier = "SumologicMetricStream"
+
+  region = "us-west-2"
+
+  tagfilters = [
+    { type = "TagFilters", namespace = "AWS/ApplicationELB", tags = ["Deployment=prod"] },
+  ]
+
+}
+
+resource "sumologic_collector" "collector_for_kinesis_metrics" {
+  name = "AWS Metrics via Kinesis"
+}
+
+resource "sumologic_kinesis_metrics_source" "kinesis_source" {
+  name          = "CloudWatch Metrics via Kinesis"
+  description   = "Description for Sumologic source"
+  category      = "aws/cloudwatch"
+  content_type  = "KinesisMetric"
+  collector_id  = sumologic_collector.collector_for_kinesis_metrics.id
+
+  authentication {
+    type = "S3BucketAuthentication"
+    access_key = local.aws_access_key
+    secret_key = local.aws_secret_key
+  }
+
+  path {
+    type = "KinesisMetricPath"
+
+    dynamic "tag_filters" {
+      for_each = local.tagfilters
+      content {
+        type      = tag_filters.value.type
+        namespace = tag_filters.value.namespace
+        tags      = tag_filters.value.tags
+      }
+    }
+  }
+}
+
+// ------------------------------------ AWS Kinesis part
+
+resource "aws_cloudwatch_metric_stream" "main" {
+  name          = local.identifier
+  role_arn      = aws_iam_role.metric_stream_to_firehose.arn
+  firehose_arn  = aws_kinesis_firehose_delivery_stream.kinesis_stream.arn
+  output_format = "opentelemetry0.7"
+
+// Edit and uncomment below lines to add include_filter (or exclude_filter on similar lines)
+//  include_filter {
+//    namespace = "AWS/ApplicationELB"
+//  }
+//  include_filter {
+//    namespace = "AWS/DynamoDB"
+//  }
+
+}
+
+resource "aws_iam_role" "metric_stream_to_firehose" {
+  name = "${local.identifier}-stream_to_firehose"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "streams.metrics.cloudwatch.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "metric_stream_to_firehose" {
+  name = "default"
+  role = aws_iam_role.metric_stream_to_firehose.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "firehose:PutRecord",
+                "firehose:PutRecordBatch"
+            ],
+            "Resource": "${aws_kinesis_firehose_delivery_stream.kinesis_stream.arn}"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role" "firehose_role" {
+  name = "${local.identifier}_firehose"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "firehose_can_log_errors_to_Cloudwatch" {
+  role = aws_iam_role.firehose_role.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:${local.region}:${local.account_id}:log-group:/aws/kinesisfirehose/${local.identifier}:*",
+                "arn:aws:logs:${local.region}:${local.account_id}:log-group:/aws/kinesisfirehose/${local.identifier}:*:log-stream:*"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "firehose_can_use_s3_bucket_for_failures" {
+  role = aws_iam_role.firehose_role.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${aws_s3_bucket.bucket_for_Kinesis_failures.bucket}/*",
+                "arn:aws:s3:::${aws_s3_bucket.bucket_for_Kinesis_failures.bucket}"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_s3_bucket" "bucket_for_Kinesis_failures" {
+  bucket = "${replace(lower(local.identifier),"_", "-")}-kinesisfailures"
+}
+resource "aws_s3_bucket_acl" "bucket_for_Kinesis_failures" {
+  bucket = aws_s3_bucket.bucket_for_Kinesis_failures.id
+  acl    = "private"
+}
+resource "aws_kinesis_firehose_delivery_stream" "kinesis_stream" {
+  name        = local.identifier
+  destination = "http_endpoint"
+
+  http_endpoint_configuration {
+    name = "ToSumo"
+    url = sumologic_kinesis_metrics_source.kinesis_source.url
+    role_arn   = aws_iam_role.firehose_role.arn
+    buffering_interval = 60
+    s3_backup_mode = "FailedDataOnly"
+
+    request_configuration {
+      content_encoding = "GZIP"
+    }
+
+    cloudwatch_logging_options {
+      enabled = true
+      log_group_name = "/aws/kinesisfirehose/${local.identifier}"
+      log_stream_name = "DestinationDelivery"
+    }
+  }
+
+  s3_configuration {
+    role_arn   = aws_iam_role.firehose_role.arn
+    bucket_arn = aws_s3_bucket.bucket_for_Kinesis_failures.arn
+  }
+}
+
+
+// ------------------------------------ authorizing Sumo to use our AWS accounts
+
+resource "aws_iam_policy" "cloudwatch_ingest" {
+  name        = "policy-for-cloudwatch-ingest"
+  description = "Managed by Terraform"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Action": [
+              "cloudwatch:ListMetrics",
+              "cloudwatch:GetMetricStatistics",
+              "tag:GetResources"
+          ],
+          "Effect": "Allow",
+          "Resource": "*"
+      }
+  ]
+}
+EOF
+}
+
+data "aws_iam_policy_document" "sumo_can_use_our_AWS" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    condition {
+      test = "StringEquals"
+      variable = "sts:ExternalId"
+      values = [local.account_id]
+    }
+    principals {
+      identifiers = ["arn:aws:iam::${local.account_id}:root"]
+      type = "AWS"
+    }
+  }
+}
+
+resource "aws_iam_role" "cloudwatch_role" {
+  name               = "role-for-cloudwatch-ingest"
+  assume_role_policy = data.aws_iam_policy_document.sumo_can_use_our_AWS.json
+}
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = aws_iam_role.cloudwatch_role.name
+  policy_arn = aws_iam_policy.cloudwatch_ingest.arn
+}
+
+```
+
+
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
