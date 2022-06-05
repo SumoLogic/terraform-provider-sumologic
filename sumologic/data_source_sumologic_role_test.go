@@ -1,13 +1,15 @@
 package sumologic
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccDataSourcSumologicRole_basic(t *testing.T) {
+func TestAccDataSourceSumologicRole_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -30,6 +32,40 @@ func testAccDataSourceRoleCheck(name, reference string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttrPair(name, "filter_predicate", reference, "filter_predicate"),
 		resource.TestCheckResourceAttrPair(name, "capabilities", reference, "capabilities"),
 	)
+}
+
+func TestAccDataSourceSumologicRole_role_name_doesnt_exist(t *testing.T) {
+	roleDoestExistConfig := `
+  data "sumologic_role" "role_name_doesnt_exist" {
+    name = "someRoleNameDoesntExist8746"
+  }`
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      roleDoestExistConfig,
+				ExpectError: regexp.MustCompile("role with name 'someRoleNameDoesntExist8746' does not exist"),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceSumologicRole_role_id_doesnt_exist(t *testing.T) {
+	roleDoestExistConfig := `
+  data "sumologic_role" "role_id_doesnt_exist" {
+    id = 99999999999999
+  }`
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      roleDoestExistConfig,
+				ExpectError: regexp.MustCompile("role with id 99999999999999 not found"),
+			},
+		},
+	})
 }
 
 var testDataSourceAccSumologicRoleConfig = `

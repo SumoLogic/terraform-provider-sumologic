@@ -126,6 +126,7 @@ type MonitorsLibraryMonitor struct {
 	Notifications      []MonitorNotification `json:"notifications,omitempty"`
 	CreatedBy          string                `json:"createdBy"`
 	MonitorType        string                `json:"monitorType"`
+	EvaluationDelay    string                `json:"evaluationDelay,omitempty"`
 	IsLocked           bool                  `json:"isLocked"`
 	Description        string                `json:"description"`
 	CreatedAt          string                `json:"createdAt"`
@@ -136,6 +137,9 @@ type MonitorsLibraryMonitor struct {
 	IsDisabled         bool                  `json:"isDisabled"`
 	Status             []string              `json:"status"`
 	GroupNotifications bool                  `json:"groupNotifications"`
+	Playbook           string                `json:"playbook,omitempty"`
+	AlertName          string                `json:"alertName,omitempty"`
+	SloID              string                `json:"sloId,omitempty"`
 }
 
 type MonitorQuery struct {
@@ -144,13 +148,20 @@ type MonitorQuery struct {
 }
 
 type TriggerCondition struct {
-	TimeRange       string  `json:"timeRange"`
-	TriggerType     string  `json:"triggerType"`
-	Threshold       float64 `json:"threshold,omitempty"`
-	ThresholdType   string  `json:"thresholdType,omitempty"`
-	OccurrenceType  string  `json:"occurrenceType"`
-	TriggerSource   string  `json:"triggerSource"`
-	DetectionMethod string  `json:"detectionMethod"`
+	TimeRange         string  `json:"timeRange"`
+	TriggerType       string  `json:"triggerType"`
+	Threshold         float64 `json:"threshold,omitempty"`
+	ThresholdType     string  `json:"thresholdType,omitempty"`
+	OccurrenceType    string  `json:"occurrenceType"`
+	TriggerSource     string  `json:"triggerSource"`
+	DetectionMethod   string  `json:"detectionMethod"`
+	Field             string  `json:"field,omitempty"`
+	Window            int     `json:"window,omitempty"`
+	BaselineWindow    string  `json:"baselineWindow,omitempty"`
+	Consecutive       int     `json:"consecutive,omitempty"`
+	Direction         string  `json:"direction,omitempty"`
+	SLIThreshold      float64 `json:"sliThreshold,omitempty"`
+	BurnRateThreshold float64 `json:"burnRateThreshold,omitempty"`
 }
 
 type MonitorNotification struct {

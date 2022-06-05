@@ -26,9 +26,9 @@ resource "sumologic_connection" "connection" {
   default_payload = <<JSON
 {
   "client" : "Sumo Logic",
-  "eventType" : "{{SearchName}}",
-  "description" : "{{SearchDescription}}",
-  "search_url" : "{{SearchQueryUrl}}",
+  "eventType" : "{{Name}}",
+  "description" : "{{Description}}",
+  "search_url" : "{{QueryUrl}}",
   "num_records" : "{{NumRawResults}}",
   "search_results" : "{{AggregateResultsJson}}"
 }
@@ -41,14 +41,15 @@ JSON
 
 The following arguments are supported:
 
-- `type` - (Required) Type of connection. Only `WebhookDefinition` is implimented right now.
+- `type` - (Required) Type of connection. Only `WebhookConnection` is implemented right now.
 - `name` - (Required) Name of connection. Name should be a valid alphanumeric value.
 - `description` - (Optional) Description of the connection.
 - `url` - (Required) URL for the webhook connection.
 - `headers` - (Optional) Map of access authorization headers.
 - `custom_headers` - (Optional) Map of custom webhook headers
 - `default_payload` - (Required) Default payload of the webhook.
-- `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `PagerDuty`, `Slack`, `Webhook`, and `NewRelic`. Default: `Webhook`
+- `connection_subtype` - (Optional) The subtype of the connection. Valid values are `Incident` and `Event`. NOTE: This is only used for the `ServiceNow` webhook type.
+- `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `PagerDuty`, `Slack`, `Webhook`, `NewRelic`, `MicrosoftTeams`, `ServiceNow`, and `SumoCloudSOAR`. Default: `Webhook`
 
 Additional data provided in state
 

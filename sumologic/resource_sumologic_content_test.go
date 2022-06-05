@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-//Testing create functionality for Content resources
 func TestAccContent_create(t *testing.T) {
 	var content Content
 
@@ -90,7 +89,7 @@ func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*Client)
 		_, err := client.GetContent(content.ID, time.Minute)
 		if err == nil {
-			return fmt.Errorf("Content still exists")
+			return fmt.Errorf("Content(id=%s) still exists", content.ID)
 		}
 		return nil
 	}
@@ -98,7 +97,7 @@ func testAccCheckContentDestroy(content Content) resource.TestCheckFunc {
 
 var updateConfigJson = `{
 	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "test-121",
+	"name": "tf-content-scheduled-search-01",
 	"search": {
 		"queryText": "\"warn\"",
 		"defaultTimeRange": "-15m",
@@ -106,7 +105,7 @@ var updateConfigJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "AutoParse"
+		"parsingMode": "Manual"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
@@ -124,7 +123,7 @@ var updateConfigJson = `{
 		"notification": {
 			"taskType": "EmailSearchNotificationSyncDefinition",
 			"toList": ["ops@acme.org"],
-			"subjectTemplate": "Search Results: {{SearchName}}",
+			"subjectTemplate": "Search Results: {{Name}}",
 			"includeQuery": true,
 			"includeResultSet": true,
 			"includeHistogram": false,
@@ -139,7 +138,7 @@ var updateConfigJson = `{
 
 var configJson = `{
 	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "test-121",
+	"name": "tf-content-scheduled-search-01",
 	"search": {
 		"queryText": "\"error\"",
 		"defaultTimeRange": "-15m",
@@ -147,7 +146,7 @@ var configJson = `{
 		"viewName": "",
 		"viewStartTime": "1970-01-01T00:00:00Z",
 		"queryParameters": [],
-		"parsingMode": "AutoParse"
+		"parsingMode": "Manual"
 	},
 	"searchSchedule": {
 		"cronExpression": "0 0 * * * ? *",
@@ -165,7 +164,7 @@ var configJson = `{
 		"notification": {
 			"taskType": "EmailSearchNotificationSyncDefinition",
 			"toList": ["ops@acme.org"],
-			"subjectTemplate": "Search Results: {{SearchName}}",
+			"subjectTemplate": "Search Results: {{Name}}",
 			"includeQuery": true,
 			"includeResultSet": true,
 			"includeHistogram": false,

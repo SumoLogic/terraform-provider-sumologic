@@ -17,9 +17,9 @@ type GCPThirdPartyRef struct {
 }
 
 type GCPResource struct {
-	ServiceType    string            `json:"serviceType"`
-	Authentication GCPAuthentication `json:"authentication,omitempty"`
-	Path           GCPPath           `json:"path,omitempty"`
+	ServiceType    string             `json:"serviceType"`
+	Authentication *GCPAuthentication `json:"authentication,omitempty"`
+	Path           *GCPPath           `json:"path,omitempty"`
 }
 
 type GCPAuthentication struct {
@@ -59,9 +59,7 @@ func (s *Client) CreateGCPSource(gcpSource GCPSource, collectorID int) (int, err
 
 func (s *Client) GetGCPSource(collectorID, sourceID int) (*GCPSource, error) {
 
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 	if err != nil {
 		return nil, err
 	}

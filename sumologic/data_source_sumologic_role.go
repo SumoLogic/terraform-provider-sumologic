@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -33,7 +34,7 @@ func dataSourceSumologicRole() *schema.Resource {
 				Computed: true,
 			},
 			"capabilities": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -53,6 +54,9 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 		role, err = c.GetRole(id)
 		if err != nil {
 			return fmt.Errorf("role with id %v not found: %v", id, err)
+		}
+		if role == nil {
+			return fmt.Errorf("role with id %v not found", id)
 		}
 	} else {
 		if rname, ok := d.GetOk("name"); ok {
@@ -82,7 +86,7 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", name))
+	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)))
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +99,9 @@ func (s *Client) GetRoleName(name string) (*Role, error) {
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
+	}
+	if len(response.Roles) == 0 {
+		return nil, fmt.Errorf("role with name '%s' does not exist", name)
 	}
 
 	return &response.Roles[0], nil

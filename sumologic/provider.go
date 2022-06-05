@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func Provider() terraform.ResourceProvider {
+	log.Printf("Sumo Logic Terraform Provider Version=%s\n", ProviderVersion)
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_id": {
@@ -36,8 +36,27 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
 			},
+			"admin_mode": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_match_list":                     resourceSumologicCSEMatchList(),
+			"sumologic_cse_log_mapping":                    resourceSumologicCSELogMapping(),
+			"sumologic_cse_rule_tuning_expression":         resourceSumologicCSERuleTuningExpression(),
+			"sumologic_cse_network_block":                  resourceSumologicCSENetworkBlock(),
+			"sumologic_cse_custom_entity_type":             resourceSumologicCSECustomEntityType(),
+			"sumologic_cse_custom_insight":                 resourceSumologicCSECustomInsight(),
+			"sumologic_cse_entity_criticality_config":      resourceSumologicCSEEntityCriticalityConfig(),
+			"sumologic_cse_insights_configuration":         resourceSumologicCSEInsightsConfiguration(),
+			"sumologic_cse_insights_resolution":            resourceSumologicCSEInsightsResolution(),
+			"sumologic_cse_insights_status":                resourceSumologicCSEInsightsStatus(),
+			"sumologic_cse_aggregation_rule":               resourceSumologicCSEAggregationRule(),
+			"sumologic_cse_chain_rule":                     resourceSumologicCSEChainRule(),
+			"sumologic_cse_match_rule":                     resourceSumologicCSEMatchRule(),
+			"sumologic_cse_threshold_rule":                 resourceSumologicCSEThresholdRule(),
 			"sumologic_collector":                          resourceSumologicCollector(),
 			"sumologic_installed_collector":                resourceSumologicInstalledCollector(),
 			"sumologic_http_source":                        resourceSumologicHTTPSource(),
@@ -51,6 +70,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cloudtrail_source":                  resourceSumologicGenericPollingSource(),
 			"sumologic_elb_source":                         resourceSumologicGenericPollingSource(),
 			"sumologic_cloudfront_source":                  resourceSumologicGenericPollingSource(),
+			"sumologic_gcp_metrics_source":                 resourceSumologicGenericPollingSource(),
 			"sumologic_cloud_to_cloud_source":              resourceSumologicCloudToCloudSource(),
 			"sumologic_metadata_source":                    resourceSumologicMetadataSource(),
 			"sumologic_cloudsyslog_source":                 resourceSumologicCloudsyslogSource(),
@@ -66,32 +86,47 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_connection":                         resourceSumologicConnection(),
 			"sumologic_monitor":                            resourceSumologicMonitorsLibraryMonitor(),
 			"sumologic_monitor_folder":                     resourceSumologicMonitorsLibraryFolder(),
+			"sumologic_slo":                                resourceSumologicSLO(),
+			"sumologic_slo_folder":                         resourceSumologicSLOLibraryFolder(),
 			"sumologic_ingest_budget_v2":                   resourceSumologicIngestBudgetV2(),
 			"sumologic_field":                              resourceSumologicField(),
 			"sumologic_lookup_table":                       resourceSumologicLookupTable(),
 			"sumologic_subdomain":                          resourceSumologicSubdomain(),
 			"sumologic_dashboard":                          resourceSumologicDashboard(),
+			"sumologic_password_policy":                    resourceSumologicPasswordPolicy(),
+			"sumologic_saml_configuration":                 resourceSumologicSamlConfiguration(),
+			"sumologic_kinesis_metrics_source":             resourceSumologicKinesisMetricsSource(),
+			"sumologic_kinesis_log_source":                 resourceSumologicKinesisLogSource(),
+			"sumologic_token":                              resourceSumologicToken(),
+			"sumologic_policies":                           resourceSumologicPolicies(),
+			"sumologic_hierarchy":                          resourceSumologicHierarchy(),
+			"sumologic_content_permission":                 resourceSumologicPermissions(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"sumologic_caller_identity": dataSourceSumologicCallerIdentity(),
-			"sumologic_collector":       dataSourceSumologicCollector(),
-			"sumologic_http_source":     dataSourceSumologicHTTPSource(),
-			"sumologic_personal_folder": dataSourceSumologicPersonalFolder(),
-			"sumologic_my_user_id":      dataSourceSumologicMyUserId(),
-			"sumologic_role":            dataSourceSumologicRole(),
+			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
+			"sumologic_admin_recommended_folder":       dataSourceSumologicAdminRecommendedFolder(),
+			"sumologic_caller_identity":                dataSourceSumologicCallerIdentity(),
+			"sumologic_collector":                      dataSourceSumologicCollector(),
+			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
+			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
+			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
+			"sumologic_role":                           dataSourceSumologicRole(),
+			"sumologic_user":                           dataSourceSumologicUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
 }
 
-var SumoMutexKV = mutexkv.NewMutexKV()
-
-func resolveRedirectURL(accessId string, accessKey string) (string, error) {
+func resolveRedirectURL(accessId string, accessKey string, authJwt string) (string, error) {
 	req, err := http.NewRequest(http.MethodHead, "https://api.sumologic.com/api/v1/collectors", nil)
 	if err != nil {
 		return "", err
 	}
-	req.SetBasicAuth(accessId, accessKey)
+	if authJwt == "" {
+		req.SetBasicAuth(accessId, accessKey)
+	} else {
+		req.Header.Add("Authorization", "Bearer "+authJwt)
+	}
 	client := &http.Client{CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}}
@@ -111,21 +146,27 @@ func resolveRedirectURL(accessId string, accessKey string) (string, error) {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	accessId := d.Get("access_id").(string)
 	accessKey := d.Get("access_key").(string)
+	authJwt := os.Getenv("SUMOLOGIC_AUTHJWT")
 	environment := d.Get("environment").(string)
 	baseUrl := d.Get("base_url").(string)
+	isInAdminMode := d.Get("admin_mode").(bool)
 
 	msg := ""
-	if accessId == "" {
-		msg = "sumologic provider: access_id should be set;"
-	}
-
-	if accessKey == "" {
-		msg = fmt.Sprintf("%s access_key should be set; ", msg)
+	if authJwt == "" {
+		if accessId == "" || accessKey == "" {
+			msg = "sumologic provider: "
+		}
+		if accessId == "" {
+			msg = fmt.Sprintf("%s access_id should be set;", msg)
+		}
+		if accessKey == "" {
+			msg = fmt.Sprintf("%s access_key should be set; ", msg)
+		}
 	}
 
 	if environment == "" && baseUrl == "" {
 		log.Printf("Attempting to resolve redirection URL from access key/id")
-		url, err := resolveRedirectURL(accessId, accessKey)
+		url, err := resolveRedirectURL(accessId, accessKey, authJwt)
 		if err != nil {
 			log.Printf("[WARN] Unable to resolve redirection URL, %s", err)
 			environment = "us2"
@@ -145,7 +186,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	return NewClient(
 		accessId,
 		accessKey,
+		authJwt,
 		environment,
 		baseUrl,
+		isInAdminMode,
 	)
 }

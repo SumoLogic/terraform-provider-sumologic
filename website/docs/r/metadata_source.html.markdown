@@ -41,7 +41,7 @@ resource "sumologic_collector" "collector" {
 
 ## Argument reference
 
-In addition to the common properties, the following arguments are supported:
+In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
  - `content_type` - (Required) The content-type of the collected data. For Metadata source this is `AwsMetadata`. Details can be found in the [Sumologic documentation for hosted sources][1].
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
@@ -50,7 +50,8 @@ In addition to the common properties, the following arguments are supported:
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
-     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
+     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`. This is not supported for AWS China regions.
+     + `region` - (Optional) Your AWS Bucket region.
  - `path` - (Required) The location to scan for new data.
      + `type` - (Required) type of polling source. Only allowed value is `AwsMetadataPath`.
      + `limit_to_regions` - (Optional) List of Amazon regions.
@@ -83,4 +84,4 @@ terraform import sumologic_metadata_source.test my-test-collector/my-test-source
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
 [2]:https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-Metadata-(Tag)-Source#Define_EC2_tag_filters
 [3]:https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS-Metadata-(Tag)-Source
-[4]:https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties
+[4]:https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties

@@ -47,7 +47,7 @@ func TestAccSumologicUser_basic(t *testing.T) {
 	})
 }
 
-func TestAccUser_create(t *testing.T) {
+func TestAccSumologicUser_create(t *testing.T) {
 	var user User
 	testFirstName := FieldsMap["User"]["firstName"]
 	testLastName := FieldsMap["User"]["lastName"]
@@ -116,7 +116,7 @@ func testAccCheckUserExists(name string, user *User, t *testing.T) resource.Test
 	}
 }
 
-func TestAccUser_update(t *testing.T) {
+func TestAccSumologicUser_update(t *testing.T) {
 	var user User
 	testFirstName := FieldsMap["User"]["firstName"]
 	testLastName := FieldsMap["User"]["lastName"]

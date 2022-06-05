@@ -2,8 +2,9 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceSumologicHTTPSource() *schema.Resource {
@@ -54,7 +55,16 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	c := meta.(*Client)
 
 	id, _ := strconv.Atoi(d.Id())
-	source, err := c.GetSourceName(d.Get("collector_id").(int), d.Get("name").(string))
+	var collectorId int64
+	switch cid := d.Get("collector_id").(type) {
+	case int:
+		collectorId = int64(cid)
+	case int64:
+		collectorId = cid
+	default:
+		return fmt.Errorf("unknown data type of collector_id: %T, value: %v", cid, cid)
+	}
+	source, err := c.GetSourceName(collectorId, d.Get("name").(string))
 
 	if err != nil {
 		return err

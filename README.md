@@ -1,5 +1,5 @@
 <a href="https://terraform.io">
-    <img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" alt="Terraform logo" title="Terrafpr," align="right" height="50" />
+    <img src="https://raw.githubusercontent.com/hashicorp/terraform-website/master/public/img/logo-hashicorp.svg" alt="Terraform logo" title="Terrafpr," align="right" height="50" />
 </a>
 
 # Terraform Provider for Sumo Logic
@@ -34,7 +34,7 @@ Clone repository to: `$GOPATH/src/SumoLogic/sumologic-terraform-provider`
 ```sh
 $ mkdir -p $GOPATH/src/SumoLogic;
 $ cd $GOPATH/src/SumoLogic
-$ git clone https://github.com/terraform-providers/terraform-provider-sumologic.git
+$ git clone https://github.com/SumoLogic/terraform-provider-sumologic.git
 ```
 
 Enter the provider directory and build the provider. To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
@@ -48,12 +48,16 @@ $ make build
 
 In order to test the provider, you can run `make test`.
 
-For manual testing, run `make install` in the root direcory to install it as a plugin. 
+For manual testing, run `make install` in the root directory to install it as a plugin. 
 Then run `terraform init` to initialize it.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests *create real resources*, and often cost money to run. The environment variables `SUMOLOGIC_ACCESSID`, `SUMOLOGIC_ACCESSKEY`, and `SUMOLOGIC_ENVIRONMENT` must also be set for acceptance tests to work properly.
+*Note:* 
+- Acceptance tests *create real resources*, and often cost money to run. The environment variables `SUMOLOGIC_ACCESSID`, `SUMOLOGIC_ACCESSKEY`, and `SUMOLOGIC_ENVIRONMENT` must also be set for acceptance tests to work properly.
+- Environment variable `SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS` must be set for gcp metrics acceptance tests to work properly (ex. below).
+    - export SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS=`cat /path/to/service_acccount.json`
+    - Set Environment variable `SUMOLOGIC_ENABLE_GCP_METRICS_ACC_TESTS` to false, to disable acceptance test for Gcp Metrics. 
 
 [0]: https://help.sumologic.com/Manage/Security/Access-Keys
 [1]: https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security

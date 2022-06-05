@@ -30,7 +30,7 @@ The following arguments are supported:
   * `fields` - (Optional) Map containing [key/value pairs][3].
 
 ### See also
-  * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
 
 ## Attributes Reference
 The following attributes are exported:

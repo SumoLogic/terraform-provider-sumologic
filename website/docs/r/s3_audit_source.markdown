@@ -43,7 +43,7 @@ resource "sumologic_collector" "collector" {
 
 ## Argument reference
 
-In addition to the common properties, the following arguments are supported:
+In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
  - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
  - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
@@ -52,14 +52,17 @@ In addition to the common properties, the following arguments are supported:
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`.
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`.
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`.
-     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`.
+     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`.This is not supported for AWS China regions.
+     + `region` - (Optional) Your AWS Bucket region.
  - `path` - (Required) The location to scan for new data.
      + `type` - (Required) type of polling source. This has to be `S3BucketPathExpression` for `S3 Audit source`.
      + `bucket_name` - (Required) The name of the bucket. 
      + `path_expression` - (Required) The path to the data.
+     + `sns_topic_or_subscription_arn` - (Computed) This is a computed field for SNS topic/subscription ARN.
 
 ### See also
-  * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
+   * [Configuring SNS Subscription](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#configuring-sns-subscription)
 
 ## Attributes Reference
 The following attributes are exported:

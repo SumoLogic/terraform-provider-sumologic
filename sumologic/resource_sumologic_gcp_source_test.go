@@ -10,6 +10,16 @@ import (
 )
 
 func TestAccSumologicGCPSource_create(t *testing.T) {
+	testGCPSourceCreate(t, testAccSumologicGCPSourceConfig)
+	testGCPSourceCreate(t, testAccSumologicGCPSourceConfigDeprecated)
+}
+
+func TestAccSumologicGCPSource_update(t *testing.T) {
+	testGCPSourceUpdate(t, testAccSumologicGCPSourceConfig)
+	testGCPSourceUpdate(t, testAccSumologicGCPSourceConfigDeprecated)
+}
+
+func testGCPSourceCreate(t *testing.T, getConfig func(string, string, string, string, string, string) string) {
 	var gcpSource GCPSource
 	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
@@ -21,7 +31,7 @@ func TestAccSumologicGCPSource_create(t *testing.T) {
 		CheckDestroy: testAccCheckGCPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicGCPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
+				Config: getConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGCPSourceExists(resourceName, &gcpSource),
 					testAccCheckGCPSourceValues(&gcpSource, sName, sDescription, sCategory),
@@ -40,7 +50,7 @@ func TestAccSumologicGCPSource_create(t *testing.T) {
 	})
 }
 
-func TestAccSumologicGCPSource_update(t *testing.T) {
+func testGCPSourceUpdate(t *testing.T, getConfig func(string, string, string, string, string, string) string) {
 	var gcpSource GCPSource
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
@@ -52,7 +62,7 @@ func TestAccSumologicGCPSource_update(t *testing.T) {
 		CheckDestroy: testAccCheckGCPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicGCPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
+				Config: getConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGCPSourceExists(resourceName, &gcpSource),
 					testAccCheckGCPSourceValues(&gcpSource, sName, sDescription, sCategory),
@@ -66,7 +76,7 @@ func TestAccSumologicGCPSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicGCPSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+				Config: getConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGCPSourceExists(resourceName, &gcpSource),
 					testAccCheckGCPSourceValues(&gcpSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -163,21 +173,35 @@ func testAccCheckGCPSourceValues(gcpSource *GCPSource, name, description, catego
 	}
 }
 
-func testAccSumologicGCPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
+func testGCPSourceTemplate(cName, cDescription, cCategory, sName, sDescription, sCategory, thirdPartyRef string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
 }
-	
+
 resource "sumologic_gcp_source" "gcp" {
 	name = "%s"
 	description = "%s"
 	message_per_request = false
 	category = "%s"
-	collector_id = "${sumologic_collector.test.id}"
+	collector_id = "${sumologic_collector.test.id}"%s
+}
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, thirdPartyRef)
 }
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory)
+func testAccSumologicGCPSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
+	return testGCPSourceTemplate(cName, cDescription, cCategory, sName, sDescription, sCategory, "")
+}
+
+func testAccSumologicGCPSourceConfigDeprecated(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
+	deprecatedTPR := `
+	authentication {
+	  type = "NoAuthentication"
+	}
+	path {
+	  type = "NoPathExpression"
+	}`
+	return testGCPSourceTemplate(cName, cDescription, cCategory, sName, sDescription, sCategory, deprecatedTPR)
 }

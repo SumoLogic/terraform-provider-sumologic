@@ -1,4 +1,229 @@
-## 2.7.2 (Unreleased)
+## 2.15.0 (Unreleased)
+
+FEATURES:
+* Add new optional `alert_name` field to resource/sumologic_monitor.
+* **New Resource:** `sumologic_slo` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
+* **New Resource:** `sumologic_slo_folder` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
+* Add support for slo based monitors ([GH-363](https://github.com/SumoLogic/terraform-provider-sumologic/pull/363/files))
+
+
+BUG FIXES:
+* Add CRITICAL as a valid value for cse_custom_insight severity field (GH-367)
+* Fix bug preventing to create more than 100 cse match list items within a cs_match_list (GH-368)
+
+## 2.14.0 (March 30, 2022)
+
+FEATURES:
+* **New Resource:** sumologic_cse_match_list (GH-353)
+
+ENHANCEMENTS:
+* Add support for SumoCloudSOAR webhook connection (GH-352)
+
+## 2.13.0 (February 24, 2022)
+
+FEATURES:
+* **New Resource:** sumologic_content_permission (GH-340)
+
+ENHANCEMENTS:
+* Add support for importing folder resource (GH-345)
+* Allow AtLeastOnce resolution conditions for Metrics monitors  (GH-346)
+
+## 2.12.0 (February 7, 2022)
+
+FEATURES:
+* **New Resource:** Gcp Metrics Source `sumologic_gcp_metrics_source` (GH-329, 332)
+
+ENHANCEMENTS:
+* Add support for OTLP in HTTP source resource (GH-335)
+* Add backoff on http 429s (GH-338)
+* Add `domain` field to the dashboard resource (GH-341)
+
+BUG FIXES:
+* Fix to allow more than one topology_label for Dashboard resource (GH-336)
+* sumologic_cse_log_mapping split_index as int (GH-333)
+
+## 2.11.5 (December 14, 2021)
+
+BUG FIXES:
+
+* Set admin mode in PostRawPayload method (GH-322)
+
+## 2.11.4 (November 19, 2021)
+
+BUG FIXES:
+
+* Fix unexpected end of JSON input error in folder and dashboard resources (GH-319)
+
+## 2.11.3 (November 17, 2021)
+
+BUG FIXES:
+
+* Fix provider crash when user / role data source is declared with a non-existent identifier (GH-316)
+
+## 2.11.2 (November 11, 2021)
+
+ENHANCEMENTS:
+
+* Add support for SNS subscription in polling sources (GH-311)
+
+## 2.11.1 (November 8, 2021)
+
+FEATURES:
+
+* **New Datasource:** sumologic_user (GH-299)
+
+BUG FIXES:
+
+* Fix occurrence_type for metrics resolution conditions (GH-297)
+* Relaxed validation for monitor time range (GH-306)
+
+## 2.11.0 (October 19, 2021)
+
+FEATURES:
+
+* **New Resource:** sumologic_cse_rule_tuning_expression (GH-281)
+* **New Resource:** sumologic_cse_entity_criticality_config (GH-275)
+* **New Resource:** sumologic_cse_custom_entity_type (GH-275)
+* **New Resource:** sumologic_cse_insights_resolution (GH-274)
+* **New Resource:** sumologic_cse_insights_status (GH-274)
+* **New Resource:** sumologic_cse_insights_configuration (GH-274)
+* **New Resource:** sumologic_cse_log_mapping (GH-284)
+* **New Datasource:** sumologic_cse_log_mapping_vendor_product (GH-284)
+* **New Resource:** sumologic_cse_aggregation_rule (GH-290)
+* **New Resource:** sumologic_cse_chain_rule (GH-290)
+* **New Resource:** sumologic_cse_match_rule (GH-287)
+* **New Resource:** sumologic_cse_threshold_rule (GH-287)
+* **New Resource:** sumologic_cse_custom_insight (GH-289)
+
+BUG FIXES:
+
+* Fix hierarchy without a filter not being accepted
+
+## 2.10.0 (September 22, 2021)
+
+* Add a provider option `admin_mode`
+
+FEATURES:
+
+* **New Resource:** sumologic_hierarchy (GH-260)
+* **New Resource:** sumologic_cse_network_block (GH-271)
+
+POTENTIALLY BREAKING CHANGES:
+
+* resource/sumologic_policies: Changed all policies to be required. Configurations might need to be updated in
+  case some policies were not specified previously. (GH-279)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-267)
+
+## 2.9.10 (August 24, 2021)
+
+FEATURES:
+
+* **New Resource:** sumologic_policies (GH-248)
+* Add a new optional field `playbook` to resource/sumologic_monitor.
+* Add a new optional field `evaluation_delay` to resource/sumologic_monitor.
+
+## 2.9.9 (August 12, 2021)
+
+BUG FIXES:
+
+* resource/sumologic_monitor: Removed deprecation warning for `triggers`.
+* seperated docs for sumologic_monitor_folder from docs for sumologic_monitor.
+* resource/sumologic_monitor: Fixed docs for `trigger_conditions`.
+
+FEATURES:
+
+* Adding "entityId" as part of SAML API response object.
+
+## 2.9.8 (July 30, 2021)
+
+FEATURES:
+
+* Add support for ServiceNow Incident and Event webhook connection (GH-250)
+* Add support for new detection methods to sumologic_monitor (GH-239)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `triggers` in favor of `trigger_conditions` (GH-239)
+
+BUG FIXES:
+
+* datasource/sumologic_http_source: fix int64 conversion for `collector_id` (GH-251)
+
+## 2.9.7 (July 22, 2021)
+
+ENHANCEMENTS:
+
+* Upgrade GoLang to support arm_64 (GH-241)
+
+## 2.9.6 (July 9, 2021)
+
+BUF FIXES:
+
+* Allow negative terse values for monitor threshold (GH-230)
+
+## 2.9.5 (July 8, 2021)
+
+ENHANCEMENTS:
+
+* Add validation for monitor resource (GH-223)
+
+BUG FIXES:
+
+* Set error message on failure for content resource (GH-224)
+
+## 2.9.4 (June 24, 2021)
+
+FEATURES:
+
+* **New Resource:** sumologic_token (GH-203)
+* **New Datasource:** sumologic_admin_recommended_folder (GH-215)
+
+ENHANCEMENTS:
+
+* Remove requirement of placeholder values for `path` and `authentication` for `sumologic_gcp_source` resource (GH-205)
+* Add assertion consumer url to terraform saml configuration (GH-200)
+
+## 2.9.3 (April 26, 2021)
+
+FEATURES:
+
+* Add support Microsoft Teams as Connection Type (GH-186)
+
+## 2.9.2 (April 13, 2021)
+
+FEATURES:
+
+* Kinesis Metrics Source (GH-176)
+
+BUG FIXES:
+
+* Handle optional time range in Panel (GH-175)
+
+## 2.9.1 (March 19, 2021)
+
+BUG FIXES:
+
+* Role Data Source now supports names with spaces (GH-172)
+
+ENHANCEMENTS:
+
+* Trace Source Docs (GH-170)
+
+## 2.9.0 (March 9, 2021)
+
+FEATURES:
+
+* Password Policy Resource (GH-161)
+* SAML Resource (GH-163)
+
+## 2.8.0 (February 19, 2021)
+
+FEATURES:
+
+* Dashboard (New) Native Terraform Support (GH-146)
 
 ## 2.7.1 (Febuary 11, 2021)
 
@@ -132,22 +357,22 @@ ENHANCEMENTS:
 ## 2.1.1 (July 17, 2020)
 
 DOCS:
-* Add docs for common source properties ([#50](https://github.com/terraform-providers/terraform-provider-sumologic/pull/50))
+* Add docs for common source properties ([#50](https://github.com/SumoLogic/terraform-provider-sumologic/pull/50))
 
 BUG FIXES:
-* Fix bug for detecting polling source path type changes on polling source ([#44](https://github.com/terraform-providers/terraform-provider-sumologic/pull/44))
+* Fix bug for detecting polling source path type changes on polling source ([#44](https://github.com/SumoLogic/terraform-provider-sumologic/pull/44))
 
 ## 2.1.0 (June 22, 2020)
 
 ENHANCEMENTS:
-* Add support for cloud watch metrics in the sumologic polling source ([#24](https://github.com/terraform-providers/terraform-provider-sumologic/pull/24))
+* Add support for cloud watch metrics in the sumologic polling source ([#24](https://github.com/SumoLogic/terraform-provider-sumologic/pull/24))
 
 DOCS:
 * Fixed usage example for sumologic_content resource.
 
 DEPRECATIONS:
-* resource/sumologic_collector: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/terraform-providers/terraform-provider-sumologic/pull/32))
-* resource/sumologic_sources: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/terraform-providers/terraform-provider-sumologic/pull/32))
+* resource/sumologic_collector: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/SumoLogic/terraform-provider-sumologic/pull/32))
+* resource/sumologic_sources: Remove deprecated attributes `lookup_by_name` and `destroy` ([#32](https://github.com/SumoLogic/terraform-provider-sumologic/pull/32))
 
 
 ## 2.0.3 (June 02, 2020)

@@ -13,7 +13,7 @@ Provides a [Sumologic Partition][1].
 resource "sumologic_partition" "examplePartition" {
   name = "terraform_examplePartition"
   routing_expression = "_sourcecategory=*/Terraform"
-  analytics_tier = "enhanced"
+  analytics_tier = "continuous"
   is_compliant = false
   lifecycle {
     prevent_destroy = true

@@ -35,9 +35,7 @@ func (s *Client) CreateIngestBudget(budget IngestBudget) (string, error) {
 }
 
 func (s *Client) GetIngestBudget(id string) (*IngestBudget, error) {
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/ingestBudgets/%s", id),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +76,7 @@ func (s *Client) FindIngestBudget(name string) (*IngestBudget, error) {
 	next := ""
 
 	for {
-		body, _, err := s.Get(
-			fmt.Sprintf("v1/ingestBudgets?next=%s", next),
-		)
+		body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets?next=%s", next))
 		if err != nil {
 			return nil, err
 		}
@@ -122,9 +118,7 @@ func (s *Client) CollectorAssignedToIngestBudget(ingestBudgetId string, collecto
 	next := ""
 
 	for {
-		body, _, err := s.Get(
-			fmt.Sprintf("v1/ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next),
-		)
+		body, _, err := s.Get(fmt.Sprintf("v1/ingestBudgets/%s/collectors?next=%s", ingestBudgetId, next))
 		if err != nil {
 			return false, err
 		}

@@ -25,25 +25,43 @@ type PollingResource struct {
 }
 
 type PollingAuthentication struct {
-	Type    string `json:"type"`
-	AwsID   string `json:"awsId"`
-	AwsKey  string `json:"awsKey"`
-	RoleARN string `json:"roleARN"`
+	Type                    string `json:"type"`
+	AwsID                   string `json:"awsId"`
+	AwsKey                  string `json:"awsKey"`
+	RoleARN                 string `json:"roleARN"`
+	Region                  string `json:"region,omitempty"`
+	ProjectId               string `json:"project_id"`
+	PrivateKeyId            string `json:"private_key_id"`
+	PrivateKey              string `json:"private_key"`
+	ClientEmail             string `json:"client_email"`
+	ClientId                string `json:"client_id"`
+	AuthUrl                 string `json:"auth_uri"`
+	TokenUrl                string `json:"token_uri"`
+	AuthProviderX509CertUrl string `json:"auth_provider_x509_cert_url"`
+	ClientX509CertUrl       string `json:"client_x509_cert_url"`
 }
 
 type PollingPath struct {
-	Type              string      `json:"type"`
-	BucketName        string      `json:"bucketName,omitempty"`
-	PathExpression    string      `json:"pathExpression,omitempty"`
-	LimitToRegions    []string    `json:"limitToRegions,omitempty"`
-	LimitToNamespaces []string    `json:"limitToNamespaces,omitempty"`
-	TagFilters        []TagFilter `json:"tagFilters,omitempty"`
+	Type                      string                           `json:"type"`
+	BucketName                string                           `json:"bucketName,omitempty"`
+	PathExpression            string                           `json:"pathExpression,omitempty"`
+	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
+	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
+	LimitToServices           []string                         `json:"limitToServices,omitempty"`
+	CustomServices            []string                         `json:"customServices,omitempty"`
+	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
+	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 }
 
 type TagFilter struct {
 	Type      string   `json:"type"`
 	Namespace string   `json:"namespace"`
 	Tags      []string `json:"tags"`
+}
+
+type PollingSnsTopicOrSubscriptionArn struct {
+	IsSuccess bool   `json:"isSuccess"`
+	Arn       string `json:"arn"`
 }
 
 func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int, error) {

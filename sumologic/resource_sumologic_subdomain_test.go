@@ -42,7 +42,7 @@ func TestAccSumologicSubdomain_basic(t *testing.T) {
 	})
 }
 
-func TestAccSubdomain_create(t *testing.T) {
+func TestAccSumologicSubdomain_create(t *testing.T) {
 	var subdomain Subdomain
 	testSubdomain := "my-company"
 	resource.Test(t, resource.TestCase{
@@ -62,7 +62,7 @@ func TestAccSubdomain_create(t *testing.T) {
 	})
 }
 
-func TestAccSubdomain_update(t *testing.T) {
+func TestAccSumologicSubdomain_update(t *testing.T) {
 	var subdomain Subdomain
 	testSubdomain := "my-company"
 

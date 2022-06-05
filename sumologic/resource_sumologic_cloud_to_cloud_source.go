@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"strconv"
 
@@ -46,7 +47,10 @@ func resourceSumologicCloudToCloudSourceCreate(d *schema.ResourceData, meta inte
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		source := resourceToCloudToCloudSource(d)
+		source, err := resourceToCloudToCloudSource(d)
+		if err != nil {
+			return err
+		}
 		log.Printf("SchemaRef %s", source.SchemaRef)
 		log.Printf("Config: %s", source.Config)
 
@@ -65,9 +69,12 @@ func resourceSumologicCloudToCloudSourceCreate(d *schema.ResourceData, meta inte
 func resourceSumologicCloudToCloudSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	source := resourceToCloudToCloudSource(d)
+	source, err := resourceToCloudToCloudSource(d)
+	if err != nil {
+		return err
+	}
 
-	err := c.UpdateCloudToCloudSource(*source, d.Get("collector_id").(int))
+	err = c.UpdateCloudToCloudSource(*source, d.Get("collector_id").(int))
 
 	if err != nil {
 		return err
@@ -86,7 +93,7 @@ func resourceSumologicCloudToCloudSourceDelete(d *schema.ResourceData, meta inte
 
 }
 
-func resourceToCloudToCloudSource(d *schema.ResourceData) *CloudToCloudSource {
+func resourceToCloudToCloudSource(d *schema.ResourceData) (*CloudToCloudSource, error) {
 	id, _ := strconv.Atoi(d.Id())
 	var cloudToCloudSource CloudToCloudSource
 	var jsonRawConf json.RawMessage
@@ -98,14 +105,19 @@ func resourceToCloudToCloudSource(d *schema.ResourceData) *CloudToCloudSource {
 	err := json.Unmarshal(conf, &jsonRawConf)
 	if err != nil {
 		log.Println("Unable to unmarshal the Json configuration")
-		return nil
+		return &cloudToCloudSource, nil
 	}
 
 	cloudToCloudSource.ID = id
 	cloudToCloudSource.Config = jsonRawConf
-	cloudToCloudSource.SchemaRef = getSourceSchemaRef(d)
+	schemaRef, errSchemaRef := getSourceSchemaRef(d)
 
-	return &cloudToCloudSource
+	if errSchemaRef != nil {
+		return &cloudToCloudSource, errSchemaRef
+	}
+
+	cloudToCloudSource.SchemaRef = schemaRef
+	return &cloudToCloudSource, nil
 }
 
 func resourceSumologicCloudToCloudSourceRead(d *schema.ResourceData, meta interface{}) error {
@@ -127,16 +139,19 @@ func resourceSumologicCloudToCloudSourceRead(d *schema.ResourceData, meta interf
 
 	return nil
 }
-func getSourceSchemaRef(d *schema.ResourceData) SchemaReference {
+func getSourceSchemaRef(d *schema.ResourceData) (SchemaReference, error) {
 	sourceSchema := d.Get("schema_ref").(map[string]interface{})
 	schemaR := SchemaReference{}
 
 	if len(sourceSchema) > 0 {
 		schemaR.Type = sourceSchema["type"].(string)
 		if sourceSchema["version"] != nil {
-			schemaR.Version = sourceSchema["version"].(string)
+			errorMessage := "[Error] Unsupported argument 'version' specified for schemaRef"
+			log.Print(errorMessage)
+			return schemaR, errors.New(errorMessage)
+
 		}
 	}
 
-	return schemaR
+	return schemaR, nil
 }

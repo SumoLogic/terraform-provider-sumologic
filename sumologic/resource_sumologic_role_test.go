@@ -17,9 +17,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform/helper/acctest"
 )
 
 func TestAccSumologicRole_basic(t *testing.T) {
@@ -46,7 +46,7 @@ func TestAccSumologicRole_basic(t *testing.T) {
 	})
 }
 
-func TestAccRole_create(t *testing.T) {
+func TestAccSumologicRole_create(t *testing.T) {
 	var role Role
 	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
@@ -65,7 +65,7 @@ func TestAccRole_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_role.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_role.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_role.test", "filter_predicate", testFilterPredicate),
-					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.0", strings.Replace(testCapabilities[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.#", fmt.Sprint(len(testCapabilities))),
 				),
 			},
 		},
@@ -113,7 +113,7 @@ func testAccCheckRoleExists(name string, role *Role, t *testing.T) resource.Test
 	}
 }
 
-func TestAccRole_update(t *testing.T) {
+func TestAccSumologicRole_update(t *testing.T) {
 	var role Role
 	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testDescription := FieldsMap["Role"]["description"]
@@ -138,7 +138,7 @@ func TestAccRole_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_role.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_role.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_role.test", "filter_predicate", testFilterPredicate),
-					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.0", strings.Replace(testCapabilities[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.#", fmt.Sprint(len(testCapabilities))),
 				),
 			},
 			{
@@ -149,7 +149,7 @@ func TestAccRole_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_role.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_role.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_role.test", "filter_predicate", testUpdatedFilterPredicate),
-					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.0", strings.Replace(testUpdatedCapabilities[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr("sumologic_role.test", "capabilities.#", fmt.Sprint(len(testCapabilities))),
 				),
 			},
 		},

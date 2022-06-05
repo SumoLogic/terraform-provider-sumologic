@@ -26,7 +26,7 @@ func resourceSumologicPartition() *schema.Resource {
 			},
 			"routing_expression": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 16384),
 			},
 			"analytics_tier": {

@@ -16,16 +16,15 @@ func TestAccSumologicS3AuditSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	s3AuditResourceName := "sumologic_s3_audit_source.s3_audit"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3AuditSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3AuditSourceExists(s3AuditResourceName, &s3AuditSource),
 					testAccCheckS3AuditSourceValues(&s3AuditSource, sName, sDescription, sCategory),
@@ -48,16 +47,15 @@ func TestAccSumologicS3AuditSource_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	s3AuditResourceName := "sumologic_s3_audit_source.s3_audit"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3AuditSourceExists(s3AuditResourceName, &s3AuditSource),
 					testAccCheckS3AuditSourceValues(&s3AuditSource, sName, sDescription, sCategory),
@@ -70,7 +68,7 @@ func TestAccSumologicS3AuditSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3AuditSourceExists(s3AuditResourceName, &s3AuditSource),
 					testAccCheckS3AuditSourceValues(&s3AuditSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -152,7 +150,7 @@ func testAccCheckS3AuditSourceValues(pollingSource *PollingSource, name, descrip
 		return nil
 	}
 }
-func testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket string) string {
+func testAccSumologicS3AuditSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -168,9 +166,8 @@ resource "sumologic_s3_audit_source" "s3_audit" {
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	  path {
 		type = "S3BucketPathExpression"
@@ -179,5 +176,5 @@ resource "sumologic_s3_audit_source" "s3_audit" {
 	  }
 	}
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }

@@ -16,16 +16,15 @@ func TestAccSumologicCloudFrontSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	cloudFrontResourceName := "sumologic_cloudfront_source.cloudfront"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudFrontSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudFrontSourceExists(cloudFrontResourceName, &cloudFrontSource),
 					testAccCheckCloudFrontSourceValues(&cloudFrontSource, sName, sDescription, sCategory),
@@ -48,16 +47,15 @@ func TestAccSumologicCloudFrontSource_update(t *testing.T) {
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	cloudFrontResourceName := "sumologic_cloudfront_source.cloudfront"
-	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
-	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudFrontSourceExists(cloudFrontResourceName, &cloudFrontSource),
 					testAccCheckCloudFrontSourceValues(&cloudFrontSource, sName, sDescription, sCategory),
@@ -70,7 +68,7 @@ func TestAccSumologicCloudFrontSource_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsID, testAwsKey, testAwsBucket),
+				Config: testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudFrontSourceExists(cloudFrontResourceName, &cloudFrontSource),
 					testAccCheckCloudFrontSourceValues(&cloudFrontSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -152,7 +150,7 @@ func testAccCheckCloudFrontSourceValues(pollingSource *PollingSource, name, desc
 		return nil
 	}
 }
-func testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket string) string {
+func testAccSumologicCloudFrontSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -168,9 +166,8 @@ resource "sumologic_cloudfront_source" "cloudfront" {
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
 	authentication {
-		type = "S3BucketAuthentication"
-		access_key = "%s"
-		secret_key = "%s"
+		type = "AWSRoleBasedAuthentication"
+		role_arn = "%s"
 	  }
 	  path {
 		type = "S3BucketPathExpression"
@@ -179,5 +176,5 @@ resource "sumologic_cloudfront_source" "cloudfront" {
 	  }
 	}
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }

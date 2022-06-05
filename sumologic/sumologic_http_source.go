@@ -40,9 +40,7 @@ func (s *Client) CreateHTTPSource(httpSource HTTPSource, collectorID int) (int, 
 
 func (s *Client) GetHTTPSource(collectorID, sourceID int) (*HTTPSource, error) {
 
-	body, _, err := s.Get(
-		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
-	)
+	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 	if err != nil {
 		return nil, err
 	}
