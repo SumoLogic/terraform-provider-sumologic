@@ -1,5 +1,7 @@
 ## 2.17.0 (Unreleased)
 
+BUG FIXES:
+* Allow locator field in DefaultDateFormat to be empty (GH-384)
 
 ## 2.16.0 (May 20, 2022)
 
