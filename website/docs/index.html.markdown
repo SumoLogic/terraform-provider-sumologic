@@ -128,7 +128,7 @@ The following properties are common to ALL sources and can be used to configure 
   + `format` - (Required) The timestamp format supplied as a Java SimpleDateFormat, or "epoch" if the timestamp is in epoch format.
   + `locator` - (Optional) Regular expression to locate the timestamp within the messages.  
 - `filters` - (Optional) If you'd like to add a filter to the source.
-  + `filter_type` - (Required) They type of filter to apply. (Exclude, Include, Mask, or Hash)
+  + `filter_type` - (Required) The type of filter to apply. (Exclude, Include, Mask, or Hash)
   + `name` - (Required) The Name for the filter. 
   + `regexp` - (Required) Regular expression to match within the messages. When used with Incude/Exclude the expression must match the entire message. 
   + `mask` - (Optional) When applying a Mask rule, replaces the detected expression with this string.  
