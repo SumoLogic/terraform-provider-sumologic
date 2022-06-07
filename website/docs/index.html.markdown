@@ -127,15 +127,45 @@ The following properties are common to ALL sources and can be used to configure 
 - `default_date_formats` - (Optional) Define the format for the timestamps present in your log messages. You can specify a locator regex to identify where timestamps appear in log lines. Requires 'automatic_date_parsing' set to True. 
   + `format` - (Required) The timestamp format supplied as a Java SimpleDateFormat, or "epoch" if the timestamp is in epoch format.
   + `locator` - (Optional) Regular expression to locate the timestamp within the messages.  
+
+  Usage:
+  ```hcl
+     default_date_formats {
+       format = "MM-dd-yyyy HH:mm:ss"
+       locator = "timestamp:(.*)\\s"
+     }
+  ```
 - `filters` - (Optional) If you'd like to add a filter to the source.
   + `filter_type` - (Required) The type of filter to apply. (Exclude, Include, Mask, or Hash)
   + `name` - (Required) The Name for the filter. 
-  + `regexp` - (Required) Regular expression to match within the messages. When used with Incude/Exclude the expression must match the entire message. 
-  + `mask` - (Optional) When applying a Mask rule, replaces the detected expression with this string.  
+  + `regexp` - (Required) Regular expression to match within the messages. When used with Incude/Exclude the expression must match the entire message. When used with Mask/Hash rules the expression must contain an unnamed capture group to hash/mask. 
+  + `mask` - (Optional) When applying a Mask rule, replaces the detected expression with this string.
+
+  Usage:
+  ```hcl
+     filters {
+       filter_type = "Include"
+       name = "Sample Include"
+       regexp = ".*\\d{16}.*"
+     }
+     filters {
+       filter_type = "Mask"
+       name = "Sample Mask"
+       regexp = "(\\d{16})"
+       mask = "MaskedID"
+     }
+    ```  
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). 
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
 - `fields` - (Optional) Map containing key/value pairs.
-
+ 
+   Usage:
+   ```hcl
+     fields = {
+       environment = "production"
+       service = "apache"
+     }
+   ```
 ## Configuring SNS Subscription
 This is supported in the following resources.
  - `sumologic_cloudfront_source`
