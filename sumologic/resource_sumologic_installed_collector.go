@@ -97,7 +97,7 @@ func resourceToInstalledCollector(d *schema.ResourceData) Collector {
 	id, _ := strconv.Atoi(d.Id())
 
 	return Collector{
-		ID:               id,
+		ID:               int64(id),
 		CollectorType:    "Installable",
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
@@ -110,7 +110,7 @@ func resourceToInstalledCollector(d *schema.ResourceData) Collector {
 		Fields:           d.Get("fields").(map[string]interface{}),
 		CutoffTimestamp:  d.Get("cutoff_timestamp").(int),
 		Alive:            d.Get("alive").(bool),
-		LastSeenAlive:    d.Get("last_seen_alive").(int),
+		LastSeenAlive:    d.Get("last_seen_alive").(int64),
 		CollectorVersion: d.Get("collector_version").(string),
 	}
 }
