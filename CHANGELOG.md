@@ -1,4 +1,4 @@
-## 2.17.2 (Unreleased)
+## 2.16.2 (Unreleased)
 BUG FIXES:
 * Under Monitor Folder provider, handling more error codes: "api_not_enabled", in addition to: "not_implemented_yet" (GH-389) 
 
