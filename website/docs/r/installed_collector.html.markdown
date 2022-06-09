@@ -12,13 +12,11 @@ Provides a [Sumologic (Installed) Collector][1].
 ## Example Usage
 ```hcl
 resource "sumologic_installed_collector" "installed_collector" {
-  name        = "vsinghal-mac"
-  category = "macos/vsinghal"
+  name        = "test-mac"
+  category = "macos/test"
   ephemeral = true
   fields =  {
-      _budget =  "Dev_20GB"
       key = "value"
-
     }
 }
 ```
