@@ -235,6 +235,10 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 }
 
 func (s *Client) Get(urlPath string) ([]byte, string, error) {
+	return s.GetWithErrOpt(urlPath, false)
+}
+
+func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, string, error) {
 	relativeURL, _ := url.Parse(urlPath)
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
@@ -260,7 +264,11 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	}
 
 	if resp.StatusCode == 404 {
-		return nil, "", nil
+		if return404Err {
+			return nil, "", errors.New(string(d))
+		} else {
+			return nil, "", nil
+		}
 	} else if resp.StatusCode >= 400 {
 		return nil, "", errors.New(string(d))
 	}
@@ -341,19 +349,21 @@ func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin
 	return &client, nil
 }
 
-func HasErrorCode(errorJsonStr string, errorCode string) bool {
+func HasErrorCode(errorJsonStr string, errorCodeChoices []string) string {
 	var apiError ApiError
 	jsonErr := json.Unmarshal([]byte(errorJsonStr), &apiError)
 	if jsonErr != nil {
 		// when fail to unmarshal JSON, we should consider the errorCode is not found
-		return false
+		return ""
 	}
 	for i := range apiError.Errors {
-		if apiError.Errors[i].Code == errorCode {
-			return true
+		for j := range errorCodeChoices {
+			if apiError.Errors[i].Code == errorCodeChoices[j] {
+				return errorCodeChoices[j]
+			}
 		}
 	}
-	return false
+	return ""
 }
 
 type Error struct {
@@ -362,7 +372,9 @@ type Error struct {
 	Detail  string `json:"detail"`
 }
 
-// e.g. {"id":"8UQOI-82VTR-YBQ8G","errors":[{"code":"not_implemented_yet","message":"Not implemented yet"}]}
+// e.g.:
+// {"id":"8UQOI-82VTR-YBQ8G","errors":[{"code":"not_implemented_yet","message":"Not implemented yet"}]}
+// {"id":"RO4X1-BZW7P-Q8KJF","errors":[{"code":"api_not_enabled","message":"This API is not enabled for your organization."}]}
 type ApiError struct {
 	Id     string  `json:"id"`
 	Errors []Error `json:"errors"`
