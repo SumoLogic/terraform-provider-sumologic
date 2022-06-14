@@ -74,7 +74,7 @@ func resourceSumologicSource() *schema.Resource {
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  nil,
+				Default:  "",
 			},
 			"automatic_date_parsing": {
 				Type:     schema.TypeBool,
