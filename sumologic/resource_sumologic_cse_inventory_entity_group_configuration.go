@@ -26,17 +26,18 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
-			"groups": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"inventory_type": {
+			"group": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
+			},
+			"inventory_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"inventory_source": {
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -77,8 +78,9 @@ func resourceSumologicCSEInventoryEntityGroupConfigurationRead(d *schema.Resourc
 
 	d.Set("criticality", CSEInventoryEntityGroupConfigurationGet.Criticality)
 	d.Set("description", CSEInventoryEntityGroupConfigurationGet.Description)
-	d.Set("groups", CSEInventoryEntityGroupConfigurationGet.Groups)
+	d.Set("group", CSEInventoryEntityGroupConfigurationGet.Group)
 	d.Set("inventory_type", CSEInventoryEntityGroupConfigurationGet.InventoryType)
+	d.Set("inventory_source", CSEInventoryEntityGroupConfigurationGet.InventorySource)
 	d.Set("name", CSEInventoryEntityGroupConfigurationGet.Name)
 	d.Set("suppressed", CSEInventoryEntityGroupConfigurationGet.Suppressed)
 	d.Set("tags", CSEInventoryEntityGroupConfigurationGet.Tags)
@@ -98,13 +100,14 @@ func resourceSumologicCSEInventoryEntityGroupConfigurationCreate(d *schema.Resou
 
 	if d.Id() == "" {
 		id, err := c.CreateCSEInventoryEntityGroupConfiguration(CSEEntityGroupConfiguration{
-			Criticality:   d.Get("criticality").(string),
-			Description:   d.Get("description").(string),
-			Groups:        resourceToStringArray(d.Get("groups").([]interface{})),
-			InventoryType: d.Get("inventory_type").(string),
-			Name:          d.Get("name").(string),
-			Suppressed:    d.Get("suppressed").(bool),
-			Tags:          resourceToStringArray(d.Get("tags").([]interface{})),
+			Criticality:     d.Get("criticality").(string),
+			Description:     d.Get("description").(string),
+			Group:           d.Get("group").(string),
+			InventoryType:   d.Get("inventory_type").(string),
+			InventorySource: d.Get("inventory_source").(string),
+			Name:            d.Get("name").(string),
+			Suppressed:      d.Get("suppressed").(bool),
+			Tags:            resourceToStringArray(d.Get("tags").([]interface{})),
 		})
 
 		if err != nil {
@@ -137,13 +140,14 @@ func resourceToCSEInventoryEntityGroupConfiguration(d *schema.ResourceData) (CSE
 	}
 
 	return CSEEntityGroupConfiguration{
-		ID:            id,
-		Criticality:   d.Get("criticality").(string),
-		Description:   d.Get("description").(string),
-		Groups:        resourceToStringArray(d.Get("groups").([]interface{})),
-		InventoryType: d.Get("inventory_type").(string),
-		Name:          d.Get("name").(string),
-		Suppressed:    d.Get("suppressed").(bool),
-		Tags:          resourceToStringArray(d.Get("tags").([]interface{})),
+		ID:              id,
+		Criticality:     d.Get("criticality").(string),
+		Description:     d.Get("description").(string),
+		Group:           d.Get("group").(string),
+		InventoryType:   d.Get("inventory_type").(string),
+		InventorySource: d.Get("inventory_source").(string),
+		Name:            d.Get("name").(string),
+		Suppressed:      d.Get("suppressed").(bool),
+		Tags:            resourceToStringArray(d.Get("tags").([]interface{})),
 	}, nil
 }

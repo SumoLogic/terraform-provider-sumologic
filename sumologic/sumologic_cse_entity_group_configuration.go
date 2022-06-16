@@ -120,8 +120,9 @@ type CSEEntityGroupConfiguration struct {
 	Description       string   `json:"description,omitempty"`
 	EntityNamespace   string   `json:"entityNamespace,omitempty"`
 	EntityType        string   `json:"entityType,omitempty"`
-	Groups            []string `json:"groups,omitempty"`
+	Group             string   `json:"group,omitempty"`
 	InventoryType     string   `json:"inventoryType,omitempty"`
+	InventorySource   string   `json:"inventorySource,omitempty"`
 	LastUpdated       string   `json:"lastUpdated,omitempty,omitempty"`
 	LastUpdatedBy     string   `json:"lastUpdatedBy,omitempty,omitempty"`
 	Name              string   `json:"name,omitempty"`

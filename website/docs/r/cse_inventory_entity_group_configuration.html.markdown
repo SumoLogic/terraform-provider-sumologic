@@ -10,8 +10,9 @@ description: |-
 resource "sumologic_cse_inventory_entity_group_configuration" "inventory_entity_group_configuration" {
 	criticality = "HIGH"
     description = "Inventory entity group description"
-	groups = ["admin"]
+	group = "admin"
 	inventory_type = "username"
+	inventory_source = "Active Directory"
 	name = "Inventory entity group configuration"
 	suppressed = false
  	tags = ["tag"]
@@ -24,8 +25,9 @@ The following arguments are supported:
 
 - `criticality` - (Optional) The entity group configuration criticality Examples: "HIGH", "CRITICALITY".
 - `description` - (Optional) The entity group configuration description.
-- `groups` - (Optional) The entity group configuration groups list.
-- `inventory_type` - (Optional) The entity type Examples: "computer", "username".
+- `group` - (Optional) The entity group configuration inventory group.
+- `inventory_type` - (Required) The inventory type Examples: "computer", "username".
+- `inventory_source` - (Required) The inventory source Examples: "Active Directory", "Okta".
 - `name` - (Required) The entity group configuration name.
 - `suppresed` - (Optional) The entity group configuration suppressed value 
 - `tags` - (Optional) The entity group configuration tags list.
