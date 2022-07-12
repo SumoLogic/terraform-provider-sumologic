@@ -159,13 +159,14 @@ func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta int
 		return nil
 	}
 
-	fgpResponse, fgpErr := c.GetCmfFgp(fgpTargetType, folder.ID)
-	if fgpErr != nil {
+	fgpResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, folder.ID)
+	if fgpGetErr != nil {
 		// if FGP endpoint is not enabled (not implemented), we should suppress this error
-		if !HasErrorCode(fgpErr.Error(), "not_implemented_yet") {
-			return fgpErr
+		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" {
+			return fgpGetErr
 		} else {
-			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
 		}
 	} else {
 		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
@@ -203,15 +204,16 @@ func resourceSumologicMonitorsLibraryFolderUpdate(d *schema.ResourceData, meta i
 		return convErr
 	}
 
-	// reading FGP from Backend to reconcille
+	// reading FGP from Backend to reconcile
 	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitorFolder.ID)
 	if fgpGetErr != nil {
 		// if FGP endpoint is not enabled (not implemented) and FGP feature is not used,
 		// we should suppress this error
-		if !HasErrorCode(fgpGetErr.Error(), "not_implemented_yet") && len(permStmts) == 0 {
+		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" && len(permStmts) == 0 {
 			return fgpGetErr
 		} else {
-			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
 		}
 	}
 

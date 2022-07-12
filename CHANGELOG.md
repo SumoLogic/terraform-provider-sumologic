@@ -1,7 +1,25 @@
-## 2.16.0 (Unreleased)
+## 2.17.0 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_cse_entity_entity_group_configuration (GH-376)
 * **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
+
+## 2.16.2 (June 12, 2022)
+
+BUG FIXES:
+* Monitor Folder provider now handles more error codes: "api_not_enabled", in addition to: "not_implemented_yet" (GH-389) 
+
+## 2.16.1 (June 6, 2022)
+
+BUG FIXES:
+* Allow locator field in DefaultDateFormat to be empty (GH-384)
+
+## 2.16.0 (May 20, 2022)
+
+FEATURES: 
+* Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
+
+BUG FIXES:
+* Fix bug in cse match list items creation (was timing out due to StateChangeConf on an infinite loop) (GH-377)
 
 ## 2.15.0 (May 13, 2022)
 

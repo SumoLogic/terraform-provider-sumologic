@@ -10,7 +10,7 @@ func (s *Client) GetCmfFgp(targetType string, targetId string) (*CmfFgpResponse,
 
 	// e.g. "v1/monitors/0000000000000003/permissions"
 	url := fmt.Sprintf("v1/%s/%s/permissions", targetType, targetId)
-	data, _, err := s.Get(url)
+	data, _, err := s.GetWithErrOpt(url, true)
 	if err != nil {
 		return nil, err
 	}

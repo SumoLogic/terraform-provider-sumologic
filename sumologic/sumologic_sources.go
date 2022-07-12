@@ -34,7 +34,7 @@ type Source struct {
 
 type DefaultDateFormat struct {
 	Format  string `json:"format"`
-	Locator string `json:"locator"`
+	Locator string `json:"locator,omitempty"`
 }
 
 type Filter struct {
@@ -74,7 +74,7 @@ func resourceSumologicSource() *schema.Resource {
 			"timezone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "Etc/UTC",
+				Default:  "",
 			},
 			"automatic_date_parsing": {
 				Type:     schema.TypeBool,
