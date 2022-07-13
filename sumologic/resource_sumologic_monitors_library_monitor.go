@@ -353,6 +353,8 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 512),
 			},
+
+			"obj_permission": GetCmfFgpObjPermSetSchema(),
 		},
 	}
 }
@@ -569,6 +571,16 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 			return err
 		}
 
+		permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitorDefinitionID)
+		if convErr != nil {
+			return convErr
+		}
+		_, fgpErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: permStmts,
+		})
+		if fgpErr != nil {
+			return fgpErr
+		}
 		d.SetId(monitorDefinitionID)
 	}
 	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
@@ -586,6 +598,18 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		log.Printf("[WARN] Monitor not found, removing from state: %v - %v", d.Id(), err)
 		d.SetId("")
 		return nil
+	}
+
+	fgpResponse, fgpErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
+	if fgpErr != nil {
+		// if FGP endpoint is not enabled (not implemented), we should suppress this error
+		if len(HasErrorCode(fgpErr.Error(), []string{"not_implemented_yet"})) == 0 {
+			return fgpErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
+		}
+	} else {
+		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
 	}
 
 	d.Set("created_by", monitor.CreatedBy)
@@ -715,6 +739,36 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
+
+	// converting Resource FGP to Struct
+	permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitor.ID)
+	if convErr != nil {
+		return convErr
+	}
+
+	// reading FGP from Backend to reconcile
+	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
+	if fgpGetErr != nil {
+		// if FGP endpoint is not enabled (not implemented) and FGP feature is not used,
+		// we should suppress this error
+		if len(HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet"})) == 0 && len(permStmts) == 0 {
+			return fgpGetErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"not_implemented_yet\" error under GetCmfFgp operation.")
+		}
+	}
+
+	if len(permStmts) > 0 || fgpGetResponse != nil {
+		_, fgpSetErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: ReconcileFgpPermStmtsWithEmptyPerms(
+				permStmts, fgpGetResponse.PermissionStatements,
+			),
+		})
+		if fgpSetErr != nil {
+			return fgpSetErr
+		}
+	}
+
 	updatedMonitor := resourceSumologicMonitorsLibraryMonitorRead(d, meta)
 
 	return updatedMonitor
