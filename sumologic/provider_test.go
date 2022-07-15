@@ -36,13 +36,13 @@ func SkipCseTest(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("SUMOLOGIC_ACCESSKEY"); v == "" {
+	if os.Getenv("SUMOLOGIC_ACCESSKEY") == "" {
 		t.Fatal("SUMOLOGIC_ACCESSKEY must be set for acceptance tests")
 	}
-	if v := os.Getenv("SUMOLOGIC_ACCESSID"); v == "" {
+	if os.Getenv("SUMOLOGIC_ACCESSID") == "" {
 		t.Fatal("SUMOLOGIC_ACCESSID must be set for acceptance tests")
 	}
-	if v := os.Getenv("SUMOLOGIC_ENVIRONMENT"); v == "" {
+	if os.Getenv("SUMOLOGIC_ENVIRONMENT") == "" && os.Getenv("SUMOLOGIC_BASE_URL") == "" {
 		t.Fatal("SUMOLOGIC_ENVIRONMENT must be set for acceptance tests")
 	}
 }
