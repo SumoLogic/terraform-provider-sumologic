@@ -1,5 +1,7 @@
 ## 2.17.0 (Unreleased)
-
+FEATURES:
+* **New Resource:** sumologic_cse_entity_entity_group_configuration (GH-376)
+* **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
 
 ## 2.16.2 (June 12, 2022)
 
