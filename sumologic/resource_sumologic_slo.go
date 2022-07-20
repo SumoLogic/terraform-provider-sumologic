@@ -8,15 +8,13 @@ import (
 	"regexp"
 )
 
-const sloAggregationRegexString = `^(Avg|Min|Max|Sum|(p[5-9][0-9])(\.\d{1,3})?$)$` // TODO update it to allow lower pct values
-const sloAggregationWindowRegexString = `^[0-9]{1,2}(m|h)$`                        // TODO make it exact of min 1m and max 1h
+const sloAggregationWindowRegexString = `^[0-9]{1,2}(m|h)$` // TODO make it exact of min 1m and max 1h
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
 const fieldNameRequestBasedEvaluation = `request_based_evaluation`
 const sloContentTypeString = "Slo"
 
 func resourceSumologicSLO() *schema.Resource {
 
-	aggrRegex := regexp.MustCompile(sloAggregationRegexString)
 	windowRegex := regexp.MustCompile(sloAggregationWindowRegexString)
 
 	queryGroupElemSchema := &schema.Resource{
@@ -111,9 +109,8 @@ func resourceSumologicSLO() *schema.Resource {
 				}, false),
 			},
 			"aggregation": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringMatch(aggrRegex, `value must match : `+sloAggregationRegexString),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"size": {
 				Type:         schema.TypeString,
