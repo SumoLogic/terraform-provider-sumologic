@@ -602,7 +602,14 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 
 	fgpResponse, fgpErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
 	if fgpErr != nil {
-		// if FGP endpoint is not enabled (not implemented), we should suppress this error
+		/*
+        errCode         |  len  | logic                   |
+        --------------------------------------------------|
+        server_error    |   0   | return err at Get       |
+        server_error    |   1   | warn; return err at Set |
+        not_enabled     |   0   | warn                    |
+        not_enabled     |   1   | warn; return err at Set |
+        */
 		suppressedErrorCode := HasErrorCode(fgpErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
 		if suppressedErrorCode == "" {
 			return fgpErr
@@ -750,8 +757,14 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 	// reading FGP from Backend to reconcile
 	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
 	if fgpGetErr != nil {
-		// if FGP endpoint is not enabled (not implemented) and FGP feature is not used,
-		// we should suppress this error
+		/*
+        errCode         |  len  | logic                   |
+        --------------------------------------------------|
+        server_error    |   0   | return err at Get       |
+        server_error    |   1   | warn; return err at Set |
+        not_enabled     |   0   | warn                    |
+        not_enabled     |   1   | warn; return err at Set |
+        */
 		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
 		if suppressedErrorCode == "" && len(permStmts) == 0 {
 			return fgpGetErr
