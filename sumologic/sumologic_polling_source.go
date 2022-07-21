@@ -51,6 +51,7 @@ type PollingPath struct {
 	CustomServices            []string                         `json:"customServices,omitempty"`
 	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
 	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
+	UseVersionedApi           bool                             `json:"useVersionedApi,omitempty"`
 }
 
 type TagFilter struct {
