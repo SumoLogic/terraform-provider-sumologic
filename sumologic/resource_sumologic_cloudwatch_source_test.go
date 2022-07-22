@@ -182,6 +182,7 @@ resource "sumologic_cloudwatch_source" "cloudwatch" {
           	namespace = "AWS/Route53"
           	tags = ["k1=v1"]
 		}
+		use_versioned_api = false
 	  }
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn)
