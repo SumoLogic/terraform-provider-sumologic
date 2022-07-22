@@ -750,13 +750,13 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
 	if fgpGetErr != nil {
 		/*
-        |errCode         |  len  | logic                   |
-        |--------------------------------------------------|
-        |server_error    |   0   | return err at Get       |
-        |server_error    |   1   | warn; return err at Set |
-        |not_enabled     |   0   | warn                    |
-        |not_enabled     |   1   | warn; return err at Set |
-        */
+		   |errCode         |  len  | logic                   |
+		   |--------------------------------------------------|
+		   |server_error    |   0   | return err at Get       |
+		   |server_error    |   1   | warn; return err at Set |
+		   |not_enabled     |   0   | warn                    |
+		   |not_enabled     |   1   | warn; return err at Set |
+		*/
 		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
 		if suppressedErrorCode == "" && len(permStmts) == 0 {
 			return fgpGetErr

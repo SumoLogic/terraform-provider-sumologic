@@ -128,7 +128,6 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 		},
 	})
 }
-
 func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
