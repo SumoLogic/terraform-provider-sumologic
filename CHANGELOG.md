@@ -1,7 +1,9 @@
 ## 2.17.0 (Unreleased)
 FEATURES:
-* Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
+* **New Resource:** sumologic_cse_entity_entity_group_configuration (GH-376)
+* **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
 
+* Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
 
 ## 2.16.2 (June 12, 2022)
 
