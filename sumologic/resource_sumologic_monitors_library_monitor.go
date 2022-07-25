@@ -703,12 +703,13 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	monitor := resourceToMonitorsLibraryMonitor(d)
-	if d.HasChange("parentId") {
-		// monitor.ParentID = d.Get("parentId").(string)
-		err := c.MoveMonitorsLibraryMonitor(monitor)
+
+	if d.HasChange("parent_id") {
+		updatedMonitor, err := c.MoveMonitorsLibraryMonitor(monitor.ID, monitor.ParentID)
 		if err != nil {
 			return err
 		}
+		monitor = *updatedMonitor
 	}
 	monitor.Type = "MonitorsLibraryMonitorUpdate"
 	err := c.UpdateMonitorsLibraryMonitor(monitor)

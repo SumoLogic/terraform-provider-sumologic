@@ -9,6 +9,7 @@ require (
 	github.com/go-errors/errors v1.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/hashicorp/go-hclog v0.16.2 // indirect
+	github.com/hashicorp/go-plugin v1.4.0 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -19,4 +20,5 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 )
