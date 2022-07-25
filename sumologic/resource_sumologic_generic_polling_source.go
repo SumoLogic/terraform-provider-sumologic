@@ -128,7 +128,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"use_versioned_api": {
 					Type:     schema.TypeBool,
 					Optional: true,
-					Default:  true,
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
@@ -578,7 +577,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-			pathSettings.UseVersionedApi = path["use_versioned_api"].(bool)
+			if path["use_versioned_api"] != nil {
+				pathSettings.UseVersionedApi = path["use_versioned_api"].(bool)
+			}
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType
@@ -597,7 +598,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 					LimitToNamespaces = append(LimitToNamespaces, v.(string))
 				}
 			}
-			pathSettings.UseVersionedApi = false
 			pathSettings.LimitToRegions = LimitToRegions
 			pathSettings.LimitToNamespaces = LimitToNamespaces
 			if pathType == "CloudWatchPath" {
@@ -613,10 +613,8 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 				}
 			}
 			pathSettings.LimitToRegions = LimitToRegions
-			pathSettings.UseVersionedApi = false
 		case "GcpMetricsPath":
 			pathSettings.Type = pathType
-			pathSettings.UseVersionedApi = false
 			addGcpMetricsPathSettings(&pathSettings, path)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
