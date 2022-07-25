@@ -63,6 +63,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   }
   playbook = "{{Name}} should be fixed in 24 hours when {{TriggerType}} is triggered."
   alert_name = "Alert {{ResultJson.my_field}} from {{Name}}"
+  notification_group_fields = ["_sourceHost"]
 }
 ```
 
@@ -80,7 +81,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 
   queries {
     row_id = "A"
-    query  = "metric=CPU_Idle _sourceCategory=event-action"
+    query  = "metric=CPU* _sourceCategory=event-action"
   }
 
   trigger_conditions {
@@ -110,6 +111,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
   playbook = "test playbook"
+  notification_group_fields = ["metric"]
 }
 ```
 
@@ -288,6 +290,7 @@ The following arguments are supported:
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 - `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
 - `alert_name` - (Optional) The display name when creating alerts. Monitor name will be used if `alert_name` is not provided. All template variables can be used in `alert_name` except `{{AlertName}}` and `{{ResultsJson}}`.
+- `notification_group_fields` - (Optional - Beta) Set of fields used to group data to create independent notifications and alerts.
 
 Additional data provided in state:
 
