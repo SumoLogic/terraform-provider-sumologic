@@ -8,10 +8,32 @@ description: |-
 # sumologic_monitor
 
 Provides the ability to create, read, delete, and update [Monitors][1].
+If Fine Grain Permission (FGP) feature is enabled with Monitors Content at one's Sumo Logic account, one can also set those permission details under this monitor resource. For further details about FGP, please see this [Monitor Permission document][3].
 
-## Example Logs Monitor
+## Example Logs Monitor with FGP
+
+NOTE:
+- `obj_permission` are added at one of the monitor's to showcase how Fine Grain Permissions (FGP) are associated with two roles.
 
 ```hcl
+resource "sumologic_role" "tf_test_role_01" {
+  name        = "tf_test_role_01"
+  description = "Testing resource sumologic_role"
+  capabilities = [
+    "viewAlerts",
+    "viewMonitorsV2",
+    "manageMonitorsV2"
+  ]
+}
+resource "sumologic_role" "tf_test_role_02" {
+  name        = "tf_test_role_02"
+  description = "Testing resource sumologic_role"
+  capabilities = [
+    "viewAlerts",
+    "viewMonitorsV2",
+    "manageMonitorsV2"
+  ]
+}
 resource "sumologic_monitor" "tf_logs_monitor_1" {
   name         = "Terraform Logs Monitor"
   description  = "tf logs monitor"
@@ -64,6 +86,16 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   playbook = "{{Name}} should be fixed in 24 hours when {{TriggerType}} is triggered."
   alert_name = "Alert {{ResultJson.my_field}} from {{Name}}"
   notification_group_fields = ["_sourceHost"]
+  obj_permission {
+    subject_type = "role"
+    subject_id = sumologic_role.tf_test_role_01.id 
+    permissions = ["Read","Update"] 
+  }
+  obj_permission {
+    subject_type = "role"
+    subject_id = sumologic_role.tf_test_role_02.id
+    permissions = ["Read"]
+  }
 }
 ```
 
@@ -291,6 +323,16 @@ The following arguments are supported:
 - `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
 - `alert_name` - (Optional) The display name when creating alerts. Monitor name will be used if `alert_name` is not provided. All template variables can be used in `alert_name` except `{{AlertName}}` and `{{ResultsJson}}`.
 - `notification_group_fields` - (Optional - Beta) Set of fields used to group data to create independent notifications and alerts.
+- `obj_permission` - (Optional) `obj_permission` construct represents a Permission Statement associated with this Monitor. A set of `obj_permission` constructs can be specified under a Monitor. An `obj_permission` construct can be used to control permissions Explicitly associated with a Monitor. But, it cannot be used to control permissions Inherited from a Parent / Ancestor. Default FGP would be still set to the Monitor upon creation (e.g. the creating user would have full permission), even if no `obj_permission` construct is specified at a Monitor and the FGP feature is enabled at the account.
+    - `subject_type` - (Required) Valid values:
+        - `role`
+        - `org`
+    - `subject_id` - (Required) A Role ID or the Org ID of the account
+    - `permissions` - (Required) A Set of Permissions. Valid Permission Values:
+        - `Read`
+        - `Update`
+        - `Delete`
+        - `Manage`
 
 Additional data provided in state:
 
@@ -490,3 +532,4 @@ terraform import sumologic_monitor.test 1234567890
 
 [1]: https://help.sumologic.com/?cid=10020
 [2]: monitor_folder.html.markdown
+[3]: https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Monitors#configure-permissions-for-a-monitor

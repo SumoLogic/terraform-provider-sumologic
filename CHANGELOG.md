@@ -4,6 +4,8 @@ FEATURES:
 * **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
 * Add new optional `notification_group_fields` field to resource/sumologic_monitor (GH-390)
 
+* Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
+
 ## 2.16.2 (June 12, 2022)
 
 BUG FIXES:
