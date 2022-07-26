@@ -189,6 +189,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 		},
 	}
 	testAlertName := "Alert from {{Name}}"
+	testGroupFields := [2]string{"groupingField1", "groupingField2"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -212,6 +213,8 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
@@ -308,6 +311,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		},
 	}
 	testAlertName := "Alert from {{Name}}"
+	testGroupFields := [2]string{"groupingField1", "groupingField2"}
 
 	// updated fields
 	testUpdatedName := "terraform_test_monitor_" + testNameSuffix
@@ -368,6 +372,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		},
 	}
 	testUpdatedAlertName := "Updated Alert from {{Name}}"
+	testUpdatedGroupFields := [2]string{"groupingField3", "groupingField4"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -392,6 +397,8 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
@@ -412,6 +419,8 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testUpdatedPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testUpdatedAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testUpdatedGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testUpdatedGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "1"),
 					// 1, instead of 2
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsForMonitorUpdate),
@@ -582,6 +591,7 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is a test playbook"  
 	alert_name =  "Alert from {{Name}}"
+	notification_group_fields = ["groupingField1", "groupingField2"]
 	obj_permission {
         subject_type = "role"
         subject_id = sumologic_role.tf_test_role_01.id
@@ -666,6 +676,7 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is an updated test playbook"
 	alert_name = "Updated Alert from {{Name}}"
+	notification_group_fields = ["groupingField3", "groupingField4"]
 		obj_permission {
           subject_type = "role"
           subject_id = sumologic_role.tf_test_role_01.id
