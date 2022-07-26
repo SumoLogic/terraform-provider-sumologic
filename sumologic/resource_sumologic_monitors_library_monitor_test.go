@@ -414,7 +414,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	})
 }
 
-func TestAccSumologicMonitorsLibraryMonitorFolder_update(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_update_folder(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
