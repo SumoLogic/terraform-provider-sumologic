@@ -85,6 +85,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   }
   playbook = "{{Name}} should be fixed in 24 hours when {{TriggerType}} is triggered."
   alert_name = "Alert {{ResultJson.my_field}} from {{Name}}"
+  notification_group_fields = ["_sourceHost"]
   obj_permission {
     subject_type = "role"
     subject_id = sumologic_role.tf_test_role_01.id 
@@ -112,7 +113,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
 
   queries {
     row_id = "A"
-    query  = "metric=CPU_Idle _sourceCategory=event-action"
+    query  = "metric=CPU* _sourceCategory=event-action"
   }
 
   trigger_conditions {
@@ -142,6 +143,7 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
   playbook = "test playbook"
+  notification_group_fields = ["metric"]
 }
 ```
 
@@ -320,6 +322,7 @@ The following arguments are supported:
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 - `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
 - `alert_name` - (Optional) The display name when creating alerts. Monitor name will be used if `alert_name` is not provided. All template variables can be used in `alert_name` except `{{AlertName}}` and `{{ResultsJson}}`.
+- `notification_group_fields` - (Optional - Beta) The set of fields to be used to group alerts and notifications for a monitor. The value of this field will be considered only when 'groupNotifications' is true.
 - `obj_permission` - (Optional) `obj_permission` construct represents a Permission Statement associated with this Monitor. A set of `obj_permission` constructs can be specified under a Monitor. An `obj_permission` construct can be used to control permissions Explicitly associated with a Monitor. But, it cannot be used to control permissions Inherited from a Parent / Ancestor. Default FGP would be still set to the Monitor upon creation (e.g. the creating user would have full permission), even if no `obj_permission` construct is specified at a Monitor and the FGP feature is enabled at the account.
     - `subject_type` - (Required) Valid values:
         - `role`

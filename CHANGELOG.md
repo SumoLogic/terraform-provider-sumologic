@@ -5,6 +5,7 @@
 FEATURES:
 * **New Resource:** sumologic_cse_entity_entity_group_configuration (GH-376)
 * **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
+* Add new optional `notification_group_fields` field to resource/sumologic_monitor (GH-403)
 * Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
 * Add use_versioned_api parameter for s3 source (GH-401)
 

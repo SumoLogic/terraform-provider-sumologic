@@ -353,7 +353,13 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 512),
 			},
-
+			"notification_group_fields": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"obj_permission": GetCmfFgpObjPermSetSchema(),
 		},
 	}
@@ -632,6 +638,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("playbook", monitor.Playbook)
 	d.Set("alert_name", monitor.AlertName)
 	d.Set("slo_id", monitor.SloID)
+	d.Set("notification_group_fields", monitor.NotificationGroupFields)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -1332,33 +1339,39 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	for i := range rawStatus {
 		status[i] = rawStatus[i].(string)
 	}
+	rawGroupFields := d.Get("notification_group_fields").([]interface{})
+	notificationGroupFields := make([]string, len(rawGroupFields))
+	for i := range rawGroupFields {
+		notificationGroupFields[i] = rawGroupFields[i].(string)
+	}
 
 	return MonitorsLibraryMonitor{
-		CreatedBy:          d.Get("created_by").(string),
-		Name:               d.Get("name").(string),
-		ID:                 d.Id(),
-		CreatedAt:          d.Get("created_at").(string),
-		MonitorType:        d.Get("monitor_type").(string),
-		Description:        d.Get("description").(string),
-		EvaluationDelay:    d.Get("evaluation_delay").(string),
-		Queries:            queries,
-		ModifiedBy:         d.Get("modified_by").(string),
-		IsMutable:          d.Get("is_mutable").(bool),
-		Version:            d.Get("version").(int),
-		Notifications:      notifications,
-		Type:               d.Get("type").(string),
-		ParentID:           d.Get("parent_id").(string),
-		ModifiedAt:         d.Get("modified_at").(string),
-		Triggers:           triggers,
-		ContentType:        d.Get("content_type").(string),
-		IsLocked:           d.Get("is_locked").(bool),
-		IsSystem:           d.Get("is_system").(bool),
-		IsDisabled:         d.Get("is_disabled").(bool),
-		Status:             status,
-		GroupNotifications: d.Get("group_notifications").(bool),
-		Playbook:           d.Get("playbook").(string),
-		AlertName:          d.Get("alert_name").(string),
-		SloID:              d.Get("slo_id").(string),
+		CreatedBy:               d.Get("created_by").(string),
+		Name:                    d.Get("name").(string),
+		ID:                      d.Id(),
+		CreatedAt:               d.Get("created_at").(string),
+		MonitorType:             d.Get("monitor_type").(string),
+		Description:             d.Get("description").(string),
+		EvaluationDelay:         d.Get("evaluation_delay").(string),
+		Queries:                 queries,
+		ModifiedBy:              d.Get("modified_by").(string),
+		IsMutable:               d.Get("is_mutable").(bool),
+		Version:                 d.Get("version").(int),
+		Notifications:           notifications,
+		Type:                    d.Get("type").(string),
+		ParentID:                d.Get("parent_id").(string),
+		ModifiedAt:              d.Get("modified_at").(string),
+		Triggers:                triggers,
+		ContentType:             d.Get("content_type").(string),
+		IsLocked:                d.Get("is_locked").(bool),
+		IsSystem:                d.Get("is_system").(bool),
+		IsDisabled:              d.Get("is_disabled").(bool),
+		Status:                  status,
+		GroupNotifications:      d.Get("group_notifications").(bool),
+		Playbook:                d.Get("playbook").(string),
+		AlertName:               d.Get("alert_name").(string),
+		SloID:                   d.Get("slo_id").(string),
+		NotificationGroupFields: notificationGroupFields,
 	}
 }
 
