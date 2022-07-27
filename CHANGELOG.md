@@ -6,7 +6,7 @@ FEATURES:
 * Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
 
 BUG FIXES:
-* Allow Monitor move between Monitor folders
+* Allow Monitor move between Monitor folders (GH-405)
 
 ## 2.16.2 (June 12, 2022)
 
