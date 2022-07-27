@@ -482,6 +482,98 @@ func TestAccSumologicMonitorsLibraryMonitor_driftingCorrectionFGP(t *testing.T) 
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_update_folder(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+	testMonitorType := "Logs"
+	//testAlertName := "Alert from {{Name}}"
+	folder1tfResourceKey := "sumologic_monitor_folder.tf_folder_01"
+	folder2tfResourceKey := "sumologic_monitor_folder.tf_folder_02"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder1tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder1tfResourceKey, t),
+				),
+			},
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder2tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder2tfResourceKey, t),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		//fetching monitor information
+		monitorResource, ok := s.RootModule().Resources[monitorName]
+		if !ok {
+			//need this so that we don't get an unused import error for strconv in some cases
+			return fmt.Errorf("Error = %s. MonitorsLibraryMonitor not found: %s", strconv.FormatBool(ok), monitorName)
+		}
+
+		//need this so that we don't get an unused import error for strings in some cases
+		if strings.EqualFold(monitorResource.Primary.ID, "") {
+			return fmt.Errorf("MonitorsLibraryMonitor ID is not set")
+		}
+
+		monitorResourceId := monitorResource.Primary.ID
+
+		client := testAccProvider.Meta().(*Client)
+		monitorsLibraryMonitor, err := client.MonitorsRead(monitorResourceId)
+
+		if err != nil {
+			return fmt.Errorf("MonitorsLibraryMonitor %s not found", monitorResourceId)
+		}
+
+		//fetching monitor folder information
+		folderResource, ok := s.RootModule().Resources[folderName]
+		if !ok {
+			//need this so that we don't get an unused import error for strconv in some cases
+			return fmt.Errorf("Error = %s. MonitorsLibraryFolder not found: %s", strconv.FormatBool(ok), folderName)
+		}
+
+		//need this so that we don't get an unused import error for strings in some cases
+		if strings.EqualFold(folderResource.Primary.ID, "") {
+			return fmt.Errorf("MonitorsLibraryFolder ID is not set")
+		}
+
+		folderResourceId := folderResource.Primary.ID
+		monitorsLibraryFolder, err := client.MonitorsRead(folderResourceId)
+		if err != nil {
+			return fmt.Errorf("MonitorsLibraryFolder%s not found", monitorResourceId)
+		}
+
+		//checkig if the monitor parent id matches to the correct folder id
+		if monitorsLibraryMonitor.ParentID != monitorsLibraryFolder.ID {
+			return fmt.Errorf("Parent Id should be %s but %s", monitorsLibraryFolder.ID, monitorsLibraryMonitor.ParentID)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLibraryMonitor) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
@@ -763,6 +855,62 @@ func testAccEmulateFGPDriftingMonitor(
 		}
 		return nil
 	}
+}
+
+func testAccSumologicMonitorsLibraryMonitorFolderUpdate(testName string, parentIdTFString string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor_folder" "tf_folder_01" {
+	name = "tf_test_folder_01_%s"
+	description = "1st folder"
+}	
+resource "sumologic_monitor_folder" "tf_folder_02" {
+	name = "tf_test_folder_02_%s"
+	description = "1st folder"
+}
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "8m"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager info"
+	}
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	  }
+	  triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
+		detection_method = "StaticCondition"
+	}
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		}
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	}
+	playbook = "This is an updated test playbook"
+	alert_name = "Updated Alert from {{Name}}"
+	parent_id = %s.id
+}`, testName, testName, testName, parentIdTFString)
 }
 
 func exampleMonitorWithTriggerCondition(

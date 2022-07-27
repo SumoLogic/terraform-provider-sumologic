@@ -11,6 +11,7 @@ FEATURES:
 
 BUG FIXES:
 * Default to NIL for optional timezome field in SumoLogic source (GH-392)
+* Allow Monitor move between Monitor folders (GH-405)
 
 ## 2.16.2 (June 12, 2022)
 

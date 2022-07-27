@@ -94,23 +94,33 @@ func (s *Client) UpdateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	return err
 }
 
-func (s *Client) MoveMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLibraryMonitor) error {
-	urlWithoutParams := "v1/monitors/%s"
+func (s *Client) MoveMonitorsLibraryMonitor(monitorID string, newParentID string) (*MonitorsLibraryMonitor, error) {
+	urlWithoutParams := "v1/monitors/%s/move"
 	paramString := ""
 	sprintfArgs := []interface{}{}
-	sprintfArgs = append(sprintfArgs, monitorsLibraryMonitor.ID)
+	sprintfArgs = append(sprintfArgs, monitorID)
 
 	paramString += "?"
-	queryParam := fmt.Sprintf("parentId=%s&", monitorsLibraryMonitor.ParentID)
+	queryParam := fmt.Sprintf("parentId=%s", newParentID)
 	paramString += queryParam
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	monitorsLibraryMonitor.ID = ""
+	data, err := s.Post(urlWithParams, nil)
 
-	_, err := s.Put(urlWithParams, monitorsLibraryMonitor)
+	if err != nil {
+		return nil, err
+	}
 
-	return err
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+
+	err = json.Unmarshal(data, &monitorsLibraryMonitor)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &monitorsLibraryMonitor, nil
 }
 
 // ---------- TYPES ----------
