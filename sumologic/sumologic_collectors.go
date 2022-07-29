@@ -110,10 +110,10 @@ type Collector struct {
 	Fields           map[string]interface{} `json:"fields,omitempty"`
 	Links            []CollectorLink        `json:"links,omitempty"`
 	CollectorVersion string                 `json:"collectorVersion,omitempty"`
-	LastSeenAlive    int64                  `json:"lastSeenAlive,omitempty"`
+	LastSeenAlive    int                    `json:"lastSeenAlive,omitempty"`
 	Alive            bool                   `json:"alive,omitempty"`
 	HostName         string                 `json:"hostName,omitempty"`
-	Ephemeral        bool                   `json:"ephemeral,omitempty"`
+	Ephemeral        bool                   `json:"ephemeral"`
 	SourceSyncMode   string                 `json:"sourceSyncMode,omitempty"`
 	Targetcpu        int                    `json:"targetCpu,omitempty"`
 	CutoffTimestamp  int                    `json:"cutoffTimestamp,omitempty"`

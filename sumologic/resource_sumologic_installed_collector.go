@@ -110,7 +110,7 @@ func resourceToInstalledCollector(d *schema.ResourceData) Collector {
 		Fields:           d.Get("fields").(map[string]interface{}),
 		CutoffTimestamp:  d.Get("cutoff_timestamp").(int),
 		Alive:            d.Get("alive").(bool),
-		LastSeenAlive:    d.Get("last_seen_alive").(int64),
+		LastSeenAlive:    d.Get("last_seen_alive").(int),
 		CollectorVersion: d.Get("collector_version").(string),
 	}
 }
