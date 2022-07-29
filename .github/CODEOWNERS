@@ -12,6 +12,7 @@
 /sumologic/*_source_test.go   @maimaisie @vsinghal13
 /sumologic/*_ingest_budget*   @maimaisie @vsinghal13
 /sumologic/*_collector*       @maimaisie @vsinghal13
+/sumologic/*_cse*             @josh-williams @pmontiel-sumo
 /website/docs/r/collector*    @maimaisie @vsinghal13
 /website/docs/r/ingest_*      @maimaisie @vsinghal13
 /website/docs/r/*_source*     @maimaisie @vsinghal13

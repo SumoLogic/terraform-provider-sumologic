@@ -353,6 +353,14 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 512),
 			},
+			"notification_group_fields": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"obj_permission": GetCmfFgpObjPermSetSchema(),
 		},
 	}
 }
@@ -569,6 +577,16 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 			return err
 		}
 
+		permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitorDefinitionID)
+		if convErr != nil {
+			return convErr
+		}
+		_, fgpErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: permStmts,
+		})
+		if fgpErr != nil {
+			return fgpErr
+		}
 		d.SetId(monitorDefinitionID)
 	}
 	return resourceSumologicMonitorsLibraryMonitorRead(d, meta)
@@ -586,6 +604,18 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		log.Printf("[WARN] Monitor not found, removing from state: %v - %v", d.Id(), err)
 		d.SetId("")
 		return nil
+	}
+
+	fgpResponse, fgpErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
+	if fgpErr != nil {
+		suppressedErrorCode := HasErrorCode(fgpErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" {
+			return fgpErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
+		}
+	} else {
+		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
 	}
 
 	d.Set("created_by", monitor.CreatedBy)
@@ -608,6 +638,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("playbook", monitor.Playbook)
 	d.Set("alert_name", monitor.AlertName)
 	d.Set("slo_id", monitor.SloID)
+	d.Set("notification_group_fields", monitor.NotificationGroupFields)
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -703,18 +734,56 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	monitor := resourceToMonitorsLibraryMonitor(d)
-	if d.HasChange("parentId") {
-		// monitor.ParentID = d.Get("parentId").(string)
-		err := c.MoveMonitorsLibraryMonitor(monitor)
+
+	if d.HasChange("parent_id") {
+		updatedMonitor, err := c.MoveMonitorsLibraryMonitor(monitor.ID, monitor.ParentID)
 		if err != nil {
 			return err
 		}
+		monitor = *updatedMonitor
 	}
 	monitor.Type = "MonitorsLibraryMonitorUpdate"
 	err := c.UpdateMonitorsLibraryMonitor(monitor)
 	if err != nil {
 		return err
 	}
+
+	// converting Resource FGP to Struct
+	permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitor.ID)
+	if convErr != nil {
+		return convErr
+	}
+
+	// reading FGP from Backend to reconcile
+	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitor.ID)
+	if fgpGetErr != nil {
+		/*
+		   |errCode         |  len  | logic                   |
+		   |--------------------------------------------------|
+		   |server_error    |   0   | return err at Get       |
+		   |server_error    |   1   | warn; return err at Set |
+		   |not_enabled     |   0   | warn                    |
+		   |not_enabled     |   1   | warn; return err at Set |
+		*/
+		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" && len(permStmts) == 0 {
+			return fgpGetErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
+		}
+	}
+
+	if len(permStmts) > 0 || fgpGetResponse != nil {
+		_, fgpSetErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: ReconcileFgpPermStmtsWithEmptyPerms(
+				permStmts, fgpGetResponse.PermissionStatements,
+			),
+		})
+		if fgpSetErr != nil {
+			return fgpSetErr
+		}
+	}
+
 	updatedMonitor := resourceSumologicMonitorsLibraryMonitorRead(d, meta)
 
 	return updatedMonitor
@@ -1271,33 +1340,39 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	for i := range rawStatus {
 		status[i] = rawStatus[i].(string)
 	}
+	rawGroupFields := d.Get("notification_group_fields").([]interface{})
+	notificationGroupFields := make([]string, len(rawGroupFields))
+	for i := range rawGroupFields {
+		notificationGroupFields[i] = rawGroupFields[i].(string)
+	}
 
 	return MonitorsLibraryMonitor{
-		CreatedBy:          d.Get("created_by").(string),
-		Name:               d.Get("name").(string),
-		ID:                 d.Id(),
-		CreatedAt:          d.Get("created_at").(string),
-		MonitorType:        d.Get("monitor_type").(string),
-		Description:        d.Get("description").(string),
-		EvaluationDelay:    d.Get("evaluation_delay").(string),
-		Queries:            queries,
-		ModifiedBy:         d.Get("modified_by").(string),
-		IsMutable:          d.Get("is_mutable").(bool),
-		Version:            d.Get("version").(int),
-		Notifications:      notifications,
-		Type:               d.Get("type").(string),
-		ParentID:           d.Get("parent_id").(string),
-		ModifiedAt:         d.Get("modified_at").(string),
-		Triggers:           triggers,
-		ContentType:        d.Get("content_type").(string),
-		IsLocked:           d.Get("is_locked").(bool),
-		IsSystem:           d.Get("is_system").(bool),
-		IsDisabled:         d.Get("is_disabled").(bool),
-		Status:             status,
-		GroupNotifications: d.Get("group_notifications").(bool),
-		Playbook:           d.Get("playbook").(string),
-		AlertName:          d.Get("alert_name").(string),
-		SloID:              d.Get("slo_id").(string),
+		CreatedBy:               d.Get("created_by").(string),
+		Name:                    d.Get("name").(string),
+		ID:                      d.Id(),
+		CreatedAt:               d.Get("created_at").(string),
+		MonitorType:             d.Get("monitor_type").(string),
+		Description:             d.Get("description").(string),
+		EvaluationDelay:         d.Get("evaluation_delay").(string),
+		Queries:                 queries,
+		ModifiedBy:              d.Get("modified_by").(string),
+		IsMutable:               d.Get("is_mutable").(bool),
+		Version:                 d.Get("version").(int),
+		Notifications:           notifications,
+		Type:                    d.Get("type").(string),
+		ParentID:                d.Get("parent_id").(string),
+		ModifiedAt:              d.Get("modified_at").(string),
+		Triggers:                triggers,
+		ContentType:             d.Get("content_type").(string),
+		IsLocked:                d.Get("is_locked").(bool),
+		IsSystem:                d.Get("is_system").(bool),
+		IsDisabled:              d.Get("is_disabled").(bool),
+		Status:                  status,
+		GroupNotifications:      d.Get("group_notifications").(bool),
+		Playbook:                d.Get("playbook").(string),
+		AlertName:               d.Get("alert_name").(string),
+		SloID:                   d.Get("slo_id").(string),
+		NotificationGroupFields: notificationGroupFields,
 	}
 }
 

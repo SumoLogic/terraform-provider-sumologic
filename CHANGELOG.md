@@ -1,10 +1,44 @@
-## 2.15.0 (Unreleased)
+## 2.17.1 (Unreleased)
+
+
+## 2.17.0 (July 28, 2022)
+FEATURES:
+* **New Resource:** sumologic_cse_entity_entity_group_configuration (GH-376)
+* **New Resource:** sumologic_cse_inventory_entity_group_configuration (GH-376)
+* Add new optional `notification_group_fields` field to resource/sumologic_monitor (GH-403)
+* Add new optional `obj_permission` set to resource/sumologic_monitor for Fine Grain Permission (FGP) support (GH-397)
+* Add use_versioned_api parameter for s3 source (GH-401)
+
+BUG FIXES:
+* Default to NIL for optional timezome field in SumoLogic source (GH-392)
+* Allow Monitor move between Monitor folders (GH-405)
+
+## 2.16.2 (June 12, 2022)
+
+BUG FIXES:
+* Monitor Folder provider now handles more error codes: "api_not_enabled", in addition to: "not_implemented_yet" (GH-389) 
+
+## 2.16.1 (June 6, 2022)
+
+BUG FIXES:
+* Allow locator field in DefaultDateFormat to be empty (GH-384)
+
+## 2.16.0 (May 20, 2022)
+
+FEATURES: 
+* Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
+
+BUG FIXES:
+* Fix bug in cse match list items creation (was timing out due to StateChangeConf on an infinite loop) (GH-377)
+
+## 2.15.0 (May 13, 2022)
 
 FEATURES:
-* Add new optional `alert_name` field to resource/sumologic_monitor.
-* **New Resource:** `sumologic_slo` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
-* **New Resource:** `sumologic_slo_folder` ([GH-362](https://github.com/SumoLogic/terraform-provider-sumologic/pull/362/files))
-* Add support for slo based monitors ([GH-363](https://github.com/SumoLogic/terraform-provider-sumologic/pull/363/files))
+* **New Data Source:** `sumologic_folder` (GH-374)
+* **New Resource:** `sumologic_slo` (GH-362)
+* **New Resource:** `sumologic_slo_folder` (GH-362)
+* Add support for slo based monitors (GH-363)
+* Add new optional `alert_name` field to resource/sumologic_monitor (GH-359)
 
 
 BUG FIXES:

@@ -125,6 +125,10 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"use_versioned_api": {
+					Type:     schema.TypeBool,
+					Optional: true,
+				},
 				"path_expression": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -336,6 +340,7 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"limit_to_regions":              t.Path.LimitToRegions,
 			"limit_to_namespaces":           t.Path.LimitToNamespaces,
 			"limit_to_services":             t.Path.LimitToServices,
+			"use_versioned_api":             t.Path.UseVersionedApi,
 			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
@@ -572,6 +577,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
+			if path["use_versioned_api"] != nil {
+				pathSettings.UseVersionedApi = path["use_versioned_api"].(bool)
+			}
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType

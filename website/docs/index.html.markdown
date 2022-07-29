@@ -124,12 +124,48 @@ The following properties are common to ALL sources and can be used to configure 
 - `use_autoline_matching` - (Optional) Type true to enable if you'd like message boundaries to be inferred automatically; type false to prevent message boundaries from being automatically inferred (equivalent to the Infer Boundaries option in the UI). The default setting is true.
 - `manual_prefix_regexp` - (Optional) When using useAutolineMatching=false, type a regular expression that matches the first line of the message to manually create the boundary. Note that any special characters in the regex, such as backslashes or double quotes, must be escaped.
 - `force_timezone` - (Optional) Type true to force the source to use a specific time zone, otherwise type false to use the time zone found in the logs. The default setting is false.
-- `default_date_formats` - (Optional) Define formats for the dates present in your log messages. You can specify a locator regex to identify where timestamps appear in log lines. 
-- `filters` - (Optional) If you'd like to add a filter to the source, type the name of the filter (Exclude, Include, Mask, Hash, or Forward. 
+- `default_date_formats` - (Optional) Define the format for the timestamps present in your log messages. You can specify a locator regex to identify where timestamps appear in log lines. Requires 'automatic_date_parsing' set to True. 
+  + `format` - (Required) The timestamp format supplied as a Java SimpleDateFormat, or "epoch" if the timestamp is in epoch format.
+  + `locator` - (Optional) Regular expression to locate the timestamp within the messages.  
+
+  Usage:
+  ```hcl
+     default_date_formats {
+       format = "MM-dd-yyyy HH:mm:ss"
+       locator = "timestamp:(.*)\\s"
+     }
+  ```
+- `filters` - (Optional) If you'd like to add a filter to the source.
+  + `filter_type` - (Required) The type of filter to apply. (Exclude, Include, Mask, or Hash)
+  + `name` - (Required) The Name for the filter. 
+  + `regexp` - (Required) Regular expression to match within the messages. When used with Incude/Exclude the expression must match the entire message. When used with Mask/Hash rules the expression must contain an unnamed capture group to hash/mask. 
+  + `mask` - (Optional) When applying a Mask rule, replaces the detected expression with this string.
+
+  Usage:
+  ```hcl
+     filters {
+       filter_type = "Include"
+       name = "Sample Include"
+       regexp = ".*\\d{16}.*"
+     }
+     filters {
+       filter_type = "Mask"
+       name = "Sample Mask"
+       regexp = "(\\d{16})"
+       mask = "MaskedID"
+     }
+  ```  
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). 
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
 - `fields` - (Optional) Map containing key/value pairs.
-
+ 
+   Usage:
+   ```hcl
+     fields = {
+       environment = "production"
+       service = "apache"
+     }
+   ```
 ## Configuring SNS Subscription
 This is supported in the following resources.
  - `sumologic_cloudfront_source`

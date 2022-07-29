@@ -92,6 +92,7 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+
 			"post_request_map": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -99,11 +100,16 @@ func resourceSumologicMonitorsLibraryFolder() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+
+			"obj_permission": GetCmfFgpObjPermSetSchema(),
 		},
 	}
 }
 
+const fgpTargetType = "monitors"
+
 func resourceSumologicMonitorsLibraryFolderCreate(d *schema.ResourceData, meta interface{}) error {
+
 	c := meta.(*Client)
 	if d.Id() == "" {
 		folder := resourceToMonitorsLibraryFolder(d)
@@ -122,12 +128,24 @@ func resourceSumologicMonitorsLibraryFolderCreate(d *schema.ResourceData, meta i
 			return err
 		}
 
+		permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitorDefinitionID)
+		if convErr != nil {
+			return convErr
+		}
+		_, fgpErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: permStmts,
+		})
+		if fgpErr != nil {
+			return fgpErr
+		}
+
 		d.SetId(monitorDefinitionID)
 	}
 	return resourceSumologicMonitorsLibraryFolderRead(d, meta)
 }
 
 func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta interface{}) error {
+
 	c := meta.(*Client)
 
 	folder, err := c.GetMonitorsLibraryFolder(d.Id())
@@ -139,6 +157,19 @@ func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta int
 		log.Printf("[WARN] Monitor Folder not found, removing from state: %v - %v", d.Id(), err)
 		d.SetId("")
 		return nil
+	}
+
+	fgpResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, folder.ID)
+	if fgpGetErr != nil {
+		// if FGP endpoint is not enabled (not implemented), we should suppress this error
+		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" {
+			return fgpGetErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
+		}
+	} else {
+		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
 	}
 
 	d.Set("created_by", folder.CreatedBy)
@@ -158,13 +189,45 @@ func resourceSumologicMonitorsLibraryFolderRead(d *schema.ResourceData, meta int
 }
 
 func resourceSumologicMonitorsLibraryFolderUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	c := meta.(*Client)
-	monitor := resourceToMonitorsLibraryFolder(d)
-	monitor.Type = "MonitorsLibraryFolderUpdate"
-	err := c.UpdateMonitorsLibraryFolder(monitor)
+	monitorFolder := resourceToMonitorsLibraryFolder(d)
+	monitorFolder.Type = "MonitorsLibraryFolderUpdate"
+	err := c.UpdateMonitorsLibraryFolder(monitorFolder)
 	if err != nil {
 		return err
 	}
+
+	// converting Reource FGP to Struct
+	permStmts, convErr := ResourceToCmfFgpPermStmts(d, monitorFolder.ID)
+	if convErr != nil {
+		return convErr
+	}
+
+	// reading FGP from Backend to reconcile
+	fgpGetResponse, fgpGetErr := c.GetCmfFgp(fgpTargetType, monitorFolder.ID)
+	if fgpGetErr != nil {
+		// if FGP endpoint is not enabled (not implemented) and FGP feature is not used,
+		// we should suppress this error
+		suppressedErrorCode := HasErrorCode(fgpGetErr.Error(), []string{"not_implemented_yet", "api_not_enabled"})
+		if suppressedErrorCode == "" && len(permStmts) == 0 {
+			return fgpGetErr
+		} else {
+			log.Printf("[WARN] FGP Feature has not been enabled yet. Suppressing \"%s\" error under GetCmfFgp operation.", suppressedErrorCode)
+		}
+	}
+
+	if len(permStmts) > 0 || fgpGetResponse != nil {
+		_, fgpSetErr := c.SetCmfFgp(fgpTargetType, CmfFgpRequest{
+			PermissionStatements: ReconcileFgpPermStmtsWithEmptyPerms(
+				permStmts, fgpGetResponse.PermissionStatements,
+			),
+		})
+		if fgpSetErr != nil {
+			return fgpSetErr
+		}
+	}
+
 	return resourceSumologicMonitorsLibraryFolderRead(d, meta)
 }
 

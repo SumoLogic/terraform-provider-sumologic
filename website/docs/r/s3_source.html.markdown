@@ -59,6 +59,7 @@ In addition to the [Common Source Properties](https://registry.terraform.io/prov
      + `bucket_name` - (Required) The name of the bucket. 
      + `path_expression` - (Required) The path to the data.
      + `sns_topic_or_subscription_arn` - (Computed) This is a computed field for SNS topic/subscription ARN.
+     + `use_versioned_api` - (Optional) Whether to Use AWS versioned APIs. Default is set to `true`. If you're collecting from a Cisco Umbrella bucket this must be set to `false`.
 
 ### See also
   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)

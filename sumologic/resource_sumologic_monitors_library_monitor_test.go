@@ -189,6 +189,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 		},
 	}
 	testAlertName := "Alert from {{Name}}"
+	testGroupFields := [2]string{"groupingField1", "groupingField2"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -212,6 +213,10 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
+					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
 			},
 		},
@@ -306,6 +311,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		},
 	}
 	testAlertName := "Alert from {{Name}}"
+	testGroupFields := [2]string{"groupingField1", "groupingField2"}
 
 	// updated fields
 	testUpdatedName := "terraform_test_monitor_" + testNameSuffix
@@ -366,6 +372,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		},
 	}
 	testUpdatedAlertName := "Updated Alert from {{Name}}"
+	testUpdatedGroupFields := [2]string{"groupingField3", "groupingField4"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -390,6 +397,10 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
+					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
 			},
 			{
@@ -408,10 +419,159 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testUpdatedPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testUpdatedAlertName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testUpdatedGroupFields[0]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testUpdatedGroupFields[1]),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "1"),
+					// 1, instead of 2
+					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsForMonitorUpdate),
 				),
 			},
 		},
 	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_driftingCorrectionFGP(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+	tfResourceKey := "sumologic_monitor.test"
+	testName := "terraform_test_monitor_" + testNameSuffix
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes(tfResourceKey),
+
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description",
+						"terraform_test_monitor_description"),
+
+					resource.TestCheckResourceAttr("sumologic_monitor.test",
+						"obj_permission.#", "2"),
+					testAccCheckMonitorsLibraryMonitorFGPBackend(tfResourceKey, t, genExpectedPermStmtsMonitor),
+					// Emulating Drifting at the Backend
+					testAccEmulateFGPDriftingMonitor(t),
+				),
+				// "After applying this step and refreshing, the plan was not empty"
+				// Non-Empty Plan would occur, after the above step that emulates FGP drifting
+				ExpectNonEmptyPlan: true,
+			},
+			// the following Test Step emulates running "terraform apply" again.
+			// This step would detect and correct Drifting
+			{
+				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes(tfResourceKey),
+
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "description",
+						"terraform_test_monitor_description"),
+
+					resource.TestCheckResourceAttr("sumologic_monitor.test",
+						"obj_permission.#", "2"),
+					testAccCheckMonitorsLibraryFolderFGPBackend(tfResourceKey, t, genExpectedPermStmtsMonitor),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_update_folder(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+	testMonitorType := "Logs"
+	//testAlertName := "Alert from {{Name}}"
+	folder1tfResourceKey := "sumologic_monitor_folder.tf_folder_01"
+	folder2tfResourceKey := "sumologic_monitor_folder.tf_folder_02"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder1tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder1tfResourceKey, t),
+				),
+			},
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder2tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder2tfResourceKey, t),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		//fetching monitor information
+		monitorResource, ok := s.RootModule().Resources[monitorName]
+		if !ok {
+			//need this so that we don't get an unused import error for strconv in some cases
+			return fmt.Errorf("Error = %s. MonitorsLibraryMonitor not found: %s", strconv.FormatBool(ok), monitorName)
+		}
+
+		//need this so that we don't get an unused import error for strings in some cases
+		if strings.EqualFold(monitorResource.Primary.ID, "") {
+			return fmt.Errorf("MonitorsLibraryMonitor ID is not set")
+		}
+
+		monitorResourceId := monitorResource.Primary.ID
+
+		client := testAccProvider.Meta().(*Client)
+		monitorsLibraryMonitor, err := client.MonitorsRead(monitorResourceId)
+
+		if err != nil {
+			return fmt.Errorf("MonitorsLibraryMonitor %s not found", monitorResourceId)
+		}
+
+		//fetching monitor folder information
+		folderResource, ok := s.RootModule().Resources[folderName]
+		if !ok {
+			//need this so that we don't get an unused import error for strconv in some cases
+			return fmt.Errorf("Error = %s. MonitorsLibraryFolder not found: %s", strconv.FormatBool(ok), folderName)
+		}
+
+		//need this so that we don't get an unused import error for strings in some cases
+		if strings.EqualFold(folderResource.Primary.ID, "") {
+			return fmt.Errorf("MonitorsLibraryFolder ID is not set")
+		}
+
+		folderResourceId := folderResource.Primary.ID
+		monitorsLibraryFolder, err := client.MonitorsRead(folderResourceId)
+		if err != nil {
+			return fmt.Errorf("MonitorsLibraryFolder%s not found", monitorResourceId)
+		}
+
+		//checkig if the monitor parent id matches to the correct folder id
+		if monitorsLibraryMonitor.ParentID != monitorsLibraryFolder.ID {
+			return fmt.Errorf("Parent Id should be %s but %s", monitorsLibraryFolder.ID, monitorsLibraryMonitor.ParentID)
+		}
+
+		return nil
+	}
 }
 
 func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLibraryMonitor) resource.TestCheckFunc {
@@ -523,7 +683,45 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is a test playbook"  
 	alert_name =  "Alert from {{Name}}"
-}`, testName)
+	notification_group_fields = ["groupingField1", "groupingField2"]
+	obj_permission {
+        subject_type = "role"
+        subject_id = sumologic_role.tf_test_role_01.id
+        permissions = ["Read","Update","Delete"]
+    }
+    obj_permission {
+        subject_type = "role"
+        subject_id = sumologic_role.tf_test_role_02.id
+        permissions = ["Read"]
+    }
+}
+resource "sumologic_role" "tf_test_role_01" {
+	name        = "tf_test_role_01_%s"
+	description = "Testing resource sumologic_role"
+	capabilities = [
+		"viewAlerts",
+		"viewMonitorsV2",
+		"manageMonitorsV2"
+	]
+}
+resource "sumologic_role" "tf_test_role_02" {
+	name        = "tf_test_role_02_%s"
+	description = "Testing resource sumologic_role"
+	capabilities = [
+		"viewAlerts",
+		"viewMonitorsV2",
+		"manageMonitorsV2"
+	]
+}
+resource "sumologic_role" "tf_test_role_03" {
+	name        = "tf_test_role_03_%s"
+	description = "Testing resource sumologic_role"
+	capabilities = [
+		"viewAlerts",
+		"viewMonitorsV2",
+		"manageMonitorsV2"
+	]
+}`, testName, testName, testName, testName)
 }
 
 func testAccSumologicMonitorsLibraryMonitorUpdate(testName string) string {
@@ -570,7 +768,149 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is an updated test playbook"
 	alert_name = "Updated Alert from {{Name}}"
-}`, testName)
+	notification_group_fields = ["groupingField3", "groupingField4"]
+		obj_permission {
+          subject_type = "role"
+          subject_id = sumologic_role.tf_test_role_01.id
+          permissions = ["Read","Update"]
+        }
+}
+resource "sumologic_role" "tf_test_role_01" {
+	name        = "tf_test_role_01_%s"
+	description = "Testing resource sumologic_role"
+	capabilities = [
+		"viewAlerts",
+		"viewMonitorsV2",
+		"manageMonitorsV2"
+	]
+}`, testName, testName)
+}
+
+func testAccEmulateFGPDriftingMonitor(
+	t *testing.T,
+	// expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
+) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+
+		monitorTargetId, resIdErr := getResourceID(s, "sumologic_monitor.test")
+		if resIdErr != nil {
+			return resIdErr
+		}
+		role01Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_01")
+		if resIdErr != nil {
+			return resIdErr
+		}
+		role02Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_02")
+		if resIdErr != nil {
+			return resIdErr
+		}
+		role03Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_03")
+		if resIdErr != nil {
+			return resIdErr
+		}
+
+		client := testAccProvider.Meta().(*Client)
+		expectedReadPermStmts := []CmfFgpPermStatement{
+			{SubjectType: "role", SubjectId: role01Id, TargetId: monitorTargetId,
+				Permissions: []string{"Read", "Update"}},
+			{SubjectType: "role", SubjectId: role03Id, TargetId: monitorTargetId,
+				Permissions: []string{"Read"}},
+		}
+		// using an empty Permissions array to achieve the effect of FGP Revocation
+		setFGPPermStmts := append(expectedReadPermStmts,
+			CmfFgpPermStatement{SubjectType: "role", SubjectId: role02Id, TargetId: monitorTargetId,
+				Permissions: []string{}})
+
+		_, setFgpErr := client.SetCmfFgp("monitors", CmfFgpRequest{
+			PermissionStatements: setFGPPermStmts})
+		if setFgpErr != nil {
+			return setFgpErr
+		}
+
+		readfgpResult, readFgpErr := client.GetCmfFgp("monitors", monitorTargetId)
+		if readFgpErr != nil {
+			return readFgpErr
+		}
+
+		var expectedPermStmts []CmfFgpPermStatement
+		expectedPermStmts = append(expectedPermStmts,
+			CmfFgpPermStatement{
+				SubjectId:   role01Id,
+				SubjectType: "role",
+				TargetId:    monitorTargetId,
+				Permissions: []string{"Read", "Update"},
+			},
+			CmfFgpPermStatement{
+				SubjectId:   role03Id,
+				SubjectType: "role",
+				TargetId:    monitorTargetId,
+				Permissions: []string{"Read"},
+			},
+		)
+
+		if !CmfFgpPermStmtSetEqual(readfgpResult.PermissionStatements, expectedPermStmts) {
+			return fmt.Errorf("Permission Statements are different:\n  %+v\n  %+v\n",
+				readfgpResult.PermissionStatements, expectedPermStmts)
+		}
+		return nil
+	}
+}
+
+func testAccSumologicMonitorsLibraryMonitorFolderUpdate(testName string, parentIdTFString string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor_folder" "tf_folder_01" {
+	name = "tf_test_folder_01_%s"
+	description = "1st folder"
+}	
+resource "sumologic_monitor_folder" "tf_folder_02" {
+	name = "tf_test_folder_02_%s"
+	description = "1st folder"
+}
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "8m"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager info"
+	}
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	  }
+	  triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
+		detection_method = "StaticCondition"
+	}
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		}
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	}
+	playbook = "This is an updated test playbook"
+	alert_name = "Updated Alert from {{Name}}"
+	parent_id = %s.id
+}`, testName, testName, testName, parentIdTFString)
 }
 
 func exampleMonitorWithTriggerCondition(
@@ -798,5 +1138,83 @@ func exampleMetricsMissingDataTriggerCondition(triggerType string) TriggerCondit
 		TriggerType:     triggerType,
 		TriggerSource:   "AllTimeSeries",
 		DetectionMethod: "MetricsMissingDataCondition",
+	}
+}
+
+func genExpectedPermStmtsMonitor(s *terraform.State, targetId string) ([]CmfFgpPermStatement, error) {
+	role01Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_01")
+	if resIdErr != nil {
+		return nil, resIdErr
+	}
+	role02Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_02")
+	if resIdErr != nil {
+		return nil, resIdErr
+	}
+
+	var expectedPermStmts []CmfFgpPermStatement
+	expectedPermStmts = append(expectedPermStmts,
+		CmfFgpPermStatement{
+			SubjectId:   role01Id,
+			SubjectType: "role",
+			TargetId:    targetId,
+			Permissions: []string{"Read", "Update", "Delete"},
+		},
+		CmfFgpPermStatement{
+			SubjectId:   role02Id,
+			SubjectType: "role",
+			TargetId:    targetId,
+			Permissions: []string{"Read"},
+		},
+	)
+	return expectedPermStmts, nil
+}
+
+func genExpectedPermStmtsForMonitorUpdate(s *terraform.State, targetId string) ([]CmfFgpPermStatement, error) {
+	role01Id, resIdErr := getResourceID(s, "sumologic_role.tf_test_role_01")
+	if resIdErr != nil {
+		return nil, resIdErr
+	}
+
+	var expectedPermStmts []CmfFgpPermStatement
+	expectedPermStmts = append(expectedPermStmts,
+		CmfFgpPermStatement{
+			SubjectId:   role01Id,
+			SubjectType: "role",
+			TargetId:    targetId,
+			Permissions: []string{"Read", "Update"},
+		},
+	)
+	return expectedPermStmts, nil
+}
+
+func testAccCheckMonitorsLibraryMonitorFGPBackend(
+	name string,
+	t *testing.T,
+	expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
+) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		targetId, resIdErr := getResourceID(s, name)
+		if resIdErr != nil {
+			return resIdErr
+		}
+
+		expectedPermStmts, resIdErr := expectedFGPFunc(s, targetId)
+		if resIdErr != nil {
+			return resIdErr
+		}
+
+		client := testAccProvider.Meta().(*Client)
+
+		fgpResult, fgpErr := client.GetCmfFgp("monitors", targetId)
+		if fgpErr != nil {
+			return fgpErr
+		}
+
+		if !CmfFgpPermStmtSetEqual(fgpResult.PermissionStatements, expectedPermStmts) {
+			return fmt.Errorf("Permission Statements are different:\n  %+v\n  %+v\n",
+				fgpResult.PermissionStatements, expectedPermStmts)
+		}
+		return nil
 	}
 }
