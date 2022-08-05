@@ -387,6 +387,8 @@ A `trigger_conditions` block contains one or more subblocks of the following typ
 - `metrics_outlier_condition`
 - `logs_missing_data_condition`
 - `metrics_missing_data_condition`
+- `slo_sli_condition`
+- `slo_burn_rate_condition`
 
 Subblocks should be limited to at most 1 missing data condition and at most 1 static / outlier condition.
 
