@@ -1,5 +1,6 @@
-## 2.17.1 (Unreleased)
-
+## 2.18.0 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_installed_collector (GH-182)
 
 ## 2.17.0 (July 28, 2022)
 FEATURES:
