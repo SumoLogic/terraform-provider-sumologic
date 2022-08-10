@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
-	"regexp"
 )
 
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
