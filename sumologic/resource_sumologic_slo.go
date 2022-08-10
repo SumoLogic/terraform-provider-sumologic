@@ -8,14 +8,11 @@ import (
 	"regexp"
 )
 
-const sloAggregationWindowRegexString = `^[0-9]{1,2}(m|h)$` // TODO make it exact of min 1m and max 1h
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
 const fieldNameRequestBasedEvaluation = `request_based_evaluation`
 const sloContentTypeString = "Slo"
 
 func resourceSumologicSLO() *schema.Resource {
-
-	windowRegex := regexp.MustCompile(sloAggregationWindowRegexString)
 
 	queryGroupElemSchema := &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -115,7 +112,6 @@ func resourceSumologicSLO() *schema.Resource {
 			"size": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringMatch(windowRegex, `value must match : `+sloAggregationWindowRegexString),
 			},
 		},
 	}
