@@ -259,6 +259,7 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
         resolution {
           threshold      = 40.0
           threshold_type = "LessThanOrEqual"
+          resolution_window = "5m"
         }
       }
     }
@@ -360,6 +361,7 @@ trigger_conditions {
       resolution {
         threshold = 90
         threshold_type = "LessThanOrEqual"
+        resolution_window = "5m"
       }
     }
     warning {
@@ -371,6 +373,7 @@ trigger_conditions {
       resolution {
         threshold = 75
         threshold_type = "LessThanOrEqual"
+        resolution_window = "5m"
       }
     }
   }
@@ -403,6 +406,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `resolution_window`
   - `warning`
     - `time_range` (Required)
     - `alert` (Required)
@@ -411,6 +415,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `resolution_window`
 #### metrics_static_condition
   - `critical`
     - `time_range` (Required)
@@ -501,6 +506,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     trigger_source   = "AllResults"
     trigger_type     = "ResolvedCritical"
     detection_method = "StaticCondition"
+    resolution_window = "5m"
   }
   notifications {
     notification {

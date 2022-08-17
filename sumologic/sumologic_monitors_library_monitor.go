@@ -166,6 +166,7 @@ type TriggerCondition struct {
 	OccurrenceType    string  `json:"occurrenceType"`
 	TriggerSource     string  `json:"triggerSource"`
 	DetectionMethod   string  `json:"detectionMethod"`
+	ResolutionWindow  string  `json:"resolutionWindow,omitempty"`
 	Field             string  `json:"field,omitempty"`
 	Window            int     `json:"window,omitempty"`
 	BaselineWindow    string  `json:"baselineWindow,omitempty"`

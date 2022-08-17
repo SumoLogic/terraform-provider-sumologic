@@ -1,3 +1,8 @@
+## 2.19.0 
+
+FEATURES:
+* Add new optional `resolution_window` field to resource/sumologic_monitor 
+
 ## 2.18.0 (August 8, 2022)
 
 FEATURES:
