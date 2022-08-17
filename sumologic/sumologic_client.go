@@ -80,6 +80,7 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	log.Printf("[DEBUG] Made a request to Sumo Logic: %s", req)
 	if err != nil {
 		return nil, nil, err
 	}
