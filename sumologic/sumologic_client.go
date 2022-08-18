@@ -64,8 +64,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
-	log.Printf("[DEBUG] Request made to Sumo Logic: [Method=%s] [URL=%s] [Headers=%s]", req.Method, req.URL, maskedHeader)
-	log.Printf("[DEBUG] Response received from Sumo Logic: [StatusCode=%s]", resp.Status)
+	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [StatusCode=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
