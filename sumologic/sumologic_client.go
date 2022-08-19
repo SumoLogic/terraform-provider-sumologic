@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -60,6 +61,12 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 	return req, nil
 }
 
+func logRequestAndResponse(req *http.Request, resp *http.Response) {
+	var maskedHeader = req.Header.Clone()
+	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
+	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [StatusCode=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
+}
+
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
 	relativeURL, err := url.Parse(urlPath)
 	if err != nil {
@@ -80,6 +87,8 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -118,6 +127,8 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, "", err
 	}
@@ -153,6 +164,8 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, err
 	}
@@ -184,6 +197,7 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
@@ -217,6 +231,8 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, err
 	}
@@ -253,6 +269,8 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, "", err
 	}
@@ -291,6 +309,8 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
+	logRequestAndResponse(req, resp)
+
 	if err != nil {
 		return nil, err
 	}
