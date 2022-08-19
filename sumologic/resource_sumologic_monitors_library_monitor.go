@@ -1448,11 +1448,15 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 // Clones the TriggerCondition with fields from nested blocks.
 // Expects the following nested block structure:
 // +-critical
-//  +-alert
-//  +-resolution
+//
+//	+-alert
+//	+-resolution
+//
 // +-warning
-//  +-alert
-//  +-resolution
+//
+//	+-alert
+//	+-resolution
+//
 // Adds any 'flat' fields appear at a level to the trigger condition, as per the mapping defined in [[readFrom]].
 func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]interface{}) []TriggerCondition {
 	var conditions = []TriggerCondition{}
