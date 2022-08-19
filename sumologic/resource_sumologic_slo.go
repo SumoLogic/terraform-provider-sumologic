@@ -109,8 +109,8 @@ func resourceSumologicSLO() *schema.Resource {
 				Optional: true,
 			},
 			"size": {
-				Type:         schema.TypeString,
-				Required:     true,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 		},
 	}

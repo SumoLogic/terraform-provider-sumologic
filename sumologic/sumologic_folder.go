@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-//READ
+// READ
 func (s *Client) GetFolder(id string) (*Folder, error) {
 	url := fmt.Sprintf("v2/content/folders/%s", id)
 	rawFolder, _, err := s.Get(url)
