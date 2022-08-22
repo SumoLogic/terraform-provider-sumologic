@@ -272,8 +272,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^\ ].*[^\ ]$`), "Description must not contain leading or trailing spaces"),
 			},
 
 			"created_at": {
