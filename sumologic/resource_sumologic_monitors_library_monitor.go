@@ -254,8 +254,9 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Optional: true,
 									},
 									"payload_override": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
 									},
 								},
 							},
