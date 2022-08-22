@@ -274,7 +274,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^\ ].*[^\ ]$`), "Description must not contain leading or trailing spaces"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^\ ].*[^\ ]$`), "description must not contain leading or trailing spaces"),
 			},
 
 			"created_at": {
@@ -331,7 +331,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^\ ].*[^\ ]$`), "Name must not contain leading or trailing spaces"),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^\ ].*[^\ ]$`), "name must not contain leading or trailing spaces"),
 			},
 
 			"post_request_map": {
