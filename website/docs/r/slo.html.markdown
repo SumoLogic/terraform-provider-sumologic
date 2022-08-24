@@ -10,6 +10,45 @@ Provides the ability to create, read, delete, and update [SLOs][1].
 ## Example SLO
 
 ```hcl
+resource "sumologic_slo" "slo_tf_window_metric_ratio" {
+  name        = "login error rate"
+  description = "per minute login error rate over rolling 7 days"
+  parent_id   = "0000000000000001"
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "7d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  indicator {
+    window_based_evaluation {
+      op         = "LessThan"
+      query_type = "Metrics"
+      size       = "1m"
+      threshold  = 99.0
+      queries {
+        query_group_type = "Unsuccessful"
+        query_group {
+          row_id        = "A"
+          query         = "service=auth api=login metric=HTTP_5XX_Count"
+          use_row_count = false
+        }
+      }
+      queries {
+        query_group_type = "Total"
+        query_group {
+          row_id = "A"
+          query  = "service=auth api=login metric=TotalRequests"
+          use_row_count = false
+        }
+      }
+    }
+  }
+}
+
 resource "sumologic_slo" "slo_tf_window_based" {
   name        = "slo-tf-window-based"
   description = "example SLO created with terraform"
