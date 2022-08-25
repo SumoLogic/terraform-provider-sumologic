@@ -1,3 +1,8 @@
+## 2.18.1 (August 25, 2022)
+
+BUG FIXES:
+* Fix compliance period validation for SLOs (GH-424)
+
 ## 2.18.0 (August 8, 2022)
 
 FEATURES:
