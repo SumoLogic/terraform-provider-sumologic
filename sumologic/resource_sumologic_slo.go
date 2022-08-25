@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+	"strings"
 )
 
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
@@ -200,12 +201,9 @@ func resourceSumologicSLO() *schema.Resource {
 							Required: true,
 						},
 						"size": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"Week", "Month", "Quarter",
-								"1d", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "11d", "12d", "13d", "14d",
-							}, false),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateSLOComplianceSize,
 						},
 						"start_from": {
 							Type:     schema.TypeString,
@@ -683,4 +681,36 @@ func verifySLOObject(slo SLOLibrarySLO) error {
 		}
 	}
 	return nil
+}
+
+func validateSLOComplianceSize(i interface{}, k string) (warnings []string, errors []error) {
+	v, ok := i.(string)
+	if !ok {
+		errors = append(errors, fmt.Errorf("expected type of %s to be string", k))
+		return warnings, errors
+	}
+
+	var validPeriods []string
+
+	calendarPeriods := []string{"Week", "Month", "Quarter"}
+	for _, calendarPeriod := range calendarPeriods {
+		validPeriods = append(validPeriods, calendarPeriod)
+	}
+
+	minRollingDays := 1
+	maxRollingDays := 90
+	for days := minRollingDays; days <= maxRollingDays; days++ {
+		validPeriods = append(validPeriods, fmt.Sprintf("%dd", days))
+	}
+
+	for _, validPeriod := range validPeriods {
+		if v == validPeriod {
+			return warnings, errors
+		}
+	}
+
+	errorMessage := "compliance period must be " + strings.Join(calendarPeriods, ", ") + " or " +
+		fmt.Sprintf("%dd...%dd", minRollingDays, maxRollingDays)
+
+	return warnings, append(errors, fmt.Errorf(errorMessage))
 }
