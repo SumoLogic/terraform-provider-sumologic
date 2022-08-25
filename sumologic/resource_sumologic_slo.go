@@ -683,6 +683,7 @@ func verifySLOObject(slo SLOLibrarySLO) error {
 	return nil
 }
 
+// lintignore:V013
 func validateSLOComplianceSize(i interface{}, k string) (warnings []string, errors []error) {
 	v, ok := i.(string)
 	if !ok {
