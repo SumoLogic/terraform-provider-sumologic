@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-//Testing create functionality for Connection resources
+// Testing create functionality for Connection resources
 func TestAccConnection_create(t *testing.T) {
 	connectionType := "WebhookConnection"
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
