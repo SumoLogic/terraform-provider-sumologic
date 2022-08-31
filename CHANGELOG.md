@@ -7,6 +7,7 @@ FEATURES:
 
 BUG FIXES:
 * Fix compliance period validation for SLOs (GH-424)
+* Adding validations for name, description and payload_override in monitors (GH-420)
 
 ## 2.18.0 (August 8, 2022)
 
