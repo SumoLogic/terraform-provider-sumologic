@@ -1,3 +1,8 @@
+## 2.18.2 (September 1, 2022)
+
+BUG FIXES:
+* Fix bug for validation for monitor name and description regex (GH-428)
+
 ## 2.18.1 (August 31, 2022)
 
 BUG FIXES:
