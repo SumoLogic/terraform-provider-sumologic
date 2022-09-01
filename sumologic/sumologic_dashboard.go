@@ -72,38 +72,6 @@ type TopologyLabel struct {
 	Data map[string][]string `json:"data"`
 }
 
-// TimeRange related structs
-type CompleteLiteralTimeRange struct {
-	Type      string `json:"type"`
-	RangeName string `json:"rangeName"`
-}
-
-type BeginBoundedTimeRange struct {
-	Type string      `json:"type"`
-	From interface{} `json:"from"`
-	To   interface{} `json:"to"`
-}
-
-type RelativeTimeRangeBoundary struct {
-	Type         string `json:"type"`
-	RelativeTime string `json:"relativeTime"`
-}
-
-type EpochTimeRangeBoundary struct {
-	Type        string `json:"type"`
-	EpochMillis int64  `json:"epochMillis"`
-}
-
-type Iso8601TimeRangeBoundary struct {
-	Type        string `json:"type"`
-	Iso8601Time string `json:"iso8601Time"`
-}
-
-type LiteralTimeRangeBoundary struct {
-	Type      string `json:"type"`
-	RangeName string `json:"rangeName"`
-}
-
 // Panel related structs
 type TextPanel struct {
 	Id                                     string `json:"id,omitempty"`
