@@ -1,3 +1,8 @@
+## 2.19.0
+FEATURES:
+* **New Resource:** sumologic_cse_entity_normalization_configuration (GH-430)
+
+
 ## 2.18.2 (September 1, 2022)
 
 BUG FIXES:
