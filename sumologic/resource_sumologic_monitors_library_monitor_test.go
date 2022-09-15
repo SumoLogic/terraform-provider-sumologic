@@ -163,7 +163,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 			TriggerSource:    "AllResults",
 			TriggerType:      "ResolvedCritical",
 			DetectionMethod:  "StaticCondition",
-			ResolutionWindow: "5m",
+			ResolutionWindow: "-5m",
 		},
 	}
 	recipients := []string{"abc@example.com"}
