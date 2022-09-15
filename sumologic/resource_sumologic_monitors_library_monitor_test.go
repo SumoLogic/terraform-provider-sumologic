@@ -775,7 +775,7 @@ resource "sumologic_monitor" "test" {
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
 	playbook = "This is an updated test playbook"
-	alert_name = "Updated Alert from {{Name}}"	
+	alert_name = "Updated Alert from {{Name}}"
 	notification_group_fields = ["groupingField3", "groupingField4"]
 		obj_permission {
           subject_type = "role"

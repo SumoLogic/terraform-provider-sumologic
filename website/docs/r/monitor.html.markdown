@@ -406,7 +406,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window`
+      - `resolution_window` : resolution_window overrides the default resolution window which is time_range
   - `warning`
     - `time_range` (Required)
     - `alert` (Required)
