@@ -1,9 +1,19 @@
-## 2.19.0 
+## 2.19.1 
 
 FEATURES:
-* Add new optional `resolution_window` field to resource/sumologic_monitor 
+* Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
 
-## 2.18.1 (August 25, 2022)
+## 2.19.0
+FEATURES:
+* **New Resource:** sumologic_cse_entity_normalization_configuration (GH-430)
+
+
+## 2.18.2 (September 1, 2022)
+
+BUG FIXES:
+* Fix bug for validation for monitor name and description regex (GH-428)
+
+## 2.18.1 (August 31, 2022)
 
 BUG FIXES:
 * Fix compliance period validation for SLOs (GH-424)
