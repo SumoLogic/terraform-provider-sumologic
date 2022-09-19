@@ -77,7 +77,7 @@ jobs:
         go mod download
 
     - name: TF acceptance tests
-      timeout-minutes: 30
+      timeout-minutes: 60
       env:
         TF_ACC: "1"
         TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
