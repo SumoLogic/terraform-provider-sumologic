@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	maxDepth            = 6
+	maxDepth            = 8
 	maxWidth            = 20
 	maxHierarchyNameLen = 256
 	maxFilterKeyLen     = 1024
