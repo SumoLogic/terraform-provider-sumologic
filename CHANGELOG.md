@@ -1,15 +1,15 @@
-## 2.19.1 
-
+## 2.19.1 (Unreleased)
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
 
-## 2.19.0
+## 2.19.0 (September 20, 2022)
 FEATURES:
 * **New Resource:** sumologic_cse_entity_normalization_configuration (GH-430)
 
+ENHANCEMENTS:
+* Updated maxdepth level for hierarchy resource (GH-433)
 
 ## 2.18.2 (September 1, 2022)
-
 BUG FIXES:
 * Fix bug for validation for monitor name and description regex (GH-428)
 
