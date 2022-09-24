@@ -259,6 +259,7 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
         resolution {
           threshold      = 40.0
           threshold_type = "LessThanOrEqual"
+          resolution_window = "5m"
         }
       }
     }
@@ -317,6 +318,7 @@ The following arguments are supported:
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
 - `queries` - (Required) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
+  - `resolution_window` - The resolution window that the recovery condition must be met in each evaluation that happens within this entire duration before the alert is recovered (resolved). If not specified, the time range of your trigger will be used.
 - `triggers` - (Deprecated) Defines the conditions of when to send notifications.
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
@@ -360,6 +362,7 @@ trigger_conditions {
       resolution {
         threshold = 90
         threshold_type = "LessThanOrEqual"
+        resolution_window = "5m"
       }
     }
     warning {
@@ -371,6 +374,7 @@ trigger_conditions {
       resolution {
         threshold = 75
         threshold_type = "LessThanOrEqual"
+        resolution_window = "5m"
       }
     }
   }
@@ -403,6 +407,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `resolution_window`
   - `warning`
     - `time_range` (Required)
     - `alert` (Required)
@@ -411,6 +416,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `resolution_window`
 #### metrics_static_condition
   - `critical`
     - `time_range` (Required)
@@ -501,6 +507,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     trigger_source   = "AllResults"
     trigger_type     = "ResolvedCritical"
     detection_method = "StaticCondition"
+    resolution_window = "5m"
   }
   notifications {
     notification {

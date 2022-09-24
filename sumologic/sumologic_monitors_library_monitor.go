@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 // ---------- ENDPOINTS ----------
@@ -26,8 +25,7 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	if err != nil {
 		return "", err
 	}
-	log.Printf("created monitor response: %v", data)
-
+	
 	var createdMonitorsLibraryMonitor MonitorsLibraryMonitor
 
 	err = json.Unmarshal(data, &createdMonitorsLibraryMonitor)
@@ -166,6 +164,7 @@ type TriggerCondition struct {
 	OccurrenceType    string  `json:"occurrenceType"`
 	TriggerSource     string  `json:"triggerSource"`
 	DetectionMethod   string  `json:"detectionMethod"`
+	ResolutionWindow  string  `json:"resolutionWindow,omitempty"`
 	Field             string  `json:"field,omitempty"`
 	Window            int     `json:"window,omitempty"`
 	BaselineWindow    string  `json:"baselineWindow,omitempty"`
