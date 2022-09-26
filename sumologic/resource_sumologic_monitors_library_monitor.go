@@ -386,9 +386,13 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":         &thresholdSchema,
-			"threshold_type":    &thresholdTypeSchema,
-			"resolution_window": &timeRangeSchema,
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+			"resolution_window": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+			},
 		}),
 	}),
 	"warning": nested(true, schemaMap{
@@ -398,9 +402,13 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":         &thresholdSchema,
-			"threshold_type":    &thresholdTypeSchema,
-			"resolution_window": &timeRangeSchema,
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
+			"resolution_window": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+			},
 		}),
 	}),
 }
