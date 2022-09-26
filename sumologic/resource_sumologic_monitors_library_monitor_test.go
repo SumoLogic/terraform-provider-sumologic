@@ -156,14 +156,13 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 			DetectionMethod: "StaticCondition",
 		},
 		{
-			ThresholdType:    "LessThanOrEqual",
-			Threshold:        40.0,
-			TimeRange:        "15m",
-			OccurrenceType:   "ResultCount",
-			TriggerSource:    "AllResults",
-			TriggerType:      "ResolvedCritical",
-			DetectionMethod:  "StaticCondition",
-			ResolutionWindow: "5m",
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
 		},
 	}
 	recipients := []string{"abc@example.com"}
@@ -212,7 +211,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.resolution_window", testTriggers[1].ResolutionWindow),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
@@ -280,14 +278,13 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 			DetectionMethod: "StaticCondition",
 		},
 		{
-			ThresholdType:    "LessThanOrEqual",
-			Threshold:        40.0,
-			TimeRange:        "15m",
-			OccurrenceType:   "ResultCount",
-			TriggerSource:    "AllResults",
-			TriggerType:      "ResolvedCritical",
-			DetectionMethod:  "StaticCondition",
-			ResolutionWindow: "5m",
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "15m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
 		},
 	}
 	recipients := []string{"abc@example.com"}
@@ -342,14 +339,13 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 			DetectionMethod: "StaticCondition",
 		},
 		{
-			ThresholdType:    "LessThanOrEqual",
-			Threshold:        40.0,
-			TimeRange:        "30m",
-			OccurrenceType:   "ResultCount",
-			TriggerSource:    "AllResults",
-			TriggerType:      "ResolvedCritical",
-			DetectionMethod:  "StaticCondition",
-			ResolutionWindow: "15m",
+			ThresholdType:   "LessThanOrEqual",
+			Threshold:       40.0,
+			TimeRange:       "30m",
+			OccurrenceType:  "ResultCount",
+			TriggerSource:   "AllResults",
+			TriggerType:     "ResolvedCritical",
+			DetectionMethod: "StaticCondition",
 		},
 	}
 	updatedRecipients := []string{"abc@example.com"}
@@ -398,7 +394,6 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.resolution_window", testTriggers[1].ResolutionWindow),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testAlertName),
@@ -421,7 +416,6 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testUpdatedTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.resolution_window", testUpdatedTriggers[1].ResolutionWindow),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notifications.0.notification.0.connection_type", testUpdatedNotifications[0].Notification.(EmailNotification).ConnectionType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "playbook", testUpdatedPlaybook),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "alert_name", testUpdatedAlertName),
@@ -488,7 +482,7 @@ func TestAccSumologicMonitorsLibraryMonitor_driftingCorrectionFGP(t *testing.T) 
 	})
 }
 
-func TestAccSumologicMonitorsLibraryMonitor_folder_update(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_update_folder(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
@@ -676,7 +670,6 @@ resource "sumologic_monitor" "test" {
 		trigger_source = "AllResults"
 		trigger_type = "ResolvedCritical"
 		detection_method = "StaticCondition"
-		resolution_window = "5m"
 	  }
 	notifications {
 		notification {
@@ -762,7 +755,6 @@ resource "sumologic_monitor" "test" {
 		trigger_source = "AllResults"
 		trigger_type = "ResolvedCritical"
 		detection_method = "StaticCondition"
-		resolution_window = "15m"
 	  }
 	notifications {
 		notification {
@@ -968,7 +960,6 @@ var exampleLogsStaticTriggerConditionBlock = `
        resolution {
          threshold = 90
          threshold_type = "LessThanOrEqual"
-		 resolution_window = "15m"
        }
      }
      field = "field"

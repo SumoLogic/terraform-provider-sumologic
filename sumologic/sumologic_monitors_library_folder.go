@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 // ---------- ENDPOINTS ----------
@@ -25,7 +26,7 @@ func (s *Client) CreateMonitorsLibraryFolder(monitorsLibraryFolder MonitorsLibra
 	if err != nil {
 		return "", err
 	}
-	//log.Printf("created monitor response: %v", data)
+	log.Printf("created monitor response: %v", data)
 
 	var createdMonitorsLibraryFolder MonitorsLibraryFolder
 

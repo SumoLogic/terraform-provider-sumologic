@@ -127,11 +127,6 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 								"LogsMissingDataCondition", "MetricsMissingDataCondition", "SloSliCondition",
 								"SloBurnRateCondition"}, false),
 						},
-						"resolution_window": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-						},
 					},
 				},
 			},
@@ -386,9 +381,8 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":         &thresholdSchema,
-			"threshold_type":    &thresholdTypeSchema,
-			"resolution_window": &timeRangeSchema,
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
 		}),
 	}),
 	"warning": nested(true, schemaMap{
@@ -398,9 +392,8 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type": &thresholdTypeSchema,
 		}),
 		"resolution": nested(false, schemaMap{
-			"threshold":         &thresholdSchema,
-			"threshold_type":    &thresholdTypeSchema,
-			"resolution_window": &timeRangeSchema,
+			"threshold":      &thresholdSchema,
+			"threshold_type": &thresholdTypeSchema,
 		}),
 	}),
 }
@@ -649,7 +642,6 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("alert_name", monitor.AlertName)
 	d.Set("slo_id", monitor.SloID)
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
-
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
 	for i, n := range monitor.Notifications {
@@ -714,14 +706,13 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		triggers := make([]interface{}, len(monitor.Triggers))
 		for i, t := range monitor.Triggers {
 			triggers[i] = map[string]interface{}{
-				"time_range":        t.PositiveTimeRange(),
-				"trigger_type":      t.TriggerType,
-				"threshold":         t.Threshold,
-				"threshold_type":    t.ThresholdType,
-				"occurrence_type":   t.OccurrenceType,
-				"trigger_source":    t.TriggerSource,
-				"detection_method":  t.DetectionMethod,
-				"resolution_window": t.PositiveResolutionWindow(),
+				"time_range":       t.PositiveTimeRange(),
+				"trigger_type":     t.TriggerType,
+				"threshold":        t.Threshold,
+				"threshold_type":   t.ThresholdType,
+				"occurrence_type":  t.OccurrenceType,
+				"trigger_source":   t.TriggerSource,
+				"detection_method": t.DetectionMethod,
 			}
 		}
 		if err := d.Set("triggers", triggers); err != nil {
@@ -871,14 +862,13 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 		for i := range rawTriggers {
 			triggerDict := rawTriggers[i].(map[string]interface{})
 			triggers[i] = TriggerCondition{
-				TriggerType:      triggerDict["trigger_type"].(string),
-				Threshold:        triggerDict["threshold"].(float64),
-				ThresholdType:    triggerDict["threshold_type"].(string),
-				TimeRange:        triggerDict["time_range"].(string),
-				OccurrenceType:   triggerDict["occurrence_type"].(string),
-				TriggerSource:    triggerDict["trigger_source"].(string),
-				DetectionMethod:  triggerDict["detection_method"].(string),
-				ResolutionWindow: triggerDict["resolution_window"].(string),
+				TriggerType:     triggerDict["trigger_type"].(string),
+				Threshold:       triggerDict["threshold"].(float64),
+				ThresholdType:   triggerDict["threshold_type"].(string),
+				TimeRange:       triggerDict["time_range"].(string),
+				OccurrenceType:  triggerDict["occurrence_type"].(string),
+				TriggerSource:   triggerDict["trigger_source"].(string),
+				DetectionMethod: triggerDict["detection_method"].(string),
 			}
 		}
 		return triggers
@@ -1083,7 +1073,6 @@ func jsonToLogsStaticConditionBlock(conditions []TriggerCondition) map[string]in
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
-			criticalRslv["resolution_window"] = condition.PositiveResolutionWindow()
 		case "Warning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
@@ -1094,7 +1083,6 @@ func jsonToLogsStaticConditionBlock(conditions []TriggerCondition) map[string]in
 			warningDict["time_range"] = condition.PositiveTimeRange()
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
-			warningRslv["resolution_window"] = condition.PositiveResolutionWindow()
 		}
 	}
 	if !hasCritical {
@@ -1455,8 +1443,6 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.SLIThreshold = v.(float64)
 		case "burn_rate_threshold":
 			condition.BurnRateThreshold = v.(float64)
-		case "resolution_window":
-			condition.ResolutionWindow = v.(string)
 		default:
 		}
 	}
@@ -1586,10 +1572,6 @@ func (t *TriggerCondition) PositiveTimeRange() string {
 
 func (t *TriggerCondition) PositiveBaselineWindow() string {
 	return strings.TrimPrefix(t.BaselineWindow, "-")
-}
-
-func (t *TriggerCondition) PositiveResolutionWindow() string {
-	return strings.TrimPrefix(t.ResolutionWindow, "-")
 }
 
 type schemaMap = map[string]*schema.Schema
