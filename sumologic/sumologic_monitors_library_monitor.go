@@ -25,7 +25,7 @@ func (s *Client) CreateMonitorsLibraryMonitor(monitorsLibraryMonitor MonitorsLib
 	if err != nil {
 		return "", err
 	}
-	
+
 	var createdMonitorsLibraryMonitor MonitorsLibraryMonitor
 
 	err = json.Unmarshal(data, &createdMonitorsLibraryMonitor)
