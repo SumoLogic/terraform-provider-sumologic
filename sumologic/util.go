@@ -3,6 +3,7 @@ package sumologic
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strconv"
 )
 
 var (
@@ -293,4 +294,52 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	}
 
 	return nil
+}
+
+func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	return getCanonicalTime(newValue) == getCanonicalTime(oldValue)
+}
+
+func getCanonicalTime(time string) string {
+	var negative bool = false
+	var absTime string = time
+	if time[0] == '-' {
+		negative = true
+		absTime = time[1:]
+	}
+
+	seconds, err := strconv.Atoi(absTime[:len(absTime)-1])
+	if err != nil {
+		return time
+	}
+
+	switch absTime[len(absTime)-1:] {
+	case "m":
+		seconds *= 60
+	case "h":
+		seconds *= 3600
+	case "d":
+		seconds *= 86400
+	case "w":
+		seconds *= 604800
+	}
+
+	var newTime string
+
+	switch {
+	case seconds%604800 == 0:
+		newTime = strconv.Itoa(seconds/604800) + "w"
+	case seconds%86400 == 0:
+		newTime = strconv.Itoa(seconds/86400) + "d"
+	case seconds%3600 == 0:
+		newTime = strconv.Itoa(seconds/3600) + "h"
+	case seconds%60 == 0:
+		newTime = strconv.Itoa(seconds/60) + "m"
+	}
+
+	if negative {
+		return "-" + newTime
+	}
+
+	return newTime
 }
