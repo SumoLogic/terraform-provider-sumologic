@@ -555,7 +555,7 @@ var timeRangeSchema = schema.Schema{
 var resolutionWindowSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
-	ValidateFunc: validation.StringMatch(regexp.MustCompile(`(\d)+[smhd]`), "Time range must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
 }
 
 var thresholdSchema = schema.Schema{
