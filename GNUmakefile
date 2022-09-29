@@ -22,9 +22,15 @@ install-dev: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
 	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
 
+# separate command for installing in the right directory for testing development changes on Macs with M1
+install-dev-m1: fmtcheck
+	mkdir -vp $(PLUGIN_DIR)
+	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic
+
 uninstall:
 	@rm -vf $(PLUGIN_DIR)/terraform-provider-sumologic
 	@rm -vf $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
+	@rm -vf $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic
 
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
