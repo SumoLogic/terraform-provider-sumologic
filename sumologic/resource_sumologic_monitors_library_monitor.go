@@ -104,11 +104,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 						},
-						"time_range": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-						},
+						"time_range": &timeRangeSchema,
 						"trigger_source": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -547,15 +543,17 @@ var consecutiveSchema = schema.Schema{
 }
 
 var timeRangeSchema = schema.Schema{
-	Type:         schema.TypeString,
-	Required:     true,
-	ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+	Type:             schema.TypeString,
+	Required:         true,
+	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+	DiffSuppressFunc: SuppressEquivalentTimeDiff,
 }
 
 var resolutionWindowSchema = schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
+	Type:             schema.TypeString,
+	Optional:         true,
+	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
+	DiffSuppressFunc: SuppressEquivalentTimeDiff,
 }
 
 var thresholdSchema = schema.Schema{
