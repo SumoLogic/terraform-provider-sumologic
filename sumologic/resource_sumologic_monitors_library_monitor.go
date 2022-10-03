@@ -104,7 +104,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 						},
-						"time_range": &timeRangeSchema,
+						"time_range": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+							DiffSuppressFunc: SuppressEquivalentTimeDiff,
+						},
 						"trigger_source": {
 							Type:         schema.TypeString,
 							Optional:     true,
