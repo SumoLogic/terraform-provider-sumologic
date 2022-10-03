@@ -17,8 +17,8 @@ func TestSuppressTimeDiff(t *testing.T) {
 			equivalent: true,
 		},
 		{
-			old:        "24h",
-			new:        "1d",
+			old:        "-24h",
+			new:        "-1d",
 			equivalent: true,
 		},
 		{
@@ -57,14 +57,19 @@ func TestSuppressTimeDiff(t *testing.T) {
 			equivalent: false,
 		},
 		{
-			old:        "48h",
-			new:        "2d",
+			old:        "-48h",
+			new:        "-2d",
 			equivalent: true,
 		},
 		{
 			old:        "0s",
 			new:        "0d",
 			equivalent: true,
+		},
+		{
+			old:        "-60s",
+			new:        "1m",
+			equivalent: false,
 		},
 	}
 
