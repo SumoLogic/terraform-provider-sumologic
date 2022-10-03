@@ -288,10 +288,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			},
 
 			"evaluation_delay": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
+				DiffSuppressFunc: SuppressEquivalentTimeDiff,
 			},
 
 			"is_locked": {

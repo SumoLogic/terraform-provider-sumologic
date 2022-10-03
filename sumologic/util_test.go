@@ -71,6 +71,56 @@ func TestSuppressTimeDiff(t *testing.T) {
 			new:        "1m",
 			equivalent: false,
 		},
+		{
+			old:        "",
+			new:        "-0s",
+			equivalent: true,
+		},
+		{
+			old:        "0",
+			new:        "0s",
+			equivalent: false,
+		},
+		{
+			old:        "0s",
+			new:        "-0s",
+			equivalent: true,
+		},
+		{
+			old:        "-1h30m",
+			new:        "90m",
+			equivalent: false,
+		},
+		{
+			old:        "-1h30m",
+			new:        "-90m",
+			equivalent: true,
+		},
+		{
+			old:        "1h30m2h4s2h",
+			new:        "4s30m3h1h1h",
+			equivalent: true,
+		},
+		{
+			old:        "1h30m",
+			new:        "30m1h",
+			equivalent: true,
+		},
+		{
+			old:        "30min",
+			new:        "30m",
+			equivalent: false,
+		},
+		{
+			old:        "1hour",
+			new:        "1h",
+			equivalent: false,
+		},
+		{
+			old:        "-1second",
+			new:        "-1s",
+			equivalent: false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -81,7 +131,7 @@ func TestSuppressTimeDiff(t *testing.T) {
 		}
 
 		if !tc.equivalent && value {
-			t.Fatalf("Expected test case %d to not be equivalen. Old value %s, new value %s", i, tc.old, tc.new)
+			t.Fatalf("Expected test case %d to not be equivalent. Old value %s, new value %s", i, tc.old, tc.new)
 		}
 	}
 }

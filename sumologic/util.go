@@ -1,9 +1,14 @@
 package sumologic
 
 import (
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
+	"regexp"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 var (
@@ -169,8 +174,9 @@ func GetTimeRangeBoundarySchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"relative_time": {
-						Type:     schema.TypeString,
-						Required: true,
+						Type:             schema.TypeString,
+						Required:         true,
+						DiffSuppressFunc: SuppressEquivalentTimeDiff,
 					},
 				},
 			},
@@ -296,24 +302,62 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	return nil
 }
 
-func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) bool {
-	return getCanonicalTime(newValue) == getCanonicalTime(oldValue)
+func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) (shouldSuppress bool) {
+	defer func() {
+		if err := recover(); err != nil {
+			shouldSuppress = false
+			log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err)
+		}
+	}()
+
+	return getTimeInSeconds(newValue) == getTimeInSeconds(oldValue)
 }
 
-func getCanonicalTime(time string) string {
+func getTimeInSeconds(timeValue string) int64 {
+	// For creating new resources
+	if timeValue == "" {
+		timeValue = "0s"
+	}
+
+	if !regexp.MustCompile(`^-?((\d)+[smhdw])+$`).Match([]byte(timeValue)) {
+		panic(fmt.Sprintf("Value %s is not in correct time value format.", timeValue))
+	}
+
 	var negative bool = false
-	var absTime string = time
-	if time[0] == '-' {
+	var absTime string = timeValue
+	if timeValue[0] == '-' {
 		negative = true
-		absTime = time[1:]
+		absTime = timeValue[1:]
 	}
 
-	seconds, err := strconv.Atoi(absTime[:len(absTime)-1])
+	seconds := int64(0)
+	var value strings.Builder
+
+	for _, ch := range absTime {
+		value.WriteRune(ch)
+		if !unicode.IsNumber(ch) {
+			seconds += getSingleTimeValueInSeconds(value.String())
+			value.Reset()
+		}
+	}
+
+	if negative {
+		seconds *= -1
+	}
+
+	return seconds
+}
+
+func getSingleTimeValueInSeconds(timeValue string) int64 {
+	time, err := strconv.Atoi(timeValue[:len(timeValue)-1])
+	var seconds int64 = int64(time)
 	if err != nil {
-		return time
+		panic(fmt.Sprintf("Error when converting to integer from %s", timeValue[:len(timeValue)-1]))
 	}
 
-	switch absTime[len(absTime)-1:] {
+	switch timeValue[len(timeValue)-1:] {
+	case "s":
+		break
 	case "m":
 		seconds *= 60
 	case "h":
@@ -322,24 +366,9 @@ func getCanonicalTime(time string) string {
 		seconds *= 86400
 	case "w":
 		seconds *= 604800
+	default:
+		panic(fmt.Sprintf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:]))
 	}
 
-	var newTime string
-
-	switch {
-	case seconds%604800 == 0:
-		newTime = strconv.Itoa(seconds/604800) + "w"
-	case seconds%86400 == 0:
-		newTime = strconv.Itoa(seconds/86400) + "d"
-	case seconds%3600 == 0:
-		newTime = strconv.Itoa(seconds/3600) + "h"
-	case seconds%60 == 0:
-		newTime = strconv.Itoa(seconds/60) + "m"
-	}
-
-	if negative {
-		return "-" + newTime
-	}
-
-	return newTime
+	return seconds
 }
