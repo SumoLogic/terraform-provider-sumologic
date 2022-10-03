@@ -3,6 +3,7 @@ package sumologic
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
 )
 
 var (
@@ -170,6 +171,7 @@ func GetTimeRangeBoundarySchema() map[string]*schema.Schema {
 					"relative_time": {
 						Type:     schema.TypeString,
 						Required: true,
+						ValidateFunc: validation.StringMatch(regexp.MustCompile(`-?((\d)+[smhdw])+`), "This value is not in correct format. Example: -2w5d3h"),
 					},
 				},
 			},
