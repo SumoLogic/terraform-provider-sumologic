@@ -315,6 +315,12 @@ The following arguments are supported:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
   - `Slo`: A SLO based monitor  (beta).
+- `evaluation_delay` - (Optional) Evaluation delay as a string consists of the following elements:
+      1. `<number>`: number of time units,
+      2. `<time_unit>`: time unit; possible values are: `h` (hour), `m` (minute), `s` (second).
+
+      Multiple pairs of `<number><time_unit>` may be provided. For example,
+      `2m50s` means 2 minutes and 50 seconds.
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
 - `queries` - (Required) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
@@ -400,26 +406,26 @@ Here is a summary of arguments for each condition type (fields which are not mar
 #### logs_static_condition
   - `field`
   - `critical`
-    - `time_range` (Required)
+    - `time_range` (Required) : Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window`
+      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
   - `warning`
-    - `time_range` (Required)
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window`
+      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
 #### metrics_static_condition
   - `critical`
-    - `time_range` (Required)
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `occurrence_type` (Required)
     - `alert` (Required)
       - `threshold`
@@ -428,7 +434,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
       - `threshold`
       - `threshold_type`
   - `warning`
-    - `time_range` (Required)
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `occurrence_type` (Required)
     - `alert` (Required)
       - `threshold`
@@ -456,10 +462,9 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `baseline_window`
     - `threshold`
 #### logs_missing_data_condition
-  - `time_range` (Required)
+  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 #### metrics_missing_data_condition
-  - `time_range` (Required)
-  - `trigger_source` (Required)
+  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 #### slo_sli_condition
   - `critical`
     - `sli_threshold` (Required) : The remaining SLI error budget threshold percentage [0,100).
@@ -468,10 +473,10 @@ Here is a summary of arguments for each condition type (fields which are not mar
   
 #### slo_burn_rate_condition
   - `critical`
-    - `time_range` (Required) : The relative time range for the burn rate percentage evaluation.
+    - `time_range` (Required) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `burn_rate_threshold` (Required) : The burn rate percentage threshold.
   - `warning`
-    - `time_range` (Required)
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `burn_rate_threshold` (Required)
 
 ## The `triggers` block
