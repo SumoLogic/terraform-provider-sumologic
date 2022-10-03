@@ -71,7 +71,9 @@ func resourceToStringArray(resourceStrings []interface{}) []string {
 	result := make([]string, len(resourceStrings))
 
 	for i, resourceString := range resourceStrings {
-		result[i] = resourceString.(string)
+		if resourceString != nil {
+			result[i] = resourceString.(string)
+		}
 	}
 
 	return result
