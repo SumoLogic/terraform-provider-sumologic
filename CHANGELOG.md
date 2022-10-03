@@ -2,7 +2,7 @@
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
 BUG FIXES:
-* cse rules hard failing if passing tags with empty strings. (GH-444)
+* cse rules hard failing if passing tags with empty strings. (GH-445)
 
 ## 2.19.0 (September 20, 2022)
 FEATURES:
