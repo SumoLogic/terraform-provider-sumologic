@@ -302,25 +302,28 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	return nil
 }
 
-func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) (shouldSuppress bool) {
-	defer func() {
-		if err := recover(); err != nil {
-			shouldSuppress = false
-			log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err)
-		}
-	}()
-
-	return getTimeInSeconds(newValue) == getTimeInSeconds(oldValue)
-}
-
-func getTimeInSeconds(timeValue string) int64 {
-	// For creating new resources
-	if timeValue == "" {
-		timeValue = "0s"
+func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	var handleError = func(err error) bool {
+		log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err.Error())
+		return false
 	}
 
+	if oldValue == "" || newValue == "" {
+		return false
+	}
+
+	if oldValInSeconds, oldErr := getTimeInSeconds(oldValue); oldErr != nil {
+		return handleError(oldErr)
+	} else if newValInSeconds, newErr := getTimeInSeconds(newValue); newErr != nil {
+		return handleError(newErr)
+	} else {
+		return oldValInSeconds == newValInSeconds
+	}
+}
+
+func getTimeInSeconds(timeValue string) (int64, error) {
 	if !regexp.MustCompile(`^-?((\d)+[smhdw])+$`).Match([]byte(timeValue)) {
-		panic(fmt.Sprintf("Value %s is not in correct time value format.", timeValue))
+		return 0, fmt.Errorf("Value %s is not in correct time value format.", timeValue)
 	}
 
 	var negative bool = false
@@ -336,7 +339,11 @@ func getTimeInSeconds(timeValue string) int64 {
 	for _, ch := range absTime {
 		value.WriteRune(ch)
 		if !unicode.IsNumber(ch) {
-			seconds += getSingleTimeValueInSeconds(value.String())
+			if valInSeconds, err := getSingleTimeValueInSeconds(value.String()); err != nil {
+				return 0, err
+			} else {
+				seconds += valInSeconds
+			}
 			value.Reset()
 		}
 	}
@@ -345,14 +352,14 @@ func getTimeInSeconds(timeValue string) int64 {
 		seconds *= -1
 	}
 
-	return seconds
+	return seconds, nil
 }
 
-func getSingleTimeValueInSeconds(timeValue string) int64 {
+func getSingleTimeValueInSeconds(timeValue string) (int64, error) {
 	time, err := strconv.Atoi(timeValue[:len(timeValue)-1])
 	var seconds int64 = int64(time)
 	if err != nil {
-		panic(fmt.Sprintf("Error when converting to integer from %s", timeValue[:len(timeValue)-1]))
+		return 0, fmt.Errorf("Error when converting to integer from %s", timeValue[:len(timeValue)-1])
 	}
 
 	switch timeValue[len(timeValue)-1:] {
@@ -367,8 +374,8 @@ func getSingleTimeValueInSeconds(timeValue string) int64 {
 	case "w":
 		seconds *= 604800
 	default:
-		panic(fmt.Sprintf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:]))
+		return 0, fmt.Errorf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
 	}
 
-	return seconds
+	return seconds, nil
 }
