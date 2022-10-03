@@ -322,7 +322,7 @@ schema for details.
     - `iso8601_time` - (Required) Time as a string in ISO 8601 format.
 
 - `relative_time_range` - (Block List, Optional) Time in relative format.
-    - `relative_time` - (Required) Relative time as a string consisting of following elements:
+    - `relative_time` - (Required) Relative time as a string consists of following elements:
       1. `-` (optional): minus sign indicates time in the past,
       2. `<number>`: number of time units,
       3. `<time_unit>`: time unit; possible values are: `w` (week), `d` (day), `h` (hour), `m` (minute), `s` (second).

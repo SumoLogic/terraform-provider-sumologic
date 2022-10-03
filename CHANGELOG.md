@@ -1,3 +1,6 @@
+BUG FIXES:
+* Add better validation and documentation for some time attributes.
+
 ## 2.19.1 (Unreleased)
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
