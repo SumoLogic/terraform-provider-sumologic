@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -595,4 +596,33 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 		variables[0].Name, variables[0].DisplayName, variables[0].DefaultValue, csvSourceDef.Values,
 		variables[1].Name, variables[1].DisplayName, loqQuerySourceDef.Query, loqQuerySourceDef.Field,
 	)
+}
+
+func TestAccSumologicDashboard_relativeTimeSchemaValidation(t *testing.T) {
+	config := `
+	resource "sumologic_dashboard" "test" {
+		title = "test"
+		time_range {
+		  begin_bounded_time_range {
+			from {
+			  relative_time_range {
+				relative_time = "-1hour"
+			  }
+			}
+		  }
+		}
+	  }`
+	expectedError := regexp.MustCompile(".*invalid value for time_range.0.begin_bounded_time_range.0.from.0.relative_time_range.0.relative_time*")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDashboardDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
 }

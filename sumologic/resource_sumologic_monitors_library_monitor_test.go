@@ -106,6 +106,43 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_timeFieldsSchemaValidation(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	config := `
+       resource "sumologic_monitor" "test" { 
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Logs"
+         trigger_conditions {
+			logs_static_condition {
+			  critical {
+				time_range = "15min"
+				alert {
+					threshold      = 40.0
+					threshold_type = "GreaterThan"
+				}
+				resolution {
+					threshold      = 40.0
+					threshold_type = "LessThanOrEqual"
+				}
+			  }
+			}
+         }
+       }`
+	expectedError := regexp.MustCompile(".*invalid value for trigger_conditions.0.logs_static_condition.0.critical.0.time_range.*")
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
