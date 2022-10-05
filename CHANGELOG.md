@@ -1,5 +1,5 @@
-BUG FIXES:
-* Add better validation and documentation for some time attributes.
+ENHANCEMENTS:
+* Add better validation and documentation for some time attributes (GH-443)
 
 ## 2.19.1 (Unreleased)
 FEATURES:
