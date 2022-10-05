@@ -1,11 +1,10 @@
-BUG FIXES:
-* Suppress diffs for equivalent values of some time attributes. This should reduce output of `terraform plan` that didn't disappear after running `terraform apply`.
-
 ## 2.19.1 (Unreleased)
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
 BUG FIXES:
 * cse rules hard failing if passing tags with empty strings. (GH-445)
+ENHANCEMENTS:
+* Suppress diffs for equivalent values of some time attributes. This should reduce output of `terraform plan` that didn't disappear after running `terraform apply`. (GH-442)
 
 ## 2.19.0 (September 20, 2022)
 FEATURES:
