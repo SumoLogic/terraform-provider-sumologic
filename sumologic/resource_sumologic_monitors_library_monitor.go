@@ -108,7 +108,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-							DiffSuppressFunc: SuppressEquivalentTimeDiff,
+							DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 						},
 						"trigger_source": {
 							Type:         schema.TypeString,
@@ -297,7 +297,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				ValidateFunc:     validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
-				DiffSuppressFunc: SuppressEquivalentTimeDiff,
+				DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 			},
 
 			"is_locked": {
@@ -502,7 +502,7 @@ var sloSLITriggerConditionSchema = map[string]*schema.Schema{
 
 var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nested(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &relativeTimeRangeSchema,
 		"burn_rate_threshold": {
 			Type:         schema.TypeFloat,
 			Required:     true,
@@ -510,7 +510,7 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 		},
 	}),
 	"warning": nested(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &relativeTimeRangeSchema,
 		"burn_rate_threshold": {
 			Type:         schema.TypeFloat,
 			Required:     true,
@@ -552,14 +552,21 @@ var timeRangeSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Required:         true,
 	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-	DiffSuppressFunc: SuppressEquivalentTimeDiff,
+	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+}
+
+var relativeTimeRangeSchema = schema.Schema{
+	Type:             schema.TypeString,
+	Required:         true,
+	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+	DiffSuppressFunc: SuppressEquivalentTimeDiff(true),
 }
 
 var resolutionWindowSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Optional:         true,
 	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
-	DiffSuppressFunc: SuppressEquivalentTimeDiff,
+	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
 var thresholdSchema = schema.Schema{

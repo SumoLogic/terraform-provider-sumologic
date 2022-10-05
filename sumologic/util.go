@@ -176,7 +176,7 @@ func GetTimeRangeBoundarySchema() map[string]*schema.Schema {
 					"relative_time": {
 						Type:             schema.TypeString,
 						Required:         true,
-						DiffSuppressFunc: SuppressEquivalentTimeDiff,
+						DiffSuppressFunc: SuppressEquivalentTimeDiff(true),
 					},
 				},
 			},
@@ -302,22 +302,29 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	return nil
 }
 
-func SuppressEquivalentTimeDiff(k, oldValue, newValue string, d *schema.ResourceData) bool {
-	var handleError = func(err error) bool {
-		log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err.Error())
-		return false
-	}
+func SuppressEquivalentTimeDiff(isRelative bool) func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	return func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		var handleError = func(err error) bool {
+			log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err.Error())
+			return false
+		}
 
-	if oldValue == "" || newValue == "" {
-		return false
-	}
+		if oldValue == "" || newValue == "" {
+			return false
+		}
 
-	if oldValInSeconds, oldErr := getTimeInSeconds(oldValue); oldErr != nil {
-		return handleError(oldErr)
-	} else if newValInSeconds, newErr := getTimeInSeconds(newValue); newErr != nil {
-		return handleError(newErr)
-	} else {
-		return oldValInSeconds == newValInSeconds
+		if oldValInSeconds, oldErr := getTimeInSeconds(oldValue); oldErr != nil {
+			return handleError(oldErr)
+		} else if newValInSeconds, newErr := getTimeInSeconds(newValue); newErr != nil {
+			return handleError(newErr)
+		} else {
+			if !isRelative {
+				oldValInSeconds = abs(oldValInSeconds)
+				newValInSeconds = abs(newValInSeconds)
+			}
+
+			return oldValInSeconds == newValInSeconds
+		}
 	}
 }
 
@@ -378,4 +385,12 @@ func getSingleTimeValueInSeconds(timeValue string) (int64, error) {
 	}
 
 	return seconds, nil
+}
+
+func abs(value int64) int64 {
+	if value < 0 {
+		return -value
+	}
+
+	return value
 }
