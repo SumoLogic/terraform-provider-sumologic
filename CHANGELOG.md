@@ -1,10 +1,12 @@
-## 2.19.1 (Unreleased)
+## 2.19.2 (Unreleased)
+
+## 2.19.1 (October 6, 2022)
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
+
 BUG FIXES:
-* cse rules hard failing if passing tags with empty strings. (GH-445)
-ENHANCEMENTS:
-* Add better validation and documentation for some time attributes (GH-443)
+* CSE rules hard failing if passing tags with empty strings. (GH-445)
+* Return error when unable to read collectors. (GH-446)
 
 ## 2.19.0 (September 20, 2022)
 FEATURES:
@@ -46,7 +48,7 @@ BUG FIXES:
 ## 2.16.2 (June 12, 2022)
 
 BUG FIXES:
-* Monitor Folder provider now handles more error codes: "api_not_enabled", in addition to: "not_implemented_yet" (GH-389) 
+* Monitor Folder provider now handles more error codes: "api_not_enabled", in addition to: "not_implemented_yet" (GH-389)
 
 ## 2.16.1 (June 6, 2022)
 
@@ -55,7 +57,7 @@ BUG FIXES:
 
 ## 2.16.0 (May 20, 2022)
 
-FEATURES: 
+FEATURES:
 * Add new optional `obj_permission` set to resource/sumologic_monitor_folder for Fine Grain Permission (FGP) support (GH-373)
 
 BUG FIXES:
