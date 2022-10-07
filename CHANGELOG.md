@@ -1,4 +1,6 @@
-## 2.19.1 (Unreleased)
+## 2.19.2 (Unreleased)
+
+## 2.19.1 (October 6, 2022)
 FEATURES:
 * Add new optional `resolution_window` field to resource/sumologic_monitor (GH-418)
 
