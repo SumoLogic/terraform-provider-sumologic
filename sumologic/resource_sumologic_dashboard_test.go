@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"testing"
