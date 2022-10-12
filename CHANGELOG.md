@@ -1,4 +1,6 @@
 ## 2.19.2 (Unreleased)
+ENHANCEMENTS:
+* Add better validation and documentation for some time attributes (GH-443)
 
 ## 2.19.1 (October 6, 2022)
 FEATURES:
