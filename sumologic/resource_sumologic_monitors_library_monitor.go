@@ -107,7 +107,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"time_range": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+							ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 							DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 						},
 						"trigger_source": {
@@ -296,7 +296,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				ValidateFunc:     validation.StringMatch(regexp.MustCompile(`((\d)+[smh])+`), "This value is not in correct format. Example: 1m30s"),
+				ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^((\d)+[smh])+$`), "This value is not in correct format. Example: 1m30s"),
 				DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 			},
 
@@ -551,14 +551,14 @@ var consecutiveSchema = schema.Schema{
 var timeRangeSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Required:         true,
-	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
 var relativeTimeRangeSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Required:         true,
-	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`-?(\d)+[smhd]`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(true),
 }
 
