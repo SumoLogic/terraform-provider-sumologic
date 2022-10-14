@@ -303,6 +303,22 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	return nil
 }
 
+/*
+This function returns a function (in 2 variants) determining whether two stringe representation
+of a time value can be considered equivalent. One variant compares only absolute values (ignores '-' sign)
+and the other compare relative values. For details see util_test.go::TestSuppressTimeDiff.
+
+Some examples (we accept time units for seconds, minutes, hours, days and weeks):
+-1h = -60m
+1h20m = 80m
+60m60m60m1h = 3h30m30m
+-60m = 1h (only if we compare absolute values, so with isRelative = false)
+1w = 604800s
+1h != 61m
+2m != 119s
+-1h != 1h (only if we compare relative values, so with isRelative = true)
+1d = 22h60m3600s
+*/
 func SuppressEquivalentTimeDiff(isRelative bool) func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 	return func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 		var handleError = func(err error) bool {
