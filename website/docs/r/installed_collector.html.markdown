@@ -49,13 +49,13 @@ The following attributes are exported:
 Collectors can be imported using the collector id, e.g.:
 
 ```hcl
-terraform import sumologic_collector.test 1234567890
+terraform import sumologic_installed_collector.test 1234567890
 ```
 
 Collectors can also be imported using the collector name, which is unique per Sumo Logic account, e.g.:
 
 ```hcl
-terraform import sumologic_collector.test my_test_collector
+terraform import sumologic_installed_collector.test my_test_collector
 ```
 
 [1]: https://help.sumologic.com/03Send-Data/Installed-Collectors/01About-Installed-Collectors
