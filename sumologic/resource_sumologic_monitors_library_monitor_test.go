@@ -106,6 +106,24 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	canonicalTimeRange := "1h"
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitor("triggers_negative_expanded_hour"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", canonicalTimeRange),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
@@ -138,7 +156,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	testContentType := "Monitor"
 	testMonitorType := "Logs"
 	testIsDisabled := false
-	testEvaluationDelay := "5m"
+	canonicalTestEvaluationDelay := "1h"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -149,7 +167,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 		{
 			ThresholdType:   "GreaterThan",
 			Threshold:       40.0,
-			TimeRange:       "15m",
+			TimeRange:       "1h",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "Critical",
@@ -158,7 +176,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 		{
 			ThresholdType:    "LessThanOrEqual",
 			Threshold:        40.0,
-			TimeRange:        "15m",
+			TimeRange:        "1h",
 			OccurrenceType:   "ResultCount",
 			TriggerSource:    "AllResults",
 			TriggerType:      "ResolvedCritical",
@@ -207,7 +225,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testEvaluationDelay),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", canonicalTestEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -305,7 +323,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testMonitorType := "Logs"
 	testPlaybook := "This is a test playbook"
 	testIsDisabled := false
-	testEvaluationDelay := "5m"
+	canonicalTestEvaluationDelay := "1h"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -316,7 +334,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		{
 			ThresholdType:   "GreaterThan",
 			Threshold:       40.0,
-			TimeRange:       "15m",
+			TimeRange:       "1h",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "Critical",
@@ -325,7 +343,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 		{
 			ThresholdType:    "LessThanOrEqual",
 			Threshold:        40.0,
-			TimeRange:        "15m",
+			TimeRange:        "1h",
 			OccurrenceType:   "ResultCount",
 			TriggerSource:    "AllResults",
 			TriggerType:      "ResolvedCritical",
@@ -436,7 +454,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testEvaluationDelay),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", canonicalTestEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -697,7 +715,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = false
 	content_type = "Monitor"
 	monitor_type = "Logs"
-	evaluation_delay = "5m"
+	evaluation_delay = "60m"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager error"
@@ -705,7 +723,7 @@ resource "sumologic_monitor" "test" {
 	triggers  {
 		threshold_type = "GreaterThan"
 		threshold = 40.0
-		time_range = "15m"
+		time_range = "-60m"
 		occurrence_type = "ResultCount"
 		trigger_source = "AllResults"
 		trigger_type = "Critical"
@@ -714,7 +732,7 @@ resource "sumologic_monitor" "test" {
 	triggers  {
 		threshold_type = "LessThanOrEqual"
 		threshold = 40.0
-		time_range = "15m"
+		time_range = "-60m"
 		occurrence_type = "ResultCount"
 		trigger_source = "AllResults"
 		trigger_type = "ResolvedCritical"
@@ -1040,7 +1058,7 @@ resource "sumologic_monitor" "test" {
 var exampleLogsStaticTriggerConditionBlock = `
    logs_static_condition {
      critical {
-       time_range = "30m"
+       time_range = "60m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1056,7 +1074,7 @@ var exampleLogsStaticTriggerConditionBlock = `
 var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
    logs_static_condition {
      critical {
-       time_range = "30m"
+       time_range = "1h"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1064,7 +1082,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
        resolution {
          threshold = 90
          threshold_type = "LessThanOrEqual"
-		 resolution_window = "15m"
+		 resolution_window = "60m"
        }
      }
      field = "field"
@@ -1073,7 +1091,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
 var exampleMetricsStaticTriggerConditionBlock1 = `
    metrics_static_condition {
      critical {
-       time_range = "30m"
+       time_range = "-30m"
        occurrence_type = "AtLeastOnce"
        alert {
          threshold = 100.0

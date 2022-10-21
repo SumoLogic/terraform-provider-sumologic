@@ -1,9 +1,14 @@
 package sumologic
 
 import (
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"regexp"
+	"strconv"
+	"strings"
+	"unicode"
 )
 
 var (
@@ -169,9 +174,10 @@ func GetTimeRangeBoundarySchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"relative_time": {
-						Type:         schema.TypeString,
-						Required:     true,
-						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^-?((\d)+[smhdw])+$`), "This value is not in correct format. Example: -2w5d3h"),
+						Type:             schema.TypeString,
+						Required:         true,
+						ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?((\d)+[smhdw])+$`), "This value is not in correct format. Example: -2w5d3h"),
+						DiffSuppressFunc: SuppressEquivalentTimeDiff(true),
 					},
 				},
 			},
@@ -295,4 +301,113 @@ func GetTimeRangeBoundary(tfRangeBoundary map[string]interface{}) interface{} {
 	}
 
 	return nil
+}
+
+/*
+This function returns a function (in 2 variants) determining whether two stringe representation
+of a time value can be considered equivalent. One variant compares only absolute values (ignores '-' sign)
+and the other compare relative values. For details see util_test.go::TestSuppressTimeDiff.
+
+Some examples (we accept time units for seconds, minutes, hours, days and weeks):
+-1h = -60m
+1h20m = 80m
+60m60m60m1h = 3h30m30m
+-60m = 1h (only if we compare absolute values, so with isRelative = false)
+1w = 604800s
+1h != 61m
+2m != 119s
+-1h != 1h (only if we compare relative values, so with isRelative = true)
+1d = 22h60m3600s
+*/
+func SuppressEquivalentTimeDiff(isRelative bool) func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	return func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		var handleError = func(err error) bool {
+			log.Printf("[WARN] Time value could not be converted to seconds. Details: %s", err.Error())
+			return false
+		}
+
+		if oldValue == "" || newValue == "" {
+			return false
+		}
+
+		if oldValInSeconds, oldErr := getTimeInSeconds(oldValue); oldErr != nil {
+			return handleError(oldErr)
+		} else if newValInSeconds, newErr := getTimeInSeconds(newValue); newErr != nil {
+			return handleError(newErr)
+		} else {
+			if !isRelative {
+				oldValInSeconds = abs(oldValInSeconds)
+				newValInSeconds = abs(newValInSeconds)
+			}
+
+			return oldValInSeconds == newValInSeconds
+		}
+	}
+}
+
+func getTimeInSeconds(timeValue string) (int64, error) {
+	if !regexp.MustCompile(`^-?((\d)+[smhdw])+$`).Match([]byte(timeValue)) {
+		return 0, fmt.Errorf("Value %s is not in correct time value format.", timeValue)
+	}
+
+	var negative bool = false
+	var absTime string = timeValue
+	if timeValue[0] == '-' {
+		negative = true
+		absTime = timeValue[1:]
+	}
+
+	seconds := int64(0)
+	var value strings.Builder
+
+	for _, ch := range absTime {
+		value.WriteRune(ch)
+		if !unicode.IsNumber(ch) {
+			if valInSeconds, err := getSingleTimeValueInSeconds(value.String()); err != nil {
+				return 0, err
+			} else {
+				seconds += valInSeconds
+			}
+			value.Reset()
+		}
+	}
+
+	if negative {
+		seconds *= -1
+	}
+
+	return seconds, nil
+}
+
+func getSingleTimeValueInSeconds(timeValue string) (int64, error) {
+	time, err := strconv.Atoi(timeValue[:len(timeValue)-1])
+	var seconds int64 = int64(time)
+	if err != nil {
+		return 0, fmt.Errorf("Error when converting to integer from %s", timeValue[:len(timeValue)-1])
+	}
+
+	switch timeValue[len(timeValue)-1:] {
+	case "s":
+		break
+	case "m":
+		seconds *= 60
+	case "h":
+		seconds *= 3600
+	case "d":
+		seconds *= 86400
+	case "w":
+		seconds *= 604800
+	default:
+		return 0, fmt.Errorf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
+	}
+
+	return seconds, nil
+}
+
+func abs(value int64) int64 {
+	if value < 0 {
+		return -value
+	}
+
+	return value
 }
