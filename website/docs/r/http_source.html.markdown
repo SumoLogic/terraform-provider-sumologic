@@ -88,7 +88,7 @@ terraform import sumologic_http_source.test my-test-collector/my-test-source
 ```
 
 [1]: https://help.sumologic.com/docs/send-data/hosted-collectors/http-source/logs-metrics
-[2]: https://help.sumologic.com/Traces/HTTP_Traces_Source
-[3]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS_Kinesis_Firehose_for_Logs_Source
-[4]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/OTLP_HTTP_Source
+[2]: https://help.sumologic.com/docs/apm/traces/get-started-transaction-tracing/http-traces-source/
+[3]: https://help.sumologic.com/docs/send-data/hosted-collectors/amazon-aws/aws-kinesis-firehose-logs-source/
+[4]: https://help.sumologic.com/docs/send-data/hosted-collectors/http-source/otlp/
 [5]: https://help.sumologic.com/docs/apm/real-user-monitoring/#step-1-create-a-rum-http-traces-source
