@@ -31,13 +31,13 @@ The following arguments are supported:
   * `category` - (Optional) The default source category for any source attached to this collector. Can be overridden in the configuration of said sources.
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention.
   * `fields` - (Optional) Map containing [key/value pairs][3].
-  * `cutOffTimestamp` - (Optional) Only collect data from files with a modified date more recent than this timestamp, specified as milliseconds since epoch.
-  * `hostName` - (Optional) Host name of the Collector. The hostname can be a maximum of 128 characters.
-  * `sourceSyncMode` - (Optional) For installed Collectors, whether the Collector is using local source configuration management (using a JSON file), or cloud management (using the UI)
-  * `targetCpu` - When CPU utilization exceeds this threshold, the Collector will slow down its rate of ingestion to lower its CPU utilization. Currently only Local and Remote File Sources are supported.
+  * `cut_off_timestamp` - (Optional) Only collect data from files with a modified date more recent than this timestamp, specified as milliseconds since epoch.
+  * `host_name` - (Optional) Host name of the Collector. The hostname can be a maximum of 128 characters.
+  * `source_sync_mode` - (Optional) For installed Collectors, whether the Collector is using local source configuration management (using a JSON file), or cloud management (using the UI)
+  * `target_cpu` - When CPU utilization exceeds this threshold, the Collector will slow down its rate of ingestion to lower its CPU utilization. Currently only Local and Remote File Sources are supported.
 
 ### See also
-  * [Common Collector Properties](https://help.sumologic.com/APIs/Collector-Management-API/Collector-API-Methods-and-Examples#response-fields)
+  * [Common Collector Properties](https://help.sumologic.com/docs/api/collectors/#response-fields)
   * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
 
 ## Attributes Reference
