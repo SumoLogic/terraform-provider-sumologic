@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_http_source
-Provides a [Sumologic HTTP source][1], [Sumologic HTTP Traces source][2], [Sumologic Kinesis Log source][3] and [Sumologic HTTP_OTLP_source][4]. To start using Traces contact your Sumo account representative to activate.
+Provides a [Sumologic HTTP source][1], [Sumologic HTTP Traces source][2], [Sumologic Kinesis Log source][3], [Sumologic HTTP_OTLP_source][4] and [Sumologic RUM source][5]. To start using Traces contact your Sumo account representative to activate.
 
 __IMPORTANT:__ The endpoint is stored in plain-text in the state. This is a potential security issue.
 
@@ -59,7 +59,11 @@ resource "sumologic_collector" "collector" {
 In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
 - `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
-- `content_type`        - (Optional) When configuring a HTTP Traces Source, set this property to `Zipkin`. When configuring a Kinesis Logs Source, set this property to `KinesisLog`. When configuring a HTTP OTLP Source, set this property to `Otlp`. This should only be used when creating a Traces, Kinesis Log or HTTP OTLP source.
+- `content_type`        - (Optional) This should only be used when creating a Traces, Kinesis Log, HTTP OTLP or a RUM source.
+   - When configuring a HTTP Traces Source, set this property to `Zipkin`. 
+   - When configuring a Kinesis Logs Source, set this property to `KinesisLog`. 
+   - When configuring a HTTP OTLP Source, set this property to `Otlp`.
+   - When configuring a RUM Source, set this property to `Rum`. 
 
 ### See also
   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
@@ -83,7 +87,8 @@ HTTP sources can be imported using the collector name and source name (`collecto
 terraform import sumologic_http_source.test my-test-collector/my-test-source
 ```
 
-[1]: https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/HTTP_Source
-[2]: https://help.sumologic.com/Traces/HTTP_Traces_Source
-[3]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/AWS_Kinesis_Firehose_for_Logs_Source
-[4]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/OTLP_HTTP_Source
+[1]: https://help.sumologic.com/docs/send-data/hosted-collectors/http-source/logs-metrics
+[2]: https://help.sumologic.com/docs/apm/traces/get-started-transaction-tracing/http-traces-source/
+[3]: https://help.sumologic.com/docs/send-data/hosted-collectors/amazon-aws/aws-kinesis-firehose-logs-source/
+[4]: https://help.sumologic.com/docs/send-data/hosted-collectors/http-source/otlp/
+[5]: https://help.sumologic.com/docs/apm/real-user-monitoring/#step-1-create-a-rum-http-traces-source
