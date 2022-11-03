@@ -120,7 +120,8 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     metrics_static_condition {
       critical {
         time_range = "15m"
-        occurrence_type = "AtLeastOnce"
+        occurrence_type = "Always"
+        min_data_points = 5
         alert {
           threshold      = 40.0
           threshold_type = "GreaterThan"

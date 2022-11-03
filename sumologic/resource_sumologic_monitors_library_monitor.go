@@ -120,6 +120,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
+						"min_data_points": {
+            	Type:         schema.TypeInt,
+              Optional:     true,
+              ValidateFunc: validation.IntAtLeast(1),
+            },
 						"detection_method": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -407,6 +412,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nested(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
+		"min_data_points": &minDataPointsOptSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -420,6 +426,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"warning": nested(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
+		"min_data_points": &minDataPointsOptSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -529,6 +536,12 @@ var occurrenceTypeOptSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
+}
+
+var minDataPointsOptSchema = schema.Schema{
+  Type:         schema.TypeInt,
+  Optional:     true,
+  ValidateFunc: validation.IntAtLeast(1),
 }
 
 var windowSchema = schema.Schema{
@@ -725,6 +738,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 				"threshold":         t.Threshold,
 				"threshold_type":    t.ThresholdType,
 				"occurrence_type":   t.OccurrenceType,
+				"min_data_points":   t.MinDataPoints,
 				"trigger_source":    t.TriggerSource,
 				"detection_method":  t.DetectionMethod,
 				"resolution_window": t.PositiveResolutionWindow(),
@@ -883,6 +897,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 				TimeRange:        triggerDict["time_range"].(string),
 				OccurrenceType:   triggerDict["occurrence_type"].(string),
 				TriggerSource:    triggerDict["trigger_source"].(string),
+				MinDataPoints:    triggerDict["min_data_points"].(int)
 				DetectionMethod:  triggerDict["detection_method"].(string),
 				ResolutionWindow: triggerDict["resolution_window"].(string),
 			}
@@ -1129,6 +1144,7 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalDict["occurrence_type"] = condition.OccurrenceType
+      criticalDict["min_data_points"] = condition.MinDataPoints
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
@@ -1138,6 +1154,7 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
 				criticalRslv["occurrence_type"] = condition.OccurrenceType
+				criticalRslv["min_data_points"] = 1
 			} else {
 				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
@@ -1145,6 +1162,7 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
 			warningDict["occurrence_type"] = condition.OccurrenceType
+			warningDict["min_data_points"] = condition.MinDataPoints
 			warningAlrt["threshold"] = condition.Threshold
 			warningAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedWarning":
@@ -1153,7 +1171,8 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
-				criticalRslv["occurrence_type"] = condition.OccurrenceType
+				warningRslv["occurrence_type"] = condition.OccurrenceType
+				warningRslv["min_data_points"] = 1
 			} else {
 				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
@@ -1443,6 +1462,8 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.ThresholdType = v.(string)
 		case "occurrence_type":
 			condition.OccurrenceType = v.(string)
+		case "min_data_points":
+			condition.MinDataPoints = v.(int)
 		case "trigger_source":
 			condition.TriggerSource = v.(string)
 		case "detection_method":

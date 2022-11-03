@@ -1120,6 +1120,24 @@ var exampleMetricsStaticTriggerConditionBlock2 = `
      }
    }`
 
+var exampleMetricsStaticTriggerConditionBlock3 = `
+   metrics_static_condition {
+     warning {
+       time_range = "45m"
+       occurrence_type = "Always"
+       min_data_points = 6
+       alert {
+         threshold = 100.0
+         threshold_type = "GreaterThan"
+       }
+       resolution {
+         threshold = 90
+         threshold_type = "LessThanOrEqual"
+         occurrence_type = "AtLeastOnce"
+       }
+     }
+   }`
+
 var exampleLogsOutlierTriggerConditionBlock = `
    logs_outlier_condition {
      critical {
@@ -1175,6 +1193,12 @@ func exampleMetricsStaticMonitor2(testName string) string {
 		exampleMetricsStaticTriggerConditionBlock2, []string{"Critical", "ResolvedCritical"})
 }
 
+func exampleMetricsStaticMonitor3(testName string) string {
+	query := "error _sourceCategory=category"
+	return exampleMonitorWithTriggerCondition(testName, "Metrics", query,
+		exampleMetricsStaticTriggerConditionBlock3, []string{"Warning", "ResolvedWarning"})
+}
+
 func exampleLogsOutlierMonitor(testName string) string {
 	query := "error | timeslice 1m | count as field by _timeslice"
 	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
@@ -1204,6 +1228,7 @@ var allExampleMonitors = []func(testName string) string{
 	exampleLogsStaticMonitorWithResolutionWindow,
 	exampleMetricsStaticMonitor1,
 	exampleMetricsStaticMonitor2,
+	exampleMetricsStaticMonitor3,
 	exampleLogsOutlierMonitor,
 	exampleMetricsOutlierMonitor,
 	exampleLogsMissingDataMonitor,
