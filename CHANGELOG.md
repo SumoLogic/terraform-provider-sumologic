@@ -1,4 +1,6 @@
-## 2.19.2 (Unreleased)
+## 2.20.0 (Unreleased)
+
+## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:
 * Suppress diffs for equivalent values of some time attributes. This should reduce output of `terraform plan` that didn't disappear after running `terraform apply`. (GH-442)
 * Add better validation and documentation for some time attributes (GH-443)
