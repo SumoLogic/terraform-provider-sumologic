@@ -428,6 +428,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `critical`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `occurrence_type` (Required)
+    - `min_data_points` (Optional)
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
@@ -437,6 +438,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `warning`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `occurrence_type` (Required)
+    - `min_data_points` (Optional)
     - `alert` (Required)
       - `threshold`
       - `threshold_type`

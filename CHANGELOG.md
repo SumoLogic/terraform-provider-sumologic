@@ -1,4 +1,6 @@
 ## 2.20.0 (Unreleased)
+FEATURES:
+* Add new optional `min_data_points` field to metrics monitor trigger_conditions
 
 ## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:

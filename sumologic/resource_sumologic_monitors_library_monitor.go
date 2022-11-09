@@ -121,10 +121,10 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
 						"min_data_points": {
-            	Type:         schema.TypeInt,
-              Optional:     true,
-              ValidateFunc: validation.IntAtLeast(1),
-            },
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
 						"detection_method": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -539,9 +539,9 @@ var occurrenceTypeOptSchema = schema.Schema{
 }
 
 var minDataPointsOptSchema = schema.Schema{
-  Type:         schema.TypeInt,
-  Optional:     true,
-  ValidateFunc: validation.IntAtLeast(1),
+	Type:         schema.TypeInt,
+	Optional:     true,
+	ValidateFunc: validation.IntAtLeast(1),
 }
 
 var windowSchema = schema.Schema{
@@ -897,7 +897,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 				TimeRange:        triggerDict["time_range"].(string),
 				OccurrenceType:   triggerDict["occurrence_type"].(string),
 				TriggerSource:    triggerDict["trigger_source"].(string),
-				MinDataPoints:    triggerDict["min_data_points"].(int)
+				MinDataPoints:    triggerDict["min_data_points"].(int),
 				DetectionMethod:  triggerDict["detection_method"].(string),
 				ResolutionWindow: triggerDict["resolution_window"].(string),
 			}
@@ -1144,17 +1144,17 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalDict["occurrence_type"] = condition.OccurrenceType
-      criticalDict["min_data_points"] = condition.MinDataPoints
+			criticalDict["min_data_points"] = condition.MinDataPoints
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["min_data_points"] = condition.MinDataPoints
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
 				criticalRslv["occurrence_type"] = condition.OccurrenceType
-				criticalRslv["min_data_points"] = 1
 			} else {
 				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
@@ -1168,11 +1168,11 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["min_data_points"] = condition.MinDataPoints
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
 				warningRslv["occurrence_type"] = condition.OccurrenceType
-				warningRslv["min_data_points"] = 1
 			} else {
 				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
