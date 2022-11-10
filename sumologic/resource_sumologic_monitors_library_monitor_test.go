@@ -1091,7 +1091,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
 var exampleMetricsStaticTriggerConditionBlock1 = `
    metrics_static_condition {
      critical {
-       time_range = "-30m"
+       time_range = "30m"
        occurrence_type = "AtLeastOnce"
        alert {
          threshold = 100.0
@@ -1123,7 +1123,7 @@ var exampleMetricsStaticTriggerConditionBlock2 = `
 var exampleMetricsStaticTriggerConditionBlock3 = `
    metrics_static_condition {
      warning {
-       time_range = "45m"
+       time_range = "60m"
        occurrence_type = "Always"
        min_data_points = 6
        alert {
