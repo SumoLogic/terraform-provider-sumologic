@@ -1253,6 +1253,7 @@ func exampleMetricsStaticTriggerCondition(triggerType string, threshold float64,
 		Threshold:       threshold,
 		ThresholdType:   thresholdType,
 		OccurrenceType:  "Always",
+		MinDataPoints:   3,
 		DetectionMethod: "MetricsStaticCondition",
 	}
 }
