@@ -1125,10 +1125,10 @@ var exampleMetricsStaticTriggerConditionBlock3 = `
      warning {
        time_range = "60m"
        occurrence_type = "Always"
-       min_data_points = 6
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
+         min_data_points = 6
        }
        resolution {
          threshold = 90

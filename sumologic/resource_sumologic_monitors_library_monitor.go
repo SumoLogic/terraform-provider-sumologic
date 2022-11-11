@@ -123,7 +123,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 						"min_data_points": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							ValidateFunc: validation.IntAtLeast(1),
+							ValidateFunc: validation.IntBetween(1, 100),
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
@@ -412,29 +412,31 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nested(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
-		"min_data_points": &minDataPointsOptSchema,
 		"alert": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 		"resolution": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 	}),
 	"warning": nested(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
-		"min_data_points": &minDataPointsOptSchema,
 		"alert": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 		"resolution": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 	}),
 }
@@ -541,7 +543,7 @@ var occurrenceTypeOptSchema = schema.Schema{
 var minDataPointsOptSchema = schema.Schema{
 	Type:         schema.TypeInt,
 	Optional:     true,
-	ValidateFunc: validation.IntAtLeast(1),
+	ValidateFunc: validation.IntBetween(1, 100),
 }
 
 var windowSchema = schema.Schema{
@@ -1144,13 +1146,13 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalDict["occurrence_type"] = condition.OccurrenceType
-			criticalDict["min_data_points"] = condition.MinDataPoints
+			criticalAlrt["min_data_points"] = condition.MinDataPoints
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
-			criticalDict["min_data_points"] = condition.MinDataPoints
+			criticalRslv["min_data_points"] = condition.MinDataPoints
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
@@ -1162,13 +1164,13 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
 			warningDict["occurrence_type"] = condition.OccurrenceType
-			warningDict["min_data_points"] = condition.MinDataPoints
+			warningAlrt["min_data_points"] = condition.MinDataPoints
 			warningAlrt["threshold"] = condition.Threshold
 			warningAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
-			warningDict["min_data_points"] = condition.MinDataPoints
+			warningRslv["min_data_points"] = condition.MinDataPoints
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
