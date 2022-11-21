@@ -133,7 +133,7 @@ The following arguments are supported:
   Defaults to true.
 - `compliance` - (Required) The compliance settings for the SLO.
     - `compliance_type` - (Required) The type of compliance to use. Valid values are `Rolling` or `Calendar`.
-    - `target` - (Required) The target value to use, must be a number between 0 and 100.
+    - `target` - (Required) Target percentage for the SLI over the compliance period. Must be a number between 0 and 100.
     - `timezone` - (Required) Time zone for the SLO compliance. Follow the format in the [IANA Time Zone Database][3].
     - `size` - (Required) The size of the compliance period to use.
       - For `Rolling` compliance type it must be a multiple of days e.g. `1d`, `2d`.
