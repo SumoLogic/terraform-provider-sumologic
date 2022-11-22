@@ -323,8 +323,8 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_min_data_points(t *te
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.min_data_points", "testTriggers[0].MinDataPoints"),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.min_data_points", "testTriggers[1].MinDataPoints"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.min_data_points", testTriggers[0].MinDataPoints.(string)),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.min_data_points", testTriggers[1].MinDataPoints.(string)),
 				),
 			},
 		},
@@ -1188,7 +1188,7 @@ var exampleMetricsStaticTriggerConditionBlock1 = `
 
 var exampleMetricsStaticTriggerConditionBlock2 = `
    metrics_static_condition {
-     warning {
+     critical {
        time_range = "60m"
        occurrence_type = "Always"
        alert {
