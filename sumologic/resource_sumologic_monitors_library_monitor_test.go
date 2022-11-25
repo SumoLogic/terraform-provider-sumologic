@@ -286,51 +286,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_resolution_window(t *
 	})
 }
 
-func TestAccSumologicMonitorsLibraryMonitor_create_with_no_min_data_points(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
-	testNameSuffix := acctest.RandString(16)
-
-	testTriggers := []TriggerCondition{
-		{
-			ThresholdType:   "GreaterThan",
-			Threshold:       40.0,
-			TimeRange:       "15m",
-			OccurrenceType:  "Always",
-			MinDataPoints:   3,
-			TriggerType:     "Critical",
-			DetectionMethod: "MetricsStaticCondition",
-		},
-		{
-			ThresholdType:   "LessThanOrEqual",
-			Threshold:       40.0,
-			TimeRange:       "15m",
-			OccurrenceType:  "AtLeastOnce",
-			MinDataPoints:   1,
-			TriggerType:     "ResolvedCritical",
-			DetectionMethod: "MetricsStaticCondition",
-		},
-	}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicMonitorsLibraryMonitorWithNoMinDataPoints(testNameSuffix),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
-					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.min_data_points", "3"),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.1.min_data_points", "1"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccSumologicMonitorsLibraryMonitor_create_all_monitor_types(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	for _, monitorConfig := range allExampleMonitors {
@@ -870,41 +825,6 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				detection_method = "StaticCondition"
 			}
 			playbook = "This is a test playbook"  
-			alert_name =  "Alert from {{Name}}"
-		}`, testName)
-}
-
-func testAccSumologicMonitorsLibraryMonitorWithNoMinDataPoints(testName string) string {
-	return fmt.Sprintf(`
-		resource "sumologic_monitor" "test" {
-			name = "terraform_test_metrics_monitor_%s"
-			description = "terraform_test_metrics_monitor_description"
-			type = "MonitorsLibraryMonitor"
-			is_disabled = false
-			content_type = "Monitor"
-			monitor_type = "Metrics"
-			evaluation_delay = "5m"
-			queries {
-				row_id = "A"
-				query = "_sourceCategory=monitor-manager error"
-			}
-			triggers  {
-				threshold_type = "GreaterThan"
-				threshold = 40.0
-				time_range = "15m"
-				occurrence_type = "Always"
-				trigger_type = "Critical"
-				detection_method = "MetricsStaticCondition"
-			}
-			triggers  {
-				threshold_type = "LessThanOrEqual"
-				threshold = 40.0
-				time_range = "15m"
-				occurrence_type = "AtLeastOnce"
-				trigger_type = "ResolvedCritical"
-				detection_method = "MetricsStaticCondition"
-			}
-			playbook = "This is a test playbook"
 			alert_name =  "Alert from {{Name}}"
 		}`, testName)
 }
