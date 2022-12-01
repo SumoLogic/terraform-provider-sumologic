@@ -1,6 +1,6 @@
 ## 2.20.0 (Unreleased)
 BUG FIXES:
-* Fix typo on cse_match_list documentation (GH-460)
+* Fix typo on cse_match_list documentation (GH-461)
 
 ## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:
