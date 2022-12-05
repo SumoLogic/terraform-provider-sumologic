@@ -47,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cse_inventory_entity_group_configuration": resourceSumologicCSEInventoryEntityGroupConfiguration(),
 			"sumologic_cse_entity_entity_group_configuration":    resourceSumologicCSEEntityEntityGroupConfiguration(),
 			"sumologic_cse_match_list":                           resourceSumologicCSEMatchList(),
+			"sumologic_cse_custom_match_list_column":             resourceSumologicCSECustomMatchListColumn(),
 			"sumologic_cse_log_mapping":                          resourceSumologicCSELogMapping(),
 			"sumologic_cse_rule_tuning_expression":               resourceSumologicCSERuleTuningExpression(),
 			"sumologic_cse_network_block":                        resourceSumologicCSENetworkBlock(),
