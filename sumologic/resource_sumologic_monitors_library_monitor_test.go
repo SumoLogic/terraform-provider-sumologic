@@ -312,6 +312,27 @@ func TestAccSumologicMonitorsLibraryMonitor_create_all_monitor_types(t *testing.
 	}
 }
 
+func TestAccSumologicMonitorsLibraryMonitorFail_scenarios(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	for _, monitorConfig := range allInvalidMonitors {
+		testNameSuffix := acctest.RandString(16)
+
+		testName := "terraform_test_invalid_monitor_" + testNameSuffix
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			Steps: []resource.TestStep{
+				{
+					Config:      monitorConfig(testName),
+					ExpectError: regexp.MustCompile("config is invalid"),
+				},
+			},
+		})
+	}
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
@@ -1210,6 +1231,26 @@ var allExampleMonitors = []func(testName string) string{
 	exampleMetricsMissingDataMonitor,
 }
 
+func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "60m"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	trigger_conditions  {
+		%s
+	}
+}`, testName, triggerCondition)
+}
+
 func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
 	return TriggerCondition{
 		TimeRange:       "30m",
@@ -1347,4 +1388,26 @@ func testAccCheckMonitorsLibraryMonitorFGPBackend(
 		}
 		return nil
 	}
+}
+
+var allInvalidMonitors = []func(testName string) string{
+	invalidExampleWithNoTriggerCondition,
+	invalidExampleWithEmptyLogStaticTriggerCondition,
+	invalidExampleWithEmptyMetricsStaticTriggerCondition,
+}
+
+func invalidExampleWithNoTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		` `, []string{"Critical", "ResolvedCritical"})
+}
+func invalidExampleWithEmptyLogStaticTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		`logs_static_condition {}`, []string{"Critical", "ResolvedCritical"})
+}
+func invalidExampleWithEmptyMetricsStaticTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		`metrics_static_condition {}`, []string{"Critical", "ResolvedCritical"})
 }
