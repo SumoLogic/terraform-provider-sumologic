@@ -104,6 +104,24 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 			},
 		},
 	})
+
+	for _, monitorConfig := range allInvalidMonitors {
+		testNameSuffix := acctest.RandString(16)
+
+		testName := "terraform_test_invalid_monitor_" + testNameSuffix
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			Steps: []resource.TestStep{
+				{
+					Config:      monitorConfig(testName),
+					ExpectError: regexp.MustCompile("config is invalid"),
+				},
+			},
+		})
+	}
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
@@ -306,27 +324,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create_all_monitor_types(t *testing.
 						resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
 						resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					),
-				},
-			},
-		})
-	}
-}
-
-func TestAccSumologicMonitorsLibraryMonitorFail_scenarios(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
-	for _, monitorConfig := range allInvalidMonitors {
-		testNameSuffix := acctest.RandString(16)
-
-		testName := "terraform_test_invalid_monitor_" + testNameSuffix
-
-		resource.Test(t, resource.TestCase{
-			PreCheck:     func() { testAccPreCheck(t) },
-			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
-			Steps: []resource.TestStep{
-				{
-					Config:      monitorConfig(testName),
-					ExpectError: regexp.MustCompile("config is invalid"),
 				},
 			},
 		})
