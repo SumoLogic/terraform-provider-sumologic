@@ -9,23 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-var (
-	triggerConditionsAtleatOneKey = []string{
-		"trigger_conditions.0.logs_static_condition",
-		"trigger_conditions.0.metrics_static_condition",
-		"trigger_conditions.0.logs_outlier_condition",
-		"trigger_conditions.0.metrics_outlier_condition",
-		"trigger_conditions.0.logs_missing_data_condition",
-		"trigger_conditions.0.metrics_missing_data_condition",
-		"trigger_conditions.0.slo_sli_condition",
-		"trigger_conditions.0.slo_burn_rate_condition",
-	}
-	criticalOrWarningAtleastOneKeys = []string{
-		"trigger_conditions.0.logs_static_condition.0.warning",
-		"trigger_conditions.0.logs_static_condition.0.critical",
-	}
-)
-
 func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicMonitorsLibraryMonitorCreate,
@@ -389,6 +372,43 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 	}
 }
 
+var (
+	triggerConditionsAtleatOneKey = []string{
+		"trigger_conditions.0.logs_static_condition",
+		"trigger_conditions.0.metrics_static_condition",
+		"trigger_conditions.0.logs_outlier_condition",
+		"trigger_conditions.0.metrics_outlier_condition",
+		"trigger_conditions.0.logs_missing_data_condition",
+		"trigger_conditions.0.metrics_missing_data_condition",
+		"trigger_conditions.0.slo_sli_condition",
+		"trigger_conditions.0.slo_burn_rate_condition",
+	}
+	logStaticConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.logs_static_condition.0.warning",
+		"trigger_conditions.0.logs_static_condition.0.critical",
+	}
+	metricsStaticConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.metrics_static_condition.0.warning",
+		"trigger_conditions.0.metrics_static_condition.0.critical",
+	}
+	logsOutlierConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.logs_outlier_condition.0.warning",
+		"trigger_conditions.0.logs_outlier_condition.0.critical",
+	}
+	metricsOutlierConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.metrics_outlier_condition.0.warning",
+		"trigger_conditions.0.metrics_outlier_condition.0.critical",
+	}
+	sloSLIConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.slo_sli_condition.0.warning",
+		"trigger_conditions.0.slo_sli_condition.0.critical",
+	}
+	sloBurnRateConditionCriticalOrWarningAtleastOneKeys = []string{
+		"trigger_conditions.0.slo_burn_rate_condition.0.warning",
+		"trigger_conditions.0.slo_burn_rate_condition.0.critical",
+	}
+)
+
 // Trigger Condition schemas
 var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"field": {
@@ -406,7 +426,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type":    &thresholdTypeSchema,
 			"resolution_window": &resolutionWindowSchema,
 		}),
-	}, criticalOrWarningAtleastOneKeys),
+	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeSchema,
 		"alert": nested(false, schemaMap{
@@ -418,7 +438,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type":    &thresholdTypeSchema,
 			"resolution_window": &resolutionWindowSchema,
 		}),
-	}, criticalOrWarningAtleastOneKeys),
+	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
@@ -434,7 +454,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
 		}),
-	}, criticalOrWarningAtleastOneKeys),
+	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
@@ -447,7 +467,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
 		}),
-	}, criticalOrWarningAtleastOneKeys),
+	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var logsOutlierTriggerConditionSchema = map[string]*schema.Schema{
@@ -464,12 +484,12 @@ var logsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 		"window":      &windowSchema,
 		"consecutive": &consecutiveSchema,
 		"threshold":   &thresholdSchema,
-	}, criticalOrWarningAtleastOneKeys),
+	}, logsOutlierConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"window":      &windowSchema,
 		"consecutive": &consecutiveSchema,
 		"threshold":   &thresholdSchema,
-	}, criticalOrWarningAtleastOneKeys),
+	}, logsOutlierConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
@@ -481,11 +501,11 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"baseline_window": &baselineWindowSchema,
 		"threshold":       &thresholdSchema,
-	}, criticalOrWarningAtleastOneKeys),
+	}, metricsOutlierConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"baseline_window": &baselineWindowSchema,
 		"threshold":       &thresholdSchema,
-	}, criticalOrWarningAtleastOneKeys),
+	}, metricsOutlierConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
@@ -508,14 +528,14 @@ var sloSLITriggerConditionSchema = map[string]*schema.Schema{
 			Required:     true,
 			ValidateFunc: validation.FloatBetween(0, 100),
 		},
-	}, criticalOrWarningAtleastOneKeys),
+	}, sloSLIConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"sli_threshold": {
 			Type:         schema.TypeFloat,
 			Required:     true,
 			ValidateFunc: validation.FloatBetween(0, 100),
 		},
-	}, criticalOrWarningAtleastOneKeys),
+	}, sloSLIConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
@@ -526,7 +546,7 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 			Required:     true,
 			ValidateFunc: validation.FloatAtLeast(0),
 		},
-	}, criticalOrWarningAtleastOneKeys),
+	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeSchema,
 		"burn_rate_threshold": {
@@ -534,7 +554,7 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 			Required:     true,
 			ValidateFunc: validation.FloatAtLeast(0),
 		},
-	}, criticalOrWarningAtleastOneKeys),
+	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
 }
 
 var occurrenceTypeSchema = schema.Schema{

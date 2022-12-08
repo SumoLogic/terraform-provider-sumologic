@@ -81,7 +81,7 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 	}
 }
 
-func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
        resource "sumologic_monitor" "test" { 
@@ -104,8 +104,11 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 			},
 		},
 	})
+}
 
-	for _, monitorConfig := range allInvalidMonitors {
+func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	for _, monitorConfig := range allInvalidTriggerConditionMonitorResources {
 		testNameSuffix := acctest.RandString(16)
 
 		testName := "terraform_test_invalid_monitor_" + testNameSuffix
@@ -1044,7 +1047,7 @@ func exampleMonitorWithTriggerCondition(
 	trigger string,
 	triggerTys []string) string {
 	triggerTysStr := `"` + strings.Join(triggerTys, `","`) + `"`
-	return fmt.Sprintf(`
+	var resourceText = fmt.Sprintf(`
 resource "sumologic_monitor" "test" {
 	name = "%s"
 	description = "terraform_test_monitor_description"
@@ -1071,6 +1074,7 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is a test playbook"
 }`, testName, monitorType, query, trigger, triggerTysStr)
+	return resourceText
 }
 
 var exampleLogsStaticTriggerConditionBlock = `
@@ -1387,7 +1391,7 @@ func testAccCheckMonitorsLibraryMonitorFGPBackend(
 	}
 }
 
-var allInvalidMonitors = []func(testName string) string{
+var allInvalidTriggerConditionMonitorResources = []func(testName string) string{
 	invalidExampleWithNoTriggerCondition,
 	invalidExampleWithEmptyLogStaticTriggerCondition,
 	invalidExampleWithEmptyMetricsStaticTriggerCondition,
