@@ -1,6 +1,8 @@
-## 2.20.0 (Unreleased)
+## 2.20.1 (Unreleased)
+
+## 2.20.0 (December 15, 2022)
 FEATURES:
-* **New Resource: sumologic_cse_custom_match_list_column (GH-462)
+* **New Resource:** sumologic_cse_custom_match_list_column (GH-462)
 
 BUG FIXES:
 * Fix typo on cse_match_list documentation (GH-461)
