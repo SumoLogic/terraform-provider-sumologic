@@ -1120,7 +1120,6 @@ var exampleMetricsStaticTriggerConditionBlock2 = `
          threshold = 90
          threshold_type = "LessThanOrEqual"
          occurrence_type = "AtLeastOnce"
-         min_data_points = 1
        }
      }
    }`

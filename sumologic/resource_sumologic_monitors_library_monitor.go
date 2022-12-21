@@ -124,6 +124,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(1, 100),
+							Computed:     true,
 						},
 						"detection_method": {
 							Type:     schema.TypeString,
@@ -543,6 +544,7 @@ var occurrenceTypeOptSchema = schema.Schema{
 var minDataPointsOptSchema = schema.Schema{
 	Type:         schema.TypeInt,
 	Optional:     true,
+	Computed:     true,
 	ValidateFunc: validation.IntBetween(1, 100),
 }
 
