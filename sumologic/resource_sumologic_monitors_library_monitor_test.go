@@ -81,7 +81,7 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 	}
 }
 
-func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
        resource "sumologic_monitor" "test" { 
@@ -104,6 +104,27 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaValidations(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	for _, monitorConfig := range allInvalidTriggerConditionMonitorResources {
+		testNameSuffix := acctest.RandString(16)
+
+		testName := "terraform_test_invalid_monitor_" + testNameSuffix
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			Steps: []resource.TestStep{
+				{
+					Config:      monitorConfig(testName),
+					ExpectError: regexp.MustCompile("config is invalid"),
+				},
+			},
+		})
+	}
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
@@ -1026,7 +1047,7 @@ func exampleMonitorWithTriggerCondition(
 	trigger string,
 	triggerTys []string) string {
 	triggerTysStr := `"` + strings.Join(triggerTys, `","`) + `"`
-	return fmt.Sprintf(`
+	var resourceText = fmt.Sprintf(`
 resource "sumologic_monitor" "test" {
 	name = "%s"
 	description = "terraform_test_monitor_description"
@@ -1053,6 +1074,7 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is a test playbook"
 }`, testName, monitorType, query, trigger, triggerTysStr)
+	return resourceText
 }
 
 var exampleLogsStaticTriggerConditionBlock = `
@@ -1210,6 +1232,26 @@ var allExampleMonitors = []func(testName string) string{
 	exampleMetricsMissingDataMonitor,
 }
 
+func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "60m"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	trigger_conditions  {
+		%s
+	}
+}`, testName, triggerCondition)
+}
+
 func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
 	return TriggerCondition{
 		TimeRange:       "30m",
@@ -1347,4 +1389,26 @@ func testAccCheckMonitorsLibraryMonitorFGPBackend(
 		}
 		return nil
 	}
+}
+
+var allInvalidTriggerConditionMonitorResources = []func(testName string) string{
+	invalidExampleWithNoTriggerCondition,
+	invalidExampleWithEmptyLogStaticTriggerCondition,
+	invalidExampleWithEmptyMetricsStaticTriggerCondition,
+}
+
+func invalidExampleWithNoTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		` `, []string{"Critical", "ResolvedCritical"})
+}
+func invalidExampleWithEmptyLogStaticTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		`logs_static_condition {}`, []string{"Critical", "ResolvedCritical"})
+}
+func invalidExampleWithEmptyMetricsStaticTriggerCondition(testName string) string {
+	query := "error | timeslice 1m | count as field by _timeslice"
+	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
+		`metrics_static_condition {}`, []string{"Critical", "ResolvedCritical"})
 }
