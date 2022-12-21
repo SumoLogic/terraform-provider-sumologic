@@ -2,6 +2,10 @@
 FEATURES:
 * Add new optional `min_data_points` field to metrics monitor trigger_conditions
 
+BUG FIXES:
+* Fix typo on cse_match_list documentation (GH-461)
+
+
 ## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:
 * Suppress diffs for equivalent values of some time attributes. This should reduce output of `terraform plan` that didn't disappear after running `terraform apply`. (GH-442)
