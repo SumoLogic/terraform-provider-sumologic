@@ -146,7 +146,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: logsStaticTriggerConditionSchema,
 							},
-							AtLeastOneOf: triggerConditionsAtleatOneKey,
+							AtLeastOneOf: triggerConditionsAtleastOneKey,
 						},
 						"metrics_static_condition": {
 							Type:     schema.TypeList,
@@ -373,7 +373,7 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 }
 
 var (
-	triggerConditionsAtleatOneKey = []string{
+	triggerConditionsAtleastOneKey = []string{
 		"trigger_conditions.0.logs_static_condition",
 		"trigger_conditions.0.metrics_static_condition",
 		"trigger_conditions.0.logs_outlier_condition",
