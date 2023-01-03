@@ -5,7 +5,7 @@ description: |-
   Provides a AWS S3 Audit Source.
 ---
 
-# sumologic_polling_source
+# sumologic_s3_audit_source
 Provides a [AWS S3 Audit Source][2].
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
