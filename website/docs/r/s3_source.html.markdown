@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic AWS S3 Source.
 ---
 
-# sumologic_polling_source
+# sumologic_s3_source
 Provides a [Sumologic AWS S3 Source][2].
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
