@@ -363,7 +363,10 @@ func resourceSumologicLogSearchCreate(d *schema.ResourceData, meta interface{}) 
 
 	if d.Id() == "" {
 		logSearch := resourceToLogSearch(d)
-		log.Printf("creating log search : %+v", logSearch)
+		log.Println("=====================================================================")
+		log.Printf("creating log search - %+v", logSearch)
+		log.Printf("log search schedule - %+v", logSearch.Schedule)
+		log.Println("=====================================================================")
 		id, err := c.CreateLogSearch(logSearch)
 		if err != nil {
 			return err
@@ -668,7 +671,7 @@ func resourceToScheduleSearchParameter(data interface{}) ScheduleSearchParameter
 func resourceToScheduleSearchNotification(data interface{}) interface{} {
 
 	notificationSlice := data.([]interface{})
-	if len(notificationSlice) > 0 {
+	if len(notificationSlice) > 0 && notificationSlice[0] != nil {
 		notificationObj := notificationSlice[0].(map[string]interface{})
 
 		if val := notificationObj["alert_search_notification"].([]interface{}); len(val) == 1 {
