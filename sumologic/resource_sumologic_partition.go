@@ -32,8 +32,6 @@ func resourceSumologicPartition() *schema.Resource {
 			"analytics_tier": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"continuous", "frequent", "infrequent"}, false),
-				Default:      "continuous",
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
