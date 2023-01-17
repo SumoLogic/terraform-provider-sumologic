@@ -74,7 +74,7 @@ In addition to the common properties, the following arguments are supported:
  - `path` - (Optional) The location of S3 bucket for failed Kinesis log data.
      + `type` - (Required) Must be either `KinesisLogPath` or `NoPathExpression`
      + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `KinesisLogPath`. 
-     + `path_expression` - (Optional) The path to the data. This is needed if using type `KinesisLogPath`. For Kinesis log source, it must includes `http-endpoint-failed/`.
+     + `path_expression` - (Optional) The path to the data. This is needed if using type `KinesisLogPath`. For Kinesis log source, it must include `http-endpoint-failed/`.
      + `scan_interval` - (Optional) The Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
 
 ### See also
