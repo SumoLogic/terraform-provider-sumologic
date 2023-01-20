@@ -146,7 +146,7 @@ func resourceSumologicIngestBudgetV2Import(d *schema.ResourceData, meta interfac
 
 	name := d.Id()
 
-	ingestBudgetV2, err := c.FindIngestBudget(name)
+	ingestBudgetV2, err := c.FindIngestBudgetV2(name)
 
 	if err != nil {
 		return nil, err
