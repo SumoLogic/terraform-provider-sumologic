@@ -91,6 +91,47 @@ func (s *Client) UpdateIngestBudgetV2(ingestBudgetV2 IngestBudgetV2) error {
 
 }
 
+func (s *Client) FindIngestBudgetV2(name string) (*IngestBudget, error) {
+	type IngestBudgetV2List struct {
+		Next string         `json:"next"`
+		Data []IngestBudget `json:"data"`
+	}
+
+	next := ""
+
+	for {
+		body, _, err := s.Get(fmt.Sprintf("v2/ingestBudgets?next=%s", next))
+		if err != nil {
+			return nil, err
+		}
+
+		if body == nil {
+			return nil, nil
+		}
+
+		var response IngestBudgetV2List
+
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, budgetV2 := range response.Data {
+			if budgetV2.Name == name {
+				return &budgetV2, nil
+			}
+		}
+
+		if response.Next == "" {
+			break
+		}
+
+		next = response.Next
+	}
+
+	return nil, fmt.Errorf("unable to find ingest budget '%s'", name)
+}
+
 type IngestBudgetV2 struct {
 	AuditThreshold int    `json:"auditThreshold,omitempty"`
 	Action         string `json:"action"`

@@ -141,6 +141,22 @@ func resourceSumologicIngestBudgetV2Update(d *schema.ResourceData, meta interfac
 	return resourceSumologicIngestBudgetV2Read(d, meta)
 }
 
+func resourceSumologicIngestBudgetV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	c := meta.(*Client)
+
+	name := d.Id()
+
+	ingestBudgetV2, err := c.FindIngestBudget(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	d.SetId(ingestBudgetV2.ID)
+
+	return []*schema.ResourceData{d}, nil
+}
+
 func resourceToIngestBudgetV2(d *schema.ResourceData) IngestBudgetV2 {
 
 	return IngestBudgetV2{
