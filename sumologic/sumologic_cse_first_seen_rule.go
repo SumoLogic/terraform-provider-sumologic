@@ -77,7 +77,6 @@ type CSEFirstSeenRule struct {
 	AssetField            string           `json:"assetField"`
 	BaselineType          string           `json:"baselineType"`
 	BaselineWindowSize    string           `json:"baselineWindowSize"`
-	Category              string           `json:"category"`
 	DescriptionExpression string           `json:"descriptionExpression"`
 	Enabled               bool             `json:"enabled"`
 	EntitySelectors       []EntitySelector `json:"entitySelectors"`

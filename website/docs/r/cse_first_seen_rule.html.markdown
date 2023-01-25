@@ -42,7 +42,7 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
 The following arguments are supported:
 
 - `baseline_type` - (Required) The baseline type. Current acceptable values are GLOBAL or PER_ENTITY
-- `baseline_window_size` - (Optional) The baseline window size in milliseconds 
+- `baseline_window_size` - (Required) The baseline window size in milliseconds 
 - `category` - (Optional) The category
 - `description_expression` - (Required) The description of the generated Signals
 - `enabled` - (Required) Whether the rule should generate Signals
@@ -54,7 +54,7 @@ The following arguments are supported:
 - `is_prototype` - (Optional) Whether the generated Signals should be prototype Signals
 - `name` - (Required) The name of the Rule 
 - `name_expression` - (Required) The name of the generated Signals
-- `retention_window_size` - (Optional) The retention window size in milliseconds
+- `retention_window_size` - (Required) The retention window size in milliseconds
 - `severity` - (Required) The severity of the generated Signals
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Optional) The tags of the generated Signals

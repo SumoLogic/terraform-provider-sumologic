@@ -108,7 +108,6 @@ func resourceSumologicCSEFirstSeenRuleRead(d *schema.ResourceData, meta interfac
 
 	d.Set("baseline_type", CSEFirstSeenRuleGet.BaselineType)
 	d.Set("baseline_window_size", CSEFirstSeenRuleGet.BaselineWindowSize)
-	d.Set("category", CSEFirstSeenRuleGet.Category)
 	d.Set("description_expression", CSEFirstSeenRuleGet.DescriptionExpression)
 	d.Set("enabled", CSEFirstSeenRuleGet.Enabled)
 	d.Set("entity_selectors", entitySelectorArrayToResource(CSEFirstSeenRuleGet.EntitySelectors))
