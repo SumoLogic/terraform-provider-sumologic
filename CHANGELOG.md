@@ -1,6 +1,6 @@
 ## 2.20.1 (Unreleased)
 FEATURES:
-* **New Resource:** sumologic_cse_first_seen_rule (GH-472)
+* **New Resource:** sumologic_cse_first_seen_rule (GH-476)
 
 BUG FIXES:
 * Added validations to fail if no trigger conditions defined in monitor resource (GH-463)
