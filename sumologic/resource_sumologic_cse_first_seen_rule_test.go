@@ -17,7 +17,6 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 	var payload = CSEFirstSeenRule{
 		BaselineType:          "PER_ENTITY",
 		BaselineWindowSize:    "35000",
-		Category:              "Unknown/Other",
 		DescriptionExpression: "FirstSeenRuleTerraformTest - {{ user_username }}",
 		Enabled:               true,
 		EntitySelectors: []EntitySelector{
@@ -95,7 +94,6 @@ func testCreateCSEFirstSeenRuleConfig(t *testing.T, payload *CSEFirstSeenRule) s
 resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
   baseline_type          = "{{ .BaselineType }}"
   baseline_window_size   = "{{ .BaselineWindowSize }}"
-  category               = "{{ .Category }}"
   description_expression = "{{ .DescriptionExpression }}"
   enabled                = {{ .Enabled }}
   {{ range .EntitySelectors }}

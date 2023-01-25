@@ -23,11 +23,7 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 			},
 			"baseline_window_size": {
 				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"category": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"description_expression": {
 				Type:     schema.TypeString,
@@ -63,7 +59,7 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 			},
 			"retention_window_size": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"severity": {
 				Type:     schema.TypeInt,
@@ -144,7 +140,6 @@ func resourceSumologicCSEFirstSeenRuleCreate(d *schema.ResourceData, meta interf
 		id, err := c.CreateCSEFirstSeenRule(CSEFirstSeenRule{
 			BaselineType:          d.Get("baseline_type").(string),
 			BaselineWindowSize:    d.Get("baseline_window_size").(string),
-			Category:              d.Get("category").(string),
 			DescriptionExpression: d.Get("description_expression").(string),
 			Enabled:               d.Get("enabled").(bool),
 			EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
@@ -194,7 +189,6 @@ func resourceToCSEFirstSeenRule(d *schema.ResourceData) (CSEFirstSeenRule, error
 		ID:                    id,
 		BaselineType:          d.Get("baseline_type").(string),
 		BaselineWindowSize:    d.Get("baseline_window_size").(string),
-		Category:              d.Get("category").(string),
 		DescriptionExpression: d.Get("description_expression").(string),
 		Enabled:               d.Get("enabled").(bool),
 		EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
