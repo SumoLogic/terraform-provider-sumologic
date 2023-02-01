@@ -1,9 +1,10 @@
 ## 2.20.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_cse_first_seen_rule (GH-476)
+* **New Resource:** sumologic_cse_automation (GH-467)
+
 BUG FIXES:
 * Added validations to fail if no trigger conditions defined in monitor resource (GH-463)
-
-FEATURES:
-* **New Resource:** sumologic_cse_automation (GH-467)
 
 ## 2.20.0 (December 15, 2022)
 FEATURES:
