@@ -6,6 +6,7 @@ require (
 	github.com/go-errors/errors v1.4.0
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
+	github.com/stretchr/testify v1.7.0
 )
 
 require (
@@ -65,6 +66,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
 	github.com/oklog/run v1.1.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
@@ -87,4 +89,5 @@ require (
 	google.golang.org/genproto v0.0.0-20210721163202-f1cecdd8b78a // indirect
 	google.golang.org/grpc v1.39.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
