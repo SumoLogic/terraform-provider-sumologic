@@ -106,6 +106,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_policies":                                 resourceSumologicPolicies(),
 			"sumologic_hierarchy":                                resourceSumologicHierarchy(),
 			"sumologic_content_permission":                       resourceSumologicPermissions(),
+			"sumologic_local_file_source":                        resourceSumologicLocalFileSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
