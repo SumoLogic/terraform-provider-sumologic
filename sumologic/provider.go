@@ -61,6 +61,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cse_chain_rule":                           resourceSumologicCSEChainRule(),
 			"sumologic_cse_match_rule":                           resourceSumologicCSEMatchRule(),
 			"sumologic_cse_threshold_rule":                       resourceSumologicCSEThresholdRule(),
+			"sumologic_cse_first_seen_rule":                      resourceSumologicCSEFirstSeenRule(),
 			"sumologic_collector":                                resourceSumologicCollector(),
 			"sumologic_installed_collector":                      resourceSumologicInstalledCollector(),
 			"sumologic_http_source":                              resourceSumologicHTTPSource(),
