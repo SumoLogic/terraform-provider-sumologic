@@ -120,6 +120,12 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
 						},
+						"min_data_points": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(1, 100),
+							Computed:     true,
+						},
 						"detection_method": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -446,26 +452,30 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 		"resolution": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range":      &timeRangeSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
-			"threshold":      &thresholdSchema,
-			"threshold_type": &thresholdTypeSchema,
+			"threshold":       &thresholdSchema,
+			"threshold_type":  &thresholdTypeSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 		"resolution": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
 			"threshold_type":  &thresholdTypeSchema,
 			"occurrence_type": &occurrenceTypeOptSchema,
+			"min_data_points": &minDataPointsOptSchema,
 		}),
 	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 }
@@ -567,6 +577,13 @@ var occurrenceTypeOptSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always"}, false),
+}
+
+var minDataPointsOptSchema = schema.Schema{
+	Type:         schema.TypeInt,
+	Optional:     true,
+	Computed:     true,
+	ValidateFunc: validation.IntBetween(1, 100),
 }
 
 var windowSchema = schema.Schema{
@@ -763,6 +780,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 				"threshold":         t.Threshold,
 				"threshold_type":    t.ThresholdType,
 				"occurrence_type":   t.OccurrenceType,
+				"min_data_points":   t.MinDataPoints,
 				"trigger_source":    t.TriggerSource,
 				"detection_method":  t.DetectionMethod,
 				"resolution_window": t.PositiveResolutionWindow(),
@@ -921,6 +939,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 				TimeRange:        triggerDict["time_range"].(string),
 				OccurrenceType:   triggerDict["occurrence_type"].(string),
 				TriggerSource:    triggerDict["trigger_source"].(string),
+				MinDataPoints:    triggerDict["min_data_points"].(int),
 				DetectionMethod:  triggerDict["detection_method"].(string),
 				ResolutionWindow: triggerDict["resolution_window"].(string),
 			}
@@ -1167,11 +1186,13 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 			criticalDict["occurrence_type"] = condition.OccurrenceType
+			criticalAlrt["min_data_points"] = condition.MinDataPoints
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalRslv["min_data_points"] = condition.MinDataPoints
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
@@ -1183,15 +1204,17 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
 			warningDict["occurrence_type"] = condition.OccurrenceType
+			warningAlrt["min_data_points"] = condition.MinDataPoints
 			warningAlrt["threshold"] = condition.Threshold
 			warningAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningRslv["min_data_points"] = condition.MinDataPoints
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
-				criticalRslv["occurrence_type"] = condition.OccurrenceType
+				warningRslv["occurrence_type"] = condition.OccurrenceType
 			} else {
 				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
@@ -1501,6 +1524,8 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.ThresholdType = v.(string)
 		case "occurrence_type":
 			condition.OccurrenceType = v.(string)
+		case "min_data_points":
+			condition.MinDataPoints = v.(int)
 		case "trigger_source":
 			condition.TriggerSource = v.(string)
 		case "detection_method":

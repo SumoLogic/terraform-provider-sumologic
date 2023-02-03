@@ -1,17 +1,19 @@
 ## 2.20.1 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
+* Add new optional `min_data_points` field to metrics monitor trigger_conditions (GH-464)
 
 BUG FIXES:
 * Added validations to fail if no trigger conditions defined in monitor resource (GH-463)
 * Fixed validation on connection name to match with UI/API
- 
+
 ## 2.20.0 (December 15, 2022)
 FEATURES:
 * **New Resource:** sumologic_cse_custom_match_list_column (GH-462)
 
 BUG FIXES:
 * Fix typo on cse_match_list documentation (GH-461)
+
 
 ## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:
