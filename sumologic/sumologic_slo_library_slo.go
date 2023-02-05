@@ -143,14 +143,20 @@ type SLOCompliance struct {
 	StartFrom      string  `json:"startFrom,omitempty"`
 }
 
+type MonitorTrigger struct {
+	MonitorId    string   `json:"monitorId"`
+	TriggerTypes []string `json:"triggerTypes"`
+}
+
 type SLOIndicator struct {
-	EvaluationType string          `json:"evaluationType"` // string^(Window|Request)$
-	QueryType      string          `json:"queryType"`      // string^(Logs|Metrics)$
-	Queries        []SLIQueryGroup `json:"queries"`
-	Threshold      float64         `json:"threshold"`
-	Op             string          `json:"op,omitempty"`
-	Aggregation    string          `json:"aggregation,omitempty"`
-	Size           string          `json:"size,omitempty"`
+	EvaluationType  string           `json:"evaluationType"` // string^(Window|Request|Monitor)$
+	QueryType       string           `json:"queryType"`      // string^(Logs|Metrics)$
+	Queries         []SLIQueryGroup  `json:"queries"`
+	Threshold       float64          `json:"threshold"`
+	Op              string           `json:"op,omitempty"`
+	Aggregation     string           `json:"aggregation,omitempty"`
+	Size            string           `json:"size,omitempty"`
+	MonitorTriggers []MonitorTrigger `json:"monitorTriggers"`
 }
 
 type SLI struct {
