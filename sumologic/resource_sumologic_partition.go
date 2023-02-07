@@ -30,8 +30,8 @@ func resourceSumologicPartition() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(1, 16384),
 			},
 			"analytics_tier": {
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
