@@ -117,6 +117,29 @@ QUERY
     }
   }
 }
+
+resource "sumologic_slo" "slo_tf_monitor_based" {
+  name        = "slo-tf-monitor-based"
+  description = "example of monitor based SLO created with terraform"
+  parent_id   = "0000000000000001"
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+    compliance_type = "Rolling"
+    size            = "7d"
+    target          = 99
+    timezone        = "Asia/Kolkata"
+  }
+  indicator {
+    monitor_based_evaluation {
+      monitor_triggers {
+        monitor_id = "0000000000BCB3A4"
+        trigger_types = ["Critical"]
+      }
+    }
+  }
+}
 ```
 
 ## Argument reference
@@ -186,6 +209,13 @@ The following arguments are supported:
         - `field` - (Optional) Field of log query output to compare against. To be used only for logs based data
           type when `use_row_count` is false.
 
+#### monitor_based_evaluation
+
+- `monitor_triggers` - (Required) Monitor details on which SLO will be based. Only single monitor is supported here.
+    - `monitor_id` - (Required) ID of the monitor. Ex: `0000000000BCB3A4`
+    - `trigger_types` - (Required) Type of monitor trigger which will attribute towards a successful or unsuccessful SLO 
+       window. Valid values are `Critical`, `Warning`, `MissingData`. Only one trigger type is supported.
+    
 [1]: https://help.sumologic.com/Beta/SLO_Reliability_Management
 
 [2]: slo_folder.html.markdown

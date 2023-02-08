@@ -10,6 +10,7 @@ import (
 
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
 const fieldNameRequestBasedEvaluation = `request_based_evaluation`
+const fieldNameMonitorBasedEvaluation = `monitor_based_evaluation`
 const sloContentTypeString = "Slo"
 
 func resourceSumologicSLO() *schema.Resource {
@@ -112,6 +113,41 @@ func resourceSumologicSLO() *schema.Resource {
 			"size": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+		},
+	}
+
+	triggerTypeSchema := &schema.Schema{
+		Type: schema.TypeString,
+		ValidateFunc: validation.StringInSlice([]string{
+			"Critical", "Warning", "MissingData",
+		}, false),
+	}
+
+	monitorTriggerSchema := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"monitor_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"trigger_types": {
+				Type:     schema.TypeList,
+				MinItems: 1,
+				MaxItems: 1,
+				Elem:     triggerTypeSchema,
+				Required: true,
+			},
+		},
+	}
+
+	monitorBasedIndicatorSchema := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"monitor_triggers": {
+				Type:     schema.TypeList,
+				MinItems: 1,
+				MaxItems: 1,
+				Required: true,
+				Elem:     monitorTriggerSchema,
 			},
 		},
 	}
@@ -230,6 +266,12 @@ func resourceSumologicSLO() *schema.Resource {
 							MaxItems: 1,
 							Optional: true,
 							Elem:     requestBasedIndicatorSchema,
+						},
+						fieldNameMonitorBasedEvaluation: {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem:     monitorBasedIndicatorSchema,
 						},
 					},
 				},
@@ -386,6 +428,8 @@ func flattenSLOIndicator(ind SLOIndicator) (map[string]interface{}, error) {
 		return flattenRequestIndicator(ind)
 	case "Window":
 		return flattenWindowIndicator(ind)
+	case "Monitor":
+		return flattenMonitorIndicator(ind)
 	default:
 		return nil, fmt.Errorf("unhandled indicator type found : %s", ind.EvaluationType)
 	}
@@ -408,6 +452,29 @@ func flattenRequestIndicator(ind SLOIndicator) (map[string]interface{}, error) {
 		fieldNameRequestBasedEvaluation: []interface{}{reqIndicator},
 		//fieldNameWindowBasedEvaluation:  []interface{}{},
 	}, nil
+}
+
+func flattenMonitorIndicator(ind SLOIndicator) (map[string]interface{}, error) {
+	monitorIndicator := map[string]interface{}{}
+	monitorTriggers, err := flattenMonitorTriggers(ind.MonitorTriggers)
+	if err != nil {
+		return nil, err
+	}
+	monitorIndicator["monitor_triggers"] = monitorTriggers
+	return map[string]interface{}{
+		fieldNameMonitorBasedEvaluation: []interface{}{monitorIndicator},
+	}, nil
+}
+
+func flattenMonitorTriggers(triggers []MonitorTrigger) ([]interface{}, error) {
+	var triggerList []interface{}
+	for _, trigger := range triggers {
+		queryMap := map[string]interface{}{}
+		queryMap["monitor_id"] = trigger.MonitorId
+		queryMap["trigger_types"] = trigger.TriggerTypes
+		triggerList = append(triggerList, queryMap)
+	}
+	return triggerList, nil
 }
 
 func flattenWindowIndicator(ind SLOIndicator) (map[string]interface{}, error) {
@@ -582,7 +649,34 @@ func getSLOIndicator(d *schema.ResourceData) (*SLOIndicator, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("can't find indicator in resource, valid types are '%s' and '%s'", fieldNameRequestBasedEvaluation, fieldNameWindowBasedEvaluation)
+	if indicatorWrapperDict[fieldNameMonitorBasedEvaluation] != nil &&
+		len(indicatorWrapperDict[fieldNameMonitorBasedEvaluation].([]interface{})) > 0 {
+		indicatorDictList := indicatorWrapperDict[fieldNameMonitorBasedEvaluation].([]interface{})
+		var monitorTriggers []MonitorTrigger
+		for _, indicatorDictElem := range indicatorDictList {
+			indicatorDictElemMapped := indicatorDictElem.(map[string]interface{})
+			monitorTriggersMappedArray := indicatorDictElemMapped["monitor_triggers"].([]interface{})
+			for _, monitorTriggersElem := range monitorTriggersMappedArray {
+				monitorIdResult := monitorTriggersElem.(map[string]interface{})["monitor_id"].(string)
+				triggerTypes := monitorTriggersElem.(map[string]interface{})["trigger_types"].([]interface{})
+				var triggerTypesResult []string
+				for _, triggerType := range triggerTypes {
+					triggerTypesResult = append(triggerTypesResult, triggerType.(string))
+				}
+				monitorTriggers = append(monitorTriggers, MonitorTrigger{
+					MonitorId:    monitorIdResult,
+					TriggerTypes: triggerTypesResult,
+				})
+			}
+		}
+
+		return &SLOIndicator{
+			EvaluationType:  "Monitor",
+			MonitorTriggers: monitorTriggers,
+		}, nil
+	}
+
+	return nil, fmt.Errorf("can't find indicator in resource, valid types are '%s', '%s' and '%s'", fieldNameRequestBasedEvaluation, fieldNameWindowBasedEvaluation, fieldNameMonitorBasedEvaluation)
 }
 
 func GetSLOIndicatorQueries(queriesRaw []interface{}) []SLIQueryGroup {
