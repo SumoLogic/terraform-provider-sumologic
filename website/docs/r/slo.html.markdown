@@ -1,11 +1,11 @@
 ---
 layout: 'sumologic' page_title: 'SumoLogic: sumologic_slo' description: |- Provides the ability to create, read, delete,
-and update SLOs ([Beta feature](https://help.sumologic.com/Beta/SLO_Reliability_Management#beta-notices)).
+and update [SLOs][1].
 ---
 
 # sumologic_slo
 
-Provides the ability to create, read, delete, and update [SLOs][1].
+Provides the ability to create, read, delete, and update SLOs.
 
 ## Example SLO
 
@@ -64,10 +64,11 @@ resource "sumologic_slo" "slo_tf_window_based" {
   }
   indicator {
     window_based_evaluation {
-      op         = "LessThan"
-      query_type = "Metrics"
-      size       = "1m"
-      threshold  = 200
+      op          = "LessThan"
+      query_type  = "Metrics"
+      aggregation = "Avg"
+      size        = "1m"
+      threshold   = 200
       queries {
         query_group_type = "Threshold"
         query_group {
@@ -110,8 +111,8 @@ resource "sumologic_slo" "slo_tf_request_based" {
               |  if(isBlank(latency), 0.0, latency) as latency
               | latency/ 1000 as latency_sec
 QUERY
-          use_row_count = true
-          field = "latency_sec"
+          use_row_count = false
+          field         = "latency_sec"
         }
       }
     }
@@ -216,7 +217,7 @@ The following arguments are supported:
     - `trigger_types` - (Required) Type of monitor trigger which will attribute towards a successful or unsuccessful SLO 
        window. Valid values are `Critical`, `Warning`, `MissingData`. Only one trigger type is supported.
     
-[1]: https://help.sumologic.com/Beta/SLO_Reliability_Management
+[1]: https://help.sumologic.com/docs/observability/reliability-management-slo/
 
 [2]: slo_folder.html.markdown
 
