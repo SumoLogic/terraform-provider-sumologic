@@ -190,10 +190,11 @@ type EmailNotification struct {
 }
 
 type WebhookNotificiation struct {
-	ActionType      string `json:"actionType,omitempty"`
-	ConnectionType  string `json:"connectionType,omitempty"`
-	ConnectionID    string `json:"connectionId"`
-	PayloadOverride string `json:"payloadOverride,omitempty"`
+	ActionType                string `json:"actionType,omitempty"`
+	ConnectionType            string `json:"connectionType,omitempty"`
+	ConnectionID              string `json:"connectionId"`
+	PayloadOverride           string `json:"payloadOverride,omitempty"`
+	ResolutionPayloadOverride string `json:"resolutionPayloadOverride,omitempty"`
 }
 
 // ---------- END ----------

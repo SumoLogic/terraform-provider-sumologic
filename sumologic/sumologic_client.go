@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"time"
 
@@ -64,7 +65,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
-	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [StatusCode=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
+	fmt.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [StatusCode=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
@@ -153,10 +154,16 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
+
 	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
 	}
+	res, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("full request:" + string(res))
 
 	if s.IsInAdminMode {
 		req.Header.Add("isAdminMode", "true")
@@ -447,6 +454,7 @@ type Connection struct {
 	DefaultPayload    string    `json:"defaultPayload"`
 	WebhookType       string    `json:"webhookType"`
 	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
+	ResolutionPayload string    `json:"resolutionPayload"`
 }
 
 // Headers is used to describe headers for http requests.

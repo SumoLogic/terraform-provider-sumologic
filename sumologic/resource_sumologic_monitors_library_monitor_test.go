@@ -612,6 +612,48 @@ func TestAccSumologicMonitorsLibraryMonitor_folder_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_connection_payload_update(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+	testMonitorType := "Logs"
+	//testAlertName := "Alert from {{Name}}"
+	folder1tfResourceKey := "sumologic_monitor_folder.tf_folder_01"
+	folder2tfResourceKey := "sumologic_monitor_folder.tf_folder_02"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder1tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder1tfResourceKey, t),
+				),
+			},
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder2tfResourceKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder2tfResourceKey, t),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//fetching monitor information

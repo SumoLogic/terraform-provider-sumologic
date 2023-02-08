@@ -16,6 +16,7 @@ func TestAccConnection_create(t *testing.T) {
 	description := acctest.RandomWithPrefix("tf-connection-test-description")
 	url := "https://example.com"
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
+	resolutionPayload := "{\"eventType\" : \"{{Name}}\"}"
 	webhookType := "Webhook"
 
 	var connection Connection
@@ -26,7 +27,7 @@ func TestAccConnection_create(t *testing.T) {
 		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: createConnectionConfig(name, connectionType, description, url, webhookType, defaultPayload),
+				Config: createConnectionConfig(name, connectionType, description, url, webhookType, defaultPayload, resolutionPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
@@ -35,6 +36,7 @@ func TestAccConnection_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "resolution_payload", resolutionPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
@@ -48,6 +50,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 	description := acctest.RandomWithPrefix("tf-servicenow-webhook-connection-test-description")
 	url := "https://example.com"
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
+	resolutionPayload := "{\"sys_id\": \"{{SysId}}\",\"state\": \"6\",\"incident_state\": \"6\",\"work_notes\": \"Resolved value {{TriggerValue}}\"}"
 	webhookType := "ServiceNow"
 	connectionSubtype := "Incident"
 
@@ -59,7 +62,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: createServiceNowWebhookConnectionConfig(name, connectionType, description, url, connectionSubtype, defaultPayload),
+				Config: createServiceNowWebhookConnectionConfig(name, connectionType, description, url, connectionSubtype, defaultPayload, resolutionPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.serviceNowTest", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.serviceNowTest"),
@@ -68,6 +71,7 @@ func TestAccConnection_createServiceNowWebhook(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "description", description),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "url", url),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "default_payload", defaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "resolution_payload", resolutionPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "webhook_type", webhookType),
 					resource.TestCheckResourceAttr("sumologic_connection.serviceNowTest", "connection_subtype", connectionSubtype),
 				),
@@ -82,9 +86,13 @@ func TestAccConnection_update(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-connection-test-name")
 	url := "https://example.com"
 	defaultPayload := `{"eventType" : "{{Name}}"}`
+	resolutionPayload := "{\"eventType\" : \"{{Name}}\"}"
 	webhookType := "Webhook"
 	fDescription := acctest.RandomWithPrefix("tf-connection-test-description")
 	sDescription := acctest.RandomWithPrefix("tf-connection-test-description")
+
+	updatedDefaultPayload := `{"eventType" : "{{Name}} default updated"}`
+	updatedResolutionPayload := "{\"eventType\" : \"{{Name}} resolution updated\"}"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -92,7 +100,7 @@ func TestAccConnection_update(t *testing.T) {
 		CheckDestroy: testAccCheckConnectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: createConnectionConfig(name, connectionType, fDescription, url, webhookType, defaultPayload),
+				Config: createConnectionConfig(name, connectionType, fDescription, url, webhookType, defaultPayload, resolutionPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
@@ -101,10 +109,11 @@ func TestAccConnection_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", fDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "resolution_payload", resolutionPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			}, {
-				Config: createConnectionConfig(name, connectionType, sDescription, url, webhookType, defaultPayload),
+				Config: createConnectionConfig(name, connectionType, sDescription, url, webhookType, updatedDefaultPayload, updatedResolutionPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConnectionExists("sumologic_connection.test", &connection, t),
 					testAccCheckConnectionAttributes("sumologic_connection.test"),
@@ -112,7 +121,8 @@ func TestAccConnection_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_connection.test", "name", name),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "description", sDescription),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "url", url),
-					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", defaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "default_payload", updatedDefaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_connection.test", "resolution_payload", updatedResolutionPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_connection.test", "webhook_type", webhookType),
 				),
 			},
@@ -171,7 +181,7 @@ func testAccCheckConnectionDestroy(s *terraform.State) error {
 	return nil
 }
 
-func createConnectionConfig(name, connectionType, desc, url, webhookType, defaultPayload string) string {
+func createConnectionConfig(name, connectionType, desc, url, webhookType, defaultPayload string, resolutionPayload string) string {
 	return fmt.Sprintf(`
 resource "sumologic_connection" "test" {
 	name = "%s"
@@ -182,11 +192,16 @@ resource "sumologic_connection" "test" {
 	default_payload = <<JSON
 %s
 JSON
+	resolution_payload = <<JSON
+%s
+JSON
 }
-`, name, connectionType, desc, url, webhookType, defaultPayload)
+`, name, connectionType, desc, url, webhookType, defaultPayload, resolutionPayload)
+	//fmt.Printf(x)
+	//return x
 }
 
-func createServiceNowWebhookConnectionConfig(name, connectionType, desc, url, connectionSubtype, defaultPayload string) string {
+func createServiceNowWebhookConnectionConfig(name, connectionType, desc, url, connectionSubtype, defaultPayload string, resolutionPayload string) string {
 	return fmt.Sprintf(`
 resource "sumologic_connection" "serviceNowTest" {
 	name = "%s"
@@ -201,6 +216,9 @@ resource "sumologic_connection" "serviceNowTest" {
 	default_payload = <<JSON
 %s
 JSON
+	resolution_payload = <<JSON
+%s
+JSON
 }
-`, name, connectionType, desc, url, connectionSubtype, defaultPayload)
+`, name, connectionType, desc, url, connectionSubtype, defaultPayload, resolutionPayload)
 }
