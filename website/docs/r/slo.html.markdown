@@ -1,11 +1,11 @@
 ---
 layout: 'sumologic' page_title: 'SumoLogic: sumologic_slo' description: |- Provides the ability to create, read, delete,
-and update SLOs ([Beta feature](https://help.sumologic.com/Beta/SLO_Reliability_Management#beta-notices)).
+and update [SLOs][1].
 ---
 
 # sumologic_slo
 
-Provides the ability to create, read, delete, and update [SLOs][1].
+Provides the ability to create, read, delete, and update SLOs.
 
 ## Example SLO
 
@@ -64,10 +64,11 @@ resource "sumologic_slo" "slo_tf_window_based" {
   }
   indicator {
     window_based_evaluation {
-      op         = "LessThan"
-      query_type = "Metrics"
-      size       = "1m"
-      threshold  = 200
+      op          = "LessThan"
+      query_type  = "Metrics"
+      aggregation = "Avg"
+      size        = "1m"
+      threshold   = 200
       queries {
         query_group_type = "Threshold"
         query_group {
@@ -110,9 +111,32 @@ resource "sumologic_slo" "slo_tf_request_based" {
               |  if(isBlank(latency), 0.0, latency) as latency
               | latency/ 1000 as latency_sec
 QUERY
-          use_row_count = true
-          field = "latency_sec"
+          use_row_count = false
+          field         = "latency_sec"
         }
+      }
+    }
+  }
+}
+
+resource "sumologic_slo" "slo_tf_monitor_based" {
+  name        = "slo-tf-monitor-based"
+  description = "example of monitor based SLO created with terraform"
+  parent_id   = "0000000000000001"
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+    compliance_type = "Rolling"
+    size            = "7d"
+    target          = 99
+    timezone        = "Asia/Kolkata"
+  }
+  indicator {
+    monitor_based_evaluation {
+      monitor_triggers {
+        monitor_id = "0000000000BCB3A4"
+        trigger_types = ["Critical"]
       }
     }
   }
@@ -186,7 +210,14 @@ The following arguments are supported:
         - `field` - (Optional) Field of log query output to compare against. To be used only for logs based data
           type when `use_row_count` is false.
 
-[1]: https://help.sumologic.com/Beta/SLO_Reliability_Management
+#### monitor_based_evaluation
+
+- `monitor_triggers` - (Required) Monitor details on which SLO will be based. Only single monitor is supported here.
+    - `monitor_id` - (Required) ID of the monitor. Ex: `0000000000BCB3A4`
+    - `trigger_types` - (Required) Type of monitor trigger which will attribute towards a successful or unsuccessful SLO 
+       window. Valid values are `Critical`, `Warning`, `MissingData`. Only one trigger type is supported.
+    
+[1]: https://help.sumologic.com/docs/observability/reliability-management-slo/
 
 [2]: slo_folder.html.markdown
 
