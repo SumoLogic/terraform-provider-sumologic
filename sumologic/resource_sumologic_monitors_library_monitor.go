@@ -267,6 +267,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 									},
+									"resolution_payload_override": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+									},
 								},
 							},
 						},
@@ -743,6 +748,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
 			if internalNotificationDict["payloadOverride"] != nil {
 				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
+			}
+			if internalNotificationDict["resolutionPayloadOverride"] != nil {
+				internalNotification["resolution_payload_override"] = internalNotificationDict["resolutionPayloadOverride"].(string)
 			}
 		}
 
