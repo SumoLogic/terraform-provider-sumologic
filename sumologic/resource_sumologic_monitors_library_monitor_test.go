@@ -622,7 +622,7 @@ func TestAccSumologicMonitorsLibraryMonitorConnection_override_payload(t *testin
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
 	resolutionPayload := "{\"eventType\" : \"{{Name}}\"}"
 
-	overrideDefaultPayload := "{\"eventType\" : \"{{Name}}\"}"
+	overrideDefaultPayload := "{\"eventType\" : \"{{Name}}-update\"}"
 	overrideResolutionPayload := "{\"eventType\" : \"{{Name}}-update\"}"
 
 	resource.Test(t, resource.TestCase{
@@ -640,7 +640,7 @@ func TestAccSumologicMonitorsLibraryMonitorConnection_override_payload(t *testin
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "type", testType),
-					//resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "notifications.0.notification.0.payload_override", overrideDefaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "notifications.0.notification.0.payload_override", overrideDefaultPayload+"\n"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "notifications.0.notification.0.resolution_payload_override", overrideResolutionPayload+"\n"),
 				),
 			},
