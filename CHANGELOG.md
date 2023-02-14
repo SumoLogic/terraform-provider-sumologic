@@ -2,6 +2,7 @@
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
 * Add new optional `min_data_points` field to metrics monitor trigger_conditions (GH-464)
+* Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
 
 BUG FIXES:
 * Added validations to fail if no trigger conditions defined in monitor resource (GH-463)

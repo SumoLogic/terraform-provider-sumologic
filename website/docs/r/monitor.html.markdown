@@ -290,6 +290,15 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
   "client_url": "{{QueryUrl}}"
 }
 JSON
+     resolution_payload_override = <<JSON
+{
+  "service_key": "your_pagerduty_api_integration_key",
+  "event_type": "trigger",
+  "description": "Alert: Resolved {{TriggerType}} for Monitor {{Name}}",
+  "client": "Sumo Logic",
+  "client_url": "{{QueryUrl}}"
+}
+JSON
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
