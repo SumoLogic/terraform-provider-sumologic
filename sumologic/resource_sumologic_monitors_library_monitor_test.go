@@ -612,7 +612,7 @@ func TestAccSumologicMonitorsLibraryMonitor_folder_update(t *testing.T) {
 	})
 }
 
-func TestAccSumologicMonitorsLibraryMonitorConnection_override_payload(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_override_payload(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
