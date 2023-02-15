@@ -120,10 +120,11 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
     metrics_static_condition {
       critical {
         time_range = "15m"
-        occurrence_type = "AtLeastOnce"
+        occurrence_type = "Always"
         alert {
           threshold      = 40.0
           threshold_type = "GreaterThan"
+          min_data_points = 5
         }
         resolution {
           threshold      = 40.0
@@ -430,18 +431,22 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
+      - `min_data_points` (Optional)
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-  - `warning`
+      - `min_data_points` (Optional)
+    - `warning`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `occurrence_type` (Required)
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
+      - `min_data_points` (Optional)
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `min_data_points` (Optional)
 #### logs_outlier_condition
   - `field`
   - `direction`

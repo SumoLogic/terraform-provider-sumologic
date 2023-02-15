@@ -162,6 +162,7 @@ type TriggerCondition struct {
 	Threshold         float64 `json:"threshold,omitempty"`
 	ThresholdType     string  `json:"thresholdType,omitempty"`
 	OccurrenceType    string  `json:"occurrenceType"`
+	MinDataPoints     int     `json:"minDataPoints,omitempty"`
 	TriggerSource     string  `json:"triggerSource"`
 	DetectionMethod   string  `json:"detectionMethod"`
 	ResolutionWindow  string  `json:"resolutionWindow,omitempty"`

@@ -1113,15 +1113,17 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
 var exampleMetricsStaticTriggerConditionBlock1 = `
    metrics_static_condition {
      critical {
-       time_range = "-30m"
-       occurrence_type = "AtLeastOnce"
+       time_range = "30m"
+       occurrence_type = "Always"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
+         min_data_points = 4
        }
        resolution {
          threshold = 90
          threshold_type = "LessThanOrEqual"
+         min_data_points = 7
        }
      }
    }`
@@ -1129,15 +1131,17 @@ var exampleMetricsStaticTriggerConditionBlock1 = `
 var exampleMetricsStaticTriggerConditionBlock2 = `
    metrics_static_condition {
      critical {
-       time_range = "30m"
+       time_range = "60m"
        occurrence_type = "Always"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
+         min_data_points = 6
        }
        resolution {
          threshold = 90
          threshold_type = "LessThanOrEqual"
+         occurrence_type = "AtLeastOnce"
        }
      }
    }`
@@ -1270,6 +1274,7 @@ func exampleMetricsStaticTriggerCondition(triggerType string, threshold float64,
 		Threshold:       threshold,
 		ThresholdType:   thresholdType,
 		OccurrenceType:  "Always",
+		MinDataPoints:   4,
 		DetectionMethod: "MetricsStaticCondition",
 	}
 }
