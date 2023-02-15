@@ -12,7 +12,7 @@ func TestAccSumologicSCEAutomation_create_update(t *testing.T) {
 	SkipCseTest(t)
 
 	var Automation CSEAutomation
-	nPlaybookId := "638079aedb99cafada1e80a0"
+	nPlaybookId := "63ece953d5f0cb2ec4d5794e"
 	nCseResourceType := "INSIGHT"
 	nExecutionTypes := []string{"NEW_INSIGHT"}
 	nEnabled := true
