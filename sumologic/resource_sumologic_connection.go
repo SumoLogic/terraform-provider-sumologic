@@ -213,10 +213,7 @@ func resourceToConnection(d *schema.ResourceData) Connection {
 	connection.Headers = mapToHeaders(d.Get("headers").(map[string]interface{}))
 	connection.CustomHeaders = mapToHeaders(d.Get("custom_headers").(map[string]interface{}))
 	connection.DefaultPayload = d.Get("default_payload").(string)
-	if d.Get("resolution_payload").(string) != "" {
-		v := d.Get("resolution_payload").(string)
-		connection.ResolutionPayload = &v
-	}
+	connection.ResolutionPayload = d.Get("resolution_payload").(string)
 	connection.WebhookType = d.Get("webhook_type").(string)
 	connection.ConnectionSubtype = d.Get("connection_subtype").(string)
 
@@ -250,9 +247,7 @@ func printConnection(connection Connection) {
 	log.Printf("Headers: %s", connection.Headers)
 	log.Printf("CustomHeaders: %s", connection.CustomHeaders)
 	log.Printf("DefaultPayload: %s", connection.DefaultPayload)
-	if connection.ResolutionPayload != nil {
-		log.Printf("ResolutionPayload: %s", *connection.ResolutionPayload)
-	}
+	log.Printf("ResolutionPayload: %s", connection.ResolutionPayload)
 	log.Printf("WebhookType: %s", connection.WebhookType)
 	log.Printf("ConnectionSubtype: %s", connection.ConnectionSubtype)
 }
