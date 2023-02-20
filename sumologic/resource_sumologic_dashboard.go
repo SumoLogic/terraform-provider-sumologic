@@ -79,7 +79,7 @@ func resourceSumologicDashboard() *schema.Resource {
 			"refresh_interval": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validation.IntInSlice([]int{120, 300, 900, 1800, 3600, 7200, 86400}),
+				ValidateFunc: validation.IntInSlice([]int{0, 120, 300, 900, 1800, 3600, 7200, 86400}),
 			},
 			"time_range": {
 				Type:     schema.TypeList,
