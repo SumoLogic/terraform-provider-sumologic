@@ -43,6 +43,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_automation":                           resourceSumologicCSEAutomation(),
 			"sumologic_cse_entity_normalization_configuration":   resourceSumologicCSEEntityNormalizationConfiguration(),
 			"sumologic_cse_inventory_entity_group_configuration": resourceSumologicCSEInventoryEntityGroupConfiguration(),
 			"sumologic_cse_entity_entity_group_configuration":    resourceSumologicCSEEntityEntityGroupConfiguration(),
