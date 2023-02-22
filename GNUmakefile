@@ -3,6 +3,7 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
 PLUGIN_DIR=~/.terraform.d/plugins
+UNAME=$(shell uname -m)
 
 default: build
 
@@ -20,11 +21,19 @@ install: fmtcheck
 # separate command for installing in the right directory for testing development changes
 install-dev: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
+ifeq ($(UNAME), arm64)
+	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic 
+else
 	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
+endif
 
 uninstall:
 	@rm -vf $(PLUGIN_DIR)/terraform-provider-sumologic
+ifeq ($(UNAME), arm64)
+	@rm -vf $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic
+else
 	@rm -vf $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
+endif
 
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
