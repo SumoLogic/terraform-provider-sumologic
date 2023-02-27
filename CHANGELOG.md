@@ -1,4 +1,6 @@
-## 2.20.1 (Unreleased)
+## 2.20.2 (Unreleased)
+
+## 2.20.1 (February 27, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
 * **New Resource:** sumologic_cse_automation (GH-467)
