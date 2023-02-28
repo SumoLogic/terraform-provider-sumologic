@@ -29,7 +29,6 @@ func (s *Client) GetLogSearch(id string) (*LogSearch, error) {
 	}
 
 	return &logSearch, nil
-
 }
 
 func (s *Client) DeleteLogSearch(id string) error {
@@ -58,7 +57,6 @@ func (s *Client) UpdateLogSearch(logSearch LogSearch) error {
 	_, err := s.Put(urlWithParams, logSearch)
 
 	return err
-
 }
 
 func (s *Client) CreateLogSearch(logSearch LogSearch) (string, error) {
@@ -77,7 +75,6 @@ func (s *Client) CreateLogSearch(logSearch LogSearch) (string, error) {
 	}
 
 	return createdLogSearch.ID, nil
-
 }
 
 type LogSearch struct {
@@ -90,7 +87,7 @@ type LogSearch struct {
 	TimeRange        interface{}               `json:"timeRange"`
 	ParsingMode      string                    `json:"parsingMode"`
 	QueryParameters  []LogSearchQueryParameter `json:"queryParameters,omitempty"`
-	Schedule         *LogSearchSchedule        `json:"schedules,omitempty"`
+	Schedule         *LogSearchSchedule        `json:"schedule,omitempty"`
 }
 
 type LogSearchQueryParameter struct {

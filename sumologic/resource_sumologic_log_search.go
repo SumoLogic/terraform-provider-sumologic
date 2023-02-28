@@ -84,7 +84,7 @@ func resourceSumologicLogSearch() *schema.Resource {
 						"data_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"NUMBER", "STRING", "QUERY_FRAGMENT", "SEARCH_KEYWORD"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"NUMBER", "STRING", "ANY", "KEYWORD"}, false),
 						},
 					},
 				},
@@ -392,9 +392,10 @@ func resourceSumologicLogSearchRead(d *schema.ResourceData, meta interface{}) er
 		d.SetId("")
 		return nil
 	}
-	log.Println("[##DEBUG##] ===========================================================")
-	log.Printf("[##DEBUG##] Read LogSearch : %+v", logSearch)
-	log.Println("[##DEBUG##] ===========================================================")
+	log.Println("=====================================================================")
+	log.Printf("read log search - %+v", logSearch)
+	log.Printf("log search schedule - %+v", logSearch.Schedule)
+	log.Println("=====================================================================")
 
 	return setLogSearch(d, logSearch)
 }
@@ -403,7 +404,10 @@ func resourceSumologicLogSearchUpdate(d *schema.ResourceData, meta interface{}) 
 	c := meta.(*Client)
 
 	logSearch := resourceToLogSearch(d)
-	log.Printf("updating log search : %+v", logSearch)
+	log.Println("=====================================================================")
+	log.Printf("updating log search - %+v", logSearch)
+	log.Printf("log search schedule - %+v", logSearch.Schedule)
+	log.Println("=====================================================================")
 	err := c.UpdateLogSearch(logSearch)
 	if err != nil {
 		return err
@@ -437,6 +441,14 @@ func setLogSearch(d *schema.ResourceData, logSearch *LogSearch) error {
 		return err
 	}
 
+	queryParameters := make([]map[string]interface{}, len(logSearch.QueryParameters))
+	for i, parameter := range logSearch.QueryParameters {
+		queryParameters[i] = getTerraformLogSearchQueryParameter(parameter)
+	}
+	if err := d.Set("query_parameter", queryParameters); err != nil {
+		return err
+	}
+
 	timeRange := GetTerraformTimeRange(logSearch.TimeRange.(map[string]interface{}))
 	if err := d.Set("time_range", timeRange); err != nil {
 		return err
@@ -452,8 +464,20 @@ func setLogSearch(d *schema.ResourceData, logSearch *LogSearch) error {
 	return nil
 }
 
-func getTerraformLogSearchSchedule(schedule *LogSearchSchedule) TerraformObject {
-	tfSearchSchedule := MakeTerraformObject()
+func getTerraformLogSearchQueryParameter(parameter LogSearchQueryParameter) map[string]interface{} {
+	tfSearchQueryParameter := map[string]interface{}{}
+
+	tfSearchQueryParameter["name"] = parameter.Name
+	tfSearchQueryParameter["description"] = parameter.Description
+	tfSearchQueryParameter["data_type"] = parameter.DataType
+	tfSearchQueryParameter["value"] = parameter.Value
+	return tfSearchQueryParameter
+}
+
+func getTerraformLogSearchSchedule(schedule *LogSearchSchedule) []map[string]interface{} {
+	tfSearchSchedule := []map[string]interface{}{}
+	tfSearchSchedule = append(tfSearchSchedule, make(map[string]interface{}))
+
 	if schedule == nil {
 		return tfSearchSchedule
 	}

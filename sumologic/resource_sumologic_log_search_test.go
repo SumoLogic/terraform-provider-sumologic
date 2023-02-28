@@ -14,17 +14,15 @@ func TestAccSumologicLogSearch_basic(t *testing.T) {
 	var logSearch LogSearch
 	name := "TF Import Search Test"
 	description := "TF Import Search Test Description"
-	queryString := "error | count by _sourceCategory"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
 	parsingMode := "Manual"
 	literalRangeName := "today"
 
-	queryParameters := []LogSearchQueryParameter{
-		{
-			Name:        "",
-			Description: "",
-			DataType:    "",
-			Value:       "",
-		},
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
 	}
 
 	boundedTimeRange := BeginBoundedTimeRange{
@@ -40,11 +38,10 @@ func TestAccSumologicLogSearch_basic(t *testing.T) {
 		IncludeHistogram:     true,
 		IncludeCsvAttachment: false,
 	}
-	// TODO test parameters for scheduled search
 	searchParameters := []ScheduleSearchParameter{
 		{
-			Name:  "TODO",
-			Value: "TODO",
+			Name:  "timeslice",
+			Value: "15m",
 		},
 	}
 	notificationThreshold := SearchNotificationThreshold{
@@ -73,7 +70,7 @@ func TestAccSumologicLogSearch_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicLogSearch(tfResourceName, name, description, queryString, parsingMode,
-					runByReceiptTime, queryParameters, literalRangeName, schedule),
+					runByReceiptTime, queryParameter, literalRangeName, schedule),
 			},
 			{
 				ResourceName:      fmt.Sprintf("sumologic_log_search.%s", tfResourceName),
@@ -88,18 +85,15 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 	var logSearch LogSearch
 	name := "TF Create Search Test"
 	description := "TF Create Search Test Description"
-	queryString := "error | count by _sourceCategory"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
 	parsingMode := "Manual"
 	literalRangeName := "today"
 
-	// TODO test query parameters
-	queryParameters := []LogSearchQueryParameter{
-		{
-			Name:        "",
-			Description: "",
-			DataType:    "",
-			Value:       "",
-		},
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
 	}
 
 	boundedTimeRange := BeginBoundedTimeRange{
@@ -115,11 +109,10 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 		IncludeHistogram:     true,
 		IncludeCsvAttachment: false,
 	}
-	// TODO test parameters for scheduled search
 	searchParameters := []ScheduleSearchParameter{
 		{
-			Name:  "TODO",
-			Value: "TODO",
+			Name:  "timeslice",
+			Value: "15m",
 		},
 	}
 	notificationThreshold := SearchNotificationThreshold{
@@ -150,7 +143,7 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicLogSearch(tfResourceName, name, description, queryString, parsingMode,
-					runByReceiptTime, queryParameters, literalRangeName, schedule),
+					runByReceiptTime, queryParameter, literalRangeName, schedule),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
 
@@ -206,6 +199,9 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 						"schedule.0.parseable_time_range.0.begin_bounded_time_range.0.from.0.relative_time_range.0.relative_time",
 						schedule.ParseableTimeRange.(BeginBoundedTimeRange).From.(RelativeTimeRangeBoundary).RelativeTime),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.schedule_type", schedule.ScheduleType),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.parameter.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.parameter.0.name", schedule.Parameters[0].Name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.parameter.0.value", schedule.Parameters[0].Value),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.threshold.#", "1"),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.threshold.0.count",
 						strconv.Itoa(schedule.Threshold.Count)),
@@ -215,8 +211,11 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 						schedule.Threshold.ThresholdType),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.time_zone", schedule.TimeZone),
 
-					// TODO query parameters
-					// resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0", strings.Replace(testQueryParameters[0], "\"", "", 2)),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0.name", queryParameter.Name),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0.description", queryParameter.Description),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0.data_type", queryParameter.DataType),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0.value", queryParameter.Value),
 				),
 			},
 		},
@@ -227,18 +226,15 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 	var logSearch LogSearch
 	name := "TF Update Search Test"
 	description := "TF Update Search Test Description"
-	queryString := "error | count by _sourceCategory"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
 	parsingMode := "Manual"
 	literalRangeName := "today"
 
-	// TODO test query parameters
-	queryParameters := []LogSearchQueryParameter{
-		{
-			Name:        "",
-			Description: "",
-			DataType:    "",
-			Value:       "",
-		},
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
 	}
 
 	boundedTimeRange := BeginBoundedTimeRange{
@@ -256,8 +252,8 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 	}
 	searchParameters := []ScheduleSearchParameter{
 		{
-			Name:  "TODO",
-			Value: "TODO",
+			Name:  "timeslice",
+			Value: "15m",
 		},
 	}
 	notificationThreshold := SearchNotificationThreshold{
@@ -281,9 +277,24 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 	// updated values
 	newName := "TF Update Search Test New"
 	newDescription := "TF Update Search Test New Description"
-	newQueryString := "warn | count by _sourceCategory"
+	newQueryString := "_sourceCategory={{source}} error | timeslice {{timeslice}} | count by _timeslice"
 	newParsingMode := "AutoParse"
 	newLiteralRangeName := "hour"
+
+	newQueryParameters := []LogSearchQueryParameter{
+		{
+			Name:        "timeslice",
+			Description: "timeslice query param",
+			DataType:    "ANY",
+			Value:       "1d",
+		},
+		{
+			Name:        "source",
+			Description: "source query param",
+			DataType:    "STRING",
+			Value:       "api",
+		},
+	}
 
 	newEmailNotification := emailNotification
 	newEmailNotification.ToList = []string{
@@ -296,6 +307,17 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 	newSchedule.ScheduleType = "1Day"
 	newSchedule.MuteErrorEmails = false
 	newSchedule.Notification = newEmailNotification
+	newSearchParameters := []ScheduleSearchParameter{
+		{
+			Name:  "timeslice",
+			Value: "15m",
+		},
+		{
+			Name:  "source",
+			Value: "api",
+		},
+	}
+	newSchedule.Parameters = newSearchParameters
 
 	tfResourceName := "tf_update_search_test"
 	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
@@ -306,7 +328,7 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicLogSearch(tfResourceName, name, description, queryString, parsingMode,
-					runByReceiptTime, queryParameters, literalRangeName, schedule),
+					runByReceiptTime, queryParameter, literalRangeName, schedule),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
 
@@ -315,17 +337,28 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 					resource.TestCheckResourceAttr(tfSearchResource, "query_string", queryString),
 					resource.TestCheckResourceAttr(tfSearchResource, "parsing_mode", parsingMode),
 					resource.TestCheckResourceAttr(tfSearchResource, "run_by_receipt_time", strconv.FormatBool(runByReceiptTime)),
-
 					// timerange
 					resource.TestCheckResourceAttr(tfSearchResource, "time_range.#", "1"),
 					resource.TestCheckResourceAttr(tfSearchResource,
 						"time_range.0.begin_bounded_time_range.0.from.0.literal_time_range.0.range_name",
 						literalRangeName),
+					// query_parameters
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.0.name", queryParameter.Name),
+					// schedule
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.schedule_type", schedule.ScheduleType),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.mute_error_emails",
+						strconv.FormatBool(schedule.MuteErrorEmails)),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notification.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notification.0.email_search_notification.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notification.0.email_search_notification.0.subject_template", emailNotification.SubjectTemplate),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.parameter.#", "1"),
 				),
 			},
 			{
-				Config: testAccSumologicLogSearch(tfResourceName, newName, newDescription, newQueryString, newParsingMode,
-					runByReceiptTime, queryParameters, newLiteralRangeName, newSchedule),
+				Config: testAccSumologicUpdatedLogSearch(tfResourceName, newName, newDescription, newQueryString, newParsingMode,
+					runByReceiptTime, newQueryParameters, newLiteralRangeName, newSchedule),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(tfSearchResource, "name", newName),
 					resource.TestCheckResourceAttr(tfSearchResource, "description", newDescription),
@@ -338,6 +371,25 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 					resource.TestCheckResourceAttr(tfSearchResource,
 						"time_range.0.begin_bounded_time_range.0.from.0.literal_time_range.0.range_name",
 						newLiteralRangeName),
+					// query_parameters
+					resource.TestCheckResourceAttr(tfSearchResource, "query_parameter.#", "2"),
+					// schedule
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.schedule_type", newSchedule.ScheduleType),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.mute_error_emails",
+						strconv.FormatBool(newSchedule.MuteErrorEmails)),
+					// schedule notification
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notification.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notification.0.email_search_notification.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notification.0.email_search_notification.0.include_histogram",
+						strconv.FormatBool(newEmailNotification.IncludeHistogram)),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notification.0.email_search_notification.0.include_query",
+						strconv.FormatBool(newEmailNotification.IncludeQuery)),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notification.0.email_search_notification.0.subject_template", newEmailNotification.SubjectTemplate),
+					// schedule search parameters
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.parameter.#", "2"),
 				),
 			},
 		},
@@ -386,6 +438,92 @@ func testAccCheckLogSearchExists(name string, logSearch *LogSearch, t *testing.T
 }
 
 func testAccSumologicLogSearch(tfResourceName string, name string, description string, queryString string,
+	parsingMode string, runByReceiptTime bool, queryParameter LogSearchQueryParameter, literalRangeName string,
+	schedule LogSearchSchedule) string {
+
+	emailNotification := schedule.Notification.(EmailSearchNotification)
+	relativeTimeRange := schedule.ParseableTimeRange.(BeginBoundedTimeRange).From.(RelativeTimeRangeBoundary)
+	tfSchedule := fmt.Sprintf(`
+		schedule {
+			cron_expression = "%s"
+			displayable_time_range = "%s"
+			mute_error_emails = %t
+			notification {
+				email_search_notification {
+					include_csv_attachment = %t
+					include_histogram = %t
+					include_query = %t
+					include_result_set = %t
+					subject_template = "%s"
+					to_list = [
+						"%s",
+					]
+				}
+			}
+
+			parameter {
+			  name = "%s"
+			  value = "%s"
+			}
+
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "%s"
+						}
+					}
+				}
+			}
+			schedule_type = "%s"
+			threshold {
+				count = %d
+				operator = "%s"
+				threshold_type = "%s"
+			}
+			time_zone = "%s"
+		}
+		`, schedule.CronExpression, schedule.DisplayableTimeRange, schedule.MuteErrorEmails,
+		emailNotification.IncludeCsvAttachment, emailNotification.IncludeHistogram, emailNotification.IncludeQuery,
+		emailNotification.IncludeResultSet, emailNotification.SubjectTemplate, emailNotification.ToList[0],
+		schedule.Parameters[0].Name, schedule.Parameters[0].Value,
+		relativeTimeRange.RelativeTime, schedule.ScheduleType, schedule.Threshold.Count, schedule.Threshold.Operator,
+		schedule.Threshold.ThresholdType, schedule.TimeZone)
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		#schedule
+		%s
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName, tfSchedule)
+}
+
+func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, description string, queryString string,
 	parsingMode string, runByReceiptTime bool, queryParameters []LogSearchQueryParameter, literalRangeName string,
 	schedule LogSearchSchedule) string {
 
@@ -409,10 +547,15 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 				}
 			}
 
-			#parameter {
-			#  name = "key"
-			#  value = "value"
-			#}
+			parameter {
+			  name = "%s"
+			  value = "%s"
+			}
+
+			parameter {
+			  name = "%s"
+			  value = "%s"
+			}
 
 			parseable_time_range {
 				begin_bounded_time_range {
@@ -434,6 +577,7 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 		`, schedule.CronExpression, schedule.DisplayableTimeRange, schedule.MuteErrorEmails,
 		emailNotification.IncludeCsvAttachment, emailNotification.IncludeHistogram, emailNotification.IncludeQuery,
 		emailNotification.IncludeResultSet, emailNotification.SubjectTemplate, emailNotification.ToList[0],
+		schedule.Parameters[0].Name, schedule.Parameters[0].Value, schedule.Parameters[1].Name, schedule.Parameters[1].Value,
 		relativeTimeRange.RelativeTime, schedule.ScheduleType, schedule.Threshold.Count, schedule.Threshold.Operator,
 		schedule.Threshold.ThresholdType, schedule.TimeZone)
 
@@ -447,6 +591,18 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 		parsing_mode = "%s"
 		parent_id = data.sumologic_personal_folder.personalFolder.id
 		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
 		time_range {
 			begin_bounded_time_range {
 				from {
@@ -459,5 +615,8 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 		#schedule
 		%s
 	}
-	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime, literalRangeName, tfSchedule)
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameters[0].Name, queryParameters[0].Description, queryParameters[0].DataType, queryParameters[0].Value,
+		queryParameters[1].Name, queryParameters[1].Description, queryParameters[1].DataType, queryParameters[1].Value,
+		literalRangeName, tfSchedule)
 }
