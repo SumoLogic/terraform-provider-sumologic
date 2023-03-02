@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicConnection() *schema.Resource {
-	nameValidation := `^([a-zA-Z0-9 +%\-@.,_()]+)$`
 	return &schema.Resource{
 		Create: resourceSumologicConnectionCreate,
 		Read:   resourceSumologicConnectionRead,
@@ -34,7 +32,6 @@ func resourceSumologicConnection() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 128),
-					validation.StringMatch(regexp.MustCompile(nameValidation), fmt.Sprintf("Must match regex %s", nameValidation)),
 				),
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					newJSON, _ := normalizeJsonString(new)

@@ -12,7 +12,7 @@ import (
 // Testing create functionality for Connection resources
 func TestAccConnection_create(t *testing.T) {
 	connectionType := "WebhookConnection"
-	name := acctest.RandomWithPrefix("tf-connection-test-name")
+	name := acctest.RandomWithPrefix("tf-connection-test-name -+%@,. ()':")
 	description := acctest.RandomWithPrefix("tf-connection-test-description")
 	url := "https://example.com"
 	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
