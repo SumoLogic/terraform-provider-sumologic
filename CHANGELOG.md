@@ -1,12 +1,20 @@
-## 2.20.1 (Unreleased)
+## 2.21.1 (Unreleased)
+
+BUG FIXES:
+* Deprecate thresholdType field under searchSchedule in content resource (GH-483)
+
+## 2.21.0 (February 27, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
+* **New Resource:** sumologic_cse_automation (GH-467)
 * Add new optional `min_data_points` field to metrics monitor trigger_conditions (GH-464)
+* Added support to manage monitor based SLOs (GH-480)
 
 BUG FIXES:
 * Added validations to fail if no trigger conditions defined in monitor resource (GH-463)
 * Fixed validation on connection name to match with UI/API (GH-478)
-* Deprecate thresholdType field under searchSchedule in content resource (GH-483)
+* Corrected SLO examples in the SLO terraform documentation (GH-481)
+* Fixed Sumo help docs link in SLO documentation (GH-481)
 
 ## 2.20.0 (December 15, 2022)
 FEATURES:
@@ -14,7 +22,6 @@ FEATURES:
 
 BUG FIXES:
 * Fix typo on cse_match_list documentation (GH-461)
-
 
 ## 2.19.2 (November 4, 2022)
 ENHANCEMENTS:

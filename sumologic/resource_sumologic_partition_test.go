@@ -91,6 +91,7 @@ resource "sumologic_partition" "foo" {
     routing_expression = "_sourcecategory=*/Terraform"
     is_compliant = false
     retention_period = 30
+    analytics_tier = "continuous"
 }
 `, testName)
 }
@@ -102,6 +103,7 @@ resource "sumologic_partition" "foo" {
     routing_expression = "_sourcecategory=*/Terraform"
 	retention_period = 365
 	is_compliant = false
+	analytics_tier = "continuous"
 }
 `, testName)
 }
