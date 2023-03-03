@@ -23,7 +23,6 @@ resource "sumologic_local_file_source" "local" {
 	collector_id = "${sumologic_installed_collector.installed_collector.id}"
   path_expression = "/Applications/Sumo Logic Collector/logs/*.log.*"
 }
-}
 ```
 
 ## Argument Reference
