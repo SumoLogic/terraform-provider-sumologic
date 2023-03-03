@@ -11,19 +11,19 @@ Provides a [Sumologic Local File Source][1].
 ## Example Usage
 ```hcl
 resource "sumologic_installed_collector" "installed_collector" {
-  name        = "test-collector"
-  category = "macos/test"
-  ephemeral = true
+  name       = "test-collector"
+  category   = "macos/test"
+  ephemeral  = true
 }
 
 resource "sumologic_local_file_source" "local" {
-	name = "localfile-mac"
-	description = "test"
-	category = "test"
-	collector_id = "${sumologic_installed_collector.installed_collector.id}"
-  path_expression = "/Applications/Sumo Logic Collector/logs/*.log.*"
+  name             = "localfile-mac"
+  description      = "test"
+  category         = "test"
+  collector_id     = "${sumologic_installed_collector.installed_collector.id}"
+  path_expression  = "/Applications/Sumo Logic Collector/logs/*.log.*"
 }
-```
+  ```
 
 ## Argument Reference
 
