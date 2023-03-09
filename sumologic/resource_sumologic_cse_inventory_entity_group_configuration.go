@@ -27,9 +27,10 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Default:  "",
 			},
 			"group": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:       schema.TypeString,
+				Optional:   true,
+				Default:    "",
+				Deprecated: "The field `group` is deprecated and will be removed in a future release of the provider -- please make usage of `inventory_key`, `inventory_value` instead.",
 			},
 			"inventory_type": {
 				Type:     schema.TypeString,
@@ -38,6 +39,23 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 			"inventory_source": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"inventory_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"inventory_value": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tag_schema": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"dynamic_tags": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -81,6 +99,10 @@ func resourceSumologicCSEInventoryEntityGroupConfigurationRead(d *schema.Resourc
 	d.Set("group", CSEInventoryEntityGroupConfigurationGet.Group)
 	d.Set("inventory_type", CSEInventoryEntityGroupConfigurationGet.InventoryType)
 	d.Set("inventory_source", CSEInventoryEntityGroupConfigurationGet.InventorySource)
+	d.Set("inventory_key", CSEInventoryEntityGroupConfigurationGet.InventoryKey)
+	d.Set("inventory_value", CSEInventoryEntityGroupConfigurationGet.InventoryValue)
+	d.Set("tag_schema", CSEInventoryEntityGroupConfigurationGet.TagSchema)
+	d.Set("dynamic_tags", CSEInventoryEntityGroupConfigurationGet.DynamicTags)
 	d.Set("name", CSEInventoryEntityGroupConfigurationGet.Name)
 	d.Set("suppressed", CSEInventoryEntityGroupConfigurationGet.Suppressed)
 	d.Set("tags", CSEInventoryEntityGroupConfigurationGet.Tags)
@@ -105,6 +127,10 @@ func resourceSumologicCSEInventoryEntityGroupConfigurationCreate(d *schema.Resou
 			Group:           d.Get("group").(string),
 			InventoryType:   d.Get("inventory_type").(string),
 			InventorySource: d.Get("inventory_source").(string),
+			InventoryKey:    d.Get("inventory_key").(string),
+			InventoryValue:  d.Get("inventory_value").(string),
+			TagSchema:       d.Get("tag_schema").(string),
+			DynamicTags:     d.Get("dynamic_tags").(bool),
 			Name:            d.Get("name").(string),
 			Suppressed:      d.Get("suppressed").(bool),
 			Tags:            resourceToStringArray(d.Get("tags").([]interface{})),
@@ -146,6 +172,10 @@ func resourceToCSEInventoryEntityGroupConfiguration(d *schema.ResourceData) (CSE
 		Group:           d.Get("group").(string),
 		InventoryType:   d.Get("inventory_type").(string),
 		InventorySource: d.Get("inventory_source").(string),
+		InventoryKey:    d.Get("inventory_key").(string),
+		InventoryValue:  d.Get("inventory_value").(string),
+		TagSchema:       d.Get("tag_schema").(string),
+		DynamicTags:     d.Get("dynamic_tags").(bool),
 		Name:            d.Get("name").(string),
 		Suppressed:      d.Get("suppressed").(bool),
 		Tags:            resourceToStringArray(d.Get("tags").([]interface{})),

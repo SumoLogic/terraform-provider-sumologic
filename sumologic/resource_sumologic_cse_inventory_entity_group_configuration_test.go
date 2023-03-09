@@ -14,13 +14,18 @@ func TestAccSumologicCSEInventoryEntityGroupConfiguration_createAndUpdate(t *tes
 	var InventoryEntityGroupConfiguration CSEEntityGroupConfiguration
 	criticality := "HIGH"
 	description := "Test description"
-	group := "goo"
+	inventoryKey := "groups"
+	inventoryValue := "red"
 	inventoryType := "computer"
 	inventorySource := "Active Directory"
 	name := "Entity Group Configuration Tf test"
 	suppressed := false
 	tag := "foo"
 	nameUpdated := "Updated Entity Group Configuration"
+	suppressedUpdated := true
+	tagUpdated := "goo"
+	inventoryKeyUpdated := "normalizedHostname"
+	inventoryValueUpdated := "blue"
 
 	resourceName := "sumologic_cse_inventory_entity_group_configuration.inventory_entity_group_configuration"
 	resource.Test(t, resource.TestCase{
@@ -29,22 +34,22 @@ func TestAccSumologicCSEInventoryEntityGroupConfiguration_createAndUpdate(t *tes
 		CheckDestroy: testAccCSEInventoryEntityGroupConfigurationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEInventoryEntityGroupConfigurationConfig(criticality, description, group,
-					inventoryType, inventorySource, name, suppressed, tag),
+				Config: testCreateCSEInventoryEntityGroupConfigurationConfig(criticality, description,
+					inventoryType, inventorySource, inventoryKey, inventoryValue, name, suppressed, tag),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEInventoryEntityGroupConfigurationExists(resourceName, &InventoryEntityGroupConfiguration),
 					testCheckInventoryEntityGroupConfigurationValues(&InventoryEntityGroupConfiguration, criticality,
-						description, group, inventoryType, inventorySource, name, suppressed, tag),
+						description, inventoryType, inventorySource, inventoryKey, inventoryValue, name, suppressed, tag),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			{
-				Config: testCreateCSEInventoryEntityGroupConfigurationConfig(criticality, description, group,
-					inventoryType, inventorySource, nameUpdated, suppressed, tag),
+				Config: testCreateCSEInventoryEntityGroupConfigurationConfig(criticality, description,
+					inventoryType, inventorySource, inventoryKeyUpdated, inventoryValueUpdated, nameUpdated, suppressedUpdated, tagUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEInventoryEntityGroupConfigurationExists(resourceName, &InventoryEntityGroupConfiguration),
 					testCheckInventoryEntityGroupConfigurationValues(&InventoryEntityGroupConfiguration, criticality,
-						description, group, inventoryType, inventorySource, nameUpdated, suppressed, tag),
+						description, inventoryType, inventorySource, inventoryKeyUpdated, inventoryValueUpdated, nameUpdated, suppressedUpdated, tagUpdated),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -77,20 +82,21 @@ func testAccCSEInventoryEntityGroupConfigurationDestroy(s *terraform.State) erro
 }
 
 func testCreateCSEInventoryEntityGroupConfigurationConfig(
-	criticality string, description string, group string,
-	inventoryType string, inventorySource string, name string, suppressed bool, tag string) string {
+	criticality string, description string,
+	inventoryType string, inventorySource string, inventoryKey string, inventoryValue string, name string, suppressed bool, tag string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_inventory_entity_group_configuration" "inventory_entity_group_configuration" {
 	criticality = "%s"
     description = "%s"
-	group = "%s"
 	inventory_type = "%s"
 	inventory_source = "%s"
+	inventory_key = "%s"
+	inventory_value = "%s"
 	name = "%s"
 	suppressed = %t
  	tags = ["%s"]
 }
-`, criticality, description, group, inventoryType, inventorySource, name, suppressed, tag)
+`, criticality, description, inventoryType, inventorySource, inventoryKey, inventoryValue, name, suppressed, tag)
 }
 
 func testCheckCSEInventoryEntityGroupConfigurationExists(n string, InventoryEntityGroupConfiguration *CSEEntityGroupConfiguration) resource.TestCheckFunc {
@@ -117,8 +123,8 @@ func testCheckCSEInventoryEntityGroupConfigurationExists(n string, InventoryEnti
 }
 
 func testCheckInventoryEntityGroupConfigurationValues(InventoryEntityGroupConfiguration *CSEEntityGroupConfiguration,
-	criticality string, description string, group string,
-	inventoryType string, inventorySource string, name string, suppressed bool, tag string) resource.TestCheckFunc {
+	criticality string, description string,
+	inventoryType string, inventorySource string, inventoryKey string, inventoryValue string, name string, suppressed bool, tag string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if InventoryEntityGroupConfiguration.Criticality != criticality {
 			return fmt.Errorf("bad criticality, expected \"%s\", got %#v", criticality, InventoryEntityGroupConfiguration.Criticality)
@@ -126,8 +132,14 @@ func testCheckInventoryEntityGroupConfigurationValues(InventoryEntityGroupConfig
 		if InventoryEntityGroupConfiguration.Description != description {
 			return fmt.Errorf("bad description, expected \"%s\", got %#v", description, InventoryEntityGroupConfiguration.Description)
 		}
-		if InventoryEntityGroupConfiguration.Group != group {
-			return fmt.Errorf("bad group, expected \"%s\", got %#v", tag, InventoryEntityGroupConfiguration.Group)
+		if InventoryEntityGroupConfiguration.InventoryKey != inventoryKey {
+			return fmt.Errorf("bad inventoryKey, expected \"%s\", got %#v", inventoryKey, InventoryEntityGroupConfiguration.InventoryKey)
+		}
+		if InventoryEntityGroupConfiguration.InventoryValue != inventoryValue {
+			return fmt.Errorf("bad inventoryValue, expected \"%s\", got %#v", inventoryValue, InventoryEntityGroupConfiguration.InventoryValue)
+		}
+		if InventoryEntityGroupConfiguration.DynamicTags != false {
+			return fmt.Errorf("bad dynamicTags, expected false, got %#v", InventoryEntityGroupConfiguration.DynamicTags)
 		}
 		if InventoryEntityGroupConfiguration.InventoryType != inventoryType {
 			return fmt.Errorf("bad inventoryType, expected \"%s\", got %#v", inventoryType, InventoryEntityGroupConfiguration.InventoryType)

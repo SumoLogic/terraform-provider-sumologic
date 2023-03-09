@@ -123,6 +123,10 @@ type CSEEntityGroupConfiguration struct {
 	Group             string   `json:"group,omitempty"`
 	InventoryType     string   `json:"inventoryType,omitempty"`
 	InventorySource   string   `json:"inventorySource,omitempty"`
+	InventoryKey      string   `json:"inventoryKey,omitempty"`
+	InventoryValue    string   `json:"inventoryValue,omitempty"`
+	DynamicTags       bool     `json:"dynamicTags,omitempty"`
+	TagSchema         string   `json:"tagSchema,omitempty"`
 	LastUpdated       string   `json:"lastUpdated,omitempty,omitempty"`
 	LastUpdatedBy     string   `json:"lastUpdatedBy,omitempty,omitempty"`
 	Name              string   `json:"name,omitempty"`

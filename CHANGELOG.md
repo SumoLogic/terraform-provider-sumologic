@@ -1,4 +1,10 @@
 ## 2.21.1 (Unreleased)
+ENHANCEMENTS:
+* resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)
+
+DEPRECATIONS:
+* resource/sumologic_cse_inventory_entity_group_configuration: Deprecated `groups` in favor of `inventory_key`, `inventory_value`. (GH-495)
+
 
 ## 2.21.0 (February 27, 2023)
 FEATURES:
