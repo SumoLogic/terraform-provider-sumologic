@@ -157,22 +157,23 @@ type MonitorQuery struct {
 }
 
 type TriggerCondition struct {
-	TimeRange         string  `json:"timeRange"`
-	TriggerType       string  `json:"triggerType"`
-	Threshold         float64 `json:"threshold,omitempty"`
-	ThresholdType     string  `json:"thresholdType,omitempty"`
-	OccurrenceType    string  `json:"occurrenceType"`
-	MinDataPoints     int     `json:"minDataPoints,omitempty"`
-	TriggerSource     string  `json:"triggerSource"`
-	DetectionMethod   string  `json:"detectionMethod"`
-	ResolutionWindow  string  `json:"resolutionWindow,omitempty"`
-	Field             string  `json:"field,omitempty"`
-	Window            int     `json:"window,omitempty"`
-	BaselineWindow    string  `json:"baselineWindow,omitempty"`
-	Consecutive       int     `json:"consecutive,omitempty"`
-	Direction         string  `json:"direction,omitempty"`
-	SLIThreshold      float64 `json:"sliThreshold,omitempty"`
-	BurnRateThreshold float64 `json:"burnRateThreshold,omitempty"`
+	TimeRange         string     `json:"timeRange"`
+	TriggerType       string     `json:"triggerType"`
+	Threshold         float64    `json:"threshold,omitempty"`
+	ThresholdType     string     `json:"thresholdType,omitempty"`
+	OccurrenceType    string     `json:"occurrenceType"`
+	MinDataPoints     int        `json:"minDataPoints,omitempty"`
+	TriggerSource     string     `json:"triggerSource"`
+	DetectionMethod   string     `json:"detectionMethod"`
+	ResolutionWindow  string     `json:"resolutionWindow,omitempty"`
+	Field             string     `json:"field,omitempty"`
+	Window            int        `json:"window,omitempty"`
+	BaselineWindow    string     `json:"baselineWindow,omitempty"`
+	Consecutive       int        `json:"consecutive,omitempty"`
+	Direction         string     `json:"direction,omitempty"`
+	SLIThreshold      float64    `json:"sliThreshold,omitempty"`
+	BurnRateThreshold float64    `json:"burnRateThreshold,omitempty"`
+	BurnRates         []BurnRate `json:"burnRates,omitempty"`
 }
 
 type MonitorNotification struct {
@@ -195,6 +196,11 @@ type WebhookNotificiation struct {
 	ConnectionID              string `json:"connectionId"`
 	PayloadOverride           string `json:"payloadOverride,omitempty"`
 	ResolutionPayloadOverride string `json:"resolutionPayloadOverride,omitempty"`
+}
+
+type BurnRate struct {
+	BurnRateThreshold float64 `json:"burnRateThreshold,omitempty"`
+	TimeRange         string  `json:"timeRange"`
 }
 
 // ---------- END ----------

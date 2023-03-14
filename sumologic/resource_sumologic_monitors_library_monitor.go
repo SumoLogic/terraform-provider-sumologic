@@ -558,16 +558,44 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 		"time_range": &timeRangeSchema,
 		"burn_rate_threshold": {
 			Type:         schema.TypeFloat,
-			Required:     true,
+			Optional:     true,
 			ValidateFunc: validation.FloatAtLeast(0),
+		},
+		"burn_rate": {
+			Optional: true,
+			Type:     schema.TypeList,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"burn_rate_threshold": {
+						Type:         schema.TypeFloat,
+						Required:     true,
+						ValidateFunc: validation.FloatAtLeast(0),
+					},
+					"time_range": &timeRangeSchema,
+				},
+			},
 		},
 	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeSchema,
 		"burn_rate_threshold": {
 			Type:         schema.TypeFloat,
-			Required:     true,
+			Optional:     true,
 			ValidateFunc: validation.FloatAtLeast(0),
+		},
+		"burn_rate": {
+			Optional: true,
+			Type:     schema.TypeList,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"burn_rate_threshold": {
+						Type:         schema.TypeFloat,
+						Required:     true,
+						ValidateFunc: validation.FloatAtLeast(0),
+					},
+					"time_range": &timeRangeSchema,
+				},
+			},
 		},
 	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
 }
@@ -1359,12 +1387,26 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 		switch condition.TriggerType {
 		case "Critical":
 			hasCritical = true
+			criticalBurnRates := make([]interface{}, len(condition.BurnRates))
 			criticalAlrt["time_range"] = condition.TimeRange
 			criticalAlrt["burn_rate_threshold"] = condition.BurnRateThreshold
+			for i := range condition.BurnRates {
+				burnRateBlock := map[string]interface{}{}
+				burnRateBlock["burn_rate_threshold"] = condition.BurnRates[i].BurnRateThreshold
+				burnRateBlock["time_range"] = condition.BurnRates[i].TimeRange
+				criticalBurnRates[i] = burnRateBlock
+			}
 		case "Warning":
 			hasWarning = true
+			warningBurnRates := make([]interface{}, len(condition.BurnRates))
 			warningAlrt["time_range"] = condition.TimeRange
 			warningAlrt["burn_rate_threshold"] = condition.BurnRateThreshold
+			for i := range condition.BurnRates {
+				burnRateBlock := map[string]interface{}{}
+				burnRateBlock["burn_rate_threshold"] = condition.BurnRates[i].BurnRateThreshold
+				burnRateBlock["time_range"] = condition.BurnRates[i].TimeRange
+				warningBurnRates[i] = burnRateBlock
+			}
 		}
 	}
 	if !hasCritical {
@@ -1555,6 +1597,17 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.BurnRateThreshold = v.(float64)
 		case "resolution_window":
 			condition.ResolutionWindow = v.(string)
+		case "burn_rate":
+			burnRatesResource := v.([]interface{})
+			burnRates := make([]BurnRate, len(burnRatesResource))
+			for i := range burnRatesResource {
+				burnRateResource := burnRatesResource[i].(map[string]interface{})
+				burnRate := BurnRate{}
+				burnRate.BurnRateThreshold = burnRateResource["burn_rate_threshold"].(float64)
+				burnRate.TimeRange = burnRateResource["time_range"].(string)
+				burnRates[i] = burnRate
+			}
+			condition.BurnRates = burnRates
 		default:
 		}
 	}
