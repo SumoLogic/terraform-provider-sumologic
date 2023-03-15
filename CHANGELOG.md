@@ -1,7 +1,7 @@
 ## 2.21.1 (Unreleased)
 
 BUG FIXES:
-* Deprecate thresholdType field under searchSchedule in content resource (GH-483)
+* Remove thresholdType field under searchSchedule in content resource (GH-483)
 
 ## 2.21.0 (February 27, 2023)
 FEATURES:
