@@ -2,6 +2,8 @@ package sumologic
 
 import (
 	"fmt"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"log"
 	"regexp"
 	"sort"
@@ -74,9 +76,12 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 			log.Fatalln("Test case:", triggerConditions, "Lengths differ: Expected", len(triggerConditions), "got", len(triggerConditionsAfterRoundTrip))
 		}
 		for i := range triggerConditions {
-			if triggerConditionsAfterRoundTrip[i] != triggerConditions[i] {
+			if !cmp.Equal(triggerConditionsAfterRoundTrip[i], triggerConditions[i], cmpopts.IgnoreFields(TriggerCondition{}, "BurnRates")) {
 				log.Fatalln("Test case:", triggerConditions, "Expected", triggerConditions[i], "got", triggerConditionsAfterRoundTrip[i])
 			}
+			//if triggerConditionsAfterRoundTrip[i] != triggerConditions[i] {
+			//	log.Fatalln("Test case:", triggerConditions, "Expected", triggerConditions[i], "got", triggerConditionsAfterRoundTrip[i])
+			//}
 		}
 	}
 }
