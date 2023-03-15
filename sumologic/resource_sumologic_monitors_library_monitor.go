@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -555,15 +556,19 @@ var sloSLITriggerConditionSchema = map[string]*schema.Schema{
 
 var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": getSloBurnRateTimeRangeSchema("critical"),
 		"burn_rate_threshold": {
-			Type:         schema.TypeFloat,
-			Optional:     true,
-			ValidateFunc: validation.FloatAtLeast(0),
+			Type:          schema.TypeFloat,
+			Optional:      true,
+			ValidateFunc:  validation.FloatAtLeast(0),
+			RequiredWith:  []string{"trigger_conditions.0.slo_burn_rate_condition.0.critical.0.time_range"},
+			ConflictsWith: []string{"trigger_conditions.0.slo_burn_rate_condition.0.critical.0.burn_rate"},
 		},
 		"burn_rate": {
 			Optional: true,
 			Type:     schema.TypeList,
+			ConflictsWith: []string{"trigger_conditions.0.slo_burn_rate_condition.0.critical.0.burn_rate_threshold",
+				"trigger_conditions.0.slo_burn_rate_condition.0.critical.0.time_range"},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"burn_rate_threshold": {
@@ -577,15 +582,19 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 		},
 	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": getSloBurnRateTimeRangeSchema("warning"),
 		"burn_rate_threshold": {
-			Type:         schema.TypeFloat,
-			Optional:     true,
-			ValidateFunc: validation.FloatAtLeast(0),
+			Type:          schema.TypeFloat,
+			Optional:      true,
+			ValidateFunc:  validation.FloatAtLeast(0),
+			RequiredWith:  []string{"trigger_conditions.0.slo_burn_rate_condition.0.warning.0.time_range"},
+			ConflictsWith: []string{"trigger_conditions.0.slo_burn_rate_condition.0.warning.0.burn_rate"},
 		},
 		"burn_rate": {
 			Optional: true,
 			Type:     schema.TypeList,
+			ConflictsWith: []string{"trigger_conditions.0.slo_burn_rate_condition.0.warning.0.burn_rate_threshold",
+				"trigger_conditions.0.slo_burn_rate_condition.0.warning.0.time_range"},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"burn_rate_threshold": {
@@ -643,6 +652,19 @@ var timeRangeSchema = schema.Schema{
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
+func getSloBurnRateTimeRangeSchema(triggerType string) *schema.Schema {
+	requiredWith := fmt.Sprintf("trigger_conditions.0.slo_burn_rate_condition.0.%s.0.burn_rate_threshold", triggerType)
+	conflictsWith := fmt.Sprintf("trigger_conditions.0.slo_burn_rate_condition.0.%s.0.burn_rate", triggerType)
+	return &schema.Schema{
+		Type:             schema.TypeString,
+		Optional:         true,
+		ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+		DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+		RequiredWith:     []string{requiredWith},
+		ConflictsWith:    []string{conflictsWith},
+	}
+}
+
 var resolutionWindowSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Optional:         true,
@@ -663,6 +685,7 @@ var thresholdTypeSchema = schema.Schema{
 
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
+	log.Printf("it is create")
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
 		if monitor.ParentID == "" {
@@ -698,6 +721,7 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 
 func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
+	log.Printf("it is read")
 
 	monitor, err := c.MonitorsRead(d.Id())
 	if err != nil {
@@ -1396,6 +1420,9 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 				burnRateBlock["time_range"] = condition.BurnRates[i].TimeRange
 				criticalBurnRates[i] = burnRateBlock
 			}
+			if len(criticalBurnRates) > 0 {
+				criticalAlrt["burn_rate"] = criticalBurnRates
+			}
 		case "Warning":
 			hasWarning = true
 			warningBurnRates := make([]interface{}, len(condition.BurnRates))
@@ -1406,6 +1433,9 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 				burnRateBlock["burn_rate_threshold"] = condition.BurnRates[i].BurnRateThreshold
 				burnRateBlock["time_range"] = condition.BurnRates[i].TimeRange
 				warningBurnRates[i] = burnRateBlock
+			}
+			if len(warningBurnRates) > 0 {
+				warningAlrt["burn_rate"] = warningBurnRates
 			}
 		}
 	}
@@ -1597,17 +1627,6 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 			condition.BurnRateThreshold = v.(float64)
 		case "resolution_window":
 			condition.ResolutionWindow = v.(string)
-		case "burn_rate":
-			burnRatesResource := v.([]interface{})
-			burnRates := make([]BurnRate, len(burnRatesResource))
-			for i := range burnRatesResource {
-				burnRateResource := burnRatesResource[i].(map[string]interface{})
-				burnRate := BurnRate{}
-				burnRate.BurnRateThreshold = burnRateResource["burn_rate_threshold"].(float64)
-				burnRate.TimeRange = burnRateResource["time_range"].(string)
-				burnRates[i] = burnRate
-			}
-			condition.BurnRates = burnRates
 		default:
 		}
 	}
@@ -1678,13 +1697,31 @@ func (base TriggerCondition) sloCloneReadingFromNestedBlocks(block map[string]in
 
 	if critical, ok := fromSingletonArray(block, "critical"); ok {
 		criticalCondition.readFrom(critical)
+		criticalCondition.computeBurnRates(critical)
 		conditions = append(conditions, criticalCondition)
 	}
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)
+		warningCondition.computeBurnRates(warning)
 		conditions = append(conditions, warningCondition)
 	}
 	return conditions
+}
+
+func (condition *TriggerCondition) computeBurnRates(block map[string]interface{}) {
+	if burnRatesResource, ok := block["burn_rate"].([]interface{}); ok {
+		burnRates := make([]BurnRate, len(burnRatesResource))
+		for i := range burnRatesResource {
+			burnRateResource := burnRatesResource[i].(map[string]interface{})
+			burnRate := BurnRate{}
+			burnRate.BurnRateThreshold = burnRateResource["burn_rate_threshold"].(float64)
+			burnRate.TimeRange = burnRateResource["time_range"].(string)
+			burnRates[i] = burnRate
+		}
+		condition.BurnRates = burnRates
+	} else {
+		condition.BurnRates = []BurnRate{}
+	}
 }
 
 func toSingletonArray(m map[string]interface{}) []map[string]interface{} {
