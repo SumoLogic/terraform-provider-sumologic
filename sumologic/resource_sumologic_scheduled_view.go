@@ -46,6 +46,10 @@ func resourceSumologicScheduledView() *schema.Resource {
 					return new == "-1" && old != ""
 				},
 			},
+			"data_tier": {
+			    Type:         schema.TypeString,
+                Optional:     true,
+			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -103,6 +107,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 	d.Set("index_name", sview.IndexName)
 	d.Set("start_time", sview.StartTime.Format(time.RFC3339))
 	d.Set("retention_period", sview.RetentionPeriod)
+	d.Set("data_tier", sview.DataTier)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
 	d.Set("parsing_mode", sview.ParsingMode)
 
@@ -136,6 +141,7 @@ func resourceToScheduledView(d *schema.ResourceData) ScheduledView {
 		IndexName:                        d.Get("index_name").(string),
 		StartTime:                        startTimeParsed,
 		RetentionPeriod:                  d.Get("retention_period").(int),
+		DataTier:                         d.Get("data_tier").(string),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
 		ParsingMode:                      d.Get("parsing_mode").(string),
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),

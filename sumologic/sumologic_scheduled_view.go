@@ -62,6 +62,7 @@ type ScheduledView struct {
 	IndexName                        string    `json:"indexName"`
 	StartTime                        time.Time `json:"startTime"`
 	RetentionPeriod                  int       `json:"retentionPeriod"`
+	DataTier                         string    `json:"dataTier"`
 	DataForwardingId                 string    `json:"dataForwardingId"`
 	ParsingMode                      string    `json:"parsingMode"`
 	ReduceRetentionPeriodImmediately bool      `json:"reduceRetentionPeriodImmediately"`
