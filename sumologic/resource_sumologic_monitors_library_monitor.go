@@ -1713,10 +1713,10 @@ func (condition *TriggerCondition) computeBurnRates(block map[string]interface{}
 		burnRates := make([]BurnRate, len(burnRatesResource))
 		for i := range burnRatesResource {
 			burnRateResource := burnRatesResource[i].(map[string]interface{})
-			burnRate := BurnRate{}
-			burnRate.BurnRateThreshold = burnRateResource["burn_rate_threshold"].(float64)
-			burnRate.TimeRange = burnRateResource["time_range"].(string)
-			burnRates[i] = burnRate
+			burnRates[i] = BurnRate{
+				BurnRateThreshold: burnRateResource["burn_rate_threshold"].(float64),
+				TimeRange:         burnRateResource["time_range"].(string),
+			}
 		}
 		condition.BurnRates = burnRates
 	} else {
