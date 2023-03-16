@@ -4,7 +4,7 @@ FEATURE:
 
 DEPRECATIONS:
 
-* resource/sumologic_monitor: Deprecated `burn_rate_threshold` and time_range in favor of `burn_rate` inside `slo_burn_rate_condition` block (GH-499)
+* resource/sumologic_monitor: Deprecated `burn_rate_threshold` and `time_range` in favor of `burn_rate` inside `slo_burn_rate_condition` block (GH-499)
 
 ## 2.21.0 (February 27, 2023)
 FEATURES:
