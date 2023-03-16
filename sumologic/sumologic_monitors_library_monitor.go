@@ -198,7 +198,7 @@ type WebhookNotificiation struct {
 }
 
 type BurnRate struct {
-	BurnRateThreshold float64 `json:"burnRateThreshold,omitempty"`
+	BurnRateThreshold float64 `json:"burnRateThreshold"`
 	TimeRange         string  `json:"timeRange"`
 }
 

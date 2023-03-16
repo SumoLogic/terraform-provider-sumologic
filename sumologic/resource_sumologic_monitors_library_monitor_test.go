@@ -2,6 +2,8 @@ package sumologic
 
 import (
 	"fmt"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"log"
 	"regexp"
 	"sort"
@@ -65,6 +67,22 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 			exampleMetricsMissingDataTriggerCondition("MissingData"),
 			exampleMetricsMissingDataTriggerCondition("ResolvedMissingData"),
 		},
+		{
+			exampleSloSliTriggerCondition("Critical", 90),
+			exampleSloSliTriggerCondition("Warning", 95),
+		},
+		{
+			exampleSloBurnRateTriggerCondition("Critical"),
+			exampleSloBurnRateTriggerCondition("Warning"),
+		},
+		{
+			exampleSloBurnRateTriggerConditionWithOnlyBurnRates("Critical"),
+			exampleSloBurnRateTriggerConditionWithOnlyBurnRates("Warning"),
+		},
+		{
+			exampleSloBurnRateTriggerConditionWithoutBurnRates("Critical"),
+			exampleSloBurnRateTriggerConditionWithoutBurnRates("Warning"),
+		},
 	}
 	for _, triggerConditions := range testTriggerConditions {
 		triggerConditionsAfterRoundTrip := triggerConditionsBlockToJson(jsonToTriggerConditionsBlock(triggerConditions))
@@ -74,7 +92,14 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 			log.Fatalln("Test case:", triggerConditions, "Lengths differ: Expected", len(triggerConditions), "got", len(triggerConditionsAfterRoundTrip))
 		}
 		for i := range triggerConditions {
-			if triggerConditionsAfterRoundTrip[i] != triggerConditions[i] {
+			if !cmp.Equal(triggerConditionsAfterRoundTrip[i], triggerConditions[i],
+				cmpopts.AcyclicTransformer("s", func(t TriggerCondition) TriggerCondition { //replacing empty burnRates with nil for equality purpose
+					if len(t.BurnRates) == 0 {
+						t.BurnRates = nil
+						return t
+					}
+					return t
+				})) {
 				log.Fatalln("Test case:", triggerConditions, "Expected", triggerConditions[i], "got", triggerConditionsAfterRoundTrip[i])
 			}
 		}
@@ -1315,6 +1340,42 @@ func exampleMetricsMissingDataTriggerCondition(triggerType string) TriggerCondit
 		TriggerType:     triggerType,
 		TriggerSource:   "AllTimeSeries",
 		DetectionMethod: "MetricsMissingDataCondition",
+	}
+}
+
+func exampleSloSliTriggerCondition(triggerType string, threshold float64) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:       "30m",
+		SLIThreshold:    threshold,
+		TriggerType:     triggerType,
+		DetectionMethod: "SloSliCondition",
+	}
+}
+
+func exampleSloBurnRateTriggerConditionWithOnlyBurnRates(triggerType string) TriggerCondition {
+	return TriggerCondition{
+		TriggerType:     triggerType,
+		DetectionMethod: "SloBurnRateCondition",
+		BurnRates:       []BurnRate{{BurnRateThreshold: 10, TimeRange: "1h"}, {BurnRateThreshold: 30, TimeRange: "1d"}},
+	}
+}
+
+func exampleSloBurnRateTriggerConditionWithoutBurnRates(triggerType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:         "30m",
+		BurnRateThreshold: 10,
+		TriggerType:       triggerType,
+		DetectionMethod:   "SloBurnRateCondition",
+	}
+}
+
+func exampleSloBurnRateTriggerCondition(triggerType string) TriggerCondition {
+	return TriggerCondition{
+		TimeRange:         "30m",
+		BurnRateThreshold: 60,
+		TriggerType:       triggerType,
+		DetectionMethod:   "SloBurnRateCondition",
+		BurnRates:         []BurnRate{{BurnRateThreshold: 10, TimeRange: "1h"}, {BurnRateThreshold: 30, TimeRange: "1d"}},
 	}
 }
 
