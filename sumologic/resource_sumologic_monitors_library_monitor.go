@@ -1384,11 +1384,9 @@ func jsonToSloSliConditionBlock(conditions []TriggerCondition) map[string]interf
 		case "Critical":
 			hasCritical = true
 			criticalAlrt["sli_threshold"] = condition.SLIThreshold
-			criticalAlrt["time_range"] = condition.TimeRange
 		case "Warning":
 			hasWarning = true
 			warningAlrt["sli_threshold"] = condition.SLIThreshold
-			warningAlrt["time_range"] = condition.TimeRange
 		}
 	}
 	if !hasCritical {
