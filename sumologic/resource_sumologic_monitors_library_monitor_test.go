@@ -1102,6 +1102,25 @@ resource "sumologic_monitor" "test" {
 	return resourceText
 }
 
+func exampleSloMonitorWithTriggerCondition(
+	testName string,
+	trigger string) string {
+	var resourceText = fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Slo"
+    trigger_conditions {
+      %s
+    }
+	playbook = "This is a test playbook"
+}`, testName, trigger)
+	return resourceText
+}
+
 var exampleLogsStaticTriggerConditionBlock = `
    logs_static_condition {
      critical {
@@ -1202,6 +1221,31 @@ var exampleMetricsMissingDataTriggerConditionBlock = `
      trigger_source = "AnyTimeSeries"
    }`
 
+var exampleSloSliTriggerConditionBlock = `
+   slo_sli_condition {
+	critical {
+		sli_threshold = 90
+	}
+   }`
+
+var exampleSloBurnRateTriggerConditionBlock = `
+   slo_burn_rate_condition {
+      critical {
+        burn_rate_threshold =  20
+        time_range = "1d"
+      }
+      warning {
+        burn_rate {
+             burn_rate_threshold =  20
+             time_range = "2d"
+        }
+        burn_rate {
+             burn_rate_threshold =  20
+             time_range = "2d"
+        }
+      }
+    }`
+
 func exampleLogsStaticMonitor(testName string) string {
 	query := "error | timeslice 1m | count as field by _timeslice"
 	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
@@ -1250,6 +1294,14 @@ func exampleMetricsMissingDataMonitor(testName string) string {
 		exampleMetricsMissingDataTriggerConditionBlock, []string{"MissingData", "ResolvedMissingData"})
 }
 
+func exampleSloSliMonitor(testName string) string {
+	return exampleSloMonitorWithTriggerCondition(testName, exampleSloSliTriggerConditionBlock)
+}
+
+func exampleSloBurnRateMonitor(testName string) string {
+	return exampleSloMonitorWithTriggerCondition(testName, exampleSloBurnRateTriggerConditionBlock)
+}
+
 var allExampleMonitors = []func(testName string) string{
 	exampleLogsStaticMonitor,
 	exampleLogsStaticMonitorWithResolutionWindow,
@@ -1259,6 +1311,8 @@ var allExampleMonitors = []func(testName string) string{
 	exampleMetricsOutlierMonitor,
 	exampleLogsMissingDataMonitor,
 	exampleMetricsMissingDataMonitor,
+	exampleSloSliMonitor,
+	exampleSloBurnRateMonitor,
 }
 
 func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
@@ -1345,7 +1399,6 @@ func exampleMetricsMissingDataTriggerCondition(triggerType string) TriggerCondit
 
 func exampleSloSliTriggerCondition(triggerType string, threshold float64) TriggerCondition {
 	return TriggerCondition{
-		TimeRange:       "30m",
 		SLIThreshold:    threshold,
 		TriggerType:     triggerType,
 		DetectionMethod: "SloSliCondition",
@@ -1461,6 +1514,8 @@ var allInvalidTriggerConditionMonitorResources = []func(testName string) string{
 	invalidExampleWithNoTriggerCondition,
 	invalidExampleWithEmptyLogStaticTriggerCondition,
 	invalidExampleWithEmptyMetricsStaticTriggerCondition,
+	invalidExampleWithEmptySloSliTriggerCondition,
+	invalidExampleWithEmptySloSliTriggerCondition,
 }
 
 func invalidExampleWithNoTriggerCondition(testName string) string {
@@ -1477,4 +1532,12 @@ func invalidExampleWithEmptyMetricsStaticTriggerCondition(testName string) strin
 	query := "error | timeslice 1m | count as field by _timeslice"
 	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
 		`metrics_static_condition {}`, []string{"Critical", "ResolvedCritical"})
+}
+
+func invalidExampleWithEmptySloSliTriggerCondition(testName string) string {
+	return exampleSloMonitorWithTriggerCondition(testName, `slo_sli_condition {}`)
+}
+
+func invalidExampleWithEmptySloBurnRateTriggerCondition(testName string) string {
+	return exampleSloMonitorWithTriggerCondition(testName, `slo_burn_rate_condition {}`)
 }
