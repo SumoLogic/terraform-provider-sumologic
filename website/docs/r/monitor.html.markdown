@@ -197,12 +197,20 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
   trigger_conditions {
     slo_burn_rate_condition {
       critical {
-        burn_rate_threshold =  10
-        time_range = "1d"
+        burn_rate {
+            burn_rate_threshold =  50
+            time_range = "1d"
+        }
       }
       warning {
-        burn_rate_threshold =  5
-        time_range = "1d"
+        burn_rate {
+            burn_rate_threshold =  30
+            time_range = "3d"
+        }
+        burn_rate {
+            burn_rate_threshold =  20
+            time_range = "4d"
+        }
       }
     }
   }
@@ -478,11 +486,13 @@ Here is a summary of arguments for each condition type (fields which are not mar
   
 #### slo_burn_rate_condition
   - `critical`
-    - `time_range` (Required) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-    - `burn_rate_threshold` (Required) : The burn rate percentage threshold.
+    - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `burn_rate_threshold` (Deprecated) : The burn rate percentage threshold.
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
   - `warning`
-    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-    - `burn_rate_threshold` (Required)
+    - `time_range` (Deprecated) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `burn_rate_threshold` (Deprecated)
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
 
 ## The `triggers` block
 The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.

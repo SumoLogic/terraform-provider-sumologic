@@ -1,4 +1,10 @@
 ## 2.21.1 (Unreleased)
+FEATURE:
+* resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `burn_rate_threshold` and time_range in favor of `burn_rate` inside `slo_burn_rate_condition` block (GH-499)
 
 ## 2.21.0 (February 27, 2023)
 FEATURES:
