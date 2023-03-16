@@ -1112,6 +1112,7 @@ resource "sumologic_monitor" "test" {
 	type = "MonitorsLibraryMonitor"
 	is_disabled = false
 	content_type = "Monitor"
+	slo_id = "000000000008DC41"
 	monitor_type = "Slo"
     trigger_conditions {
       %s
