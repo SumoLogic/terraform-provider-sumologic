@@ -1386,9 +1386,6 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 	var criticalAlrt, warningAlrt = dict{}, dict{}
 	block := map[string]interface{}{}
 
-	block["critical"] = toSingletonArray(criticalAlrt)
-	block["warning"] = toSingletonArray(warningAlrt)
-
 	var hasCritical, hasWarning = false, false
 	for _, condition := range conditions {
 		switch condition.TriggerType {
@@ -1400,6 +1397,10 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 			warningAlrt = getAlertBlock(condition)
 		}
 	}
+
+	block["critical"] = toSingletonArray(criticalAlrt)
+	block["warning"] = toSingletonArray(warningAlrt)
+
 	if !hasCritical {
 		delete(block, "critical")
 	}
