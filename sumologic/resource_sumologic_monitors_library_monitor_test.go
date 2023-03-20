@@ -1223,6 +1223,45 @@ func exampleSloMonitorWithTriggerCondition(
 	testName string,
 	trigger string) string {
 	var resourceText = fmt.Sprintf(`
+resource "sumologic_slo" "slo_tf_window_metric_ratio" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 7 days"
+  parent_id   = "0000000000000001"
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "7d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  indicator {
+    window_based_evaluation {
+      op         = "LessThan"
+      query_type = "Metrics"
+      size       = "1m"
+      threshold  = 99.0
+      queries {
+        query_group_type = "Unsuccessful"
+        query_group {
+          row_id        = "A"
+          query         = "service=auth api=login metric=HTTP_5XX_Count"
+          use_row_count = false
+        }
+      }
+      queries {
+        query_group_type = "Total"
+        query_group {
+          row_id = "A"
+          query  = "service=auth api=login metric=TotalRequests"
+          use_row_count = false
+        }
+      }
+    }
+  }
+}
+
 resource "sumologic_monitor" "test" {
 	name = "%s"
 	description = "terraform_test_monitor_description"
@@ -1234,7 +1273,7 @@ resource "sumologic_monitor" "test" {
       %s
     }
 	playbook = "This is a test playbook"
-}`, testName, trigger)
+}`, testName, testName, trigger)
 	return resourceText
 }
 
