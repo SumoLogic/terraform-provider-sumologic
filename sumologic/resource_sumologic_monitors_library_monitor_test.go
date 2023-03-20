@@ -1152,6 +1152,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = false
 	content_type = "Monitor"
 	monitor_type = "Slo"
+	slo_id = sumologic_slo.slo_tf_window_metric_ratio.id
     trigger_conditions {
       %s
     }
