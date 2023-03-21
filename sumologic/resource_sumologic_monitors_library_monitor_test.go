@@ -1223,10 +1223,15 @@ func exampleSloMonitorWithTriggerCondition(
 	testName string,
 	trigger string) string {
 	var resourceText = fmt.Sprintf(`
+resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-folder"
+  description = "folder for SLO created for testing"
+}
+
 resource "sumologic_slo" "slo_tf_window_metric_ratio" {
   name        = "%s"
   description = "per minute login error rate over rolling 7 days"
-  parent_id   = "0000000000000001"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
   signal_type = "Error"
   service     = "auth"
   application = "login"
