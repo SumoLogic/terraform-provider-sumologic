@@ -1284,10 +1284,6 @@ var exampleSloBurnRateTriggerConditionBlock = `
              burn_rate_threshold =  20
              time_range = "2d"
         }
-        burn_rate {
-             burn_rate_threshold =  20
-             time_range = "2d"
-        }
       }
     }`
 
