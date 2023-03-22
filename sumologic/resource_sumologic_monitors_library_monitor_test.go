@@ -612,6 +612,42 @@ func TestAccSumologicMonitorsLibraryMonitor_folder_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_override_payload(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_connection_" + testNameSuffix
+	testType := "MonitorsLibraryMonitor"
+	testMonitorType := "Logs"
+	defaultPayload := "{\"eventType\" : \"{{Name}}\"}"
+	resolutionPayload := "{\"eventType\" : \"{{Name}}\"}"
+
+	overrideDefaultPayload := "{\"eventType\" : \"{{Name}}-update\"}"
+	overrideResolutionPayload := "{\"eventType\" : \"{{Name}}-update\"}"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		//destroy conection too
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorsLibraryMonitorUpdateConection(testNameSuffix, defaultPayload, resolutionPayload,
+					overrideDefaultPayload, overrideResolutionPayload),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test_monitor_connection", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test_monitor_connection"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "monitor_type", testMonitorType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "notifications.0.notification.0.payload_override", overrideDefaultPayload+"\n"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "notifications.0.notification.0.resolution_payload_override", overrideResolutionPayload+"\n"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//fetching monitor information
@@ -911,6 +947,87 @@ resource "sumologic_role" "tf_test_role_01" {
 		"manageMonitorsV2"
 	]
 }`, testName, testName)
+}
+
+func testAccSumologicMonitorsLibraryMonitorUpdateConection(testName string, defaultPayload string, resolutionPayload string,
+	overrideDefaultPayload string, overrideResolutionPayload string) string {
+	return fmt.Sprintf(`
+resource "sumologic_connection" "connection_01" {
+		name = "%s"
+		type = "WebhookConnection"
+		description = "WebhookConnection"
+		url = "https://example.com"
+		webhook_type = "Webhook"
+		default_payload = <<JSON
+%s
+	JSON
+		resolution_payload = <<JSON
+%s
+	JSON
+}
+
+resource "sumologic_monitor" "test_monitor_connection" {
+	name = "terraform_test_monitor_connection_%s"
+	description = "terraform_test_monitor_connection"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = true
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "8m"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager info"
+	  }
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	  }
+	  triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "30m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
+		detection_method = "StaticCondition"
+		resolution_window = "15m"
+	  }
+	notifications {
+		notification {
+			connection_type = "Webhook"			
+			connection_id = sumologic_connection.connection_01.id
+			payload_override = <<JSON
+%s
+			JSON
+			resolution_payload_override = <<JSON
+%s
+			JSON
+		}
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	}
+	playbook = "This is an updated test playbook"
+	alert_name = "Updated Alert from {{Name}}"
+	
+	obj_permission {
+		subject_type = "role"
+		subject_id = sumologic_role.tf_test_role_01.id
+		permissions = ["Read","Update"]
+	}
+}
+resource "sumologic_role" "tf_test_role_01" {
+	name        = "tf_test_role_01_%s"
+	description = "Testing resource sumologic_role"
+	capabilities = [
+		"viewAlerts",
+		"viewMonitorsV2",
+		"manageMonitorsV2"
+	]
+}`, testName, defaultPayload, resolutionPayload, testName, overrideDefaultPayload, overrideResolutionPayload, testName)
 }
 
 func testAccEmulateFGPDriftingMonitor(

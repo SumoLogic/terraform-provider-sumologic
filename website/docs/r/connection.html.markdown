@@ -33,6 +33,14 @@ resource "sumologic_connection" "connection" {
   "search_results" : "{{AggregateResultsJson}}"
 }
 JSON
+  resolution_payload = <<JSON
+{
+  "client" : "Sumo Logic",
+  "eventType" : "{{Name}}",
+  "description" : "{{Description}}",
+  "search_url" : "{{QueryUrl}}",
+}
+JSON
   webhook_type    = "Webhook"
 }
 ```
@@ -48,6 +56,7 @@ The following arguments are supported:
 - `headers` - (Optional) Map of access authorization headers.
 - `custom_headers` - (Optional) Map of custom webhook headers
 - `default_payload` - (Required) Default payload of the webhook.
+- `resolution_payload` - (Optional) Resolution payload of the webhook.
 - `connection_subtype` - (Optional) The subtype of the connection. Valid values are `Incident` and `Event`. NOTE: This is only used for the `ServiceNow` webhook type.
 - `webhook_type` - (Optional) Type of webhook. Valid values are `AWSLambda`, `Azure`, `Datadog`, `HipChat`, `Jira`, `PagerDuty`, `Slack`, `Webhook`, `NewRelic`, `MicrosoftTeams`, `ServiceNow`, and `SumoCloudSOAR`. Default: `Webhook`
 

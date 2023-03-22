@@ -447,6 +447,7 @@ type Connection struct {
 	DefaultPayload    string    `json:"defaultPayload"`
 	WebhookType       string    `json:"webhookType"`
 	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
+	ResolutionPayload string    `json:"resolutionPayload,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

@@ -267,6 +267,11 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
 									},
+									"resolution_payload_override": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringIsJSON,
+									},
 								},
 							},
 						},
@@ -744,6 +749,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 			if internalNotificationDict["payloadOverride"] != nil {
 				internalNotification["payload_override"] = internalNotificationDict["payloadOverride"].(string)
 			}
+			if internalNotificationDict["resolutionPayloadOverride"] != nil {
+				internalNotification["resolution_payload_override"] = internalNotificationDict["resolutionPayloadOverride"].(string)
+			}
 		}
 
 		schemaInternalNotification := []interface{}{
@@ -911,10 +919,11 @@ func getNotifications(d *schema.ResourceData) []MonitorNotification {
 			}
 		} else {
 			n.Notification = WebhookNotificiation{
-				ActionType:      "NamedConnectionAction",
-				ConnectionType:  connectionType,
-				ConnectionID:    notificationActionDict["connection_id"].(string),
-				PayloadOverride: notificationActionDict["payload_override"].(string),
+				ActionType:                "NamedConnectionAction",
+				ConnectionType:            connectionType,
+				ConnectionID:              notificationActionDict["connection_id"].(string),
+				PayloadOverride:           notificationActionDict["payload_override"].(string),
+				ResolutionPayloadOverride: notificationActionDict["resolution_payload_override"].(string),
 			}
 		}
 		n.RunForTriggerTypes = notificationDict["run_for_trigger_types"].([]interface{})
