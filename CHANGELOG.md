@@ -2,6 +2,9 @@
 FEATURES:
 * Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
 
+BUG FIXES:
+* Remove thresholdType field under searchSchedule in content resource (GH-483)
+
 ## 2.21.0 (February 27, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
