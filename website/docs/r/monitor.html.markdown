@@ -324,7 +324,7 @@ The following arguments are supported:
 - `type` - (Optional) The type of object model. Valid value:
   - `MonitorsLibraryMonitor`
 - `name` - (Required) The name of the monitor. The name must be alphanumeric.
-- `description` - (Required) The description of the monitor.
+- `description` - (Optional) The description of the monitor.
 - `is_disabled` - (Optional) Whether or not the monitor is disabled. Disabled monitors will not run and will not generate or send notifications.
 - `parent_id` - (Optional) The ID of the Monitor Folder that contains this monitor. Defaults to the root folder.
 - `content_type` - (Optional) The type of the content object. Valid value:
@@ -332,7 +332,7 @@ The following arguments are supported:
 - `monitor_type` - (Required) The type of monitor. Valid values:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
-  - `Slo`: A SLO based monitor  (beta).
+  - `Slo`: A SLO based monitor.
 - `evaluation_delay` - (Optional) Evaluation delay as a string consists of the following elements:
       1. `<number>`: number of time units,
       2. `<time_unit>`: time unit; possible values are: `h` (hour), `m` (minute), `s` (second).
@@ -340,7 +340,7 @@ The following arguments are supported:
       Multiple pairs of `<number><time_unit>` may be provided. For example,
       `2m50s` means 2 minutes and 50 seconds.
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
-- `queries` - (Required) All queries from the monitor.
+- `queries` - (Required if `monitor_type` is not `Slo`) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
   - `resolution_window` - The resolution window that the recovery condition must be met in each evaluation that happens within this entire duration before the alert is recovered (resolved). If not specified, the time range of your trigger will be used.
 - `triggers` - (Deprecated) Defines the conditions of when to send notifications.
