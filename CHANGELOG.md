@@ -2,6 +2,7 @@
 FEATURES:
 * resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
 * Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
+* **New Resource:** sumologic_local_file_source (GH-477)
 
 BUG FIXES:
 * Remove thresholdType field under searchSchedule in content resource (GH-483)
