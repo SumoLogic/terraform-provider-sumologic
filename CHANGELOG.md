@@ -1,4 +1,6 @@
-## 2.21.1 (Unreleased)
+## 2.22.1 (Unreleased)
+
+## 2.22.0 (March 23, 2023)
 FEATURES:
 * resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
 * Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
