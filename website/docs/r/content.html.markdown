@@ -41,7 +41,6 @@ resource "sumologic_content" "test" {
             },
             "timeZone": "America/Los_Angeles",
             "threshold": {
-                "thresholdType": "message",
                 "operator": "gt",
                 "count": 0
             },

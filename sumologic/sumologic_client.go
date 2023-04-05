@@ -87,11 +87,11 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	respCookie := resp.Cookies()
@@ -127,11 +127,11 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, "", err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -164,11 +164,11 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -197,11 +197,11 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 
 	d, _ := ioutil.ReadAll(resp.Body)
 
@@ -231,11 +231,11 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -269,11 +269,11 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
-
 	if err != nil {
 		return nil, "", err
 	}
+	logRequestAndResponse(req, resp)
+
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -309,11 +309,11 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -447,6 +447,7 @@ type Connection struct {
 	DefaultPayload    string    `json:"defaultPayload"`
 	WebhookType       string    `json:"webhookType"`
 	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
+	ResolutionPayload string    `json:"resolutionPayload,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

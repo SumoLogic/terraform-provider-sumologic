@@ -197,12 +197,20 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
   trigger_conditions {
     slo_burn_rate_condition {
       critical {
-        burn_rate_threshold =  10
-        time_range = "1d"
+        burn_rate {
+            burn_rate_threshold =  50
+            time_range = "1d"
+        }
       }
       warning {
-        burn_rate_threshold =  5
-        time_range = "1d"
+        burn_rate {
+            burn_rate_threshold =  30
+            time_range = "3d"
+        }
+        burn_rate {
+            burn_rate_threshold =  20
+            time_range = "4d"
+        }
       }
     }
   }
@@ -290,6 +298,15 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
   "client_url": "{{QueryUrl}}"
 }
 JSON
+     resolution_payload_override = <<JSON
+{
+  "service_key": "your_pagerduty_api_integration_key",
+  "event_type": "trigger",
+  "description": "Alert: Resolved {{TriggerType}} for Monitor {{Name}}",
+  "client": "Sumo Logic",
+  "client_url": "{{QueryUrl}}"
+}
+JSON
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
@@ -307,7 +324,7 @@ The following arguments are supported:
 - `type` - (Optional) The type of object model. Valid value:
   - `MonitorsLibraryMonitor`
 - `name` - (Required) The name of the monitor. The name must be alphanumeric.
-- `description` - (Required) The description of the monitor.
+- `description` - (Optional) The description of the monitor.
 - `is_disabled` - (Optional) Whether or not the monitor is disabled. Disabled monitors will not run and will not generate or send notifications.
 - `parent_id` - (Optional) The ID of the Monitor Folder that contains this monitor. Defaults to the root folder.
 - `content_type` - (Optional) The type of the content object. Valid value:
@@ -315,7 +332,7 @@ The following arguments are supported:
 - `monitor_type` - (Required) The type of monitor. Valid values:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
-  - `Slo`: A SLO based monitor  (beta).
+  - `Slo`: A SLO based monitor.
 - `evaluation_delay` - (Optional) Evaluation delay as a string consists of the following elements:
       1. `<number>`: number of time units,
       2. `<time_unit>`: time unit; possible values are: `h` (hour), `m` (minute), `s` (second).
@@ -323,7 +340,7 @@ The following arguments are supported:
       Multiple pairs of `<number><time_unit>` may be provided. For example,
       `2m50s` means 2 minutes and 50 seconds.
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
-- `queries` - (Required) All queries from the monitor.
+- `queries` - (Required if `monitor_type` is not `Slo`) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
   - `resolution_window` - The resolution window that the recovery condition must be met in each evaluation that happens within this entire duration before the alert is recovered (resolved). If not specified, the time range of your trigger will be used.
 - `triggers` - (Deprecated) Defines the conditions of when to send notifications.
@@ -478,11 +495,17 @@ Here is a summary of arguments for each condition type (fields which are not mar
   
 #### slo_burn_rate_condition
   - `critical`
-    - `time_range` (Required) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-    - `burn_rate_threshold` (Required) : The burn rate percentage threshold.
+    - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `burn_rate_threshold` (Deprecated) : The burn rate percentage threshold.
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition. This field is in private beta and is not available until given access. To participate in the beta program, contact Sumo Logic support.
+      - `burn_rate_threshold` (Required): The burn rate percentage threshold.
+      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
   - `warning`
-    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-    - `burn_rate_threshold` (Required)
+    - `time_range` (Deprecated) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `burn_rate_threshold` (Deprecated)
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition. This field is in private beta and is not available until given access. To participate in the beta program, contact Sumo Logic support.
+      - `burn_rate_threshold` (Required): The burn rate percentage threshold.
+      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 
 ## The `triggers` block
 The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.

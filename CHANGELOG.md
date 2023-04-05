@@ -1,6 +1,19 @@
-## 2.20.2 (Unreleased)
+## 2.22.1 (Unreleased)
 
-## 2.20.1 (February 27, 2023)
+## 2.22.0 (March 23, 2023)
+FEATURES:
+* resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
+* Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
+* **New Resource:** sumologic_local_file_source (GH-477)
+
+BUG FIXES:
+* Remove thresholdType field under searchSchedule in content resource (GH-483)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `burn_rate_threshold` and `time_range` in favor of `burn_rate` inside `slo_burn_rate_condition` block (GH-499)
+
+## 2.21.0 (February 27, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_first_seen_rule (GH-476)
 * **New Resource:** sumologic_cse_automation (GH-467)
