@@ -89,7 +89,7 @@ The following arguments are supported:
 ### Schema for `schedule`
 - `cron_expression` - (Optional) Cron-like expression specifying the search's schedule. `schedule_type` must be set
     to "Custom", otherwise, `schedule_type` takes precedence over `cron_expression`.
-- `schedule_type` - (Optional) Run schedule of the scheduled search. Set to "Custom" to specify the schedule with
+- `schedule_type` - (Required) Run schedule of the scheduled search. Set to "Custom" to specify the schedule with
     a CRON expression. Possible schedule types are: `RealTime`, `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
     `8Hours`, `12Hours`, `1Day`, `1Week`, `Custom`.
 - `displayable_time_range` - (Optional) A human-friendly text describing the query time range. For e.g. "-2h",
