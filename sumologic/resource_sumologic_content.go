@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -28,6 +29,7 @@ func resourceSumologicContent() *schema.Resource {
 				ValidateFunc:     validation.StringIsJSON,
 				Required:         true,
 				DiffSuppressFunc: structure.SuppressJsonDiff,
+				StateFunc:        configStateFunc,
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
@@ -36,6 +38,73 @@ func resourceSumologicContent() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
+	}
+}
+
+func configStateFunc(value interface{}) string {
+	return normalizeConfig(value.(string))
+}
+
+// modify json config to remove logically equivalent changes in terrafrom diff output
+// e.g. absent map entry vs map entry with null value
+// or absent map entry vs map entry with default value
+func normalizeConfig(originalConfig string) string {
+	config, err := structure.ExpandJsonFromString(originalConfig)
+
+	if err != nil {
+		log.Println("Couldn't expand config json from string")
+		return originalConfig
+	}
+
+	removeEmptyValues(config)
+	fillPanelQueriesDefaultValues(config)
+
+	if config["theme"] != nil {
+		config["theme"] = strings.ToLower(config["theme"].(string))
+	}
+
+	children, ok := config["children"].([]interface{})
+	if ok {
+		for _, childItemObject := range children {
+			childItemMap, ok := childItemObject.(map[string]interface{})
+			if ok {
+				fillPanelQueriesDefaultValues(childItemMap)
+			}
+		}
+	}
+	configString, err := structure.FlattenJsonToString(config)
+	if err != nil {
+		log.Println("Couldn't flatten config json to string")
+		return originalConfig
+	}
+
+	return configString
+}
+
+func fillPanelQueriesDefaultValues(config map[string]interface{}) {
+	if config["panels"] != nil {
+		panels := config["panels"].([]interface{})
+
+		for _, panelInterface := range panels {
+			panelItem := panelInterface.(map[string]interface{})
+
+			for range panelItem {
+				if panelItem["queries"] != nil {
+					queries := panelItem["queries"].([]interface{})
+					for _, queryInterface := range queries {
+						queryItem := queryInterface.(map[string]interface{})
+
+						if queryItem["outputCardinalityLimit"] == nil {
+							queryItem["outputCardinalityLimit"] = 1000
+						}
+
+						if queryItem["transient"] == nil {
+							queryItem["transient"] = false
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -61,6 +130,9 @@ func resourceSumologicContentRead(d *schema.ResourceData, meta interface{}) erro
 
 	// Write the newly read content object into the schema
 	d.Set("config", content.Config)
+
+	normalizedConfig := normalizeConfig(content.Config)
+	d.Set("config", normalizedConfig)
 	return nil
 }
 

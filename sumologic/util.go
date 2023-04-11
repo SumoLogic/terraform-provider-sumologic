@@ -411,3 +411,26 @@ func abs(value int64) int64 {
 
 	return value
 }
+
+// traverse map and remove fields with null value and empty lists
+func removeEmptyValues(object interface{}) {
+	mapObject, isMap := object.(map[string]interface{})
+	if isMap {
+		for key, value := range mapObject {
+			if value == nil {
+				delete(mapObject, key)
+			}
+			listObject, isList := value.([]interface{})
+			if isList {
+				if len(listObject) == 0 {
+					delete(mapObject, key)
+				} else {
+					for _, listItem := range listObject {
+						removeEmptyValues(listItem)
+					}
+				}
+			}
+			removeEmptyValues(value)
+		}
+	}
+}
