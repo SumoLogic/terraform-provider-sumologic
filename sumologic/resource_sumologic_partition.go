@@ -47,10 +47,6 @@ func resourceSumologicPartition() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
-			"total_bytes": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -111,7 +107,6 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("is_compliant", spartition.IsCompliant)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
 	d.Set("is_active", spartition.IsActive)
-	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
 
 	return nil
@@ -143,7 +138,6 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		IsCompliant:                      d.Get("is_compliant").(bool),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
 		IsActive:                         d.Get("is_active").(bool),
-		TotalBytes:                       d.Get("total_bytes").(int),
 		IndexType:                        d.Get("index_type").(string),
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
 	}
