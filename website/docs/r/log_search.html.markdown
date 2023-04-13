@@ -75,15 +75,16 @@ The following arguments are supported:
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
 - `query_parameters` - (Optional) TODO Find a good description.
-- `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are: `AutoParse` and  `Manual`
+- `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
+    `AutoParse` and  `Manual`. Default value is `Manual`.
 
-    In AutoParse mode, the system automatically figures out fields to parse based on the search query. While in the
-    Manual mode, no fields are parsed out automatically. For more information see
+    In `AutoParse` mode, the system automatically figures out fields to parse based on the search query. While in
+    the `Manual` mode, no fields are parsed out automatically. For more information see
     [Dynamic Parsing](https://help.sumologic.com/?cid=0011).
 - `time_range` - (Block List, Max: 1, Required) Time range of the log search. See [time range schema](#schema-for-time_range)
 - `schedule` - (Block List, Max: 1, Optional) Schedule of the log search. See [schedule schema](#schema-for-schedule)
 - `run_by_receipt_time` - (Optional) This has the value `true` if the search is to be run by receipt time and
-    `false` if it is to be run by message time.
+    `false` if it is to be run by message time. Default value is `false`.
 
 
 ### Schema for `schedule`
@@ -92,6 +93,9 @@ The following arguments are supported:
 - `schedule_type` - (Required) Run schedule of the scheduled search. Set to "Custom" to specify the schedule with
     a CRON expression. Possible schedule types are: `RealTime`, `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
     `8Hours`, `12Hours`, `1Day`, `1Week`, `Custom`.
+
+    -> With `Custom`, `1Day` and `1Week` schedule types you need to provide the corresponding cron expression
+    to determine when to actually run the search. E.g. valid cron for `1Day` is `0 0 16 ? * 2-6 *`.
 - `displayable_time_range` - (Optional) A human-friendly text describing the query time range. For e.g. "-2h",
     "last three days", "team default time"
 - `parseable_time_range` - (Block List, Max: 1, Required) Time range of the scheduled log search. See
@@ -167,7 +171,7 @@ See [cse_signal_notification schema](#schema-for-cse_signal_notification) schema
 - `record_type` - (Required) Name of the Cloud SIEM Enterprise Record to be created.
 
 ### Schema for `email_search_notification`
-- `subject_template` - (Required) Subject of the email. If the notification is scheduled with a threshold,
+- `subject_template` - (Optional) Subject of the email. If the notification is scheduled with a threshold,
     the default subject template will be `Search Alert: {{AlertCondition}} results found for {{SearchName}}`.
     For email notifications without a threshold, the default subject template is `Search Results: {{SearchName}}`.
 - `to_list` - (Block List, Required) A list of email recipients.
@@ -186,7 +190,7 @@ See [cse_signal_notification schema](#schema-for-cse_signal_notification) schema
 
 ### Schema for `service_now_search_notification`
 - `external_id` - (Required) Service Now Identifier.
-- `fields` - (Block List, Required) Service Now fields.
+- `fields` - (Block List, Optional) Service Now fields.
     - `event_type` - (Optional) The category that the event source uses to identify the event.
     - `severity` - (Optional) An integer value representing the severity of the alert. Supported values are:
         * 0 for Clear
