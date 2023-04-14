@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) {
@@ -103,44 +101,4 @@ func (s *Client) CreateOrUpdateContent(content Content, timeout time.Duration, o
 	// extract id of newly created content
 	contentId := strings.Split(status.StatusMessage, ":")[1]
 	return contentId, nil
-}
-
-func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
-	conf := &resource.StateChangeConf{
-		Pending: []string{
-			"InProgress",
-		},
-		Target: []string{
-			"Success",
-		},
-		Refresh: func() (interface{}, string, error) {
-			var status Status
-			b, _, err := s.Get(url)
-			if err != nil {
-				return nil, "", err
-			}
-
-			err = json.Unmarshal(b, &status)
-			if err != nil {
-				return nil, "", err
-			}
-
-			if status.Status == "Failed" {
-				return status, status.Status, fmt.Errorf("Failed - %s", status.Error)
-			}
-
-			return status, status.Status, nil
-		},
-		Timeout:    timeout,
-		Delay:      1 * time.Second,
-		MinTimeout: 1 * time.Second,
-	}
-
-	result, err := conf.WaitForState()
-	log.Printf("[DEBUG] Done waiting for job; err: %s, result: %v", err, result)
-	if status, ok := result.(Status); ok {
-		return &status, err
-	} else {
-		return nil, err
-	}
 }

@@ -1,14 +1,18 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 var (
@@ -432,5 +436,45 @@ func removeEmptyValues(object interface{}) {
 			}
 			removeEmptyValues(value)
 		}
+	}
+}
+
+func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
+	conf := &resource.StateChangeConf{
+		Pending: []string{
+			"InProgress",
+		},
+		Target: []string{
+			"Success",
+		},
+		Refresh: func() (interface{}, string, error) {
+			var status Status
+			b, _, err := s.Get(url)
+			if err != nil {
+				return nil, "", err
+			}
+
+			err = json.Unmarshal(b, &status)
+			if err != nil {
+				return nil, "", err
+			}
+
+			if status.Status == "Failed" {
+				return status, status.Status, fmt.Errorf("Failed - %s", status.Error)
+			}
+
+			return status, status.Status, nil
+		},
+		Timeout:    timeout,
+		Delay:      1 * time.Second,
+		MinTimeout: 1 * time.Second,
+	}
+
+	result, err := conf.WaitForState()
+	log.Printf("[DEBUG] Done waiting for job; err: %s, result: %v", err, result)
+	if status, ok := result.(Status); ok {
+		return &status, err
+	} else {
+		return nil, err
 	}
 }
