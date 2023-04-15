@@ -351,7 +351,7 @@ func SuppressEquivalentTimeDiff(isRelative bool) func(k, oldValue, newValue stri
 
 func getTimeInSeconds(timeValue string) (int64, error) {
 	if !regexp.MustCompile(`^-?((\d)+[smhdw])+$`).Match([]byte(timeValue)) {
-		return 0, fmt.Errorf("Value %s is not in correct time value format.", timeValue)
+		return 0, fmt.Errorf("value %s is not in correct time value format", timeValue)
 	}
 
 	var negative bool = false
@@ -402,7 +402,7 @@ func getSingleTimeValueInSeconds(timeValue string) (int64, error) {
 	case "w":
 		seconds *= 604800
 	default:
-		return 0, fmt.Errorf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
+		return 0, fmt.Errorf("only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
 	}
 
 	return seconds, nil
@@ -460,7 +460,7 @@ func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
 			}
 
 			if status.Status == "Failed" {
-				return status, status.Status, fmt.Errorf("Failed - %s", status.Error)
+				return status, status.Status, fmt.Errorf("async job failed - %s", status.Error)
 			}
 
 			return status, status.Status, nil
