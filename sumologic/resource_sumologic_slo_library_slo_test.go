@@ -11,7 +11,13 @@ import (
 )
 
 var allExampleSlos = []func(testName string) string{
-	exampleLogsWindowsThresholdSlo,
+	exampleLogsWindowThresholdSlo,
+	exampleLogsWindowRatioSlo,
+	exampleLogsRequestThresholdSlo,
+	exampleLogsRequestRatioSlo,
+	exampleMetricsWindowThresholdSlo,
+	exampleMetricsWindowRatioSlo,
+	exampleMetricsRequestRatioSlo,
 }
 
 func testAccCheckSloLibrarySloDestroy(sloLibrarySlo SLOLibrarySLO) resource.TestCheckFunc {
@@ -79,7 +85,7 @@ func TestAccSumologicSloLibrarySlo_create_all_slo_types(t *testing.T) {
 	}
 }
 
-func exampleLogsWindowsThresholdSlo(testName string) string {
+func exampleLogsWindowThresholdSlo(testName string) string {
 	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
   name        = "slo-tf-test-folder"
   description = "folder for SLO created for testing"
@@ -116,6 +122,293 @@ resource "sumologic_slo" "test" {
           query         = "example"
           use_row_count = false
           field = "test"
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleLogsWindowRatioSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    window_based_evaluation {
+      op         = "LessThan"
+      query_type = "Logs"
+      size       = "1m"
+      threshold  = 99.0
+      queries {
+        query_group_type = "Successful"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = true
+        }
+      }
+      queries {
+        query_group_type = "Total"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+          field = "test"
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleLogsRequestThresholdSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    request_based_evaluation {
+      op         = "LessThan"
+      query_type = "Logs"
+      threshold  = 99.0
+      queries {
+        query_group_type = "Threshold"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+          field = "test"
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleLogsRequestRatioSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    request_based_evaluation {
+      query_type = "Logs"
+      queries {
+        query_group_type = "Successful"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+          field = "test"
+        }
+      }
+	  queries {
+        query_group_type = "Total"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = true
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleMetricsWindowThresholdSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    window_based_evaluation {
+      op         = "LessThan"
+      query_type = "Metrics"
+      size       = "1m"
+      threshold  = 99.0
+      aggregation = "Avg"
+      queries {
+        query_group_type = "Threshold"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleMetricsWindowRatioSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    window_based_evaluation {
+      op         = "LessThan"
+      query_type = "Metrics"
+      size       = "1m"
+      threshold  = 99.0
+      queries {
+        query_group_type = "Successful"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = true
+        }
+      }
+	  queries {
+        query_group_type = "Total"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+        }
+      }
+    }
+  }
+}`, testName)
+	return resourceText
+}
+
+func exampleMetricsRequestRatioSlo(testName string) string {
+	var resourceText = fmt.Sprintf(`resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-test-folder"
+  description = "folder for SLO created for testing"
+}
+
+resource "sumologic_slo" "test" {
+  name        = "%s"
+  description = "per minute login error rate over rolling 1 day"
+  parent_id   = sumologic_slo_folder.tf_slo_folder.id
+  signal_type = "Error"
+  service     = "auth"
+  application = "login"
+  compliance {
+      compliance_type = "Rolling"
+      size            = "1d"
+      target          = 95
+      timezone        = "Asia/Kolkata"
+  }
+  tags = {
+    team = "metrics"
+    application = "sumologic"
+  }
+  indicator {
+    request_based_evaluation {
+      query_type = "Metrics"
+      queries {
+        query_group_type = "Successful"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
+        }
+      }
+	  queries {
+        query_group_type = "Total"
+        query_group {
+          row_id        = "A"
+          query         = "example"
+          use_row_count = false
         }
       }
     }

@@ -279,7 +279,9 @@ func resourceSumologicSLO() *schema.Resource {
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Elem:     schema.TypeString,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"is_mutable": {
 				Type:     schema.TypeBool,
