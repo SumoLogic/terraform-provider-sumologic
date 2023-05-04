@@ -119,9 +119,9 @@ resource "sumologic_slo" "test" {
         query_group_type = "Threshold"
         query_group {
           row_id        = "A"
-          query         = "example"
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
           use_row_count = false
-          field = "test"
+          field = "status"
         }
       }
     }
@@ -163,17 +163,18 @@ resource "sumologic_slo" "test" {
         query_group_type = "Successful"
         query_group {
           row_id        = "A"
-          query         = "example"
-          use_row_count = true
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
+          use_row_count = false
+          field = "status"
         }
       }
       queries {
         query_group_type = "Total"
         query_group {
           row_id        = "A"
-          query         = "example"
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
           use_row_count = false
-          field = "test"
+          field = "status"
         }
       }
     }
@@ -214,9 +215,9 @@ resource "sumologic_slo" "test" {
         query_group_type = "Threshold"
         query_group {
           row_id        = "A"
-          query         = "example"
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
           use_row_count = false
-          field = "test"
+          field = "status"
         }
       }
     }
@@ -255,17 +256,18 @@ resource "sumologic_slo" "test" {
         query_group_type = "Successful"
         query_group {
           row_id        = "A"
-          query         = "example"
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
           use_row_count = false
-          field = "test"
+          field = "status"
         }
       }
 	  queries {
         query_group_type = "Total"
         query_group {
           row_id        = "A"
-          query         = "example"
-          use_row_count = true
+          query         = "(deployment=api ApiHttpRequestLoggingFilter Request) | parse \"Request: '* *', QueryString: '*' Status: '*' (took: *ms)\" as method,url,queryString,status,timeTaken | toInt(status) | where status >= 200 and status < 300"
+          use_row_count = false
+          field = "status"
         }
       }
     }
