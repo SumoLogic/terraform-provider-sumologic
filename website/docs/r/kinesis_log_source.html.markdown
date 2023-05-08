@@ -66,12 +66,12 @@ __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This i
 In addition to the common properties, the following arguments are supported:
 
  - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
- - `authentication` - (Optional) Authentication details for connecting to the S3 bucket.
+ - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication` or `NoAuthentication`
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
      + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
- - `path` - (Optional) The location of S3 bucket for failed Kinesis log data.
+ - `path` - (Required) The location of S3 bucket for failed Kinesis log data.
      + `type` - (Required) Must be either `KinesisLogPath` or `NoPathExpression`
      + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `KinesisLogPath`. 
      + `path_expression` - (Optional) The path to the data. This is needed if using type `KinesisLogPath`. For Kinesis log source, it must include `http-endpoint-failed/`.
