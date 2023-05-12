@@ -18,8 +18,8 @@ resource "sumologic_slo" "slo_tf_window_metric_ratio" {
   service     = "auth"
   application = "login"
   tags = {
-    team = "metrics"
-    application = "sumologic"
+    "team" = "metrics"
+    "application" = "sumologic"
   }
   compliance {
       compliance_type = "Rolling"
@@ -61,8 +61,8 @@ resource "sumologic_slo" "slo_tf_window_based" {
   service     = "auth"
   application = "login"
   tags = {
-    team = "metrics"
-    application = "sumologic"
+    "team" = "metrics"
+    "application" = "sumologic"
   }
   compliance {
     compliance_type = "Rolling"
@@ -97,8 +97,8 @@ resource "sumologic_slo" "slo_tf_request_based" {
   service     = "auth"
   application = "login"
   tags = {
-    team = "metrics"
-    application = "sumologic"
+    "team" = "metrics"
+    "application" = "sumologic"
   }
   compliance {
     compliance_type = "Rolling"
@@ -139,8 +139,8 @@ resource "sumologic_slo" "slo_tf_monitor_based" {
   service     = "auth"
   application = "login"
   tags = {
-    team = "metrics"
-    application = "sumologic"
+    "team" = "metrics"
+    "application" = "sumologic"
   }
   compliance {
     compliance_type = "Rolling"
