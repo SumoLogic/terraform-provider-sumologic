@@ -17,6 +17,10 @@ resource "sumologic_slo" "slo_tf_window_metric_ratio" {
   signal_type = "Error"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
       compliance_type = "Rolling"
       size            = "7d"
@@ -56,6 +60,10 @@ resource "sumologic_slo" "slo_tf_window_based" {
   signal_type = "Latency"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -88,6 +96,10 @@ resource "sumologic_slo" "slo_tf_request_based" {
   signal_type = "Latency"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -126,6 +138,10 @@ resource "sumologic_slo" "slo_tf_monitor_based" {
   signal_type = "Error"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -154,6 +170,7 @@ The following arguments are supported:
   , `Other`. Defaults to `Latency`.
 - `service` - (Optional) Name of the service.
 - `application` - (Optional) Name of the application.
+- `tags` - (Optional) A map defining tag keys and tag values for the SLO. This field is in closed preview and is not available until access is granted. Contact your Sumo Logic account representative to get early access.
 - `compliance` - (Required) The compliance settings for the SLO.
     - `compliance_type` - (Required) The type of compliance to use. Valid values are `Rolling` or `Calendar`.
     - `target` - (Required) Target percentage for the SLI over the compliance period. Must be a number between 0 and 100.

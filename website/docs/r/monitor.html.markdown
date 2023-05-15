@@ -497,13 +497,13 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `critical`
     - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `burn_rate_threshold` (Deprecated) : The burn rate percentage threshold.
-    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition. This field is in private beta and is not available until given access. To participate in the beta program, contact Sumo Logic support.
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
       - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
   - `warning`
     - `time_range` (Deprecated) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `burn_rate_threshold` (Deprecated)
-    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition. This field is in private beta and is not available until given access. To participate in the beta program, contact Sumo Logic support.
+    - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
       - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 
