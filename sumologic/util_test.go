@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
+	"reflect"
 	"testing"
 )
 
@@ -198,5 +200,77 @@ func TestSuppressTimeDiff(t *testing.T) {
 		if !tc.equivalent && value {
 			t.Fatalf("Expected test case %d to not be equivalent. Old value %s, new value %s", i, tc.old, tc.new)
 		}
+	}
+}
+
+func TestRemoveEmptyValues(t *testing.T) {
+	inputJsonStr := `{
+			"leaf": "b",
+			"leafNull": null,
+			"emptyList": [],
+			"list": [
+				1,
+				2
+			],
+			"listOfObjects": [
+				{
+					"a": 1
+				},
+				{
+					"b": null,
+					"c": 3
+				}
+			],
+			"map": {
+				"e": 5,
+				"a": null,
+				"nestedMap": {
+					"t": 6,
+					"g": null,
+					"nestedListEmpty": [],
+					"nestedList": [
+						1,
+						2
+					]
+				}
+			}
+		}`
+
+	cleanedJsonStr := `
+		{
+			"leaf": "b",
+			"list": [
+			  1,
+			  2
+			],
+			"listOfObjects": [
+			  {
+				"a": 1
+			  },
+			  {
+				"c": 3
+			  }
+			],
+			"map": {
+			  "e": 5,
+			  "nestedMap": {
+				"nestedList": [
+				  1,
+				  2
+				],
+				"t": 6
+			  }
+			}
+		  }
+		`
+
+	inputMapObject, _ := structure.ExpandJsonFromString(inputJsonStr)
+	removeEmptyValues(inputMapObject)
+	cleanedMapObject, _ := structure.ExpandJsonFromString(cleanedJsonStr)
+	isEqual := reflect.DeepEqual(inputMapObject, cleanedMapObject)
+
+	if !isEqual {
+		processedJsonStr, _ := structure.FlattenJsonToString(inputMapObject)
+		t.Fatal("Expected json after removing empty values:", cleanedJsonStr, "but was:", processedJsonStr)
 	}
 }

@@ -113,25 +113,26 @@ func (s *Client) MoveSLOLibraryToFolder(id, parentId string) error {
 // ---------- TYPES ----------
 
 type SLOLibrarySLO struct {
-	ID          string        `json:"id,omitempty"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Version     int           `json:"version"`
-	CreatedAt   string        `json:"createdAt"`
-	CreatedBy   string        `json:"createdBy"`
-	ModifiedAt  string        `json:"modifiedAt"`
-	ModifiedBy  string        `json:"modifiedBy"`
-	ParentID    string        `json:"parentId"`
-	ContentType string        `json:"contentType"`
-	Type        string        `json:"type"`
-	IsSystem    bool          `json:"isSystem"`
-	IsMutable   bool          `json:"isMutable"`
-	IsLocked    bool          `json:"isLocked"`
-	SignalType  string        `json:"signalType"` // string^(Latency|Error|Throughput|Availability|Other)$
-	Compliance  SLOCompliance `json:"compliance"`
-	Indicator   SLOIndicator  `json:"indicator"`
-	Service     string        `json:"service"`
-	Application string        `json:"application"`
+	ID          string                 `json:"id,omitempty"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Version     int                    `json:"version"`
+	CreatedAt   string                 `json:"createdAt"`
+	CreatedBy   string                 `json:"createdBy"`
+	ModifiedAt  string                 `json:"modifiedAt"`
+	ModifiedBy  string                 `json:"modifiedBy"`
+	ParentID    string                 `json:"parentId"`
+	ContentType string                 `json:"contentType"`
+	Type        string                 `json:"type"`
+	IsSystem    bool                   `json:"isSystem"`
+	IsMutable   bool                   `json:"isMutable"`
+	IsLocked    bool                   `json:"isLocked"`
+	SignalType  string                 `json:"signalType"` // string^(Latency|Error|Throughput|Availability|Other)$
+	Compliance  SLOCompliance          `json:"compliance"`
+	Indicator   SLOIndicator           `json:"indicator"`
+	Service     string                 `json:"service"`
+	Application string                 `json:"application"`
+	Tags        map[string]interface{} `json:"tags"`
 }
 
 type SLOCompliance struct {
