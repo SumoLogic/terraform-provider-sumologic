@@ -1,6 +1,9 @@
-## 2.22.1 (Unreleased)
+## 2.22.2 (Unreleased)
+
+## 2.22.1 (May 15, 2023)
 FEATURES:
 * resource/sumologic_slo: Added support for associating tags with an SLO
+
 ## 2.22.0 (March 23, 2023)
 FEATURES:
 * resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
