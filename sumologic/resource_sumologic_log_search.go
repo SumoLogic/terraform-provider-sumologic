@@ -99,10 +99,6 @@ func resourceSumologicLogSearch() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"displayable_time_range": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
 						"parseable_time_range": {
 							Type:     schema.TypeList,
 							Required: true,
@@ -483,7 +479,6 @@ func getTerraformLogSearchSchedule(schedule *LogSearchSchedule) []map[string]int
 	}
 
 	tfSearchSchedule[0]["cron_expression"] = schedule.CronExpression
-	tfSearchSchedule[0]["displayable_time_range"] = schedule.DisplayableTimeRange
 	tfSearchSchedule[0]["time_zone"] = schedule.TimeZone
 	tfSearchSchedule[0]["mute_error_emails"] = schedule.MuteErrorEmails
 	tfSearchSchedule[0]["schedule_type"] = schedule.ScheduleType
@@ -660,7 +655,6 @@ func resourceToLogSearchSchedule(data interface{}) *LogSearchSchedule {
 		schedule.MuteErrorEmails = scheduleObj["mute_error_emails"].(bool)
 		schedule.Notification = resourceToScheduleSearchNotification(scheduleObj["notification"])
 		schedule.ScheduleType = scheduleObj["schedule_type"].(string)
-		schedule.DisplayableTimeRange = scheduleObj["displayable_time_range"].(string)
 	}
 
 	return &schedule

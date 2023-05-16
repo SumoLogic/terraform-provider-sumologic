@@ -32,7 +32,6 @@ resource "sumologic_log_search" "example_log_search" {
 
     schedule {
         cron_expression = "0 0 * * * ? *"
-        displayable_time_range = "-15m"
         mute_error_emails = false
         notification {
             email_search_notification {
@@ -96,8 +95,6 @@ The following arguments are supported:
 
     -> With `Custom`, `1Day` and `1Week` schedule types you need to provide the corresponding cron expression
     to determine when to actually run the search. E.g. valid cron for `1Day` is `0 0 16 ? * 2-6 *`.
-- `displayable_time_range` - (Optional) A human-friendly text describing the query time range. For e.g. "-2h",
-    "last three days", "team default time"
 - `parseable_time_range` - (Block List, Max: 1, Required) Time range of the scheduled log search. See
     [time range schema](#schema-for-time_range)
 - `time_zone` - (Required) Time zone for the scheduled log search. Either an abbreviation such as "PST",

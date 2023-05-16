@@ -50,15 +50,14 @@ func TestAccSumologicLogSearch_basic(t *testing.T) {
 		Count:         10,
 	}
 	schedule := LogSearchSchedule{
-		CronExpression:       "0 0 6 ? * 3 *",
-		DisplayableTimeRange: "-15m",
-		ParseableTimeRange:   boundedTimeRange,
-		TimeZone:             "America/Los_Angeles",
-		Threshold:            &notificationThreshold,
-		Parameters:           searchParameters,
-		MuteErrorEmails:      true,
-		Notification:         emailNotification,
-		ScheduleType:         "Custom",
+		CronExpression:     "0 0 6 ? * 3 *",
+		ParseableTimeRange: boundedTimeRange,
+		TimeZone:           "America/Los_Angeles",
+		Threshold:          &notificationThreshold,
+		Parameters:         searchParameters,
+		MuteErrorEmails:    true,
+		Notification:       emailNotification,
+		ScheduleType:       "Custom",
 	}
 	runByReceiptTime := false
 
@@ -121,15 +120,14 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 		Count:         10,
 	}
 	schedule := LogSearchSchedule{
-		CronExpression:       "0 0 6 ? * 3 *",
-		DisplayableTimeRange: "-15m",
-		ParseableTimeRange:   boundedTimeRange,
-		TimeZone:             "America/Los_Angeles",
-		Threshold:            &notificationThreshold,
-		Parameters:           searchParameters,
-		MuteErrorEmails:      true,
-		Notification:         emailNotification,
-		ScheduleType:         "Custom",
+		CronExpression:     "0 0 6 ? * 3 *",
+		ParseableTimeRange: boundedTimeRange,
+		TimeZone:           "America/Los_Angeles",
+		Threshold:          &notificationThreshold,
+		Parameters:         searchParameters,
+		MuteErrorEmails:    true,
+		Notification:       emailNotification,
+		ScheduleType:       "Custom",
 	}
 	runByReceiptTime := false
 
@@ -162,8 +160,6 @@ func TestAccSumologicLogSearch_create(t *testing.T) {
 					// schedule
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.#", "1"),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.cron_expression", schedule.CronExpression),
-					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.displayable_time_range",
-						schedule.DisplayableTimeRange),
 					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.mute_error_emails",
 						strconv.FormatBool(schedule.MuteErrorEmails)),
 					// email notification
@@ -262,15 +258,14 @@ func TestAccSumologicLogSearch_update(t *testing.T) {
 		Count:         10,
 	}
 	schedule := LogSearchSchedule{
-		CronExpression:       "0 0 6 ? * 3 *",
-		DisplayableTimeRange: "-15m",
-		ParseableTimeRange:   boundedTimeRange,
-		TimeZone:             "America/Los_Angeles",
-		Threshold:            &notificationThreshold,
-		Parameters:           searchParameters,
-		MuteErrorEmails:      true,
-		Notification:         emailNotification,
-		ScheduleType:         "Custom",
+		CronExpression:     "0 0 6 ? * 3 *",
+		ParseableTimeRange: boundedTimeRange,
+		TimeZone:           "America/Los_Angeles",
+		Threshold:          &notificationThreshold,
+		Parameters:         searchParameters,
+		MuteErrorEmails:    true,
+		Notification:       emailNotification,
+		ScheduleType:       "Custom",
 	}
 	runByReceiptTime := false
 
@@ -446,7 +441,6 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 	tfSchedule := fmt.Sprintf(`
 		schedule {
 			cron_expression = "%s"
-			displayable_time_range = "%s"
 			mute_error_emails = %t
 			notification {
 				email_search_notification {
@@ -483,7 +477,7 @@ func testAccSumologicLogSearch(tfResourceName string, name string, description s
 			}
 			time_zone = "%s"
 		}
-		`, schedule.CronExpression, schedule.DisplayableTimeRange, schedule.MuteErrorEmails,
+		`, schedule.CronExpression, schedule.MuteErrorEmails,
 		emailNotification.IncludeCsvAttachment, emailNotification.IncludeHistogram, emailNotification.IncludeQuery,
 		emailNotification.IncludeResultSet, emailNotification.SubjectTemplate, emailNotification.ToList[0],
 		schedule.Parameters[0].Name, schedule.Parameters[0].Value,
@@ -532,7 +526,6 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 	tfSchedule := fmt.Sprintf(`
 		schedule {
 			cron_expression = "%s"
-			displayable_time_range = "%s"
 			mute_error_emails = %t
 			notification {
 				email_search_notification {
@@ -574,7 +567,7 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 			}
 			time_zone = "%s"
 		}
-		`, schedule.CronExpression, schedule.DisplayableTimeRange, schedule.MuteErrorEmails,
+		`, schedule.CronExpression, schedule.MuteErrorEmails,
 		emailNotification.IncludeCsvAttachment, emailNotification.IncludeHistogram, emailNotification.IncludeQuery,
 		emailNotification.IncludeResultSet, emailNotification.SubjectTemplate, emailNotification.ToList[0],
 		schedule.Parameters[0].Name, schedule.Parameters[0].Value, schedule.Parameters[1].Name, schedule.Parameters[1].Value,

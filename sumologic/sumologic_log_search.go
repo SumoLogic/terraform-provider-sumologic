@@ -98,15 +98,14 @@ type LogSearchQueryParameter struct {
 }
 
 type LogSearchSchedule struct {
-	CronExpression       string                       `json:"cronExpression"`
-	DisplayableTimeRange string                       `json:"displayableTimeRange"`
-	ParseableTimeRange   interface{}                  `json:"parseableTimeRange"`
-	TimeZone             string                       `json:"timeZone"`
-	Threshold            *SearchNotificationThreshold `json:"threshold,omitempty"`
-	Parameters           []ScheduleSearchParameter    `json:"parameters,omitempty"`
-	MuteErrorEmails      bool                         `json:"muteErrorEmails"`
-	Notification         interface{}                  `json:"notification"`
-	ScheduleType         string                       `json:"scheduleType"`
+	CronExpression     string                       `json:"cronExpression"`
+	ParseableTimeRange interface{}                  `json:"parseableTimeRange"`
+	TimeZone           string                       `json:"timeZone"`
+	Threshold          *SearchNotificationThreshold `json:"threshold,omitempty"`
+	Parameters         []ScheduleSearchParameter    `json:"parameters,omitempty"`
+	MuteErrorEmails    bool                         `json:"muteErrorEmails"`
+	Notification       interface{}                  `json:"notification"`
+	ScheduleType       string                       `json:"scheduleType"`
 }
 
 type SearchNotificationThreshold struct {
