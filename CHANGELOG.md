@@ -1,4 +1,6 @@
 ## 2.22.2 (Unreleased)
+BUG FIXES:
+* Enforce validation of `inventory_type` for sumologic_cse_inventory_entity_group_configuration ( fix documentation too ) (GH-520)
 
 ## 2.22.1 (May 15, 2023)
 FEATURES:
