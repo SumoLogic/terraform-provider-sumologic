@@ -1,4 +1,6 @@
-## 2.22.2 (Unreleased)
+## 2.23.0 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_log_search (GH-432)
 
 ## 2.22.1 (May 15, 2023)
 FEATURES:
