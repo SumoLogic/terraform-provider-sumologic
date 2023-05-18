@@ -209,7 +209,7 @@ resource "sumologic_connection" "serviceNowTest" {
 	description = "%s"
 	url = "%s"
 	headers = {
-		"Authorization": "Basic SOMERANDOMAUTHSTRING"
+		"Authorization": "********"
 	}
 	webhook_type = "ServiceNow"
 	connection_subtype = "%s"
@@ -227,7 +227,7 @@ resource "sumologic_connection" "serviceNowTest" {
 	description = "%s"
 	url = "%s"
 	headers = {
-		"Authorization": "Basic SOMERANDOMAUTHSTRING"
+		"Authorization": "********"
 	}
 	webhook_type = "ServiceNow"
 	connection_subtype = "%s"
