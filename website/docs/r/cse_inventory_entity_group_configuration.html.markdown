@@ -11,7 +11,7 @@ resource "sumologic_cse_inventory_entity_group_configuration" "inventory_entity_
 	criticality = "HIGH"
     description = "Inventory entity group description"
 	group = "admin"
-	inventory_type = "username"
+	inventory_type = "user"
 	inventory_source = "Active Directory"
 	name = "Inventory entity group configuration"
 	suppressed = false
@@ -26,7 +26,7 @@ The following arguments are supported:
 - `criticality` - (Optional) The entity group configuration criticality Examples: "HIGH", "CRITICALITY".
 - `description` - (Optional) The entity group configuration description.
 - `group` - (Optional) The entity group configuration inventory group.
-- `inventory_type` - (Required) The inventory type Examples: "computer", "username".
+- `inventory_type` - (Required) The inventory type Examples: "computer", "user".
 - `inventory_source` - (Required) The inventory source Examples: "Active Directory", "Okta".
 - `name` - (Required) The entity group configuration name.
 - `suppresed` - (Optional) The entity group configuration suppressed value 
