@@ -46,7 +46,7 @@ func TestAccSumologicS3ArchiveSource_update(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
-	s3ResourceName := "sumologic_s3_source.s3"
+	s3ResourceName := "sumologic_s3_archive_source.s3_archive"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	resource.Test(t, resource.TestCase{
@@ -157,7 +157,7 @@ resource "sumologic_collector" "test" {
 	description = "%s"
 	category = "%s"
 }
-resource "sumologic_s3_archive_source" "s3" {
+resource "sumologic_s3_archive_source" "s3_archive" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
