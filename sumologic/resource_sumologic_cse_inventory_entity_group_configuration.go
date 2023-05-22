@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 )
 
@@ -32,8 +33,9 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Default:  "",
 			},
 			"inventory_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"user", "computer"}, false),
 			},
 			"inventory_source": {
 				Type:     schema.TypeString,
