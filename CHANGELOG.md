@@ -1,6 +1,8 @@
 ## 2.23.0 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_log_search (GH-432)
+* **New Resource:** sumologic_s3_archive_source (GH-524)
+
 BUG FIXES:
 * Enforce validation of `inventory_type` for sumologic_cse_inventory_entity_group_configuration ( fix documentation too ) (GH-521)
 
