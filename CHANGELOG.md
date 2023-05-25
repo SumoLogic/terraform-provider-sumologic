@@ -1,4 +1,6 @@
-## 2.23.0 (Unreleased)
+## 2.23.1 (Unreleased)
+
+## 2.23.0 (May 24, 2023)
 FEATURES:
 * **New Resource:** sumologic_log_search (GH-432)
 * **New Resource:** sumologic_s3_archive_source (GH-524)
