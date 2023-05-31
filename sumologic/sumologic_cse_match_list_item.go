@@ -49,8 +49,7 @@ func (s *Client) DeleteCSEMatchListItem(id string) error {
 	return err
 }
 
-func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
-
+func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
 	request := CSEMatchListItemRequestPost{
 		CSEMatchListItemPost: CSEMatchListItemPost,
 	}
@@ -69,6 +68,24 @@ func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItem
 	}
 
 	return nil
+}
+
+func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
+	var start = 0
+	var end = 1000
+
+	//If there are more than 1000 items, send requests in batches of 1000 due to the API's maximum item limit allowed per request.
+	for end >= len(CSEMatchListItemPost) {
+		err = SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:end], MatchListID)
+		if err != nil {
+			return err
+		}
+		start += 1000
+		end += 1000
+	}
+
+	return SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:len(CSEMatchListItemPost)], MatchListID)
+
 }
 
 func (s *Client) UpdateCSEMatchListItem(CSEMatchListItemPost CSEMatchListItemPost) error {
