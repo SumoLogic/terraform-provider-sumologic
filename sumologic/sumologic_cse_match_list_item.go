@@ -75,7 +75,7 @@ func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItem
 	var end = 1000
 
 	//If there are more than 1000 items, send requests in batches of 1000 due to the API's maximum item limit allowed per request.
-	for end > len(CSEMatchListItemPost) {
+	for end < len(CSEMatchListItemPost) {
 		err := s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:end], MatchListID)
 		if err != nil {
 			return err
