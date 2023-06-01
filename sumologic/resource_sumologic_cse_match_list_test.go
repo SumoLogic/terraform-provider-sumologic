@@ -106,10 +106,10 @@ resource "sumologic_cse_match_list" "match_list" {
 	for i := 0; i < 1001; i++ {
 		str += fmt.Sprintf(
 			`[
-            description = "%s"
+            description = "%s %d"
             expiration = "%s"
-            value = "%s"
-        ],`, liDescription, liExpiration, liValue)
+            value = "%s %d"
+        ],`, liDescription, i, liExpiration, liValue, i)
 	}
 	str += "}"
 	return str
