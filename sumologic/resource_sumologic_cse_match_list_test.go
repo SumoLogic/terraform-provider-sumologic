@@ -93,6 +93,28 @@ resource "sumologic_cse_match_list" "match_list" {
 `, nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue)
 }
 
+func testCreateCSEMatchListConfigWithOver1000Items(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string) string {
+	var str = fmt.Sprintf(`
+resource "sumologic_cse_match_list" "match_list" {
+    default_ttl = "%d"
+    description = "%s"
+    name = "%s"
+    target_column = "%s"
+    items {
+`, nDefaultTtl, nDescription, nName, nTargetColumn)
+
+	for i := 0; i < 1001; i++ {
+		str += fmt.Sprintf(
+			`[
+            description = "%s"
+            expiration = "%s"
+            value = "%s"
+        ],`, liDescription, liExpiration, liValue)
+	}
+	str += "}"
+	return str
+}
+
 func testDeleteCSEMatchListItemConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_match_list" "match_list" {
