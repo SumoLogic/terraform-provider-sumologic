@@ -45,6 +45,13 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
+				Config: testCreateCSEMatchListConfigWithOver1000Items(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
+				),
+			},
+			{
 				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckMatchListItemsEmpty(resourceName),
