@@ -53,6 +53,7 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 	request := CSEMatchListItemRequestPost{
 		CSEMatchListItemPost: CSEMatchListItemPost,
 	}
+	fmt.Printf("request for %d items sent\n", len(CSEMatchListItemPost))
 
 	var response CSEMatchListItemResponse
 
@@ -64,6 +65,7 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 	err = json.Unmarshal(responseBody, &response)
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

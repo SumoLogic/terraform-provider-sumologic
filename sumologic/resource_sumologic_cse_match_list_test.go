@@ -45,6 +45,45 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
+				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckMatchListItemsEmpty(resourceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicSCEMatchList_createAndUpdateWithOver1000Items(t *testing.T) {
+	SkipCseTest(t)
+
+	var matchList CSEMatchListGet
+	nDefaultTtl := 10800
+	nDescription := "New Match List Description"
+	nName := "Match List Name 1000"
+	nTargetColumn := "SrcIp"
+	liDescription := "Match List Item Description"
+	liValue := "value"
+	liExpiration := "2122-02-27T04:00:00"
+	uDefaultTtl := 3600
+	uDescription := "Updated Match List Description"
+	uliDescription := "Updated Match List item Description"
+	resourceName := "sumologic_cse_match_list.match_list"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEMatchListDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSEMatchListConfigWithOver1000Items(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
 				Config: testCreateCSEMatchListConfigWithOver1000Items(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
@@ -101,24 +140,25 @@ resource "sumologic_cse_match_list" "match_list" {
 }
 
 func testCreateCSEMatchListConfigWithOver1000Items(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string) string {
+	var itemsStr = ""
+
+	for i := 0; i < 5; i++ {
+		itemsStr += fmt.Sprintf(`
+    items {
+	description = "%s %d"
+	expiration = "%s"
+	value = "%s %d"
+    }`, liDescription, i, liExpiration, liValue, i)
+	}
+
 	var str = fmt.Sprintf(`
 resource "sumologic_cse_match_list" "match_list" {
     default_ttl = "%d"
     description = "%s"
     name = "%s"
-    target_column = "%s"
-    items {
-`, nDefaultTtl, nDescription, nName, nTargetColumn)
+    target_column = "%s" %s
+}`, nDefaultTtl, nDescription, nName, nTargetColumn, itemsStr)
 
-	for i := 0; i < 1001; i++ {
-		str += fmt.Sprintf(
-			`[
-            description = "%s %d"
-            expiration = "%s"
-            value = "%s %d"
-        ],`, liDescription, i, liExpiration, liValue, i)
-	}
-	str += "}"
 	return str
 }
 
