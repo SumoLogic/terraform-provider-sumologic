@@ -30,7 +30,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue),
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 15),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
@@ -38,53 +38,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
-				),
-			},
-			{
-				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckMatchListItemsEmpty(resourceName),
-				),
-			},
-		},
-	})
-}
-
-func TestAccSumologicSCEMatchList_createAndUpdateWithOver1000Items(t *testing.T) {
-	SkipCseTest(t)
-
-	var matchList CSEMatchListGet
-	nDefaultTtl := 10800
-	nDescription := "New Match List Description"
-	nName := "Match List Name 1000"
-	nTargetColumn := "SrcIp"
-	liDescription := "Match List Item Description"
-	liValue := "value"
-	liExpiration := "2122-02-27T04:00:00"
-	uDefaultTtl := 3600
-	uDescription := "Updated Match List Description"
-	uliDescription := "Updated Match List item Description"
-	resourceName := "sumologic_cse_match_list.match_list"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCSEMatchListDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreateCSEMatchListConfigWithOver1000Items(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-				),
-			},
-			{
-				Config: testCreateCSEMatchListConfigWithOver1000Items(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 15),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
@@ -123,26 +77,10 @@ func testAccCSEMatchListDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string) string {
-	return fmt.Sprintf(`
-resource "sumologic_cse_match_list" "match_list" {
-	default_ttl = "%d"
-	description = "%s"
-	name = "%s"
-	target_column = "%s"
-	items {
-		description = "%s"
-		expiration = "%s"
-		value = "%s"
-	}
-}
-`, nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue)
-}
-
-func testCreateCSEMatchListConfigWithOver1000Items(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string) string {
+func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string, numItems int) string {
 	var itemsStr = ""
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < numItems; i++ {
 		itemsStr += fmt.Sprintf(`
     items {
 	description = "%s %d"

@@ -2,10 +2,11 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceSumologicCSEMatchList() *schema.Resource {
@@ -212,6 +213,8 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		}
 
 	}
+
+	fmt.Println("finished creating match list")
 
 	return resourceSumologicCSEMatchListRead(d, meta)
 }
