@@ -1,6 +1,7 @@
 ## 2.23.1 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_cse_outlier_rule (GH-532)
+* Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (TRIDENT-18052)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
