@@ -20,7 +20,7 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 			"aggregate_function": {
 				Type:     schema.TypeMap,
 				Required: true,
-				Elem: &schema.Schema{
+				Elem: map[string]*schema.Schema{
 					"name": {
 						Type:     schema.TypeString,
 						Required: true,
