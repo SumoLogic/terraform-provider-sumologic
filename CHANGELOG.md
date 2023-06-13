@@ -1,4 +1,6 @@
 ## 2.23.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_cse_outlier_rule (GH-532)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
