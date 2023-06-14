@@ -18,22 +18,25 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"aggregate_function": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
 				Required: true,
-				Elem: map[string]*schema.Schema{
-					"name": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"function": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"arguments": {
-						Type:     schema.TypeList,
-						Required: true,
-						Elem: &schema.Schema{
-							Type: schema.TypeString,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"function": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"arguments": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 					},
 				},
