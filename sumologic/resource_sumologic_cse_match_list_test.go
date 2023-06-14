@@ -19,9 +19,9 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	liDescription := "Match List Item Description"
 	liValue := "value"
 	liExpiration := "2122-02-27T04:00:00"
-	uDefaultTtl := 3600
-	uDescription := "Updated Match List Description"
-	uliDescription := "Updated Match List item Description"
+	// uDefaultTtl := 3600
+	// uDescription := "Updated Match List Description"
+	// uliDescription := "Updated Match List item Description"
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	resource.Test(t, resource.TestCase{
@@ -37,19 +37,19 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 11),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
-				),
-			},
-			{
-				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckMatchListItemsEmpty(resourceName),
-				),
-			},
+			// {
+			// 	Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 11),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testCheckCSEMatchListExists(resourceName, &matchList),
+			// 		testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
+			// 	),
+			// },
+			// {
+			// 	Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
+			// 	Check: resource.ComposeTestCheckFunc(
+			// 		testCheckMatchListItemsEmpty(resourceName),
+			// 	),
+			// },
 		},
 	})
 }

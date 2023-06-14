@@ -20,12 +20,14 @@ func MatchListItemsDiffSuppressFunc(key, oldValue, newValue string, d *schema.Re
 		key = string(key[:lastDotIndex])
 	}
 
-	// Ignore item comparisons by index since we want to compare the list of items as a whole
-	if key != "items" {
-		return true
-	}
-
 	oldData, newData := d.GetChange(key)
+
+	// Case where two individual items are being compared
+	if key != "items" {
+		oldMap := oldData.(map[string]interface{})
+		newMap := newData.(map[string]interface{})
+		return reflect.DeepEqual(oldMap, newMap)
+	}
 
 	// Check if lists are null or different lengths
 	if oldData == nil || newData == nil {
