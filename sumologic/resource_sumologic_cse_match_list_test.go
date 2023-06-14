@@ -30,7 +30,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 15),
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 11),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
@@ -38,7 +38,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 15),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 11),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
@@ -96,6 +96,8 @@ resource "sumologic_cse_match_list" "match_list" {
     name = "%s"
     target_column = "%s" %s
 }`, nDefaultTtl, nDescription, nName, nTargetColumn, itemsStr)
+
+	fmt.Println(str)
 
 	return str
 }
