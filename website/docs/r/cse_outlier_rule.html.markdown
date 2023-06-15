@@ -61,7 +61,7 @@ The following arguments are supported:
 - `severity` - (Required) The severity of the generated Signals
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Optional) The tags of the generated Signals
-- `window_size` - (Required) The window size in milliseconds
+- `window_size` - (Required) The window size. Current acceptable values are T60M (1 hr) or  T24H (1 day)
 
 The following attributes are exported:
 
