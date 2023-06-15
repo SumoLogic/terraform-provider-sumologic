@@ -33,7 +33,7 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
   retention_window_size  = "7776000000" // 90 days
   severity               = 1
   summary_expression     = "Spike in Login Failures - {{ user_username }}"
-  window_size            = "86400000" // 1 day
+  window_size            = "T24H"
 }
 ```
 ## Argument Reference
