@@ -15,8 +15,8 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	var payload = CSEOutlierRule{
-		AggregationFunctions:  []AggregationFunction{{Name: "total", Function: "count", Arguments: []string{"true"}}},
-		BaselineWindowSize:    "86400000",
+		AggregationFunctions:  []AggregationFunction{{Name: "current", Function: "count", Arguments: []string{"true"}}},
+		BaselineWindowSize:    "432000000",
 		DescriptionExpression: "OutlierRuleTerraformTest - {{ user_username }}",
 		Enabled:               true,
 		EntitySelectors: []EntitySelector{
@@ -29,7 +29,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 		MatchExpression:     `objectType="Network"`,
 		Name:                "OutlierRuleTerraformTest",
 		NameExpression:      "OutlierRuleTerraformTest - {{ user_username }}",
-		RetentionWindowSize: "86400000",
+		RetentionWindowSize: "7776000000",
 		Severity:            1,
 		SummaryExpression:   "OutlierRuleTerraformTest - {{ user_username }}",
 		Tags:                []string{"OutlierRuleTerraformTest"},
@@ -173,7 +173,7 @@ func testCheckOutlierRuleValues(t *testing.T, expected *CSEOutlierRule, actual *
 		assert.Equal(t, expected.Severity, actual.Severity)
 		assert.Equal(t, expected.SummaryExpression, actual.SummaryExpression)
 		assert.Equal(t, expected.Tags, actual.Tags)
-		assert.Equal(t, expected.WindowSize, actual.WindowSize)
+		assert.Equal(t, expected.WindowSize, windowSizeField(actual.WindowSizeName))
 
 		return nil
 	}
