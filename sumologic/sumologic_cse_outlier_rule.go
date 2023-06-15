@@ -73,24 +73,24 @@ type CSEOutlierRuleResponse struct {
 }
 
 type CSEOutlierRule struct {
-	ID                    string                 `json:"id,omitempty"`
-	AssetField            string                 `json:"assetField"`
-	AggregateFunction     map[string]interface{} `json:"aggregateFunction"`
-	BaselineWindowSize    string                 `json:"baselineWindowSize"`
-	DescriptionExpression string                 `json:"descriptionExpression"`
-	DeviationThreshold    int                    `json:"deviationThreshold"`
-	Enabled               bool                   `json:"enabled"`
-	EntitySelectors       []EntitySelector       `json:"entitySelectors"`
-	FloorValue            string                 `json:"floorValue"`
-	GroupByFields         []string               `json:"groupByFields"`
-	IsPrototype           bool                   `json:"isPrototype"`
-	MatchExpression       string                 `json:"matchExpression"`
-	Name                  string                 `json:"name"`
-	NameExpression        string                 `json:"nameExpression"`
-	RetentionWindowSize   string                 `json:"retentionWindowSize"`
-	Severity              int                    `json:"score"`
-	SummaryExpression     string                 `json:"summaryExpression"`
-	Tags                  []string               `json:"tags"`
-	Version               int                    `json:"version"`
-	WindowSize            string                 `json:"windowSize"`
+	ID                    string                `json:"id,omitempty"`
+	AssetField            string                `json:"assetField"`
+	AggregationFunctions  []AggregationFunction `json:"aggregationFunctions"`
+	BaselineWindowSize    string                `json:"baselineWindowSize"`
+	DescriptionExpression string                `json:"descriptionExpression"`
+	DeviationThreshold    int                   `json:"deviationThreshold"`
+	Enabled               bool                  `json:"enabled"`
+	EntitySelectors       []EntitySelector      `json:"entitySelectors"`
+	FloorValue            int                   `json:"floorValue"`
+	GroupByFields         []string              `json:"groupByFields"`
+	IsPrototype           bool                  `json:"isPrototype"`
+	MatchExpression       string                `json:"matchExpression"`
+	Name                  string                `json:"name"`
+	NameExpression        string                `json:"nameExpression"`
+	RetentionWindowSize   string                `json:"retentionWindowSize"`
+	Severity              int                   `json:"score"`
+	SummaryExpression     string                `json:"summaryExpression"`
+	Tags                  []string              `json:"tags"`
+	Version               int                   `json:"version"`
+	WindowSize            string                `json:"windowSize"`
 }

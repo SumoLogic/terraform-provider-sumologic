@@ -15,26 +15,26 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	var payload = CSEOutlierRule{
-		AggregateFunction: map[string]interface{}{
-			"name":      "total",
-			"function":  "count",
-			"arguments": "true",
-		},
+		AggregationFunctions:  []AggregationFunction{{Name: "total", Function: "count", Arguments: []string{"true"}}},
 		BaselineWindowSize:    "86400000",
 		DescriptionExpression: "OutlierRuleTerraformTest - {{ user_username }}",
 		Enabled:               true,
-		FloorValue:            "0",
-		GroupByFields:         []string{"user_username"},
-		IsPrototype:           false,
-		MatchExpression:       `objectType="Network"`,
-		Name:                  "OutlierRuleTerraformTest",
-		NameExpression:        "OutlierRuleTerraformTest - {{ user_username }}",
-		RetentionWindowSize:   "86400000",
-		Severity:              1,
-		SummaryExpression:     "OutlierRuleTerraformTest - {{ user_username }}",
-		Tags:                  []string{"OutlierRuleTerraformTest"},
-		Version:               1,
-		WindowSize:            "3600000",
+		EntitySelectors: []EntitySelector{
+			{EntityType: "_username", Expression: "user_username"},
+		},
+		FloorValue:          0,
+		DeviationThreshold:  3,
+		GroupByFields:       []string{"user_username"},
+		IsPrototype:         false,
+		MatchExpression:     `objectType="Network"`,
+		Name:                "OutlierRuleTerraformTest",
+		NameExpression:      "OutlierRuleTerraformTest - {{ user_username }}",
+		RetentionWindowSize: "86400000",
+		Severity:            1,
+		SummaryExpression:   "OutlierRuleTerraformTest - {{ user_username }}",
+		Tags:                []string{"OutlierRuleTerraformTest"},
+		Version:             1,
+		WindowSize:          "3600000",
 	}
 	updatedPayload := payload
 	updatedPayload.Enabled = false
@@ -95,11 +95,13 @@ func testCreateCSEOutlierRuleConfig(t *testing.T, payload *CSEOutlierRule) strin
 			return `["` + strings.Join(arr, `","`) + `"]`
 		}}).Parse(`
 resource "sumologic_cse_outlier_rule" "outlier_rule" {
-  aggregate_function {
-  		name = "{{ .AggregateFunction.Name }}"
-  		function = "{{ .AggregateFunction.Function }}"
-  		arguments = {{ .AggregateFunction.Arguments }}
+  {{ range .AggregationFunctions }}
+  aggregation_functions {
+  		name = "{{ .Name }}"
+  		function = "{{ .Function }}"
+  		arguments = {{ quoteStringArray .Arguments }}
   }
+  {{ end }}
   baseline_window_size   = "{{ .BaselineWindowSize }}"
   description_expression = "{{ .DescriptionExpression }}"
   enabled                = {{ .Enabled }}
@@ -109,10 +111,11 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
         expression = "{{ .Expression }}"
   }
   {{ end }}
-  floor_value 		 	= "{{ .FloorValue }}"
+  floor_value 		 	= {{ .FloorValue }}
+  deviation_threshold 	= {{ .DeviationThreshold }}
   group_by_fields       = {{ quoteStringArray .GroupByFields }}
   is_prototype		  	= {{ .IsPrototype }}
-  match_expression     	= "{{ js .MatchExpression }}""
+  match_expression     	= "{{ js .MatchExpression }}"
   name                  = "{{ .Name }}"
   name_expression       = "{{ .NameExpression }}"
   retention_window_size = "{{ .RetentionWindowSize }}"
@@ -126,6 +129,8 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
 	if err := configTemplate.Execute(&buffer, payload); err != nil {
 		t.Error(err)
 	}
+
+	print(buffer.String())
 	return buffer.String()
 }
 
@@ -154,7 +159,7 @@ func testCheckCSEOutlierRuleExists(n string, outlierRule *CSEOutlierRule) resour
 
 func testCheckOutlierRuleValues(t *testing.T, expected *CSEOutlierRule, actual *CSEOutlierRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		assert.Equal(t, expected.AggregateFunction, actual.AggregateFunction)
+		assert.Equal(t, expected.AggregationFunctions, actual.AggregationFunctions)
 		assert.Equal(t, expected.BaselineWindowSize, actual.BaselineWindowSize)
 		assert.Equal(t, expected.DescriptionExpression, actual.DescriptionExpression)
 		assert.Equal(t, expected.DeviationThreshold, actual.DeviationThreshold)

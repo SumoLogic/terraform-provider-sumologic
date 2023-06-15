@@ -11,7 +11,11 @@ Provides a Sumo Logic CSE [Outlier Rule](https://help.sumologic.com/docs/cse/rul
 ## Example Usage
 ```hcl
 resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
-  aggregation_function   = ""
+  aggregation_functions {
+  		name = "total"
+  		function = "count"
+  		arguments = ["true"]
+  }
   baseline_window_size   = "1209600000" // 14 days
   description_expression = "Spike in Login Failures - {{ user_username }}"
   enabled                = true
@@ -20,15 +24,16 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
     expression = "user_username"
   }
   floor_value            = 0
+  deviation_threshold    = 3
   group_by_fields        = ["user_username"]
-  is_prototype          = false
+  is_prototype           = false
   match_expression       = "objectType=\"Authentication\" AND success=false"
-  name                  = "Spike in Login Failures"
-  name_expression       = "Spike in Login Failures - {{ user_username }}"
-  retention_window_size = "7776000000" // 90 days
-  severity              = 1
-  summary_expression    = "Spike in Login Failures - {{ user_username }}"
-  window_size           = "86400000" // 1 day
+  name                   = "Spike in Login Failures"
+  name_expression        = "Spike in Login Failures - {{ user_username }}"
+  retention_window_size  = "7776000000" // 90 days
+  severity               = 1
+  summary_expression     = "Spike in Login Failures - {{ user_username }}"
+  window_size            = "86400000" // 1 day
 }
 ```
 ## Argument Reference

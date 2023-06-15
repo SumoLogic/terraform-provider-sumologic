@@ -17,7 +17,7 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"aggregate_function": {
+			"aggregation_functions": {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
@@ -60,7 +60,7 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"floor_value": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"group_by_fields": {
@@ -131,7 +131,7 @@ func resourceSumologicCSEOutlierRuleRead(d *schema.ResourceData, meta interface{
 		return nil
 	}
 
-	d.Set("aggregate_function", CSEOutlierRuleGet.AggregateFunction)
+	d.Set("aggregate_function", aggregationFunctionsArrayToResource(CSEOutlierRuleGet.AggregationFunctions))
 	d.Set("baseline_window_size", CSEOutlierRuleGet.BaselineWindowSize)
 	d.Set("description_expression", CSEOutlierRuleGet.DescriptionExpression)
 	d.Set("deviation_threshold", CSEOutlierRuleGet.DeviationThreshold)
@@ -164,13 +164,13 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 
 	if d.Id() == "" {
 		id, err := c.CreateCSEOutlierRule(CSEOutlierRule{
-			AggregateFunction:     d.Get("aggregate_function").(map[string]interface{}),
+			AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
 			BaselineWindowSize:    d.Get("baseline_window_size").(string),
 			DescriptionExpression: d.Get("description_expression").(string),
 			DeviationThreshold:    d.Get("deviation_threshold").(int),
 			Enabled:               d.Get("enabled").(bool),
 			EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-			FloorValue:            d.Get("floor_value").(string),
+			FloorValue:            d.Get("floor_value").(int),
 			GroupByFields:         resourceToStringArray(d.Get("group_by_fields").([]interface{})),
 			IsPrototype:           d.Get("is_prototype").(bool),
 			MatchExpression:       d.Get("match_expression").(string),
@@ -215,13 +215,13 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 
 	return CSEOutlierRule{
 		ID:                    id,
-		AggregateFunction:     d.Get("aggregate_function").(map[string]interface{}),
+		AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
 		BaselineWindowSize:    d.Get("baseline_window_size").(string),
 		DescriptionExpression: d.Get("description_expression").(string),
 		DeviationThreshold:    d.Get("deviation_threshold").(int),
 		Enabled:               d.Get("enabled").(bool),
 		EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-		FloorValue:            d.Get("floor_value").(string),
+		FloorValue:            d.Get("floor_value").(int),
 		GroupByFields:         resourceToStringArray(d.Get("group_by_fields").([]interface{})),
 		IsPrototype:           d.Get("is_prototype").(bool),
 		MatchExpression:       d.Get("match_expression").(string),
