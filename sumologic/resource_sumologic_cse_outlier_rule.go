@@ -181,7 +181,6 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 			SummaryExpression:     d.Get("summary_expression").(string),
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 			WindowSize:            d.Get("window_size").(string),
-			Version:               1,
 		})
 
 		if err != nil {
@@ -232,6 +231,5 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		WindowSize:            d.Get("window_size").(string),
-		Version:               1,
 	}, nil
 }

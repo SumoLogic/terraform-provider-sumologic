@@ -33,8 +33,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 		Severity:            1,
 		SummaryExpression:   "OutlierRuleTerraformTest - {{ user_username }}",
 		Tags:                []string{"OutlierRuleTerraformTest"},
-		Version:             1,
-		WindowSize:          "3600000",
+		WindowSize:          "T24H",
 	}
 	updatedPayload := payload
 	updatedPayload.Enabled = false
@@ -130,7 +129,6 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
 		t.Error(err)
 	}
 
-	print(buffer.String())
 	return buffer.String()
 }
 
