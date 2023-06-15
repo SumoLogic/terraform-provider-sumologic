@@ -91,5 +91,6 @@ type CSEOutlierRule struct {
 	Severity              int                   `json:"score"`
 	SummaryExpression     string                `json:"summaryExpression"`
 	Tags                  []string              `json:"tags"`
-	WindowSize            string                `json:"windowSize"`
+	WindowSize            windowSizeField       `json:"windowSize,omitempty"`
+	WindowSizeName        string                `json:"windowSizeName,omitempty"`
 }

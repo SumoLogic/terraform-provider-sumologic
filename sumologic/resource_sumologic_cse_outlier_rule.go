@@ -147,7 +147,7 @@ func resourceSumologicCSEOutlierRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("severity", CSEOutlierRuleGet.Severity)
 	d.Set("summary_expression", CSEOutlierRuleGet.SummaryExpression)
 	d.Set("tags", CSEOutlierRuleGet.Tags)
-	d.Set("window_size", CSEOutlierRuleGet.WindowSize)
+	d.Set("window_size", CSEOutlierRuleGet.WindowSizeName)
 
 	return nil
 }
@@ -180,7 +180,7 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 			Severity:              d.Get("severity").(int),
 			SummaryExpression:     d.Get("summary_expression").(string),
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
-			WindowSize:            d.Get("window_size").(string),
+			WindowSize:            windowSizeField(d.Get("window_size").(string)),
 		})
 
 		if err != nil {
@@ -230,6 +230,6 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 		Severity:              d.Get("severity").(int),
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
-		WindowSize:            d.Get("window_size").(string),
+		WindowSize:            windowSizeField(d.Get("window_size").(string)),
 	}, nil
 }
