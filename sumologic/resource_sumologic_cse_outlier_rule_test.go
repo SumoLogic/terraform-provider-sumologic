@@ -16,7 +16,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 
 	var payload = CSEOutlierRule{
 		AggregationFunctions:  []AggregationFunction{{Name: "total", Function: "count", Arguments: []string{"true"}}},
-		BaselineWindowSize:    "86400000",
+		BaselineWindowSize:    "604800000",
 		DescriptionExpression: "OutlierRuleTerraformTest - {{ user_username }}",
 		Enabled:               true,
 		EntitySelectors: []EntitySelector{
@@ -29,7 +29,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 		MatchExpression:     `objectType="Network"`,
 		Name:                "OutlierRuleTerraformTest",
 		NameExpression:      "OutlierRuleTerraformTest - {{ user_username }}",
-		RetentionWindowSize: "86400000",
+		RetentionWindowSize: "1209600000",
 		Severity:            1,
 		SummaryExpression:   "OutlierRuleTerraformTest - {{ user_username }}",
 		Tags:                []string{"OutlierRuleTerraformTest"},
