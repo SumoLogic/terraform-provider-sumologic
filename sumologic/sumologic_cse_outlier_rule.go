@@ -75,7 +75,7 @@ type CSEOutlierRuleResponse struct {
 type CSEOutlierRule struct {
 	ID                    string                 `json:"id,omitempty"`
 	AssetField            string                 `json:"assetField"`
-	AggregateFunction     map[string]interface{} `json:"aggregateFunction"`
+	AggregateFunction     []AggregationFunction	 `json:"aggregationFunctions"`
 	BaselineWindowSize    string                 `json:"baselineWindowSize"`
 	DescriptionExpression string                 `json:"descriptionExpression"`
 	DeviationThreshold    int                    `json:"deviationThreshold"`
