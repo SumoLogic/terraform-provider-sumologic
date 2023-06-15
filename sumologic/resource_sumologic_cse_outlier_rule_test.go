@@ -15,7 +15,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	var payload = CSEOutlierRule{
-		AggregationFunctions:  []AggregationFunction{{Name: "total", Function: "count", Arguments: []string{"true"}}},
+		AggregationFunctions:  []AggregationFunction{{Name: "current", Function: "count", Arguments: []string{"true"}}},
 		BaselineWindowSize:    "604800000",
 		DescriptionExpression: "OutlierRuleTerraformTest - {{ user_username }}",
 		Enabled:               true,
