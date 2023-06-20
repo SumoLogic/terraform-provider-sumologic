@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,14 +16,14 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	var matchList CSEMatchListGet
 	nDefaultTtl := 10800
 	nDescription := "New Match List Description"
-	nName := "Match List Name"
+	nName := fmt.Sprintf("Match List Name %s", uuid.New())
 	nTargetColumn := "SrcIp"
 	liDescription := "Match List Item Description"
 	liValue := "value"
 	liExpiration := "2122-02-27T04:00:00"
-	// uDefaultTtl := 3600
-	// uDescription := "Updated Match List Description"
-	// uliDescription := "Updated Match List item Description"
+	uDefaultTtl := 3600
+	uDescription := "Updated Match List Description"
+	uliDescription := "Updated Match List item Description"
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	resource.Test(t, resource.TestCase{
@@ -30,26 +32,26 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 11),
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 51),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			// {
-			// 	Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 11),
-			// 	Check: resource.ComposeTestCheckFunc(
-			// 		testCheckCSEMatchListExists(resourceName, &matchList),
-			// 		testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
-			// 	),
-			// },
-			// {
-			// 	Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
-			// 	Check: resource.ComposeTestCheckFunc(
-			// 		testCheckMatchListItemsEmpty(resourceName),
-			// 	),
-			// },
+			{
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 51),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
+				),
+			},
+			{
+				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckMatchListItemsEmpty(resourceName),
+				),
+			},
 		},
 	})
 }
@@ -81,12 +83,14 @@ func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName st
 	var itemsStr = ""
 
 	for i := 0; i < numItems; i++ {
+		id := uuid.New()
+
 		itemsStr += fmt.Sprintf(`
     items {
 	description = "%s %d"
 	expiration = "%s"
-	value = "%s %d"
-    }`, liDescription, i, liExpiration, liValue, i)
+	value = "%s %d %s"
+    }`, liDescription, i, liExpiration, liValue, i, id)
 	}
 
 	var str = fmt.Sprintf(`

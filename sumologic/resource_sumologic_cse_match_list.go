@@ -121,9 +121,9 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 				Computed: true,
 			},
 			"items": {
-				Type:             schema.TypeList,
-				Optional:         true,
-				DiffSuppressFunc: MatchListItemsDiffSuppressFunc,
+				Type:     schema.TypeSet,
+				Optional: true,
+				//DiffSuppressFunc: MatchListItemsDiffSuppressFunc,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -239,12 +239,12 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		d.SetId(id)
 
 		//Match list items
-		itemsData := d.Get("items").([]interface{})
+		//itemsData := d.Get("items").([]interface{})
+		itemsData := d.Get("items").(*schema.Set).List()
 		var items []CSEMatchListItemPost
 		for _, data := range itemsData {
 			item, _ := resourceToCSEMatchListItem([]interface{}{data})
 			items = append(items, item)
-
 		}
 
 		if len(items) > 0 {
@@ -299,6 +299,7 @@ func resourceToCSEMatchListItem(data interface{}) (CSEMatchListItemPost, string)
 }
 
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
+	println("in update")
 	CSEMatchListPost, err := resourceToCSEMatchList(d)
 	if err != nil {
 		return err
@@ -310,7 +311,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	//Match list items
-	itemsData := d.Get("items").([]interface{})
+	//itemsData := d.Get("items").([]interface{})
+	itemsData := d.Get("items").(*schema.Set).List()
 	var itemIds []string
 	var items []CSEMatchListItemPost
 	for _, data := range itemsData {
@@ -318,8 +320,9 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		item.ID = ""
 		items = append(items, item)
 		itemIds = append(itemIds, id)
-
 	}
+
+	println(itemIds)
 
 	if len(items) > 0 {
 		err2 := c.CreateCSEMatchListItems(items, d.Id())
@@ -337,6 +340,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 	if CSEMatchListItems != nil {
 
+		println("343")
+
 		for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
 			if !contains(itemIds, t.ID) {
 				err3 := c.DeleteCSEMatchListItem(t.ID)
@@ -346,6 +351,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 			}
 		}
 	}
+
+	println("355")
 
 	createStateConf := &resource.StateChangeConf{
 		Target: []string{
@@ -365,6 +372,9 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	_, err = createStateConf.WaitForState()
+
+	println("376")
+
 	if err != nil {
 		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
 	}
