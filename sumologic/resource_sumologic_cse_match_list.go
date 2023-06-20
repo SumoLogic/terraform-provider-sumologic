@@ -3,75 +3,11 @@ package sumologic
 import (
 	"fmt"
 	"log"
-	"reflect"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
-
-func MatchListItemsDiffSuppressFunc(key, oldValue, newValue string, d *schema.ResourceData) bool {
-	// Suppresses the diff shown if the items are the same but in different order
-
-	// The key is either the list itself (e.g "items") or a path to the list element (e.g. "items.0")
-	lastDotIndex := strings.LastIndex(key, ".")
-	if lastDotIndex != -1 {
-		key = string(key[:lastDotIndex])
-	}
-
-	oldData, newData := d.GetChange(key)
-
-	// Case where two individual items are being compared
-	if key != "items" {
-		oldMap := oldData.(map[string]interface{})
-		newMap := newData.(map[string]interface{})
-		return reflect.DeepEqual(oldMap, newMap)
-	}
-
-	// Check if lists are null or different lengths
-	if oldData == nil || newData == nil {
-		return false
-	}
-
-	println("key: "+key, fmt.Sprintf("%T", oldData), fmt.Sprintf("%T", newData))
-
-	oldArray := oldData.([]interface{})
-	newArray := newData.([]interface{})
-
-	println("len oldArray: ", len(oldArray), " len newArray:", len(newArray))
-
-	if len(oldArray) != len(newArray) {
-		return false
-	}
-
-	// Check if the new array contains each map in the old array
-	for i := 0; i < len(oldArray); i++ {
-		newArrayContainsOldMap := false
-
-		println(fmt.Sprintf("%T", oldArray[i]))
-
-		oldMap := oldArray[i].(map[string]interface{})
-
-		println(fmt.Sprintf("oldmap %#v", oldMap))
-
-		for j := 0; j < len(newArray); j++ {
-
-			newMap := newArray[j].(map[string]interface{})
-			if reflect.DeepEqual(oldMap, newMap) {
-				println(fmt.Sprintf("newmap match %#v", newMap))
-
-				newArrayContainsOldMap = true
-				break
-			}
-		}
-
-		if !newArrayContainsOldMap {
-			return false
-		}
-	}
-	return true
-}
 
 func resourceSumologicCSEMatchList() *schema.Resource {
 	return &schema.Resource{
@@ -123,7 +59,6 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 			"items": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				//DiffSuppressFunc: MatchListItemsDiffSuppressFunc,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -215,13 +150,20 @@ func setItems(d *schema.ResourceData, items []CSEMatchListItemGet) {
 }
 
 func resourceSumologicCSEMatchListDelete(d *schema.ResourceData, meta interface{}) error {
+	println("delete: started resourceSumologicCSEMatchListDelete")
+
 	c := meta.(*Client)
 	err := c.DeleteCSEMatchList(d.Id())
+
+	println("delete: finished resourceSumologicCSEMatchListDelete")
+
 	return err
 
 }
 
 func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{}) error {
+	println("create: starting resourceSumologicCSEMatchListCreate")
+
 	c := meta.(*Client)
 
 	if d.Id() == "" {
@@ -279,7 +221,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 
 	}
 
-	fmt.Println("finished creating match list")
+	println("create: finished resourceSumologicCSEMatchListCreate")
 
 	return resourceSumologicCSEMatchListRead(d, meta)
 }
@@ -299,7 +241,7 @@ func resourceToCSEMatchListItem(data interface{}) (CSEMatchListItemPost, string)
 }
 
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
-	println("in update")
+	println("update: starting resourceSumologicCSEMatchListUpdate")
 	CSEMatchListPost, err := resourceToCSEMatchList(d)
 	if err != nil {
 		return err
@@ -322,7 +264,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		itemIds = append(itemIds, id)
 	}
 
-	println(itemIds)
+	println("update: creating new updated items")
 
 	if len(items) > 0 {
 		err2 := c.CreateCSEMatchListItems(items, d.Id())
@@ -340,7 +282,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 	if CSEMatchListItems != nil {
 
-		println("343")
+		println(fmt.Sprintf("update: checking %d items for deletion", len(CSEMatchListItems.CSEMatchListItemsGetObjects)))
 
 		for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
 			if !contains(itemIds, t.ID) {
@@ -352,7 +294,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	println("355")
+	println("update: finished deleting, now getting items")
 
 	createStateConf := &resource.StateChangeConf{
 		Target: []string{
@@ -373,11 +315,11 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 
 	_, err = createStateConf.WaitForState()
 
-	println("376")
-
 	if err != nil {
 		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
 	}
+
+	println("update: finished resourceSumologicCSEMatchListUpdate")
 
 	return resourceSumologicCSEMatchListRead(d, meta)
 }

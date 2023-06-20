@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var limit = 1000
+
 func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items/%s", id))
 	if err != nil {
@@ -24,8 +26,8 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	return &response.CSEMatchListItemGet, nil
 }
 
-func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s", MatchListId))
+func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int) (*CSEMatchListItemsInMatchListGet, error) {
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", MatchListId, limit, offset))
 	if err != nil {
 		return nil, err
 	}
@@ -41,6 +43,34 @@ func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchL
 	}
 
 	return &response.CSEMatchListItemsGetData, nil
+}
+
+func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
+	offset := 0
+	response, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	println(fmt.Sprintf("get: GetCSEMatchListItemsInMatchList response total: %d", response.Total))
+
+	// When the match list has over 1000 items, fetch items from the remaining pages
+	for offset = limit; offset < response.Total; offset += limit {
+		println(fmt.Sprintf("Checking next page from %d to %d", offset, offset+1000))
+
+		nextPageResponse, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+		if err != nil {
+			return nil, err
+		}
+
+		println(fmt.Sprintf("Next page has %d items", len(nextPageResponse.CSEMatchListItemsGetObjects)))
+
+		for i := 0; i < len(nextPageResponse.CSEMatchListItemsGetObjects); i++ {
+			response.CSEMatchListItemsGetObjects = append(response.CSEMatchListItemsGetObjects, nextPageResponse.CSEMatchListItemsGetObjects[i])
+		}
+	}
+
+	return response, nil
 }
 
 func (s *Client) DeleteCSEMatchListItem(id string) error {
@@ -61,7 +91,7 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 		return err
 	}
 
-	fmt.Printf("create request for %d items was sent\n", len(CSEMatchListItemPost))
+	fmt.Printf("SendCreateCSEMatchListItemsRequest: sent request for %d items\n", len(CSEMatchListItemPost))
 
 	err = json.Unmarshal(responseBody, &response)
 

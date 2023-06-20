@@ -32,7 +32,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 51),
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, 1000),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
@@ -40,7 +40,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 51),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, 1000),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
@@ -87,10 +87,10 @@ func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName st
 
 		itemsStr += fmt.Sprintf(`
     items {
-	description = "%s %d"
+	description = "%s %d %s"
 	expiration = "%s"
 	value = "%s %d %s"
-    }`, liDescription, i, liExpiration, liValue, i, id)
+    }`, liDescription, i, id, liExpiration, liValue, i, id)
 	}
 
 	var str = fmt.Sprintf(`
