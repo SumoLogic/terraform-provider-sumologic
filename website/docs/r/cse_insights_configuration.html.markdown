@@ -13,6 +13,7 @@ Provides the Sumologic CSE Insights Configuration for the whole organization. Th
 resource "sumologic_cse_insights_configuration" "insights_configuration" {
   lookback_days = 13.0
   threshold = 12.0
+  global_signal_suppression_window = 48.0
 }
 ```
 
@@ -22,6 +23,7 @@ The following arguments are supported:
 
 - `lookback_days` - (Optional) Detection window expressed in days.
 - `threshold` - (Optional) Detection threshold activity score.
+- `global_signal_suppression_window` - (Optional) Detection global signal suppression window expressed in hours.
 
 The following attributes are exported:
 
