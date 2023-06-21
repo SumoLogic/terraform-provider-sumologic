@@ -220,8 +220,6 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	body, _ := json.Marshal(payload)
 
-	println(string(body))
-
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err

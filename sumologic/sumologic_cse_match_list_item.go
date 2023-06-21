@@ -52,18 +52,12 @@ func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchL
 		return nil, err
 	}
 
-	println(fmt.Sprintf("get: GetCSEMatchListItemsInMatchList response total: %d", response.Total))
-
 	// When the match list has over 1000 items, fetch items from the remaining pages
 	for offset = limit; offset < response.Total; offset += limit {
-		println(fmt.Sprintf("Checking next page from %d to %d", offset, offset+1000))
-
 		nextPageResponse, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
 		if err != nil {
 			return nil, err
 		}
-
-		println(fmt.Sprintf("Next page has %d items", len(nextPageResponse.CSEMatchListItemsGetObjects)))
 
 		for i := 0; i < len(nextPageResponse.CSEMatchListItemsGetObjects); i++ {
 			response.CSEMatchListItemsGetObjects = append(response.CSEMatchListItemsGetObjects, nextPageResponse.CSEMatchListItemsGetObjects[i])
@@ -96,7 +90,6 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 	err = json.Unmarshal(responseBody, &response)
 
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
