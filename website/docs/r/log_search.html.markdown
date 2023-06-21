@@ -73,7 +73,8 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameters` - (Optional) TODO Find a good description.
+- `query_parameters` - (Optional) Values for search template used in the search query. 
+    Learn more about the search templates here : https://help.sumologic.com/docs/search/get-started-with-search/build-search/search-templates/
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
 
