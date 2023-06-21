@@ -216,8 +216,6 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 
 	}
 
-	println("create: finished resourceSumologicCSEMatchListCreate")
-
 	return resourceSumologicCSEMatchListRead(d, meta)
 }
 
@@ -306,7 +304,6 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	_, err = createStateConf.WaitForState()
-
 	if err != nil {
 		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
 	}

@@ -85,8 +85,6 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 		return err
 	}
 
-	fmt.Printf("SendCreateCSEMatchListItemsRequest: sent request for %d items\n", len(CSEMatchListItemPost))
-
 	err = json.Unmarshal(responseBody, &response)
 
 	if err != nil {
@@ -100,7 +98,7 @@ func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItem
 	var start = 0
 	var end = 1000
 
-	//If there are more than 1000 items, send requests in batches of 1000 due to the API's maximum item limit allowed per request.
+	//If there are more than 1000 items, send requests in batches of 1000
 	for end < len(CSEMatchListItemPost) {
 		err := s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:end], MatchListID)
 		if err != nil {
