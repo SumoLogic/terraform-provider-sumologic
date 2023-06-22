@@ -1,11 +1,11 @@
 ## 2.23.1 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_cse_outlier_rule (GH-532)
-* Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (TRIDENT-18052)
+* Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (GH-533)
 
 BUG FIXES:
 * Enforce validation of `group_by_fields` in cse_*_rule resources, on non empty string elements. (GH-535)
-* Fixes `resource_sumologic_cse_match_list` to allow for match lists with more than 1000 items to be created. (INVS-1408)
+* Fixes `resource_sumologic_cse_match_list` to allow for match lists with more than 1000 items to be created. (GH-536)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
