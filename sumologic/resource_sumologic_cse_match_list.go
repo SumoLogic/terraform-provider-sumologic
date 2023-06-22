@@ -87,16 +87,6 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 	}
 }
 
-func getCSEMatchListItemsInMatchList(id string, meta interface{}) *CSEMatchListItemsInMatchListGet {
-	c := meta.(*Client)
-
-	CSEMatchListItems, err := c.GetCSEMatchListItemsInMatchList(id)
-	if err != nil {
-		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", id, err)
-	}
-	return CSEMatchListItems
-}
-
 func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
@@ -125,7 +115,10 @@ func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{})
 	d.Set("last_updated", CSEMatchList.LastUpdated)
 	d.Set("last_updated_by", CSEMatchList.LastUpdatedBy)
 
-	CSEMatchListItems := getCSEMatchListItemsInMatchList(id, meta)
+	CSEMatchListItems, err := c.GetCSEMatchListItemsInMatchList(id)
+	if err != nil {
+		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", id, err)
+	}
 
 	if CSEMatchListItems == nil {
 		d.Set("items", nil)
@@ -185,9 +178,9 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		}
 
 		if len(items) > 0 {
-			err2 := c.CreateCSEMatchListItems(items, id)
-			if err2 != nil {
-				log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", id, err2)
+			err = c.CreateCSEMatchListItems(items, id)
+			if err != nil {
+				log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", id, err)
 			}
 
 		}
@@ -199,6 +192,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 			Refresh: func() (interface{}, string, error) {
 				resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
 				if err != nil {
+					log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
 					return 0, "", err
 				}
 				return resp, fmt.Sprint(resp.Total), nil
@@ -251,7 +245,10 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		newItems = append(newItems, item)
 	}
 
-	CSEMatchListItems := getCSEMatchListItemsInMatchList(d.Id(), meta)
+	CSEMatchListItems, err := c.GetCSEMatchListItemsInMatchList(d.Id())
+	if err != nil {
+		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+	}
 	var oldItemIds []string
 	for _, item := range CSEMatchListItems.CSEMatchListItemsGetObjects {
 		oldItemIds = append(oldItemIds, item.ID)
@@ -269,11 +266,34 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 
 	}
 
-	// Wait until all new items have finished being indexed in ES
-	CSEMatchListItems = getCSEMatchListItemsInMatchList(d.Id(), meta)
-	for CSEMatchListItems.Total < newItemCount {
-		time.Sleep(3 * time.Second)
-		CSEMatchListItems = getCSEMatchListItemsInMatchList(d.Id(), meta)
+	CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
+	if err != nil {
+		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+	}
+
+	// Wait for addition to finish
+	createStateConf := &resource.StateChangeConf{
+		Target: []string{
+			fmt.Sprint(newItemCount),
+		},
+		Refresh: func() (interface{}, string, error) {
+			CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
+			if err != nil {
+				log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+				return 0, "", err
+			}
+
+			return CSEMatchListItems, fmt.Sprint(CSEMatchListItems.Total), nil
+		},
+		Timeout:                   d.Timeout(schema.TimeoutUpdate),
+		Delay:                     10 * time.Second,
+		MinTimeout:                5 * time.Second,
+		ContinuousTargetOccurence: 1,
+	}
+
+	_, err = createStateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
 	}
 
 	// Delete old items
@@ -286,13 +306,15 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	createStateConf := &resource.StateChangeConf{
+	// Wait for deletion to finish
+	createStateConf = &resource.StateChangeConf{
 		Target: []string{
 			fmt.Sprint(len(newItems)),
 		},
 		Refresh: func() (interface{}, string, error) {
 			resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
 			if err != nil {
+				log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
 				return 0, "", err
 			}
 			return resp, fmt.Sprint(resp.Total), nil

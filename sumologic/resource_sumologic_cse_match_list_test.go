@@ -24,7 +24,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	liDescription := "Match List Item Description"
 	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
-	liCount := 1001
+	liCount := 3
 
 	// Update values
 	uDefaultTtl := 3600
@@ -32,7 +32,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	uliDescription := "Updated Match List item Description"
 	uliExpiration := "2122-02-27T05:00:00"
 	uliValue := "updated value"
-	uliCount := 1001
+	uliCount := 3
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -110,8 +110,6 @@ resource "sumologic_cse_match_list" "match_list" {
     name = "%s"
     target_column = "%s" %s
 }`, nDefaultTtl, nDescription, nName, nTargetColumn, itemsStr)
-
-	fmt.Println(str)
 
 	return str
 }
