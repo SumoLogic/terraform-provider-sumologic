@@ -5,6 +5,7 @@ FEATURES:
 
 BUG FIXES:
 * Enforce validation of `group_by_fields` in cse_*_rule resources, on non empty string elements. (GH-535)
+* Fixes `resource_sumologic_cse_match_list` to allow for match lists with more than 1000 items to be created. (INVS-1048)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
