@@ -1,4 +1,7 @@
-## 2.23.1 (Unreleased)
+## 2.24.1 (Unreleased)
+
+
+## 2.24.0 (June 22, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_outlier_rule (GH-532)
 * Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (GH-533)
