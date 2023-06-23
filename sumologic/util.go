@@ -1,14 +1,18 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 var (
@@ -347,7 +351,7 @@ func SuppressEquivalentTimeDiff(isRelative bool) func(k, oldValue, newValue stri
 
 func getTimeInSeconds(timeValue string) (int64, error) {
 	if !regexp.MustCompile(`^-?((\d)+[smhdw])+$`).Match([]byte(timeValue)) {
-		return 0, fmt.Errorf("Value %s is not in correct time value format.", timeValue)
+		return 0, fmt.Errorf("value %s is not in correct time value format", timeValue)
 	}
 
 	var negative bool = false
@@ -398,7 +402,7 @@ func getSingleTimeValueInSeconds(timeValue string) (int64, error) {
 	case "w":
 		seconds *= 604800
 	default:
-		return 0, fmt.Errorf("Only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
+		return 0, fmt.Errorf("only [smhdw] time units are supported, but got %s", timeValue[len(timeValue)-1:])
 	}
 
 	return seconds, nil
@@ -432,5 +436,45 @@ func removeEmptyValues(object interface{}) {
 			}
 			removeEmptyValues(value)
 		}
+	}
+}
+
+func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
+	conf := &resource.StateChangeConf{
+		Pending: []string{
+			"InProgress",
+		},
+		Target: []string{
+			"Success",
+		},
+		Refresh: func() (interface{}, string, error) {
+			var status Status
+			b, _, err := s.Get(url)
+			if err != nil {
+				return nil, "", err
+			}
+
+			err = json.Unmarshal(b, &status)
+			if err != nil {
+				return nil, "", err
+			}
+
+			if status.Status == "Failed" {
+				return status, status.Status, fmt.Errorf("async job failed - %s", status.Error)
+			}
+
+			return status, status.Status, nil
+		},
+		Timeout:    timeout,
+		Delay:      1 * time.Second,
+		MinTimeout: 1 * time.Second,
+	}
+
+	result, err := conf.WaitForState()
+	log.Printf("[DEBUG] Done waiting for job; err: %s, result: %v", err, result)
+	if status, ok := result.(Status); ok {
+		return &status, err
+	} else {
+		return nil, err
 	}
 }
