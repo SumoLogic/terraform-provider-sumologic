@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 )
 
@@ -29,8 +30,9 @@ func resourceSumologicCSEEntityNormalizationConfiguration() *schema.Resource {
 				Required: true,
 			},
 			"default_normalized_domain": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"normalize_hostnames": {
 				Type:     schema.TypeBool,
@@ -46,12 +48,14 @@ func resourceSumologicCSEEntityNormalizationConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"normalized_domain": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotEmpty,
 						},
 						"raw_domain": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotEmpty,
 						},
 					},
 				},
