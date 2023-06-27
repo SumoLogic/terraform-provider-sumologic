@@ -1,5 +1,6 @@
 ## 2.24.1 (Unreleased)
-
+BUG FIXES:
+* Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-539)
 
 ## 2.24.0 (June 22, 2023)
 FEATURES:
