@@ -29,6 +29,19 @@ resource "sumologic_log_search" "example_log_search" {
             }
         }
     }
+    
+    query_parameter {
+        name        = "my_param1"
+        description = "I am a query parameter. Fill me in."
+        dataType    = "ANY"
+        value       = "*"
+    }
+    query_parameter {
+        name        = "my_param2"
+        description = "I am also query parameter. Fill me in too."
+        dataType    = "NUMBER"
+        value       = "2"
+    }
 
     schedule {
         cron_expression = "0 0 * * * ? *"
@@ -73,31 +86,9 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameter` - (Optional) List of objects with schema as mentioned below. Values for search template used in the search query. 
+- `query_parameter` - (Block List, Optional) List of query parameters for the log search. See [query parameter schema](#schema-for-query_parameter).
+    Values for search template used in the search query. 
     Learn more about the search templates here : https://help.sumologic.com/docs/search/get-started-with-search/build-search/search-templates/
-    Schema for the objects:
-        - `name` - (Required) The name of the parameter.
-        - `description` - (Optional) A description of the parameter.
-        - `dataType` - (Required) The data type of the parameter. Supported values are:
-            1. `NUMBER`
-            2. `STRING`
-            3. `ANY`
-            4. `KEYWORD`
-        - `value` - (Required) A value for the parameter. Should be compatible with the type set in dataType field.
-    Example:
-        query_parameter {
-            name        = "my_param1"
-            description = "I am a query parameter. Fill me in."
-            dataType    = "ANY"
-            value       = "*"
-        }
-        query_parameter {
-            name        = "my_param2"
-            description = "I am also query parameter. Fill me in too."
-            dataType    = "NUMBER"
-            value       = "2"
-        }
-
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
 
@@ -108,6 +99,16 @@ The following arguments are supported:
 - `schedule` - (Block List, Max: 1, Optional) Schedule of the log search. See [schedule schema](#schema-for-schedule)
 - `run_by_receipt_time` - (Optional) This has the value `true` if the search is to be run by receipt time and
     `false` if it is to be run by message time. Default value is `false`.
+
+### Schema for `query_parameter`
+- `name` - (Required) The name of the parameter.
+- `description` - (Optional) A description of the parameter.
+- `dataType` - (Required) The data type of the parameter. Supported values are:
+  1. `NUMBER`
+  2. `STRING`
+  3. `ANY`
+  4. `KEYWORD`
+- `value` - (Required) A value for the parameter. Should be compatible with the type set in dataType field.
 
 
 ### Schema for `schedule`
