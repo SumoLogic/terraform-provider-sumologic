@@ -73,9 +73,9 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameters` - (Optional) Array of objects (LogSearchQueryParameterSyncDefinitionBase). Values for search template used in the search query. 
+- `query_parameter` - (Optional) List of objects with schema as mentioned below. Values for search template used in the search query. 
     Learn more about the search templates here : https://help.sumologic.com/docs/search/get-started-with-search/build-search/search-templates/
-    Schema for `LogSearchQueryParameterSyncDefinitionBase`
+    Schema for the objects:
         - `name` - (Required) The name of the parameter.
         - `description` - (Optional) A description of the parameter.
         - `dataType` - (Required) The data type of the parameter. Supported values are:
@@ -83,7 +83,21 @@ The following arguments are supported:
             2. `STRING`
             3. `ANY`
             4. `KEYWORD`
-        - `value` - A value for the parameter. Should be compatible with the type set in dataType field.
+        - `value` - (Required) A value for the parameter. Should be compatible with the type set in dataType field.
+    Example:
+        query_parameter {
+            name        = "my_param1"
+            description = "I am a query parameter. Fill me in."
+            dataType    = "ANY"
+            value       = "*"
+        }
+        query_parameter {
+            name        = "my_param2"
+            description = "I am also query parameter. Fill me in too."
+            dataType    = "NUMBER"
+            value       = "2"
+        }
+
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
 
