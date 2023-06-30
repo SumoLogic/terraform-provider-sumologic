@@ -10,12 +10,12 @@ Provides a Sumologic Log Search.
 
 ## Example Usage
 ```hcl
-data "sumologic_personal_folder" "personalFolder" {}
+data "sumologic_personal_folder" "personal_folder" {}
 
 resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
-    parent_id = data.sumologic_personal_folder.personalFolder.id
+    parent_id = data.sumologic_personal_folder.personal_folder.id
     query_string = "_sourceCategory=api | parse \"parameter1=*,\" as parameter1 | parse \"parameter2=*,\" as parameter2 | where parameter1 matches {{param1}} | where parameter2 matches {{param2}} | count by _sourceHost"
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
