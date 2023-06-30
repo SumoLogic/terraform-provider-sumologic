@@ -16,7 +16,7 @@ resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
     parent_id = data.sumologic_personal_folder.personalFolder.id
-    query_string = "_sourceCategory=api | parse \"auth=*:*:*:*:*,\" as a,email,cid,uid,x | parse \"[logger=*,\" as loggerx | where loggerx matches {{logger}} | where cid matches {{customerID}} | count by _sourceHost"
+    query_string = "_sourceCategory=api | parse \"parameter1=*,\" as parameter1 | parse \"parameter2=*,\" as parameter2 | where parameter1 matches {{param1}} | where parameter2 matches {{param2}} | count by _sourceHost"
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
 
@@ -31,14 +31,14 @@ resource "sumologic_log_search" "example_log_search" {
     }
     
     query_parameter {
-        name          = "logger"
-        description   = "The logger for which the result will be returned"
+        name          = "param1"
+        description   = "Description for param1"
         data_type     = "STRING"
         value = "*"
     }
     query_parameter {
-        name          = "customerID"
-        description   = "The customer id for which the result will be returned"
+        name          = "param2"
+        description   = "Description for param2"
         data_type     = "STRING"
         value = "*"
     }
