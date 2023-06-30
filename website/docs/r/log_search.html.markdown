@@ -16,7 +16,7 @@ resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
     parent_id = data.sumologic_personal_folder.personalFolder.id
-    query_string = "_sourceCategory=api error | count by _sourceHost"
+    query_string = "_sourceCategory=api | parse \"auth=*:*:*:*:*,\" as a,email,cid,uid,x | parse \"[logger=*,\" as loggerx | where loggerx matches {{logger}} | where cid matches {{customerID}} | count by _sourceHost"
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
 
@@ -31,16 +31,16 @@ resource "sumologic_log_search" "example_log_search" {
     }
     
     query_parameter {
-        name        = "my_param1"
-        description = "I am a query parameter. Fill me in."
-        dataType    = "ANY"
-        value       = "*"
+        name          = "logger"
+        description   = "The logger for which the result will be returned"
+        data_type     = "STRING"
+        value = "*"
     }
     query_parameter {
-        name        = "my_param2"
-        description = "I am also query parameter. Fill me in too."
-        dataType    = "NUMBER"
-        value       = "2"
+        name          = "customerID"
+        description   = "The customer id for which the result will be returned"
+        data_type     = "STRING"
+        value = "*"
     }
 
     schedule {
@@ -86,9 +86,8 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameter` - (Block List, Optional) List of query parameters for the log search. See [query parameter schema](#schema-for-query_parameter).
-    Values for search template used in the search query. 
-    Learn more about the search templates here : https://help.sumologic.com/docs/search/get-started-with-search/build-search/search-templates/
+- `query_parameter` - (Block List, Optional) Upto 10 query_parameter blocks can be added one for each parameter in the query string. 
+    See [query parameter schema](#schema-for-query_parameter).
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
 
@@ -103,12 +102,12 @@ The following arguments are supported:
 ### Schema for `query_parameter`
 - `name` - (Required) The name of the parameter.
 - `description` - (Optional) A description of the parameter.
-- `dataType` - (Required) The data type of the parameter. Supported values are:
+- `data_type` - (Required) The data type of the parameter. Supported values are:
   1. `NUMBER`
   2. `STRING`
   3. `ANY`
   4. `KEYWORD`
-- `value` - (Required) A value for the parameter. Should be compatible with the type set in dataType field.
+- `value` - (Required) The default value for the parameter. Should be compatible with the type set in dataType field.
 
 
 ### Schema for `schedule`
