@@ -199,17 +199,17 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
       critical {
         burn_rate {
             burn_rate_threshold =  50
-            time_range = "1d"
+            time_range = "1h"
         }
       }
       warning {
         burn_rate {
             burn_rate_threshold =  30
-            time_range = "3d"
+            time_range = "6h"
         }
         burn_rate {
             burn_rate_threshold =  20
-            time_range = "4d"
+            time_range = "12h"
         }
       }
     }
@@ -424,26 +424,26 @@ Here is a summary of arguments for each condition type (fields which are not mar
 #### logs_static_condition
   - `field`
   - `critical`
-    - `time_range` (Required) : Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Required) : Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
+      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
   - `warning`
-    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
+      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
 #### metrics_static_condition
   - `critical`
-    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `occurrence_type` (Required)
     - `alert` (Required)
       - `threshold`
@@ -454,7 +454,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
       - `threshold_type`
       - `min_data_points` (Optional)
     - `warning`
-    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `occurrence_type` (Required)
     - `alert` (Required)
       - `threshold`
@@ -484,9 +484,9 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `baseline_window`
     - `threshold`
 #### logs_missing_data_condition
-  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
 #### metrics_missing_data_condition
-  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+  - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
 #### slo_sli_condition
   - `critical`
     - `sli_threshold` (Required) : The remaining SLI error budget threshold percentage [0,100).
@@ -495,17 +495,17 @@ Here is a summary of arguments for each condition type (fields which are not mar
   
 #### slo_burn_rate_condition
   - `critical`
-    - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `burn_rate_threshold` (Deprecated) : The burn rate percentage threshold.
     - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
-      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
   - `warning`
-    - `time_range` (Deprecated) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `time_range` (Deprecated) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
     - `burn_rate_threshold` (Deprecated)
     - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
-      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+      - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character:  `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`. Allowed values are: 5 min, 10 min, 15 min, 30 min, 60 min, 180 min, 360 min, 720 min, 1440 min.
 
 ## The `triggers` block
 The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.
