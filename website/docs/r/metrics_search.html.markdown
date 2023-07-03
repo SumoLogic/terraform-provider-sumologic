@@ -38,7 +38,7 @@ resource "sumologic_metrics_search" "example_metrics_search" {
 The following arguments are supported:
 
 - `title` - (Required) Title of the search.
-- `description` - (Optional) Description of the search.
+- `description` - (Required) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `log_query` - Log query to perform.
 - `metrics_queries` - (Required) Array of objects [MetricsSearchQuery](#schema-for-metrics_search_query). Metrics queries, up to the maximum of six.
