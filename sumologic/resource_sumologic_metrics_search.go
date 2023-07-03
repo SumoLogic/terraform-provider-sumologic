@@ -51,10 +51,6 @@ func resourceSumologicMetricsSearch() *schema.Resource {
 					Schema: GetTimeRangeSchema(),
 				},
 			},
-			"properties": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"metrics_queries": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -151,9 +147,6 @@ func setMetricsSearch(d *schema.ResourceData, metricsSearch *MetricsSearch) erro
 	if err := d.Set("desired_quantization_in_secs", metricsSearch.DesiredQuantizationInSecs); err != nil {
 		return err
 	}
-	if err := d.Set("properties", metricsSearch.Properties); err != nil {
-		return err
-	}
 
 	metricsSearchQueries := make([]map[string]interface{}, len(metricsSearch.MetricsQueries))
 	for i, searchQuery := range metricsSearch.MetricsQueries {
@@ -202,7 +195,6 @@ func resourceToMetricsSearch(d *schema.ResourceData) MetricsSearch {
 		LogQuery:                  d.Get("log_query").(string),
 		DesiredQuantizationInSecs: d.Get("desired_quantization_in_secs").(int),
 		TimeRange:                 timeRange,
-		Properties:                d.Get("properties").(string),
 		MetricsQueries:            metricsQueries,
 	}
 }

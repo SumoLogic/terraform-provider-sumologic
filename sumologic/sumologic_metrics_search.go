@@ -85,7 +85,6 @@ type MetricsSearch struct {
 	LogQuery                  string               `json:"logQuery"`
 	DesiredQuantizationInSecs int                  `json:"desiredQuantizationInSecs"`
 	TimeRange                 interface{}          `json:"timeRange"`
-	Properties                string               `json:"properties"`
 	MetricsQueries            []MetricsSearchQuery `json:"metricsQueries"`
 }
 
