@@ -16,7 +16,12 @@ resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
     parent_id = data.sumologic_personal_folder.personal_folder.id
-    query_string = "_sourceCategory=api | parse \"parameter1=*,\" as parameter1 | parse \"parameter2=*,\" as parameter2 | where parameter1 matches {{param1}} | where parameter2 matches {{param2}} | count by _sourceHost"
+    query_string = "_sourceCategory=api 
+                    | parse \"parameter1=*,\" as parameter1 
+                    | parse \"parameter2=*,\" as parameter2 
+                    | where parameter1 matches {{param1}} 
+                    | where parameter2 matches {{param2}} 
+                    | count by _sourceHost"
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
 
@@ -86,7 +91,7 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameter` - (Block List, Optional) Upto 10 query_parameter blocks can be added one for each parameter in the query string. 
+- `query_parameter` - (Block List, Optional) Up to 10 `query_parameter` blocks can be added one for each parameter in the `query_string`. 
     See [query parameter schema](#schema-for-query_parameter).
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
@@ -107,7 +112,7 @@ The following arguments are supported:
   2. `STRING`
   3. `ANY`
   4. `KEYWORD`
-- `value` - (Required) The default value for the parameter. Should be compatible with the type set in dataType field.
+- `value` - (Required) The default value for the parameter. It should be compatible with the type set in the `data_type` field.
 
 
 ### Schema for `schedule`
