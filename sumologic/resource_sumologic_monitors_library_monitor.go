@@ -456,7 +456,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		Optional: true,
 	},
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &timeRangeWithAllowedValuesSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -468,7 +468,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		}),
 	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &timeRangeWithAllowedValuesSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -483,7 +483,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 
 var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range":      &timeRangeSchema,
+		"time_range":      &timeRangeWithAllowedValuesSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
@@ -498,7 +498,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		}),
 	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range":      &timeRangeSchema,
+		"time_range":      &timeRangeWithAllowedValuesSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
@@ -553,11 +553,11 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 }
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": &timeRangeSchema,
+	"time_range": &timeRangeWithAllowedValuesSchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": &timeRangeSchema,
+	"time_range": &timeRangeWithAllowedValuesSchema,
 	"trigger_source": {
 		Type:         schema.TypeString,
 		Required:     true,
@@ -610,7 +610,7 @@ func getBurnRateSchema(triggerType string) *schema.Schema {
 					Required:     true,
 					ValidateFunc: validation.FloatAtLeast(0),
 				},
-				"time_range": &timeRangeSchema,
+				"time_range": &timeRangeWithFormatSchema,
 			},
 		},
 	}
@@ -652,10 +652,16 @@ var consecutiveSchema = schema.Schema{
 	ValidateFunc: validation.IntAtLeast(1),
 }
 
-var timeRangeSchema = schema.Schema{
+var timeRangeWithFormatSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Required:         true,
-	ValidateFunc:     timeRangeValidation,
+	ValidateFunc:     timeRangeFormatValidation,
+	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+}
+var timeRangeWithAllowedValuesSchema = schema.Schema{
+	Type:             schema.TypeString,
+	Required:         true,
+	ValidateFunc:     timeRangeAllowedValuesValidation,
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
@@ -677,14 +683,22 @@ func getSloBurnRateTimeRangeSchema(triggerType string) *schema.Schema {
 	return &schema.Schema{
 		Type:             schema.TypeString,
 		Optional:         true,
-		ValidateFunc:     timeRangeValidation,
+		ValidateFunc:     timeRangeFormatValidation,
 		DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 		RequiredWith:     []string{requiredWith},
 		ConflictsWith:    []string{conflictsWith},
 	}
 }
 
-var timeRangeValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
+var allowedTimeRanges = []string{
+	"5m", "10m", "15m", "30m", "60m", "180m", "360m", "720m", "1440m",
+	"-5m", "-10m", "-15m", "-30m", "-60m", "-180m", "-360m", "-720m", "-1440m",
+	"1h", "3h", "6h", "12h", "24h",
+	"-1h", "-3h", "-6h", "-12h", "-24h",
+	"-1d", "1d",
+}
+var timeRangeAllowedValuesValidation = validation.StringInSlice(allowedTimeRanges, false)
+var timeRangeFormatValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
 
 var resolutionWindowSchema = schema.Schema{
 	Type:             schema.TypeString,
