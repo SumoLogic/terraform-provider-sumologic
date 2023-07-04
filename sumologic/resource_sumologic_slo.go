@@ -166,6 +166,7 @@ func resourceSumologicSLO() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringDoesNotContainAny("/"),
 			},
 			"description": {
 				Type:     schema.TypeString,
