@@ -10,18 +10,20 @@ Provides a Sumologic Log Search.
 
 ## Example Usage
 ```hcl
-data "sumologic_personal_folder" "personal_folder" {}
+data "sumologic_personal_folder" "personalFolder" {}
 
 resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
-    parent_id = data.sumologic_personal_folder.personal_folder.id
-    query_string = "_sourceCategory=api 
-                    | parse \"parameter1=*,\" as parameter1 
-                    | parse \"parameter2=*,\" as parameter2 
-                    | where parameter1 matches {{param1}} 
-                    | where parameter2 matches {{param2}} 
-                    | count by _sourceHost"
+    parent_id = data.sumologic_personal_folder.personalFolder.id
+    query_string = <<QUERY
+        _sourceCategory=api
+        | parse "parameter1=*," as parameter1
+        | parse "parameter2=*," as parameter2
+        | where parameter1 matches {{param1}}
+        | where parameter2 matches {{param2}}
+        | count by _sourceHost
+    QUERY
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
 
@@ -79,6 +81,15 @@ resource "sumologic_log_search" "example_log_search" {
             threshold_type = "group"
         }
         time_zone = "America/Los_Angeles"
+
+        parameter {
+            name          = "param1"
+            value = "*"
+        }
+        parameter {
+            name          = "param2"
+            value = "*"
+        }
     }
 }
 ```
@@ -246,7 +257,7 @@ See [cse_signal_notification schema](#schema-for-cse_signal_notification) schema
 
 ### Schema for `parameter`
 - `name` - (Required) Name of scheduled search parameter.
-- `value` - (Required) Value of scheduled search parameter.
+- `value` - (Required) Default value of scheduled search parameter.
 
 
 ## Attributes reference
