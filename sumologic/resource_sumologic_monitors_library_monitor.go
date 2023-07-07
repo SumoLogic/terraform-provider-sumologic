@@ -30,8 +30,11 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 		"name": {
 			Type:     schema.TypeString,
 			Required: true,
-			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`),
+			ValidateFunc: validation.All(
+				validation.StringDoesNotContainAny("/"),
+				validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`),
 				"name must not contain leading or trailing spaces"),
+			),
 		},
 
 		"description": {
