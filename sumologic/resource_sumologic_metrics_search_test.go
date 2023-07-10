@@ -62,8 +62,8 @@ func TestAccSumologicMetricsSearch_create(t *testing.T) {
 	}
 
 	tfResourceName := "tf_create_metrics_search_test"
-	tfSearchResource := fmt.Sprintf("sumologic_metrics_search.%s", tfResourceName)	
-	
+	tfSearchResource := fmt.Sprintf("sumologic_metrics_search.%s", tfResourceName)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -120,8 +120,8 @@ func TestAccSumologicMetricsSearch_update(t *testing.T) {
 	}
 
 	tfResourceName := "tf_update_metrics_search_test"
-	tfSearchResource := fmt.Sprintf("sumologic_metrics_search.%s", tfResourceName)	
-	
+	tfSearchResource := fmt.Sprintf("sumologic_metrics_search.%s", tfResourceName)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

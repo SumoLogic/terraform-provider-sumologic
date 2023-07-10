@@ -58,11 +58,11 @@ func resourceSumologicMetricsSearch() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"row_id": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"query": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},

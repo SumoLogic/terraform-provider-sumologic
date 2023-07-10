@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_metrics_search
-Provides a Sumologic Metrics Search.
+Provides a [Sumologic Metrics Search][1].
 
 ## Example Usage
 ```hcl
@@ -15,6 +15,7 @@ data "sumologic_personal_folder" "personalFolder" {}
 resource "sumologic_metrics_search" "example_metrics_search" {
     title = "Demo Metrics Search"
     description = "Demo search description"
+    parent_id = data.sumologic_personal_folder.personalFolder.id
     metrics_queries {
 	    row_id = "A"
 		query = "metric=cpu_idle | avg"
@@ -99,3 +100,5 @@ A metrics search can be imported using it's identifier, e.g.:
 ```hcl
 terraform import sumologic_metrics_search.example_search 0000000007FFD79D
 ```
+
+[1]: https://help.sumologic.com/docs/metrics/metrics-queries/metrics-explorer/
