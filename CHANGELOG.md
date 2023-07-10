@@ -1,4 +1,6 @@
 ## 2.23.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_metrics_search (GH-528)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
