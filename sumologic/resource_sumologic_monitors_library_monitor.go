@@ -20,368 +20,399 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		Schema: map[string]*schema.Schema{
+		Schema: getMonitorSchema(),
+	}
+}
 
-			"version": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+func getMonitorBaseSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+			ValidateFunc: validation.All(
+				validation.StringDoesNotContainAny("/"),
+				validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`),
+				"name must not contain leading or trailing spaces"),
+			),
+		},
+
+		"description": {
+			Type:     schema.TypeString,
+			Optional: true,
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`),
+				"description must not contain leading or trailing spaces"),
+		},
+
+		"parent_id": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+		},
+
+		"monitor_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics", "Slo"}, false),
+		},
+
+		"evaluation_delay": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+			ValidateFunc: validation.StringMatch(regexp.MustCompile(`^((\d)+[smh])+$`),
+				"This value is not in correct format. Example: 1m30s"),
+			DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+		},
+
+		"alert_name": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringLenBetween(1, 512),
+		},
+
+		"queries": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"row_id": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"query": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+				},
 			},
+		},
 
-			"modified_at": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"is_system": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-			},
-
-			"content_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "Monitor",
-			},
-
-			"queries": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"row_id": {
-							Type:     schema.TypeString,
-							Required: true,
+		"trigger_conditions": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"logs_static_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: logsStaticTriggerConditionSchema,
 						},
-						"query": {
-							Type:     schema.TypeString,
-							Required: true,
+						AtLeastOneOf: triggerConditionsAtleastOneKey,
+					},
+					"metrics_static_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: metricsStaticTriggerConditionSchema,
+						},
+					},
+					"logs_outlier_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: logsOutlierTriggerConditionSchema,
+						},
+					},
+					"metrics_outlier_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: metricsOutlierTriggerConditionSchema,
+						},
+					},
+					"logs_missing_data_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: logsMissingDataTriggerConditionSchema,
+						},
+					},
+					"metrics_missing_data_condition": {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: metricsMissingDataTriggerConditionSchema,
+						},
+					},
+					sloSLIConditionFieldName: {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: sloSLITriggerConditionSchema,
+						},
+					},
+					sloBurnRateConditionFieldName: {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: sloBurnRateTriggerConditionSchema,
 						},
 					},
 				},
 			},
+		},
 
-			"created_by": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
+		"is_disabled": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
 
-			"parent_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"is_disabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
+		"group_notifications": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  true,
+		},
 
-			"is_mutable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+		"notification_group_fields": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
+		},
 
-			"triggers": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Deprecated: "The field `triggers` is deprecated and will be removed in a future release of the provider -- please use `trigger_conditions` instead.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"trigger_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
-						},
-						"threshold": {
-							Type:     schema.TypeFloat,
-							Optional: true,
-						},
-						"threshold_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
-						},
-						"time_range": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-							DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
-						},
-						"trigger_source": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries", "AllResults"}, false),
-						},
-						"occurrence_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
-						},
-						"min_data_points": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1, 100),
-							Computed:     true,
-						},
-						"detection_method": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition",
-								"MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition",
-								"LogsMissingDataCondition", "MetricsMissingDataCondition", "SloSliCondition",
-								"SloBurnRateCondition"}, false),
-						},
-						"resolution_window": &resolutionWindowSchema,
+		"playbook": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+
+		"slo_id": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  "",
+		},
+
+		"version": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Computed: true,
+		},
+	}
+}
+
+func getMonitorSchema() map[string]*schema.Schema {
+	tfSchema := getMonitorBaseSchema()
+
+	additionalAttributes := map[string]*schema.Schema{
+
+		"type": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "MonitorsLibraryMonitor",
+			ValidateFunc: validation.StringInSlice([]string{"MonitorsLibraryMonitor", "MonitorsLibraryFolder"}, false),
+		},
+
+		"content_type": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  "Monitor",
+		},
+
+		"triggers": {
+			Type:       schema.TypeList,
+			Optional:   true,
+			Deprecated: "The field `triggers` is deprecated and will be removed in a future release of the provider -- please use `trigger_conditions` instead.",
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"trigger_type": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
 					},
+					"threshold": {
+						Type:     schema.TypeFloat,
+						Optional: true,
+					},
+					"threshold_type": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+					},
+					"time_range": {
+						Type:             schema.TypeString,
+						Optional:         true,
+						ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
+						DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+					},
+					"trigger_source": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringInSlice([]string{"AllTimeSeries", "AnyTimeSeries", "AllResults"}, false),
+					},
+					"occurrence_type": {
+						Type:         schema.TypeString,
+						Optional:     true,
+						ValidateFunc: validation.StringInSlice([]string{"AtLeastOnce", "Always", "ResultCount", "MissingData"}, false),
+					},
+					"min_data_points": {
+						Type:         schema.TypeInt,
+						Optional:     true,
+						ValidateFunc: validation.IntBetween(1, 100),
+						Computed:     true,
+					},
+					"detection_method": {
+						Type:     schema.TypeString,
+						Optional: true,
+						ValidateFunc: validation.StringInSlice([]string{"StaticCondition", "LogsStaticCondition",
+							"MetricsStaticCondition", "LogsOutlierCondition", "MetricsOutlierCondition",
+							"LogsMissingDataCondition", "MetricsMissingDataCondition", "SloSliCondition",
+							"SloBurnRateCondition"}, false),
+					},
+					"resolution_window": &resolutionWindowSchema,
 				},
 			},
+		},
 
-			"trigger_conditions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"logs_static_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: logsStaticTriggerConditionSchema,
-							},
-							AtLeastOneOf: triggerConditionsAtleastOneKey,
-						},
-						"metrics_static_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: metricsStaticTriggerConditionSchema,
-							},
-						},
-						"logs_outlier_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: logsOutlierTriggerConditionSchema,
-							},
-						},
-						"metrics_outlier_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: metricsOutlierTriggerConditionSchema,
-							},
-						},
-						"logs_missing_data_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: logsMissingDataTriggerConditionSchema,
-							},
-						},
-						"metrics_missing_data_condition": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: metricsMissingDataTriggerConditionSchema,
-							},
-						},
-						sloSLIConditionFieldName: {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: sloSLITriggerConditionSchema,
-							},
-						},
-						sloBurnRateConditionFieldName: {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: sloBurnRateTriggerConditionSchema,
-							},
-						},
-					},
-				},
-			},
+		"notifications": {
+			Type:     schema.TypeList,
+			Optional: true,
 
-			"notifications": {
-				Type:     schema.TypeList,
-				Optional: true,
-
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"notification": {
-							Type:     schema.TypeList,
-							Required: true,
-							MinItems: 1,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"action_type": {
-										Type:       schema.TypeString,
-										Optional:   true,
-										Computed:   true,
-										Deprecated: "The field `action_type` is deprecated and will be removed in a future release of the provider - please use `connection_type` instead.",
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"notification": {
+						Type:     schema.TypeList,
+						Required: true,
+						MinItems: 1,
+						MaxItems: 1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"action_type": {
+									Type:       schema.TypeString,
+									Optional:   true,
+									Computed:   true,
+									Deprecated: "The field `action_type` is deprecated and will be removed in a future release of the provider - please use `connection_type` instead.",
+								},
+								"connection_type": {
+									Type:         schema.TypeString,
+									Optional:     true,
+									Computed:     true,
+									ValidateFunc: validation.StringInSlice([]string{"Email", "AWSLambda", "AzureFunctions", "Datadog", "HipChat", "Jira", "NewRelic", "Opsgenie", "PagerDuty", "Slack", "MicrosoftTeams", "ServiceNow", "Webhook"}, false),
+								},
+								"subject": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"recipients": {
+									Type:     schema.TypeList,
+									Optional: true,
+									Elem: &schema.Schema{
+										Type: schema.TypeString,
 									},
-									"connection_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Computed:     true,
-										ValidateFunc: validation.StringInSlice([]string{"Email", "AWSLambda", "AzureFunctions", "Datadog", "HipChat", "Jira", "NewRelic", "Opsgenie", "PagerDuty", "Slack", "MicrosoftTeams", "ServiceNow", "Webhook"}, false),
-									},
-									"subject": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"recipients": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"message_body": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"time_zone": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"connection_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"payload_override": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringIsJSON,
-									},
-									"resolution_payload_override": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringIsJSON,
-									},
+								},
+								"message_body": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"time_zone": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"connection_id": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"payload_override": {
+									Type:         schema.TypeString,
+									Optional:     true,
+									ValidateFunc: validation.StringIsJSON,
+								},
+								"resolution_payload_override": {
+									Type:         schema.TypeString,
+									Optional:     true,
+									ValidateFunc: validation.StringIsJSON,
 								},
 							},
 						},
-						"run_for_trigger_types": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
+					},
+					"run_for_trigger_types": {
+						Type:     schema.TypeList,
+						Required: true,
+						Elem: &schema.Schema{
+							Type: schema.TypeString,
 						},
 					},
 				},
 			},
+		},
 
-			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`), "description must not contain leading or trailing spaces"),
+		"status": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Computed: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
+		},
 
-			"created_at": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+		"post_request_map": {
+			Type:     schema.TypeMap,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
+		},
 
-			"monitor_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics", "Slo"}, false),
-			},
+		"obj_permission": GetCmfFgpObjPermSetSchema(),
 
-			"evaluation_delay": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Computed:         true,
-				ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^((\d)+[smh])+$`), "This value is not in correct format. Example: 1m30s"),
-				DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
-			},
+		"is_system": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Computed: true,
+		},
 
-			"is_locked": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"group_notifications": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
+		"is_locked": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Computed: true,
+		},
 
-			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "MonitorsLibraryMonitor",
-				ValidateFunc: validation.StringInSlice([]string{"MonitorsLibraryMonitor", "MonitorsLibraryFolder"}, false),
-			},
+		"is_mutable": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Computed: true,
+		},
 
-			"modified_by": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
+		"created_by": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+		},
 
-			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`(?s)^[^\ ].*[^\ ]$`), "name must not contain leading or trailing spaces"),
-			},
+		"created_at": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+		},
 
-			"post_request_map": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
+		"modified_by": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+		},
 
-			"playbook": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"slo_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"alert_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
-			},
-			"notification_group_fields": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"obj_permission": GetCmfFgpObjPermSetSchema(),
+		"modified_at": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
 		},
 	}
+
+	for k, v := range additionalAttributes {
+		tfSchema[k] = v
+	}
+
+	return tfSchema
 }
 
 var (
@@ -428,7 +459,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		Optional: true,
 	},
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &timeRangeWithAllowedValuesSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -440,7 +471,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		}),
 	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range": &timeRangeSchema,
+		"time_range": &timeRangeWithAllowedValuesSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -455,7 +486,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 
 var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range":      &timeRangeSchema,
+		"time_range":      &timeRangeWithAllowedValuesSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
@@ -470,7 +501,7 @@ var metricsStaticTriggerConditionSchema = map[string]*schema.Schema{
 		}),
 	}, metricsStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
-		"time_range":      &timeRangeSchema,
+		"time_range":      &timeRangeWithAllowedValuesSchema,
 		"occurrence_type": &occurrenceTypeSchema,
 		"alert": nested(false, schemaMap{
 			"threshold":       &thresholdSchema,
@@ -525,11 +556,11 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 }
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": &timeRangeSchema,
+	"time_range": &timeRangeWithAllowedValuesSchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
-	"time_range": &timeRangeSchema,
+	"time_range": &timeRangeWithAllowedValuesSchema,
 	"trigger_source": {
 		Type:         schema.TypeString,
 		Required:     true,
@@ -582,7 +613,7 @@ func getBurnRateSchema(triggerType string) *schema.Schema {
 					Required:     true,
 					ValidateFunc: validation.FloatAtLeast(0),
 				},
-				"time_range": &timeRangeSchema,
+				"time_range": &timeRangeWithFormatSchema,
 			},
 		},
 	}
@@ -624,10 +655,16 @@ var consecutiveSchema = schema.Schema{
 	ValidateFunc: validation.IntAtLeast(1),
 }
 
-var timeRangeSchema = schema.Schema{
+var timeRangeWithFormatSchema = schema.Schema{
 	Type:             schema.TypeString,
 	Required:         true,
-	ValidateFunc:     timeRangeValidation,
+	ValidateFunc:     timeRangeFormatValidation,
+	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
+}
+var timeRangeWithAllowedValuesSchema = schema.Schema{
+	Type:             schema.TypeString,
+	Required:         true,
+	ValidateFunc:     timeRangeAllowedValuesValidation,
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
@@ -649,14 +686,22 @@ func getSloBurnRateTimeRangeSchema(triggerType string) *schema.Schema {
 	return &schema.Schema{
 		Type:             schema.TypeString,
 		Optional:         true,
-		ValidateFunc:     timeRangeValidation,
+		ValidateFunc:     timeRangeFormatValidation,
 		DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 		RequiredWith:     []string{requiredWith},
 		ConflictsWith:    []string{conflictsWith},
 	}
 }
 
-var timeRangeValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
+var allowedTimeRanges = []string{
+	"2m", "5m", "10m", "15m", "30m", "60m", "180m", "360m", "720m", "1440m",
+	"-2m", "-5m", "-10m", "-15m", "-30m", "-60m", "-180m", "-360m", "-720m", "-1440m",
+	"1h", "3h", "6h", "12h", "24h",
+	"-1h", "-3h", "-6h", "-12h", "-24h",
+	"-1d", "1d",
+}
+var timeRangeAllowedValuesValidation = validation.StringInSlice(allowedTimeRanges, false)
+var timeRangeFormatValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
 
 var resolutionWindowSchema = schema.Schema{
 	Type:             schema.TypeString,
