@@ -22,12 +22,12 @@ type RumThirdPartyResource struct {
 
 type RumSourcePath struct {
 	Type                         string                 `json:"type"`
-	ApplicationName              string                 `json:"applicationName"`
+	ApplicationName              string                 `json:"applicationName,omitempty"`
 	ServiceName                  string                 `json:"serviceName"`
-	DeploymentEnvironment        string                 `json:"deploymentEnvironment"`
-	SamplingRate                 float32                `json:"samplingRate"`
-	IgnoreUrls                   []string               `json:ignoreUrls"`
-	CustomTags                   map[string]interface{} `json:"customTags"`
+	DeploymentEnvironment        string                 `json:"deploymentEnvironment,omitempty"`
+	SamplingRate                 float32                `json:"samplingRate,omitempty"`
+	IgnoreUrls                   []string               `json:"ignoreUrls,omitempty"`
+	CustomTags                   map[string]interface{} `json:"customTags,omitempty"`
 	PropagateTraceHeaderCorsUrls []string               `json:"propagateTraceHeaderCorsUrls,omitempty"`
 	SelectedCountry              string                 `json:"selectedCountry,omitempty"`
 }
