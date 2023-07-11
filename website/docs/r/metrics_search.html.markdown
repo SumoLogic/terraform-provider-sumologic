@@ -41,7 +41,7 @@ The following arguments are supported:
 - `title` - (Required) Title of the search.
 - `description` - (Required) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
-- `log_query` - Log query to perform.
+- `log_query` - Log query used to add an overlay to the chart.
 - `metrics_queries` - (Required) Array of objects [MetricsSearchQuery](#schema-for-metrics_search_query). Metrics queries, up to the maximum of six.
 - `time_range` - (Block List, Max: 1, Required) Time range of the log search. See [time range schema](#schema-for-time_range)
 - `desired_quantization_in_secs` - (Optional) Desired quantization in seconds. Default value is `0`.
