@@ -1,101 +1,87 @@
 package sumologic
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-type RumSource struct {
-	HTTPSource
-	RumThirdPartyRef RumThirdPartyRef `json:"thirdPartyRef"`
+func resourceSumologicRumSource() *schema.Resource {
+	rumSource := resourceSumologicSource()
+	rumSource.Create = resourceSumologicRumSourceCreate
+	rumSource.Read = resourceSumologicRumSourceRead
+	rumSource.Update = resourceSumologicRumSourceUpdate
+	rumSource.Importer = &schema.ResourceImporter{
+		State: resourceSumologicSourceImport,
+	}
+
+	rumSource.Schema["content_type"] = &schema.Schema{
+		Type:         schema.TypeString,
+		Required:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Rum"}, false),
+	}
+
+	rumSource.Schema["path"] = &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"application_name": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"service_name": {
+					Type:     schema.TypeString,
+					Optional: false,
+				},
+				"deployment_environment": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"sampling_rate": {
+					Type:     schema.TypeFloat,
+					Optional: true,
+				},
+				"ignore_urls": {
+					Type: schema.TypeList,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					Optional: true,
+				},
+				"custom_tags": {
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					Optional: true,
+				},
+				"propagate_trace_headers_cors_urls": {
+					Type: schema.TypeList,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					Optional: true,
+				},
+				"selected_country": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+			},
+		},
+	}
+
+	return rumSource
 }
 
-type RumThirdPartyRef struct {
-	Resources []RumThirdPartyResource `json:"resources"`
+func resourceSumologicRumSourceCreate(d *schema.ResourceData, meta interface{}) error {
+	return nil
 }
 
-type RumThirdPartyResource struct {
-	ServiceType    string                `json:"serviceType"`
-	Authentication PollingAuthentication `json:"authentication,omitempty"`
-	Path           RumSourcePath         `json:"path,omitempty"`
+func resourceSumologicRumSourceUpdate(d *schema.ResourceData, meta interface{}) error {
+	return nil
 }
 
-type RumSourcePath struct {
-	Type                         string                 `json:"type"`
-	ApplicationName              string                 `json:"applicationName,omitempty"`
-	ServiceName                  string                 `json:"serviceName"`
-	DeploymentEnvironment        string                 `json:"deploymentEnvironment,omitempty"`
-	SamplingRate                 float32                `json:"samplingRate,omitempty"`
-	IgnoreUrls                   []string               `json:"ignoreUrls,omitempty"`
-	CustomTags                   map[string]interface{} `json:"customTags,omitempty"`
-	PropagateTraceHeaderCorsUrls []string               `json:"propagateTraceHeaderCorsUrls,omitempty"`
-	SelectedCountry              string                 `json:"selectedCountry,omitempty"`
-}
-
-func (s *Client) CreateRumSource(rumSource RumSource, collectorID int) (int, error) {
-
-	type RumSourceMessage struct {
-		Source RumSource `json:"source"`
-	}
-
-	request := RumSourceMessage{
-		Source: rumSource,
-	}
-
-	urlPath := fmt.Sprintf("v1/collectors/%d/sources", collectorID)
-	body, err := s.Post(urlPath, request)
-
-	if err != nil {
-		return -1, err
-	}
-
-	var response RumSourceMessage
-
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return -1, err
-	}
-
-	return response.Source.ID, nil
-}
-
-func (s *Client) GetRumSource(collectorID, sourceID int) (*RumSource, error) {
-
-	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
-	if err != nil {
-		return nil, err
-	}
-
-	if body == nil {
-		return nil, nil
-	}
-
-	type Response struct {
-		Source RumSource `json:"source"`
-	}
-
-	var response Response
-
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return nil, err
-	}
-
-	return &response.Source, nil
-}
-
-func (s *Client) UpdateRumSource(source RumSource, collectorID int) error {
-
-	type RumSourceMessage struct {
-		Source RumSource `json:"source"`
-	}
-
-	request := RumSourceMessage{
-		Source: source,
-	}
-
-	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, source.ID)
-	_, err := s.Put(urlPath, request)
-
-	return err
+func resourceSumologicRumSourceRead(d *schema.ResourceData, meta interface{}) error {
+	return nil
 }
