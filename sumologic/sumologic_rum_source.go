@@ -6,7 +6,7 @@ import (
 )
 
 type RumSource struct {
-	HTTPSource
+	Source
 	RumThirdPartyRef RumThirdPartyRef `json:"thirdPartyRef"`
 }
 
