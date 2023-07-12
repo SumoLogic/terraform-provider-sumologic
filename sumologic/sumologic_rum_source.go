@@ -15,8 +15,9 @@ type RumThirdPartyRef struct {
 }
 
 type RumThirdPartyResource struct {
-	ServiceType string        `json:"serviceType"`
-	Path        RumSourcePath `json:"path,omitempty"`
+	ServiceType    string            `json:"serviceType"`
+	Path           RumSourcePath     `json:"path,omitempty"`
+	Authentication RumAuthentication `json:"authentication,omitempty"`
 }
 
 type RumSourcePath struct {
@@ -29,6 +30,10 @@ type RumSourcePath struct {
 	CustomTags                   map[string]interface{} `json:"customTags,omitempty"`
 	PropagateTraceHeaderCorsUrls []string               `json:"propagateTraceHeaderCorsUrls,omitempty"`
 	SelectedCountry              string                 `json:"selectedCountry,omitempty"`
+}
+
+type RumAuthentication struct {
+	Type string `json:"type"`
 }
 
 func (s *Client) CreateRumSource(rumSource RumSource, collectorID int) (int, error) {

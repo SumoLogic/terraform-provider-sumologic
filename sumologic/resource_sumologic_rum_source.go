@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -60,7 +61,7 @@ func resourceSumologicRumSource() *schema.Resource {
 					},
 					Optional: true,
 				},
-				"propagate_trace_headers_cors_urls": {
+				"propagate_trace_header_cors_urls": {
 					Type: schema.TypeList,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
@@ -143,10 +144,50 @@ func resourceSumologicRumSourceRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceToRumSource(d *schema.ResourceData) (RumSource, error) {
 	source := resourceToSource(d)
+	source.Type = "HTTP"
 
 	rumSource := RumSource{
 		Source: source,
 	}
 
+	path, errPath := getRumSourcePath(d)
+	if errPath != nil {
+		return rumSource, errPath
+	}
+
+	auth := RumAuthentication{
+		Type: "NoAuthentication",
+	}
+
+	rumThirdPartyResource := RumThirdPartyResource{
+		ServiceType:    "Rum",
+		Path:           path,
+		Authentication: auth,
+	}
+
+	rumSource.RumThirdPartyRef.Resources = append(rumSource.RumThirdPartyRef.Resources, rumThirdPartyResource)
+
 	return rumSource, nil
+}
+
+func getRumSourcePath(d *schema.ResourceData) (RumSourcePath, error) {
+	rumSourcePath := RumSourcePath{}
+	paths := d.Get("path").([]interface{})
+
+	if len(paths) > 0 {
+		path := paths[0].(map[string]interface{})
+		rumSourcePath.Type = "RumPath"
+		rumSourcePath.ApplicationName = path["application_name"].(string)
+		rumSourcePath.ServiceName = path["service_name"].(string)
+		rumSourcePath.DeploymentEnvironment = path["deployment_environment"].(string)
+		rumSourcePath.SamplingRate = path["sampling_rate"].(float32)
+		rumSourcePath.IgnoreUrls = path["ignore_urls"].([]string)
+		rumSourcePath.CustomTags = path["custom_tags"].(map[string]interface{})
+		rumSourcePath.PropagateTraceHeaderCorsUrls = path["propagate_trace_header_cors_urls"].([]string)
+		rumSourcePath.SelectedCountry = path["selected_country"].(string)
+
+		return rumSourcePath, nil
+	} else {
+		return rumSourcePath, errors.New("[ERROR] Rum path not configured")
+	}
 }
