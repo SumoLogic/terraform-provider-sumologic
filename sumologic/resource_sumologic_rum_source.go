@@ -21,7 +21,7 @@ func resourceSumologicRumSource() *schema.Resource {
 
 	rumSource.Schema["path"] = &schema.Schema{
 		Type:     schema.TypeList,
-		Optional: false,
+		Optional: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -31,7 +31,7 @@ func resourceSumologicRumSource() *schema.Resource {
 				},
 				"service_name": {
 					Type:     schema.TypeString,
-					Optional: false,
+					Required: true,
 				},
 				"deployment_environment": {
 					Type:     schema.TypeString,
@@ -175,10 +175,24 @@ func getRumSourcePath(d *schema.ResourceData) (RumSourcePath, error) {
 		rumSourcePath.ApplicationName = path["application_name"].(string)
 		rumSourcePath.ServiceName = path["service_name"].(string)
 		rumSourcePath.DeploymentEnvironment = path["deployment_environment"].(string)
-		rumSourcePath.SamplingRate = path["sampling_rate"].(float32)
-		rumSourcePath.IgnoreUrls = path["ignore_urls"].([]string)
+		rumSourcePath.SamplingRate = path["sampling_rate"].(float64)
+
+		ignoreUrls_int := path["ignore_urls"].([]interface{})
+		IgnoreUrls := make([]string, len(ignoreUrls_int))
+		for i, v := range ignoreUrls_int {
+			IgnoreUrls[i] = v.(string)
+		}
+		rumSourcePath.IgnoreUrls = IgnoreUrls
+
 		rumSourcePath.CustomTags = path["custom_tags"].(map[string]interface{})
-		rumSourcePath.PropagateTraceHeaderCorsUrls = path["propagate_trace_header_cors_urls"].([]string)
+
+		propagateTraceHeaderCorsUrls_int := path["ignore_urls"].([]interface{})
+		PropagateTraceHeaderCorsUrls := make([]string, len(propagateTraceHeaderCorsUrls_int))
+		for i, v := range propagateTraceHeaderCorsUrls_int {
+			PropagateTraceHeaderCorsUrls[i] = v.(string)
+		}
+		rumSourcePath.PropagateTraceHeaderCorsUrls = PropagateTraceHeaderCorsUrls
+
 		rumSourcePath.SelectedCountry = path["selected_country"].(string)
 
 		return rumSourcePath, nil

@@ -29,10 +29,10 @@ func TestAccSumologicRumSource_create(t *testing.T) {
 			{
 				Config: testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
-					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
 					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
 					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
+					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
+					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
 					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sName),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescription),

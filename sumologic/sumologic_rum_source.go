@@ -25,7 +25,7 @@ type RumSourcePath struct {
 	ApplicationName              string                 `json:"applicationName,omitempty"`
 	ServiceName                  string                 `json:"serviceName"`
 	DeploymentEnvironment        string                 `json:"deploymentEnvironment,omitempty"`
-	SamplingRate                 float32                `json:"samplingRate,omitempty"`
+	SamplingRate                 float64                `json:"samplingRate,omitempty"`
 	IgnoreUrls                   []string               `json:"ignoreUrls,omitempty"`
 	CustomTags                   map[string]interface{} `json:"customTags,omitempty"`
 	PropagateTraceHeaderCorsUrls []string               `json:"propagateTraceHeaderCorsUrls,omitempty"`
