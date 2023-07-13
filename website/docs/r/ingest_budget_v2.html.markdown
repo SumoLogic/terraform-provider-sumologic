@@ -31,7 +31,7 @@ The following arguments are supported:
   * `scope` - (Required) A scope is a constraint that will be used to identify the messages on which budget needs to be applied. A scope is consists of key and value separated by =. The field must be enabled in the fields table.
   * `capacity_bytes` - (Required) Capacity of the ingest budget, in bytes. It takes a few minutes for Collectors to stop collecting when capacity is reached. We recommend setting a soft limit that is lower than your needed hard limit. The capacity bytes unit varies based on the budgetType field. For `dailyVolume` budgetType the capacity specified is in bytes/day whereas for `minuteVolume` budgetType its bytes/min.
   * `description` - (Optional) The description of the collector.
-  * `budget_type` - (Optional) The type of budget. Supported values are:  * `dailyVolume` * `minuteVolume`
+  * `budget_type` - (Optional) The type of budget. Supported values are:  * `dailyVolume` * `minuteVolume`. Default value is `dailyVolume`.
   * `timezone` - (Optional) The time zone to use for this collector. The value follows the [tzdata][2] naming convention. Defaults to `Etc/UTC`
   * `action` - (Optional) Action to take when ingest budget's capacity is reached. All actions are audited. Supported values are `stopCollecting` and `keepCollecting`.
   * `reset_time` - (Optional) Reset time of the ingest budget in HH:MM format. Defaults to `00:00`
@@ -42,10 +42,10 @@ The following attributes are exported:
   * `id` - The internal ID of the ingest budget. 
 
 ## Import
-Ingest budgets can be imported using the name, e.g.:
+Ingest budgets can be imported using the budget ID, e.g.:
 
 ```hcl
-terraform import sumologic_ingest_budget_v2.budget budgetName
+terraform import sumologic_ingest_budget_v2.budget 00000000000123AB
 ```
 
 [1]: https://help.sumologic.com/Beta/Metadata_Ingest_Budgets

@@ -113,7 +113,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 		CheckDestroy: testAccCheckIngestBudgetV2Destroy(ingestBudgetV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicIngestBudgetV2(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes),
+				Config: testAccSumologicIngestBudgetV2(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes, testBudgetType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIngestBudgetV2Exists("sumologic_ingest_budget_v2.test", &ingestBudgetV2, t),
 					testAccCheckIngestBudgetV2Attributes("sumologic_ingest_budget_v2.test"),
@@ -129,7 +129,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicIngestBudgetV2Update(testUpdatedName, testUpdatedScope, testUpdatedTimezone, testUpdatedResetTime, testUpdatedAuditThreshold, testUpdatedDescription, testUpdatedAction, testUpdatedCapacityBytes),
+				Config: testAccSumologicIngestBudgetV2Update(testUpdatedName, testUpdatedScope, testUpdatedTimezone, testUpdatedResetTime, testUpdatedAuditThreshold, testUpdatedDescription, testUpdatedAction, testUpdatedCapacityBytes, testUpdatedBudgetType),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "scope", testUpdatedScope),
