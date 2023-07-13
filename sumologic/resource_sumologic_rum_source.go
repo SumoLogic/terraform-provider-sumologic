@@ -19,12 +19,6 @@ func resourceSumologicRumSource() *schema.Resource {
 		State: resourceSumologicSourceImport,
 	}
 
-	rumSource.Schema["content_type"] = &schema.Schema{
-		Type:         schema.TypeString,
-		Required:     true,
-		ValidateFunc: validation.StringInSlice([]string{"Rum"}, false),
-	}
-
 	rumSource.Schema["path"] = &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: false,
@@ -44,8 +38,9 @@ func resourceSumologicRumSource() *schema.Resource {
 					Optional: true,
 				},
 				"sampling_rate": {
-					Type:     schema.TypeFloat,
-					Optional: true,
+					Type:         schema.TypeFloat,
+					Optional:     true,
+					ValidateFunc: validation.FloatBetween(0, 1),
 				},
 				"ignore_urls": {
 					Type: schema.TypeList,
