@@ -31,6 +31,7 @@ func TestAccSumologicIngestBudgetV2_basic(t *testing.T) {
 	testDescription := "description-7hUwr"
 	testAction := "stopCollecting"
 	testCapacityBytes := 1000
+	testBudgetType := "dailyVolume"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -38,7 +39,7 @@ func TestAccSumologicIngestBudgetV2_basic(t *testing.T) {
 		CheckDestroy: testAccCheckIngestBudgetV2Destroy(ingestBudgetV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSumologicIngestBudgetV2ConfigImported(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes),
+				Config: testAccCheckSumologicIngestBudgetV2ConfigImported(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes, testBudgetType),
 			},
 			{
 				ResourceName:      "sumologic_ingest_budget_v2.foo",
@@ -58,13 +59,14 @@ func TestAccSumologicIngestBudgetV2_create(t *testing.T) {
 	testDescription := "description-900AB"
 	testAction := "stopCollecting"
 	testCapacityBytes := 1000
+	testBudgetType := "dailyVolume"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIngestBudgetV2Destroy(ingestBudgetV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicIngestBudgetV2(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes),
+				Config: testAccSumologicIngestBudgetV2(testName, testScope, testTimezone, testResetTime, testAuditThreshold, testDescription, testAction, testCapacityBytes, testBudgetType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIngestBudgetV2Exists("sumologic_ingest_budget_v2.test", &ingestBudgetV2, t),
 					testAccCheckIngestBudgetV2Attributes("sumologic_ingest_budget_v2.test"),
@@ -76,6 +78,7 @@ func TestAccSumologicIngestBudgetV2_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "action", testAction),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "capacity_bytes", strconv.Itoa(testCapacityBytes)),
+					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "budget_type", testBudgetType),
 				),
 			},
 		},
@@ -92,6 +95,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 	testDescription := "description-2tAk8"
 	testAction := "stopCollecting"
 	testCapacityBytes := 1000
+	testBudgetType := "dailyVolume"
 
 	testUpdatedName := "Developer BudgetUpdate"
 	testUpdatedScope := "_sourceCategory=*prod*nginx*Update"
@@ -101,6 +105,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 	testUpdatedDescription := "description-pY8kDUpdate"
 	testUpdatedAction := "keepCollecting"
 	testUpdatedCapacityBytes := 1001
+	testUpdatedBudgetType := "dailyVolume"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -120,6 +125,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "action", testAction),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "capacity_bytes", strconv.Itoa(testCapacityBytes)),
+					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "budget_type", testBudgetType),
 				),
 			},
 			{
@@ -133,6 +139,7 @@ func TestAccSumologicIngestBudgetV2_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "action", testUpdatedAction),
 					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "capacity_bytes", strconv.Itoa(testUpdatedCapacityBytes)),
+					resource.TestCheckResourceAttr("sumologic_ingest_budget_v2.test", "budget_type", testUpdatedBudgetType),
 				),
 			},
 		},
@@ -179,7 +186,7 @@ func testAccCheckIngestBudgetV2Exists(name string, ingestBudgetV2 *IngestBudgetV
 		return nil
 	}
 }
-func testAccCheckSumologicIngestBudgetV2ConfigImported(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int) string {
+func testAccCheckSumologicIngestBudgetV2ConfigImported(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int, budgetType string) string {
 	return fmt.Sprintf(`
 resource "sumologic_ingest_budget_v2" "foo" {
       name = "%s"
@@ -190,11 +197,12 @@ resource "sumologic_ingest_budget_v2" "foo" {
       description = "%s"
       action = "%s"
       capacity_bytes = %d
+	  budget_type = "%s"
 }
 `, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes)
 }
 
-func testAccSumologicIngestBudgetV2(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int) string {
+func testAccSumologicIngestBudgetV2(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int, budgetType string) string {
 	return fmt.Sprintf(`
 resource "sumologic_ingest_budget_v2" "test" {
     name = "%s"
@@ -205,11 +213,12 @@ resource "sumologic_ingest_budget_v2" "test" {
     description = "%s"
     action = "%s"
     capacity_bytes = %d
+	budget_type = "%s"
 }
-`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes)
+`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes, budgetType)
 }
 
-func testAccSumologicIngestBudgetV2Update(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int) string {
+func testAccSumologicIngestBudgetV2Update(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int, budgetType string) string {
 	return fmt.Sprintf(`
 resource "sumologic_ingest_budget_v2" "test" {
       name = "%s"
@@ -220,8 +229,9 @@ resource "sumologic_ingest_budget_v2" "test" {
       description = "%s"
       action = "%s"
       capacity_bytes = %d
+	  budget_type = "%s"
 }
-`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes)
+`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes, budgetType)
 }
 
 func testAccCheckIngestBudgetV2Attributes(name string) resource.TestCheckFunc {
@@ -234,6 +244,7 @@ func testAccCheckIngestBudgetV2Attributes(name string) resource.TestCheckFunc {
 			resource.TestCheckResourceAttrSet(name, "audit_threshold"),
 			resource.TestCheckResourceAttrSet(name, "description"),
 			resource.TestCheckResourceAttrSet(name, "action"),
+			resource.TestCheckResourceAttrSet(name, "budget_type"),
 			resource.TestCheckResourceAttrSet(name, "capacity_bytes"),
 		)
 		return f(s)
