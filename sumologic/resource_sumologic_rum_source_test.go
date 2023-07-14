@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicRumSourceMin_create(t *testing.T) {
+func TestAccSumologicRumSource_Mincreate(t *testing.T) {
 	var rumSource RumSource
 	var collector Collector
 
@@ -41,7 +41,7 @@ func TestAccSumologicRumSourceMin_create(t *testing.T) {
 	})
 }
 
-func TestAccSumologicRumSourceFull_create(t *testing.T) {
+func TestAccSumologicRumSource_Fullcreate(t *testing.T) {
 	var rumSource RumSource
 	var collector Collector
 
