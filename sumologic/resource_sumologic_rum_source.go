@@ -19,6 +19,13 @@ func resourceSumologicRumSource() *schema.Resource {
 		State: resourceSumologicSourceImport,
 	}
 
+	rumSource.Schema["content_type"] = &schema.Schema{
+		Type: schema.TypeString,
+		Optional:     true,
+		Default:      "Rum",
+		ValidateFunc: validation.StringInSlice([]string{"Rum"}, false),
+	}
+
 	rumSource.Schema["path"] = &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,

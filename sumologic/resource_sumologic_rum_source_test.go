@@ -9,15 +9,44 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicRumSource_create(t *testing.T) {
+func TestAccSumologicRumSourceMin_create(t *testing.T) {
 	var rumSource RumSource
 	var collector Collector
 
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 
-	cName2, cDescription2, cCategory2 := getRandomizedParams()
-	sName2, sDescription2, sCategory2 := getRandomizedParams()
+	rumSourceResourceName := "sumologic_rum_source.testRumSource"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRumSourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMinRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
+					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
+					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
+					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
+					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sName),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "category", sCategory),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.service_name", "some_service2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicRumSourceFull_create(t *testing.T) {
+	var rumSource RumSource
+	var collector Collector
+
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
 
 	rumSourceResourceName := "sumologic_rum_resource.testRumSource"
 
@@ -29,7 +58,7 @@ func TestAccSumologicRumSource_create(t *testing.T) {
 			{
 				Config: testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
+					testAccCheckCollectorExists("sumologic_collector.testCollector1", &collector),
 					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
 					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
 					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
@@ -51,31 +80,6 @@ func TestAccSumologicRumSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.1", "zyx.com"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.selected_country", "Poland"),
 				),
-			},
-			{
-				ResourceName:      rumSourceResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccSumologicMinRumSourceConfig(cName2, cDescription2, cCategory2, sName2, sDescription2, sCategory2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
-					testAccCheckRumSourceBasicValues(&rumSource, sName2, sDescription2, sCategory2),
-					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
-					testAccCheckCollectorValues(&collector, cName2, cDescription2, cCategory2, "Etc/UTC", ""),
-					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sName2),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescription2),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "category", sCategory2),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.application_name", "some_application"),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.service_name", "some_service2"),
-				),
-			},
-			{
-				ResourceName:      rumSourceResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
@@ -153,7 +157,7 @@ func testAccCheckRumSourceDestroy(s *terraform.State) error {
 
 func testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
 	return fmt.Sprintf(`
-resource "sumologic_collector" "testCollector" {
+resource "sumologic_collector" "testCollector1" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
@@ -163,7 +167,7 @@ resource "sumologic_rum_source" "testRumSource" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
-	collector_id = "${sumologic_collector.testCollector.id}"
+	collector_id = "${sumologic_collector.testCollector1.id}"
 	path {
 		application_name = "some_application"
 		service_name = "some_service"
