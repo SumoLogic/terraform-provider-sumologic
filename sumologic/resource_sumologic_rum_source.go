@@ -20,7 +20,7 @@ func resourceSumologicRumSource() *schema.Resource {
 	}
 
 	rumSource.Schema["content_type"] = &schema.Schema{
-		Type: schema.TypeString,
+		Type:         schema.TypeString,
 		Optional:     true,
 		Default:      "Rum",
 		ValidateFunc: validation.StringInSlice([]string{"Rum"}, false),
