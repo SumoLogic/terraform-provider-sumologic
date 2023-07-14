@@ -48,7 +48,7 @@ func TestAccSumologicRumSourceFull_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 
-	rumSourceResourceName := "sumologic_rum_resource.testRumSource"
+	rumSourceResourceName := "sumologic_rum_source.testRumSource"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -58,10 +58,10 @@ func TestAccSumologicRumSourceFull_create(t *testing.T) {
 			{
 				Config: testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.testCollector1", &collector),
-					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
 					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
 					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
+					testAccCheckCollectorExists("sumologic_collector.testCollector", &collector),
+					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
 					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sName),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescription),
@@ -74,7 +74,61 @@ func TestAccSumologicRumSourceFull_create(t *testing.T) {
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.ignore_urls.0", "asd.com"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.ignore_urls.1", "dsa.com"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.custom_tags.%", "1"),
-					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.custom_tags.some_key", "some_value"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.custom_tags.some_tag", "some_value"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.#", "2"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.0", "xyz.com"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.1", "zyx.com"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.selected_country", "Poland"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicRumSource_update(t *testing.T) {
+	var rumSource RumSource
+
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
+	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
+
+	rumSourceResourceName := "sumologic_rum_source.testRumSource"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRumSourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMinRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
+					testAccCheckRumSourceBasicValues(&rumSource, sName, sDescription, sCategory),
+					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sName),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescription),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "category", sCategory),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.service_name", "some_service2"),
+				),
+			},
+			{
+				Config: testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRumSourceExists(rumSourceResourceName, &rumSource),
+					testAccCheckRumSourceBasicValues(&rumSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+					resource.TestCheckResourceAttrSet(rumSourceResourceName, "id"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "name", sNameUpdated),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "description", sDescriptionUpdated),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "category", sCategoryUpdated),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.application_name", "some_application"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.service_name", "some_service"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.deployment_environment", "some_environment"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.sampling_rate", "0.5"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.ignore_urls.#", "2"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.ignore_urls.0", "asd.com"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.ignore_urls.1", "dsa.com"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.custom_tags.%", "1"),
+					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.custom_tags.some_tag", "some_value"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.#", "2"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.0", "xyz.com"),
 					resource.TestCheckResourceAttr(rumSourceResourceName, "path.0.propagate_trace_header_cors_urls.1", "zyx.com"),
@@ -157,7 +211,7 @@ func testAccCheckRumSourceDestroy(s *terraform.State) error {
 
 func testAccSumologicFullRumSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
 	return fmt.Sprintf(`
-resource "sumologic_collector" "testCollector1" {
+resource "sumologic_collector" "testCollector" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
@@ -167,7 +221,7 @@ resource "sumologic_rum_source" "testRumSource" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
-	collector_id = "${sumologic_collector.testCollector1.id}"
+	collector_id = "${sumologic_collector.testCollector.id}"
 	path {
 		application_name = "some_application"
 		service_name = "some_service"
