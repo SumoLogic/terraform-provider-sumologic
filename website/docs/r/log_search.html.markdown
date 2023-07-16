@@ -83,11 +83,11 @@ resource "sumologic_log_search" "example_log_search" {
         time_zone = "America/Los_Angeles"
 
         parameter {
-            name          = "param1"
+            name = "param1"
             value = "*"
         }
         parameter {
-            name          = "param2"
+            name = "param2"
             value = "*"
         }
     }
