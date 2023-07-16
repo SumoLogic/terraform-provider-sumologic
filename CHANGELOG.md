@@ -1,6 +1,17 @@
-## 2.23.1 (Unreleased)
+## 2.24.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_metrics_search (GH-528)
+BUG FIXES:
+* Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
+
+## 2.24.0 (June 22, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_outlier_rule (GH-532)
+* Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (GH-533)
+
+BUG FIXES:
+* Enforce validation of `group_by_fields` in cse_*_rule resources, on non empty string elements. (GH-535)
+* Fixes `resource_sumologic_cse_match_list` to allow for match lists with more than 1000 items to be created. (GH-536)
 
 ## 2.23.0 (May 24, 2023)
 FEATURES:
