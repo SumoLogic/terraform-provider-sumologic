@@ -838,7 +838,7 @@ resource "sumologic_monitor" "test" {
 	playbook = "This is a test playbook"  
 	alert_name =  "Alert from {{Name}}"
 	tags = {
-	    team = "metrics"
+        team = "metrics"
         application = "sumologic"
     }
 	notification_group_fields = ["groupingField1", "groupingField2"]
