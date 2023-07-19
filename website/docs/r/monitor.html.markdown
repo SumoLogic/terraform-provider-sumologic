@@ -42,6 +42,10 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Logs"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   queries {
     row_id = "A"
@@ -110,6 +114,10 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Metrics"
   evaluation_delay = "1m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   queries {
     row_id = "A"
@@ -160,6 +168,10 @@ resource "sumologic_monitor" "tf_slo_monitor_1" {
   monitor_type = "Slo"
   slo_id = "0000000000000009"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
   
   trigger_conditions {
     slo_sli_condition {
@@ -193,6 +205,10 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
   monitor_type = "Slo"
   slo_id = "0000000000000009"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   trigger_conditions {
     slo_burn_rate_condition {
@@ -253,6 +269,10 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
   is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Logs"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
   queries {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
@@ -333,6 +353,7 @@ The following arguments are supported:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
   - `Slo`: A SLO based monitor.
+- `tags` - (Optional) A map defining tag keys and tag values for the Monitor.
 - `evaluation_delay` - (Optional) Evaluation delay as a string consists of the following elements:
       1. `<number>`: number of time units,
       2. `<time_unit>`: time unit; possible values are: `h` (hour), `m` (minute), `s` (second).

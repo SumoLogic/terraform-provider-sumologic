@@ -1,6 +1,8 @@
 ## 2.24.1 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_metrics_search (GH-528)
+* resource/sumologic_monitor: Added support for associating tags with a Monitor.
+
 BUG FIXES:
 * Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
 
