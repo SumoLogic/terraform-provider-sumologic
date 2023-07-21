@@ -199,7 +199,7 @@ resource "sumologic_ingest_budget_v2" "foo" {
       capacity_bytes = %d
 	  budget_type = "%s"
 }
-`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes)
+`, name, scope, timezone, resetTime, auditThreshold, description, action, capacityBytes, budgetType)
 }
 
 func testAccSumologicIngestBudgetV2(name string, scope string, timezone string, resetTime string, auditThreshold int, description string, action string, capacityBytes int, budgetType string) string {
