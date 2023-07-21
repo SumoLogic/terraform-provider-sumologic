@@ -112,6 +112,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_local_file_source":                        resourceSumologicLocalFileSource(),
 			"sumologic_log_search":                               resourceSumologicLogSearch(),
 			"sumologic_metrics_search":                           resourceSumologicMetricsSearch(),
+			"sumologic_rum_source":                               resourceSumologicRumSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),

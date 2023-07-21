@@ -33,6 +33,24 @@ The following arguments are supported:
 - `target_column` - (Required) Target column. (possible values: Hostname, FileHash, Url, SrcIp, DstIp, Domain, Username, Ip, Asn, Isp, Org, SrcAsn, SrcIsp, SrcOrg, DstAsn, DstIsp, DstOrg or any custom column.)
 - `items` - (Optional) List of match list items. See [match_list_item schema](#schema-for-match_list_item) for details.
 
+**Note:** When managing CSE match list items outside of terraform, omit the `items` argument and add `items` to the [ignore_changes](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes) list in a lifecycle block on the `sumologic_cse_match_list` resource. As match list items are added or removed outside of terraform, terraform will ignore these changes, protecting match list items from accidental deletion.
+
+For example:
+
+```hcl
+resource "sumologic_cse_match_list" "match_list" {
+  default_ttl = 10800
+  description = "Match list description"
+  name = "Match list name"
+  target_column = "SrcIp"
+  
+  lifecycle {
+    # protects match list items added outside terraform from accidental deletion
+    ignore_changes = [items]
+  }
+}
+```
+
 ### Schema for `match_list_item`
 - `description` - (Required) Match list item description.
 - `value` - (Optional) Match list item value.
