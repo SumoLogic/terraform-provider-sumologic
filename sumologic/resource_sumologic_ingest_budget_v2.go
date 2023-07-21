@@ -71,6 +71,13 @@ func resourceSumologicIngestBudgetV2() *schema.Resource {
 				ForceNew: false,
 			},
 
+			"budget_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Default:  "dailyVolume",
+			},
+
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -119,6 +126,7 @@ func resourceSumologicIngestBudgetV2Read(d *schema.ResourceData, meta interface{
 	d.Set("description", ingestBudgetV2.Description)
 	d.Set("action", ingestBudgetV2.Action)
 	d.Set("capacity_bytes", ingestBudgetV2.CapacityBytes)
+	d.Set("budget_type", ingestBudgetV2.BudgetType)
 
 	return nil
 }
@@ -150,6 +158,7 @@ func resourceToIngestBudgetV2(d *schema.ResourceData) IngestBudgetV2 {
 		Timezone:       d.Get("timezone").(string),
 		ID:             d.Id(),
 		Action:         d.Get("action").(string),
+		BudgetType:     d.Get("budget_type").(string),
 		Description:    d.Get("description").(string),
 		AuditThreshold: d.Get("audit_threshold").(int),
 		CapacityBytes:  d.Get("capacity_bytes").(int),
