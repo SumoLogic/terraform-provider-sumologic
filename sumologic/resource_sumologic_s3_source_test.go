@@ -25,13 +25,14 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 	s3ResourceName := "sumologic_s3_source.s3"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
+	useVersionedApi := false
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3SourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -43,6 +44,7 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
+					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "true"),
 				),
 			},
 		},
@@ -56,13 +58,15 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 	s3ResourceName := "sumologic_s3_source.s3"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
+	useVersionedApi := true
+	useVersionedApiUpdated := false
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -72,10 +76,11 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
+					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "true"),
 				),
 			},
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket),
+				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket, useVersionedApiUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -85,6 +90,7 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategoryUpdated),
 					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
+					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "false"),
 				),
 			},
 		},
@@ -157,7 +163,7 @@ func testAccCheckS3SourceValues(pollingSource *PollingSource, name, description,
 		return nil
 	}
 }
-func testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string) string {
+func testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string, useVersionedApi bool) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
@@ -180,8 +186,9 @@ resource "sumologic_s3_source" "s3" {
 		type = "S3BucketPathExpression"
 		bucket_name     = "%s"
 		path_expression = "*"
+		use_versioned_api = "%v"
 	  }
 	}
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi)
 }
