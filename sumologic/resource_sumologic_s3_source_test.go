@@ -25,7 +25,7 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 	s3ResourceName := "sumologic_s3_source.s3"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
-	useVersionedApi := false
+	useVersionedApi := true
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
