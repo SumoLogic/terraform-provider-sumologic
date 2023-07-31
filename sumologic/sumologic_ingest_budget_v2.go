@@ -96,6 +96,7 @@ type IngestBudgetV2 struct {
 	Action         string `json:"action"`
 	ResetTime      string `json:"resetTime"`
 	Name           string `json:"name"`
+	BudgetType     string `json:"budgetType,omitempty"`
 	ID             string `json:"id,omitempty"`
 	Scope          string `json:"scope"`
 	Timezone       string `json:"timezone"`

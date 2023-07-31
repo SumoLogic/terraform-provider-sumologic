@@ -1,4 +1,9 @@
 ## 2.24.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_metrics_search (GH-528)
+* **New Resource:** sumologic_rum_source (GH-547)
+* Add `budgetType` support for sumologic_ingest_budget_v2 (GH-549)
+
 BUG FIXES:
 * Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
 
