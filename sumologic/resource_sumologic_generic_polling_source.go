@@ -129,6 +129,13 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Default:  true,
+					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+						contentType := d.Get("content_type").(string)
+						if contentType != "AwsS3Bucket" {
+							return true
+						}
+						return false
+					},
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
@@ -584,7 +591,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			}
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
-			pathSettings.UseVersionedApi = nil
 			pathSettings.Type = pathType
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
 			LimitToRegions := make([]string, 0, len(rawLimitToRegions))
@@ -607,7 +613,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 				pathSettings.TagFilters = getPollingTagFilters(d)
 			}
 		case "AwsXRayPath":
-			pathSettings.UseVersionedApi = nil
 			pathSettings.Type = "AwsXRayPath"
 			rawLimitToRegions := path["limit_to_regions"].([]interface{})
 			LimitToRegions := make([]string, 0, len(rawLimitToRegions))
@@ -618,7 +623,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			}
 			pathSettings.LimitToRegions = LimitToRegions
 		case "GcpMetricsPath":
-			pathSettings.UseVersionedApi = nil
 			pathSettings.Type = pathType
 			addGcpMetricsPathSettings(&pathSettings, path)
 		default:

@@ -250,10 +250,9 @@ func testAccSumologicGcpMetricsSourceConfig(t *testing.T, cName, cDescription, c
 				service_name = "compute_instance_and_guests"
 				prefixes = ["%s" ,"compute.googleapis.com/guest/", "compute.googleapis.com/instance/"]
 			}
-			use_versioned_api = false
 		}
 		lifecycle {
-			ignore_changes = [authentication[0].private_key, path["use_versioned_api"]]
+			ignore_changes = [authentication[0].private_key]
 		}
 }
 	`, cName, cDescription, cCategory, sName, sDescription, sCategory,
