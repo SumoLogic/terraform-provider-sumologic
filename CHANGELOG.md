@@ -6,6 +6,7 @@ FEATURES:
 
 BUG FIXES:
 * Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
+* Fixes `sumologic_s3_source` to allow setting `use_versioned_api` parameter to `false`. (GH-555)
 
 ## 2.24.0 (June 22, 2023)
 FEATURES:
