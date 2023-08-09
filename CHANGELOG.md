@@ -1,4 +1,6 @@
-## 2.24.1 (Unreleased)
+## 2.25.1 (Unreleased)
+
+## 2.25.0 (August 8, 2023)
 FEATURES:
 * **New Resource:** sumologic_metrics_search (GH-528)
 * **New Resource:** sumologic_rum_source (GH-547)
