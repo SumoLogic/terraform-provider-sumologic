@@ -4,6 +4,9 @@ FEATURES:
 BUG FIXES:
 * Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
 
+DEPRECATIONS:
+* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
+
 ## 2.24.0 (June 22, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_outlier_rule (GH-532)

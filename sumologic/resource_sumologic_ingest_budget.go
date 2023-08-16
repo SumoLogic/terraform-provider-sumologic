@@ -1,17 +1,19 @@
 package sumologic
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceSumologicIngestBudget() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSumologicIngestBudgetCreate,
-		Read:   resourceSumologicIngestBudgetRead,
-		Delete: resourceSumologicIngestBudgetDelete,
-		Update: resourceSumologicIngestBudgetUpdate,
+		DeprecationMessage: "Use resource_sumologic_ingest_budget_v2 instead.",
+		Create:             resourceSumologicIngestBudgetCreate,
+		Read:               resourceSumologicIngestBudgetRead,
+		Delete:             resourceSumologicIngestBudgetDelete,
+		Update:             resourceSumologicIngestBudgetUpdate,
 		Importer: &schema.ResourceImporter{
 			State: resourceSumologicIngestBudgetImport,
 		},
