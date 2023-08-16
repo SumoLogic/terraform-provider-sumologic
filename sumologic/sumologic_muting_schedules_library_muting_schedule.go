@@ -39,11 +39,10 @@ func (s *Client) CreateMutingSchedulesLibraryMutingSchedule(mutingSchedulesLibra
 
 func (s *Client) MutingSchedulesRead(id string) (*MutingSchedulesLibraryMutingSchedule, error) {
 	urlWithoutParams := "v1/mutingSchedules/%s"
-	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
-	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
 	data, _, err := s.Get(urlWithParams)
 	if err != nil {
@@ -66,11 +65,10 @@ func (s *Client) MutingSchedulesRead(id string) (*MutingSchedulesLibraryMutingSc
 
 func (s *Client) DeleteMutingSchedulesLibraryMutingSchedule(id string) error {
 	urlWithoutParams := "v1/mutingSchedules/%s"
-	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
-	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
 	_, err := s.Delete(urlWithParams)
 
@@ -79,13 +77,10 @@ func (s *Client) DeleteMutingSchedulesLibraryMutingSchedule(id string) error {
 
 func (s *Client) UpdateMutingSchedulesLibraryMutingSchedule(mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule) error {
 	urlWithoutParams := "v1/mutingSchedules/%s"
-	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, mutingSchedulesLibraryMutingSchedule.ID)
 
-	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
-
-	mutingSchedulesLibraryMutingSchedule.ID = ""
+	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
 	_, err := s.Put(urlWithParams, mutingSchedulesLibraryMutingSchedule)
 
@@ -94,11 +89,10 @@ func (s *Client) UpdateMutingSchedulesLibraryMutingSchedule(mutingSchedulesLibra
 
 func (s *Client) GetMutingSchedulesLibraryFolder(id string) (*MutingSchedulesLibraryFolder, error) {
 	urlWithoutParams := "v1/mutingSchedules/%s"
-	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
-	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
+	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
 	data, _, err := s.Get(urlWithParams)
 	if err != nil {
@@ -127,7 +121,7 @@ type MutingSchedulesLibraryMutingSchedule struct {
 	IsSystem    bool               `json:"isSystem"`
 	IsMutable   bool               `json:"isMutable"`
 	Schedule    ScheduleDefinition `json:"schedule"`
-	Monitor     MonitorScope       `json:"monitor"`
+	Monitor     *MonitorScope      `json:"monitor"`
 	ParentID    string             `json:"parentId"`
 	Name        string             `json:"name"`
 	Version     int                `json:"version"`

@@ -54,10 +54,10 @@ func getMutingScheduleBaseSchema() map[string]*schema.Schema {
 
 		"monitor": {
 			Type:     schema.TypeList,
-			Required: true,
+			Optional: true,
 			MaxItems: 1,
 			Elem: &schema.Resource{
-				Schema: getMonitorScopeSchemma(),
+				Schema: getMonitorScopeSchema(),
 			},
 		},
 
@@ -78,7 +78,7 @@ func getMutingScheduleBaseSchema() map[string]*schema.Schema {
 	}
 }
 
-func getMonitorScopeSchemma() map[string]*schema.Schema {
+func getMonitorScopeSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"ids": {
 			Type:     schema.TypeList,
@@ -273,14 +273,18 @@ func resourceSumologicMutingSchedulesLibraryMutingScheduleDelete(d *schema.Resou
 	return nil
 }
 
-func getMonitorScope(d *schema.ResourceData) MonitorScope {
+func getMonitorScope(d *schema.ResourceData) *MonitorScope {
 	monitorMap := d.Get("monitor").([]interface{})
-	monitorScopeDict := monitorMap[0].(map[string]interface{})
-	monitorScope := MonitorScope{
-		Ids: fieldsToStringArray(monitorScopeDict["ids"].([]interface{})),
-		All: monitorScopeDict["all"].(bool),
+	if len(monitorMap) == 0 {
+		return nil
+	} else {
+		monitorScopeDict := monitorMap[0].(map[string]interface{})
+		monitorScope := MonitorScope{
+			Ids: fieldsToStringArray(monitorScopeDict["ids"].([]interface{})),
+			All: monitorScopeDict["all"].(bool),
+		}
+		return &monitorScope
 	}
-	return monitorScope
 }
 
 func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
@@ -319,6 +323,3 @@ func resourceToMutingSchedulesLibraryMutingSchedule(d *schema.ResourceData) Muti
 		Monitor:     monitorScope,
 	}
 }
-
-// type schemaMap = map[string]*schema.Schema
-// type dict = map[string]interface{}

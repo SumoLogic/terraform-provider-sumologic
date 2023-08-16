@@ -9,7 +9,7 @@ description: |-
 
 Provides the ability to create, read, delete, and update [MutingSchedule][1].
 
-## Example One Time Muting Schedule For All monitor
+## Example One-time Muting Schedule at ... For All monitor
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -29,7 +29,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 }
 ```
 
-## Example One Time Muting Schedule For Specifc Monitor/Folder ids
+## Example One-time Muting Schedule at ... For Specifc Monitor/Folder ids
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -49,7 +49,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 }
 ```
 
-## Example RRule Muting Schedule For Specifc Monitor/Folder ids
+## Example Daily Muting Schedule at ... For All monitor
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -66,12 +66,11 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		start_time = "00:00"
 		duration = 40
     rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
-    is_form = false
 	}
 }
 ```
 
-## Example RRule Muting Schedule For All monitor
+## Example Daily Muting Schedule at ... For Specifc Monitor/Folder ids 
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -88,7 +87,6 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		start_time = "00:00"
 		duration = 40
     rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
-    is_form = false
 	}
 }
 ```
@@ -103,7 +101,7 @@ The following arguments are supported:
 - `description` - (Optional) The description of the muting schedule.
 - `content_type` - (Optional) The type of the content object. Valid value:
   - `MutingSchedule`
-- `monitor` - (Required) The monitors which need to put in the muting schedule. see `monitor_scope_type`:
+- `monitor` - (Optional) The monitors which need to put in the muting schedule. see `monitor_scope_type`:
 - `schedule` - (Required) The schedule information. see `schedule_type`.
 
 #### schedule_type
@@ -112,9 +110,15 @@ The following arguments are supported:
   - `start_date` - (Required) Schedule start date in the format of `yyyy-mm-dd`
   - `start_time` - (Required) Schedule start time in the format of `hh:mm`
   - `duration` - (Required) Duration of the muting in minutes
-  - `rrule` - (Optional) RRule (Recurrence Rule)
-  - `is_form`- (Optional) A flag identifying if the RRule is created or modified through Form UI 
+  - `rrule` - (Optional) RRule (Recurrence Rule) Below are some examples of how to represent recurring events using the RRULE format:
+  A rule occurring on the third Sunday of April would be as follows: `FREQ=YEARLY;BYMONTH=4;BYDAY=SU;BYSETPOS=3`
+  An event occurring on the first and second Monday of October would be specified by the rule: `FREQ=YEARLY;BYMONTH=10;BYDAY=MO;BYSETPOS=1,2`
+  Event that repeats monthly: every 29th of every other month! `FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=29`
+  (https://freetools.textmagic.com/rrule-generator)
+  - `is_form`- (Optional) A flag identifying if the RRule is created or modified through Form UI. This value is determined by the system and users don't have to define it.
 
 #### monitor_scope_type
   - `ids` - (Optional) List of monitor Ids in hex. Must be empty if `all` is true.
   - `all` - (Optional) True if the schedule applies to all monitors
+
+[1]: https://help.sumologic.com/docs/alerts/monitors/muting-schedules/
