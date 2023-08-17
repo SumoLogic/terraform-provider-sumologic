@@ -9,7 +9,7 @@ description: |-
 
 Provides the ability to create, read, delete, and update [MutingSchedule][1].
 
-## Example One-time Muting Schedule at ... For All monitor
+## Example One-time Muting Schedule From 12:00 AM To 1:00 AM On 2023-08-05 For All monitor
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -24,12 +24,12 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		timezone = "America/Los_Angeles"
 		start_date = "2023-08-05"
 		start_time = "00:00"
-		duration = 40
+		duration = 60
 	}
 }
 ```
 
-## Example One-time Muting Schedule at ... For Specifc Monitor/Folder ids
+## Example One-time Muting Schedule From 12:00 AM To 1:00 AM On 2023-08-05 For Specifc Monitor/Folder ids
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -44,12 +44,12 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		timezone = "America/Los_Angeles"
 		start_date = "2023-08-05"
 		start_time = "00:00"
-		duration = 40
+		duration = 60
 	}
 }
 ```
 
-## Example Daily Muting Schedule at ... For All monitor
+## Example Daily Muting Schedule From 9:00 AM to 9:30 and 10:00 AM to 10:30 AM Since 2023-08-05 For All monitor
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -64,13 +64,13 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		timezone = "America/Los_Angeles"
 		start_date = "2023-08-05"
 		start_time = "00:00"
-		duration = 40
-    rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
+		duration = 30
+    	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
 	}
 }
 ```
 
-## Example Daily Muting Schedule at ... For Specifc Monitor/Folder ids 
+## Example Daily Muting Schedule From 9:00 AM to 9:30 and 10:00 AM to 10:30 AM Since 2023-08-05 For Specifc Monitor/Folder ids 
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -85,8 +85,8 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 		timezone = "America/Los_Angeles"
 		start_date = "2023-08-05"
 		start_time = "00:00"
-		duration = 40
-    rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
+		duration = 30
+    	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
 	}
 }
 ```
