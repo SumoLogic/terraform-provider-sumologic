@@ -45,6 +45,8 @@ The following arguments are supported:
  - `schema_ref` - (Required) Source schema details. 
      + `type` - (Required) Schema type for the Cloud-to-Cloud source.
 
+The values for `type` and `config` arguments varies per integration. Details of the same can be found [here][2]. Kindly go into the respective integration and look for the `JSON Configuration` and `Config Parameters` sections.
+
 ## Attributes Reference
 The following attributes are exported:
 
