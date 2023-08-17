@@ -41,11 +41,10 @@ resource "sumologic_collector" "collector" {
 ## Argument reference
 The following arguments are supported:
 
- - `config` - (Required) This is a JSON object which contains the configuration parameters for the Source.
  - `schema_ref` - (Required) Source schema details. 
-     + `type` - (Required) Schema type for the Cloud-to-Cloud source.
+     + `type` - (Required) Schema type for the Cloud-to-Cloud integration source. Available schema types can be found [here][2].
+ - `config` - (Required) This is a JSON object which contains the configuration parameters for the Source. Each schema type requires different JSON parameters. Refer to `JSON Configuration` and `Config Parameters` sections in the integration page for the specific `type` you have chosen to create.
 
-The values for `type` and `config` arguments varies per integration. Details of the same can be found [here][2]. Kindly go into the respective integration and look for the `JSON Configuration` and `Config Parameters` sections.
 
 ## Attributes Reference
 The following attributes are exported:
