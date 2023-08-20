@@ -17,6 +17,10 @@ resource "sumologic_slo" "slo_tf_window_metric_ratio" {
   signal_type = "Error"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
       compliance_type = "Rolling"
       size            = "7d"
@@ -56,6 +60,10 @@ resource "sumologic_slo" "slo_tf_window_based" {
   signal_type = "Latency"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -88,6 +96,10 @@ resource "sumologic_slo" "slo_tf_request_based" {
   signal_type = "Latency"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -126,6 +138,10 @@ resource "sumologic_slo" "slo_tf_monitor_based" {
   signal_type = "Error"
   service     = "auth"
   application = "login"
+  tags = {
+    "team" = "metrics"
+    "application" = "sumologic"
+  }
   compliance {
     compliance_type = "Rolling"
     size            = "7d"
@@ -154,7 +170,7 @@ The following arguments are supported:
   , `Other`. Defaults to `Latency`.
 - `service` - (Optional) Name of the service.
 - `application` - (Optional) Name of the application.
-  Defaults to true.
+- `tags` - (Optional) A map defining tag keys and tag values for the SLO.
 - `compliance` - (Required) The compliance settings for the SLO.
     - `compliance_type` - (Required) The type of compliance to use. Valid values are `Rolling` or `Calendar`.
     - `target` - (Required) Target percentage for the SLI over the compliance period. Must be a number between 0 and 100.
@@ -171,18 +187,18 @@ The following arguments are supported:
     - [window_based_evaluation](#window_based_evaluation) - Evaluate SLI using successful/total windows.
     - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence of successful
       events / total events over entire compliance period.
+    - [monitor_based_evaluation](#monitor_based_evaluation) - SLIs for Monitor-based SLOs are calculated at a granularity of 1 minute. A minute is treated as unsuccessful if the Monitor threshold is violated at any point of time within that minute.
 
 #### window_based_evaluation
 
-- `size` - (Required) The size of the window to use, minimum of `1m` and maximum of `1h`. Only applicable for Window
-  based evaluation.
+- `size` - (Required) The size of the window to use, minimum of `1m` and maximum of `1h`.
 - `query_type` - (Required) The type of query to use. Valid values are `Metrics` or `Logs`.
 - `threshold` - (Required) Threshold for classifying window as successful or unsuccessful, i.e. the minimum value
   for `(good windows / total windows) * 100`.
 - `op` - (Required) The operator used to define a successful window. Valid values are `LessThan`
   , `LessThanOrEqual`, `GreaterThan`
   , `GreaterThanOrEqual`.
-- `aggregation` - (Optional) Aggregation function applied over each window to arrive at SLI. Valid values are `Avg`
+- `aggregation` - (Required if `query_group_type` is `Threshold`) Aggregation function applied over each window to arrive at SLI. Valid values are `Avg`
   , `Sum`, `Count`, `Max`, `Min` and `p[1-99]`.
 - `queries` - (Required) The queries to use.
     - `query_group_type` - (Required) The type of query. Valid values are `Successful`, `Unsuccessful`, `Total`
@@ -197,8 +213,8 @@ The following arguments are supported:
 #### request_based_evaluation
 
 - `query_type` - (Required) The type of query to use. Valid values are `Metrics` or `Logs`.
-- `threshold` - (Required) Compared against threshold query's raw data points to determine success criteria.
-- `op` - (Required) Comparison function with threshold. Valid values are `LessThan`, `LessThanOrEqual`, `GreaterThan`
+- `threshold` - (Required if `query_group_type` is `Threshold`) Compared against threshold query's raw data points to determine success criteria.
+- `op` - (Required if `query_group_type` is `Threshold`) Comparison function with threshold. Valid values are `LessThan`, `LessThanOrEqual`, `GreaterThan`
   , `GreaterThanOrEqual`.
 - `queries` - (Required) The queries to use.
     - `query_group_type` - (Required) The type of query. Valid values are `Successful`, `Unsuccessful`, `Total`

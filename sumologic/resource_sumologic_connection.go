@@ -82,6 +82,12 @@ func resourceSumologicConnection() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"Incident", "Event"}, false),
 			},
+			"resolution_payload": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Computed:     true,
+			},
 		},
 	}
 }
@@ -137,6 +143,7 @@ func resourceSumologicConnectionRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error setting custom headers for resource %s: %s", d.Id(), err)
 	}
 	d.Set("default_payload", connection.DefaultPayload)
+	d.Set("resolution_payload", connection.ResolutionPayload)
 	d.Set("webhook_type", connection.WebhookType)
 	d.Set("connection_subtype", connection.ConnectionSubtype)
 	d.SetId(connection.ID)
@@ -203,6 +210,7 @@ func resourceToConnection(d *schema.ResourceData) Connection {
 	connection.Headers = mapToHeaders(d.Get("headers").(map[string]interface{}))
 	connection.CustomHeaders = mapToHeaders(d.Get("custom_headers").(map[string]interface{}))
 	connection.DefaultPayload = d.Get("default_payload").(string)
+	connection.ResolutionPayload = d.Get("resolution_payload").(string)
 	connection.WebhookType = d.Get("webhook_type").(string)
 	connection.ConnectionSubtype = d.Get("connection_subtype").(string)
 
@@ -236,6 +244,7 @@ func printConnection(connection Connection) {
 	log.Printf("Headers: %s", connection.Headers)
 	log.Printf("CustomHeaders: %s", connection.CustomHeaders)
 	log.Printf("DefaultPayload: %s", connection.DefaultPayload)
+	log.Printf("ResolutionPayload: %s", connection.ResolutionPayload)
 	log.Printf("WebhookType: %s", connection.WebhookType)
 	log.Printf("ConnectionSubtype: %s", connection.ConnectionSubtype)
 }

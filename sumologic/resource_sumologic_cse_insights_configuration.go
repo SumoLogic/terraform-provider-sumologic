@@ -26,6 +26,11 @@ func resourceSumologicCSEInsightsConfiguration() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"global_signal_suppression_window": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -49,6 +54,7 @@ func resourceSumologicCSEInsightsConfigurationRead(d *schema.ResourceData, meta 
 
 	d.Set("lookback_days", CSEInsightsConfiguration.LookbackDays)
 	d.Set("threshold", CSEInsightsConfiguration.Threshold)
+	d.Set("global_signal_suppression_window", CSEInsightsConfiguration.GlobalSignalSuppressionWindow)
 
 	return nil
 }
@@ -93,9 +99,11 @@ func resourceToCSEInsightsConfiguration(d *schema.ResourceData) (CSEInsightsConf
 
 	lookbackDays := d.Get("lookback_days").(float64)
 	threshold := d.Get("threshold").(float64)
+	globalSignalSuppressionWindow := d.Get("global_signal_suppression_window").(float64)
 
 	return CSEInsightsConfiguration{
-		LookbackDays: &lookbackDays,
-		Threshold:    &threshold,
+		LookbackDays:                  &lookbackDays,
+		Threshold:                     &threshold,
+		GlobalSignalSuppressionWindow: &globalSignalSuppressionWindow,
 	}, nil
 }

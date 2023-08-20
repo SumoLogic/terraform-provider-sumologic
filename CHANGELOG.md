@@ -1,9 +1,56 @@
-## 2.21.1 (Unreleased)
+## 2.25.1 (Unreleased)
 ENHANCEMENTS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)
 
 DEPRECATIONS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Deprecated `groups` in favor of `inventory_key`, `inventory_value`. (GH-495)
+
+## 2.25.0 (August 8, 2023)
+FEATURES:
+* **New Resource:** sumologic_metrics_search (GH-528)
+* **New Resource:** sumologic_rum_source (GH-547)
+* Add `budgetType` support for sumologic_ingest_budget_v2 (GH-549)
+
+BUG FIXES:
+* Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
+* Fixes `sumologic_s3_source` to allow setting `use_versioned_api` parameter to `false`. (GH-555)
+
+DEPRECATIONS:
+* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
+
+## 2.24.0 (June 22, 2023)
+FEATURES:
+* **New Resource:** sumologic_cse_outlier_rule (GH-532)
+* Add new optional `global_signal_suppression_window` field to sumologic_cse_insights_configuration (GH-533)
+
+BUG FIXES:
+* Enforce validation of `group_by_fields` in cse_*_rule resources, on non empty string elements. (GH-535)
+* Fixes `resource_sumologic_cse_match_list` to allow for match lists with more than 1000 items to be created. (GH-536)
+
+## 2.23.0 (May 24, 2023)
+FEATURES:
+* **New Resource:** sumologic_log_search (GH-432)
+* **New Resource:** sumologic_s3_archive_source (GH-524)
+
+BUG FIXES:
+* Enforce validation of `inventory_type` for sumologic_cse_inventory_entity_group_configuration ( fix documentation too ) (GH-521)
+
+## 2.22.1 (May 15, 2023)
+FEATURES:
+* resource/sumologic_slo: Added support for associating tags with an SLO
+
+## 2.22.0 (March 23, 2023)
+FEATURES:
+* resource/sumologic_monitor: Added support for creating SLO Monitors with multiple burn rates (GH-499)
+* Add new optional `resolution_payload` field to connection resource and `resolution_payload_override` field to notifications section of monitor resource (GH-482)
+* **New Resource:** sumologic_local_file_source (GH-477)
+
+BUG FIXES:
+* Remove thresholdType field under searchSchedule in content resource (GH-483)
+
+DEPRECATIONS:
+
+* resource/sumologic_monitor: Deprecated `burn_rate_threshold` and `time_range` in favor of `burn_rate` inside `slo_burn_rate_condition` block (GH-499)
 
 
 ## 2.21.0 (February 27, 2023)

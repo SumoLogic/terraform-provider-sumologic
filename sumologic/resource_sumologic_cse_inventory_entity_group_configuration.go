@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 )
 
@@ -33,8 +34,9 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Deprecated: "The field `group` is deprecated and will be removed in a future release of the provider -- please make usage of `inventory_key`, `inventory_value` instead.",
 			},
 			"inventory_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"user", "computer"}, false),
 			},
 			"inventory_source": {
 				Type:     schema.TypeString,

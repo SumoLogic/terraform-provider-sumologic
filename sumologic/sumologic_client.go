@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -87,11 +86,11 @@ func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, [
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	respCookie := resp.Cookies()
@@ -127,11 +126,11 @@ func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte,
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, "", err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -164,11 +163,11 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -197,11 +196,11 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 
 	d, _ := ioutil.ReadAll(resp.Body)
 
@@ -219,6 +218,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	_, etag, _ := s.Get(sumoURL.String())
 
 	body, _ := json.Marshal(payload)
+
 	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
@@ -231,11 +231,11 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -269,11 +269,11 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
-
 	if err != nil {
 		return nil, "", err
 	}
+	logRequestAndResponse(req, resp)
+
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -309,11 +309,11 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
-	logRequestAndResponse(req, resp)
 
 	if err != nil {
 		return nil, err
 	}
+	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
 	d, err := ioutil.ReadAll(resp.Body)
@@ -328,18 +328,9 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {
-	// only retry on 429
-	if err == nil && resp.StatusCode == http.StatusTooManyRequests {
-		return true, nil
-	}
-	return false, nil
-}
-
 func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin bool) (*Client, error) {
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 10
-	retryClient.CheckRetry = checkRetry
 	// Disable DEBUG logs (https://github.com/hashicorp/go-retryablehttp/issues/31)
 	retryClient.Logger = nil
 
@@ -447,6 +438,7 @@ type Connection struct {
 	DefaultPayload    string    `json:"defaultPayload"`
 	WebhookType       string    `json:"webhookType"`
 	ConnectionSubtype string    `json:"connectionSubtype,omitempty"`
+	ResolutionPayload string    `json:"resolutionPayload,omitempty"`
 }
 
 // Headers is used to describe headers for http requests.

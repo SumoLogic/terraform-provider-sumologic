@@ -42,7 +42,8 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 			Schema: map[string]*schema.Schema{
 				"type": {
 					Type:         schema.TypeString,
-					Required:     true,
+					Optional:     true,
+					Default:      "NoAuthentication",
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "NoAuthentication"}, false),
 				},
 				"access_key": {
@@ -69,7 +70,8 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 			Schema: map[string]*schema.Schema{
 				"type": {
 					Type:         schema.TypeString,
-					Required:     true,
+					Optional:     true,
+					Default:      "NoPathExpression",
 					ValidateFunc: validation.StringInSlice([]string{"KinesisLogPath", "NoPathExpression"}, false),
 				},
 				"bucket_name": {
@@ -83,7 +85,6 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 				"scan_interval": {
 					Type:     schema.TypeInt,
 					Optional: true,
-					Default:  300000,
 				},
 			},
 		},
@@ -147,13 +148,6 @@ func resourceSumologicKinesisLogSourceRead(d *schema.ResourceData, meta interfac
 		return nil
 	}
 
-	kinesisLogResources := source.ThirdPartyRef.Resources
-	path := getKinesisLogThirdPartyPathAttributes(kinesisLogResources)
-
-	if err := d.Set("path", path); err != nil {
-		return err
-	}
-
 	if err := resourceSumologicSourceRead(d, source.Source); err != nil {
 		return fmt.Errorf("%s", err)
 	}
@@ -202,19 +196,19 @@ func getKinesisLogPathSettings(d *schema.ResourceData) (KinesisLogPath, error) {
 		path := paths[0].(map[string]interface{})
 		switch pathType := path["type"].(string); pathType {
 		case "KinesisLogPath":
-			pathSettings.Type = pathType
+			pathSettings.Type = "KinesisLogPath"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
 			pathSettings.ScanInterval = path["scan_interval"].(int)
 		case "NoPathExpression":
-			pathSettings.Type = pathType
+			pathSettings.Type = "NoPathExpression"
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)
 			return pathSettings, errors.New(errorMessage)
 		}
 	} else {
-		return pathSettings, errors.New(fmt.Sprintf("[ERROR] no path specification in kinesis log Soruce"))
+		pathSettings.Type = "NoPathExpression"
 	}
 	return pathSettings, nil
 }
@@ -246,6 +240,8 @@ func getKinesisLogAuthentication(d *schema.ResourceData) (PollingAuthentication,
 			log.Print(errorMessage)
 			return authSettings, errors.New(errorMessage)
 		}
+	} else {
+		authSettings.Type = "NoAuthentication"
 	}
 
 	return authSettings, nil

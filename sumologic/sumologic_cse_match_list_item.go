@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var limit = 1000
+
 func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items/%s", id))
 	if err != nil {
@@ -24,8 +26,8 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	return &response.CSEMatchListItemGet, nil
 }
 
-func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s", MatchListId))
+func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int) (*CSEMatchListItemsInMatchListGet, error) {
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", MatchListId, limit, offset))
 	if err != nil {
 		return nil, err
 	}
@@ -43,14 +45,35 @@ func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchL
 	return &response.CSEMatchListItemsGetData, nil
 }
 
+func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
+	offset := 0
+	response, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// When the match list has over 1000 items, fetch items from the remaining pages
+	for offset = limit; offset < response.Total; offset += limit {
+		nextPageResponse, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+		if err != nil {
+			return nil, err
+		}
+
+		for i := 0; i < len(nextPageResponse.CSEMatchListItemsGetObjects); i++ {
+			response.CSEMatchListItemsGetObjects = append(response.CSEMatchListItemsGetObjects, nextPageResponse.CSEMatchListItemsGetObjects[i])
+		}
+	}
+
+	return response, nil
+}
+
 func (s *Client) DeleteCSEMatchListItem(id string) error {
 	_, err := s.Delete(fmt.Sprintf("sec/v1/match-list-items/%s", id))
 
 	return err
 }
 
-func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
-
+func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
 	request := CSEMatchListItemRequestPost{
 		CSEMatchListItemPost: CSEMatchListItemPost,
 	}
@@ -69,6 +92,24 @@ func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItem
 	}
 
 	return nil
+}
+
+func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
+	var start = 0
+	var end = 1000
+
+	//If there are more than 1000 items, send requests in batches of 1000
+	for end < len(CSEMatchListItemPost) {
+		err := s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:end], MatchListID)
+		if err != nil {
+			return err
+		}
+		start += 1000
+		end += 1000
+	}
+
+	return s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:], MatchListID)
+
 }
 
 func (s *Client) UpdateCSEMatchListItem(CSEMatchListItemPost CSEMatchListItemPost) error {

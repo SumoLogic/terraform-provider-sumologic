@@ -4,6 +4,7 @@ WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
 PLUGIN_DIR=~/.terraform.d/plugins
 UNAME=$(shell uname -m)
+DEBUG_FLAGS=-gcflags="all=-N -l"
 
 default: build
 
@@ -22,9 +23,9 @@ install: fmtcheck
 install-dev: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
 ifeq ($(UNAME), arm64)
-	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic 
+	go build ${DEBUG_FLAGS} -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic 
 else
-	go build -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
+	go build ${DEBUG_FLAGS} -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
 endif
 
 uninstall:

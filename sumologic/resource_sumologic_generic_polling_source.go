@@ -25,7 +25,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -128,6 +128,14 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"use_versioned_api": {
 					Type:     schema.TypeBool,
 					Optional: true,
+					Default:  true,
+					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+						contentType := d.Get("content_type").(string)
+						if contentType != "AwsS3Bucket" {
+							return true
+						}
+						return false
+					},
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
@@ -578,7 +586,8 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
 			if path["use_versioned_api"] != nil {
-				pathSettings.UseVersionedApi = path["use_versioned_api"].(bool)
+				val := path["use_versioned_api"].(bool)
+				pathSettings.UseVersionedApi = &val
 			}
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":

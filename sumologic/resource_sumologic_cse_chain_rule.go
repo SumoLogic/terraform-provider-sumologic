@@ -46,7 +46,8 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringIsNotEmpty,
 				},
 			},
 			"is_prototype": {

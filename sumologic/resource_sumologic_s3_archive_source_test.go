@@ -6,33 +6,25 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func getRandomizedParams() (string, string, string) {
-	name := acctest.RandomWithPrefix("tf-acc-test")
-	description := acctest.RandomWithPrefix("tf-acc-test")
-	category := acctest.RandomWithPrefix("tf-acc-test")
-	return name, description, category
-}
-func TestAccSumologicS3Source_create(t *testing.T) {
+func TestAccSumologicS3ArchiveSource_create(t *testing.T) {
 	var s3Source PollingSource
 	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
-	s3ResourceName := "sumologic_s3_source.s3"
+	s3ResourceName := "sumologic_s3_archive_source.s3_archive"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
-	useVersionedApi := true
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckS3SourceDestroy,
+		CheckDestroy: testAccCheckS3ArchiveSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi),
+				Config: testAccSumologicS3ArchiveSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -42,31 +34,28 @@ func TestAccSumologicS3Source_create(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "name", sName),
 					resource.TestCheckResourceAttr(s3ResourceName, "description", sDescription),
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategory),
-					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
+					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3ArchiveBucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
-					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "true"),
 				),
 			},
 		},
 	})
 }
-func TestAccSumologicS3Source_update(t *testing.T) {
+func TestAccSumologicS3ArchiveSource_update(t *testing.T) {
 	var s3Source PollingSource
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
-	s3ResourceName := "sumologic_s3_source.s3"
+	s3ResourceName := "sumologic_s3_archive_source.s3_archive"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
-	useVersionedApi := true
-	useVersionedApiUpdated := false
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHTTPSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi),
+				Config: testAccSumologicS3ArchiveSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sName, sDescription, sCategory),
@@ -74,13 +63,12 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "name", sName),
 					resource.TestCheckResourceAttr(s3ResourceName, "description", sDescription),
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategory),
-					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
+					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3ArchiveBucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
-					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "true"),
 				),
 			},
 			{
-				Config: testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket, useVersionedApiUpdated),
+				Config: testAccSumologicS3ArchiveSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn, testAwsBucket),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3SourceExists(s3ResourceName, &s3Source),
 					testAccCheckS3SourceValues(&s3Source, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
@@ -88,15 +76,14 @@ func TestAccSumologicS3Source_update(t *testing.T) {
 					resource.TestCheckResourceAttr(s3ResourceName, "name", sNameUpdated),
 					resource.TestCheckResourceAttr(s3ResourceName, "description", sDescriptionUpdated),
 					resource.TestCheckResourceAttr(s3ResourceName, "category", sCategoryUpdated),
-					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3Bucket"),
+					resource.TestCheckResourceAttr(s3ResourceName, "content_type", "AwsS3ArchiveBucket"),
 					resource.TestCheckResourceAttr(s3ResourceName, "path.0.type", "S3BucketPathExpression"),
-					resource.TestCheckResourceAttr(s3ResourceName, "path.0.use_versioned_api", "false"),
 				),
 			},
 		},
 	})
 }
-func testAccCheckS3SourceDestroy(s *terraform.State) error {
+func testAccCheckS3ArchiveSourceDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "sumologic_s3_source" && rs.Type != "sumologic_cloudwatch_source" {
@@ -123,7 +110,7 @@ func testAccCheckS3SourceDestroy(s *terraform.State) error {
 	}
 	return nil
 }
-func testAccCheckS3SourceExists(n string, pollingSource *PollingSource) resource.TestCheckFunc {
+func testAccCheckS3ArchiveSourceExists(n string, pollingSource *PollingSource) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -149,7 +136,7 @@ func testAccCheckS3SourceExists(n string, pollingSource *PollingSource) resource
 		return nil
 	}
 }
-func testAccCheckS3SourceValues(pollingSource *PollingSource, name, description, category string) resource.TestCheckFunc {
+func testAccCheckS3ArchiveSourceValues(pollingSource *PollingSource, name, description, category string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if pollingSource.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, pollingSource.Name)
@@ -163,18 +150,18 @@ func testAccCheckS3SourceValues(pollingSource *PollingSource, name, description,
 		return nil
 	}
 }
-func testAccSumologicS3SourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string, useVersionedApi bool) string {
+func testAccSumologicS3ArchiveSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
 }
-resource "sumologic_s3_source" "s3" {
+resource "sumologic_s3_archive_source" "s3_archive" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
-	content_type  = "AwsS3Bucket"
+	content_type  = "AwsS3ArchiveBucket"
   	scan_interval = 300000
   	paused        = false
 	collector_id = "${sumologic_collector.test.id}"
@@ -186,9 +173,8 @@ resource "sumologic_s3_source" "s3" {
 		type = "S3BucketPathExpression"
 		bucket_name     = "%s"
 		path_expression = "*"
-		use_versioned_api = "%v"
 	  }
 	}
 
-`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket, useVersionedApi)
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }

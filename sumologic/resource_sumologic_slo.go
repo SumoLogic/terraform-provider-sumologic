@@ -164,8 +164,9 @@ func resourceSumologicSLO() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringDoesNotContainAny("/"),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -276,6 +277,13 @@ func resourceSumologicSLO() *schema.Resource {
 					},
 				},
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"is_mutable": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -366,6 +374,7 @@ func resourceSLORead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("is_system", slo.IsSystem)
 	d.Set("service", slo.Service)
 	d.Set("application", slo.Application)
+	d.Set("tags", slo.Tags)
 
 	flatCompliance, err := flattenSLOCompliance(slo.Compliance)
 	if err != nil {
@@ -561,6 +570,7 @@ func resourceToSLO(d *schema.ResourceData) (*SLOLibrarySLO, error) {
 		Indicator:   *indicator,
 		Service:     d.Get("service").(string),
 		Application: d.Get("application").(string),
+		Tags:        d.Get("tags").(map[string]interface{}),
 	}
 
 	err = verifySLOObject(slo)
