@@ -1,8 +1,10 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"regexp"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -59,6 +61,7 @@ func getMutingScheduleBaseSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: getMonitorScopeSchema(),
 			},
+			AtLeastOneOf: monitorAtleastOneKey,
 		},
 
 		"schedule": {
@@ -106,20 +109,26 @@ func getScheduleDefinitionSchemma() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			ForceNew: false,
 			Required: true,
-			ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`),
-				"start date in format of yyyy-mm-dd"),
+			ValidateFunc: validation.All(
+				validation.StringMatch(regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`),
+					"start date in format of yyyy-mm-dd"),
+				StringIsValidStartDate(),
+			),
 		},
 		"start_time": {
-			Type:         schema.TypeString,
-			Required:     true,
-			ForceNew:     false,
-			ValidateFunc: validation.StringLenBetween(5, 5),
+			Type:     schema.TypeString,
+			Required: true,
+			ForceNew: false,
+			ValidateFunc: validation.All(
+				validation.StringLenBetween(5, 5),
+				StringIsValidStartTime(),
+			),
 		},
 		"duration": {
 			Type:         schema.TypeInt,
 			Required:     true,
 			ForceNew:     false,
-			ValidateFunc: validation.IntAtLeast(0),
+			ValidateFunc: validation.IntAtLeast(15),
 		},
 		"rrule": {
 			Type:     schema.TypeString,
@@ -300,6 +309,51 @@ func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
 	}
 	return scheduleDefinition
 }
+
+func StringIsValidStartTime() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (warnings []string, errors []error) {
+		v, ok := i.(string)
+		if !ok {
+			return warnings, []error{fmt.Errorf("expected type of %q to be string", k)}
+		}
+
+		_, err := time.Parse("15:04", v)
+
+		if err != nil {
+			return warnings, []error{fmt.Errorf("expected %q to be an valid start time : got %v", k, v)}
+		}
+		return warnings, errors
+	}
+}
+
+func StringIsValidStartDate() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (warnings []string, errors []error) {
+		v, ok := i.(string)
+		if !ok {
+			return warnings, []error{fmt.Errorf("expected type of %q to be string", k)}
+		}
+
+		date, err := time.Parse("2006-01-02", v)
+
+		if err != nil {
+			return warnings, []error{fmt.Errorf("expected %q to be an valid start date yyyy-mm-dd : got %v", k, v)}
+		}
+
+		yesterday := time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour)
+
+		if date.Before(yesterday) {
+			return warnings, []error{fmt.Errorf("expected %q to be an valid start date : got %v", k, v)}
+		}
+		return warnings, errors
+	}
+}
+
+var (
+	monitorAtleastOneKey = []string{
+		"monitor.0.ids",
+		"monitor.0.all",
+	}
+)
 
 func resourceToMutingSchedulesLibraryMutingSchedule(d *schema.ResourceData) MutingSchedulesLibraryMutingSchedule {
 	monitorScope := getMonitorScope(d)
