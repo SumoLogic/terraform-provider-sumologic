@@ -16,7 +16,14 @@ resource "sumologic_log_search" "example_log_search" {
     name = "Demo Search"
     description = "Demo search description"
     parent_id = data.sumologic_personal_folder.personalFolder.id
-    query_string = "_sourceCategory=api error | count by _sourceHost"
+    query_string = <<QUERY
+        _sourceCategory=api
+        | parse "parameter1=*," as parameter1
+        | parse "parameter2=*," as parameter2
+        | where parameter1 matches {{param1}}
+        | where parameter2 matches {{param2}}
+        | count by _sourceHost
+    QUERY
     parsing_mode =  "AutoParse"
     run_by_receipt_time = true
 
@@ -28,6 +35,19 @@ resource "sumologic_log_search" "example_log_search" {
                 }
             }
         }
+    }
+    
+    query_parameter {
+        name          = "param1"
+        description   = "Description for param1"
+        data_type     = "STRING"
+        value = "*"
+    }
+    query_parameter {
+        name          = "param2"
+        description   = "Description for param2"
+        data_type     = "STRING"
+        value = "*"
     }
 
     schedule {
@@ -61,6 +81,15 @@ resource "sumologic_log_search" "example_log_search" {
             threshold_type = "group"
         }
         time_zone = "America/Los_Angeles"
+
+        parameter {
+            name = "param1"
+            value = "*"
+        }
+        parameter {
+            name = "param2"
+            value = "*"
+        }
     }
 }
 ```
@@ -73,7 +102,8 @@ The following arguments are supported:
 - `description` - (Optional) Description of the search.
 - `parent_id` - (Required) The identifier of the folder to create the log search in.
 - `query_string` - (Required) Log query to perform.
-- `query_parameters` - (Optional) TODO Find a good description.
+- `query_parameter` - (Block List, Optional) Up to 10 `query_parameter` blocks can be added one for each parameter in the `query_string`. 
+    See [query parameter schema](#schema-for-query_parameter).
 - `parsing_mode` - (Optional) Define the parsing mode to scan the JSON format log messages. Possible values are:
     `AutoParse` and  `Manual`. Default value is `Manual`.
 
@@ -84,6 +114,16 @@ The following arguments are supported:
 - `schedule` - (Block List, Max: 1, Optional) Schedule of the log search. See [schedule schema](#schema-for-schedule)
 - `run_by_receipt_time` - (Optional) This has the value `true` if the search is to be run by receipt time and
     `false` if it is to be run by message time. Default value is `false`.
+
+### Schema for `query_parameter`
+- `name` - (Required) The name of the parameter.
+- `description` - (Optional) A description of the parameter.
+- `data_type` - (Required) The data type of the parameter. Supported values are:
+  1. `NUMBER`
+  2. `STRING`
+  3. `ANY`
+  4. `KEYWORD`
+- `value` - (Required) The default value for the parameter. It should be compatible with the type set in the `data_type` field.
 
 
 ### Schema for `schedule`
@@ -217,7 +257,7 @@ See [cse_signal_notification schema](#schema-for-cse_signal_notification) schema
 
 ### Schema for `parameter`
 - `name` - (Required) Name of scheduled search parameter.
-- `value` - (Required) Value of scheduled search parameter.
+- `value` - (Required) Default value of scheduled search parameter.
 
 
 ## Attributes reference

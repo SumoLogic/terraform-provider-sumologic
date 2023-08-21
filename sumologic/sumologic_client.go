@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -329,18 +328,9 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
-func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {
-	// only retry on 429
-	if err == nil && resp.StatusCode == http.StatusTooManyRequests {
-		return true, nil
-	}
-	return false, nil
-}
-
 func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin bool) (*Client, error) {
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 10
-	retryClient.CheckRetry = checkRetry
 	// Disable DEBUG logs (https://github.com/hashicorp/go-retryablehttp/issues/31)
 	retryClient.Logger = nil
 

@@ -1,10 +1,18 @@
-## 2.24.1 (Unreleased)
+## 2.25.1 (Unreleased)
+
+## 2.25.0 (August 8, 2023)
 FEATURES:
 * **New Resource:** sumologic_metrics_search (GH-528)
 * resource/sumologic_monitor: Added support for associating tags with a Monitor.
+* **New Resource:** sumologic_rum_source (GH-547)
+* Add `budgetType` support for sumologic_ingest_budget_v2 (GH-549)
 
 BUG FIXES:
 * Enforce non-empty string validation of `default_normalized_domain` and `domain_mappings` in cse_entity_normalization resource. (GH-540)
+* Fixes `sumologic_s3_source` to allow setting `use_versioned_api` parameter to `false`. (GH-555)
+
+DEPRECATIONS:
+* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 
 ## 2.24.0 (June 22, 2023)
 FEATURES:
