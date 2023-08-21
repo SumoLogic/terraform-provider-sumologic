@@ -1,9 +1,9 @@
 ## 2.25.1 (Unreleased)
+* resource/sumologic_monitor: Added support for associating tags with a Monitor.
 
 ## 2.25.0 (August 8, 2023)
 FEATURES:
 * **New Resource:** sumologic_metrics_search (GH-528)
-* resource/sumologic_monitor: Added support for associating tags with a Monitor.
 * **New Resource:** sumologic_rum_source (GH-547)
 * Add `budgetType` support for sumologic_ingest_budget_v2 (GH-549)
 
