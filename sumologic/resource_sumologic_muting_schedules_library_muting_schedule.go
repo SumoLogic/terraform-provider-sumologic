@@ -120,8 +120,8 @@ func getScheduleDefinitionSchemma() map[string]*schema.Schema {
 			Required: true,
 			ForceNew: false,
 			ValidateFunc: validation.All(
-				validation.StringLenBetween(5, 5),
-				StringIsValidStartTime(),
+				validation.StringMatch(regexp.MustCompile(`^(?:[01]\d|2[0-3]):[0-5]\d$`),
+					"start time in format of 00:00"),
 			),
 		},
 		"duration": {
@@ -310,22 +310,6 @@ func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
 	return scheduleDefinition
 }
 
-func StringIsValidStartTime() schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (warnings []string, errors []error) {
-		v, ok := i.(string)
-		if !ok {
-			return warnings, []error{fmt.Errorf("expected type of %q to be string", k)}
-		}
-
-		_, err := time.Parse("15:04", v)
-
-		if err != nil {
-			return warnings, []error{fmt.Errorf("expected %q to be an valid start time : got %v", k, v)}
-		}
-		return warnings, errors
-	}
-}
-
 func StringIsValidStartDate() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (warnings []string, errors []error) {
 		v, ok := i.(string)
@@ -348,12 +332,10 @@ func StringIsValidStartDate() schema.SchemaValidateFunc {
 	}
 }
 
-var (
-	monitorAtleastOneKey = []string{
-		"monitor.0.ids",
-		"monitor.0.all",
-	}
-)
+var monitorAtleastOneKey = []string{
+	"monitor.0.ids",
+	"monitor.0.all",
+}
 
 func resourceToMutingSchedulesLibraryMutingSchedule(d *schema.ResourceData) MutingSchedulesLibraryMutingSchedule {
 	monitorScope := getMonitorScope(d)
