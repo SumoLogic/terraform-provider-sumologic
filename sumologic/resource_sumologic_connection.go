@@ -55,8 +55,9 @@ func resourceSumologicConnection() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
-				Default:  map[string]interface{}{},
+				Optional:  true,
+				Default:   map[string]interface{}{},
+				Sensitive: true,
 			},
 			"custom_headers": {
 				Type: schema.TypeMap,
