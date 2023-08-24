@@ -112,7 +112,7 @@ func getScheduleDefinitionSchemma() map[string]*schema.Schema {
 			ValidateFunc: validation.All(
 				validation.StringMatch(regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`),
 					"start date in format of yyyy-mm-dd"),
-				StringIsValidStartDate(),
+				StartDateIsAfterYesterday(),
 			),
 		},
 		"start_time": {
@@ -310,7 +310,7 @@ func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
 	return scheduleDefinition
 }
 
-func StringIsValidStartDate() schema.SchemaValidateFunc {
+func StartDateIsAfterYesterday() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (warnings []string, errors []error) {
 		v, ok := i.(string)
 		if !ok {

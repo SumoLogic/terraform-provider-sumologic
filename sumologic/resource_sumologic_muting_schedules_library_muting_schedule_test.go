@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -160,6 +161,25 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMutingSchedulesLibraryMutingSchedule_monitorScopeValidations(t *testing.T) {
+	var mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule
+	testNameSuffix := acctest.RandString(16)
+	testName := "terraform_test_muting_schedule_" + testNameSuffix
+	config := testAccSumologicMutingSchedulesLibraryMutingScheduleBadMonitorScope(testName)
+	expectedError := regexp.MustCompile("An argument named \"abc\" is not expected here. Did you mean \"all\"?")
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMutingSchedulesLibraryMutingScheduleDestroy(mutingSchedulesLibraryMutingSchedule),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
 func testAccCheckMutingSchedulesLibraryMutingScheduleDestroy(mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
@@ -255,6 +275,30 @@ func testAccSumologicMutingSchedulesLibraryMutingScheduleUpdate(testName string)
 	monitor {
 		ids = []
 		all = true
+	  }
+	schedule  {
+	timezone = "America/Los_Angeles"
+	start_date = "%s"
+	start_time = "01:00"
+	duration = 50
+	rrule = "FREQ=DAILY;INTERVAL=1"
+	is_form = false
+	}
+}
+`, testName, startDate)
+}
+
+func testAccSumologicMutingSchedulesLibraryMutingScheduleBadMonitorScope(testName string) string {
+	tomorrow := time.Now().AddDate(0, 0, 1)
+	startDate := tomorrow.Format("2006-01-02")
+	return fmt.Sprintf(`
+   resource "sumologic_muting_schedule" "test" {
+	name = "terraform_test_muting_schedule_%s"
+	description = "terraform_test_muting_schedule_description"
+	type = "MutingSchedulesLibraryMutingSchedule"
+	content_type = "MutingSchedule"
+	monitor {
+		abc="not right"
 	  }
 	schedule  {
 	timezone = "America/Los_Angeles"
