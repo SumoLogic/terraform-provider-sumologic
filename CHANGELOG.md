@@ -1,4 +1,5 @@
 ## 2.25.1 (Unreleased)
+* resource/sumologic_monitor: Added support for associating tags with a Monitor.
 
 ## 2.25.0 (August 8, 2023)
 FEATURES:

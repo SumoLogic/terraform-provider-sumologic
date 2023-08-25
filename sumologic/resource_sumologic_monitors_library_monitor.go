@@ -406,6 +406,14 @@ func getMonitorSchema() map[string]*schema.Schema {
 			Optional: true,
 			Computed: true,
 		},
+
+		"tags": {
+			Type:     schema.TypeMap,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
 	}
 
 	for k, v := range additionalAttributes {
@@ -804,6 +812,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("alert_name", monitor.AlertName)
 	d.Set("slo_id", monitor.SloID)
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
+	d.Set("tags", monitor.Tags)
 
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
@@ -1570,6 +1579,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		AlertName:               d.Get("alert_name").(string),
 		SloID:                   d.Get("slo_id").(string),
 		NotificationGroupFields: notificationGroupFields,
+		Tags:                    d.Get("tags").(map[string]interface{}),
 	}
 }
 
