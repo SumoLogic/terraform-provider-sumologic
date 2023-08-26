@@ -1,18 +1,1 @@
-# This is a comment.
-# Each line is a file pattern followed by one or more owners.
 
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-# @sumovishal, @dagould will be requested for
-# review when someone opens a pull request.
-*       @sumovishal @dagould
-
-# Code owners for collection sources
-/sumologic/*_source.go        @maimaisie @vsinghal13
-/sumologic/*_source_test.go   @maimaisie @vsinghal13
-/sumologic/*_ingest_budget*   @maimaisie @vsinghal13
-/sumologic/*_collector*       @maimaisie @vsinghal13
-/sumologic/*_cse*             @josh-williams @pmontiel-sumo
-/website/docs/r/collector*    @maimaisie @vsinghal13
-/website/docs/r/ingest_*      @maimaisie @vsinghal13
-/website/docs/r/*_source*     @maimaisie @vsinghal13
