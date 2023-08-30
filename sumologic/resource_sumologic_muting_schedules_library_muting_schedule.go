@@ -242,6 +242,21 @@ func resourceSumologicMutingSchedulesLibraryMutingScheduleRead(d *schema.Resourc
 		return nil
 	}
 
+	monitorScope := make([]interface{}, 1)
+	monitorScope[0] = map[string]interface{}{
+		"all": mutingSchedule.Monitor.All,
+		"ids": mutingSchedule.Monitor.Ids,
+	}
+	schedule := make([]interface{}, 1)
+	schedule[0] = map[string]interface{}{
+		"timezone":   mutingSchedule.Schedule.TimeZone,
+		"start_date": mutingSchedule.Schedule.StartDate,
+		"start_time": mutingSchedule.Schedule.StartTime,
+		"duration":   mutingSchedule.Schedule.Duration,
+		"rrule":      mutingSchedule.Schedule.RRule,
+		"is_form":    mutingSchedule.Schedule.IsForm,
+	}
+
 	d.Set("created_by", mutingSchedule.CreatedBy)
 	d.Set("created_at", mutingSchedule.CreatedAt)
 	d.Set("modified_by", mutingSchedule.ModifiedBy)
@@ -253,8 +268,8 @@ func resourceSumologicMutingSchedulesLibraryMutingScheduleRead(d *schema.Resourc
 	d.Set("modified_at", mutingSchedule.ModifiedAt)
 	d.Set("content_type", mutingSchedule.ContentType)
 	d.Set("is_system", mutingSchedule.IsSystem)
-	d.Set("monitor", mutingSchedule.Monitor)
-	d.Set("schedule", mutingSchedule.Schedule)
+	d.Set("monitor", monitorScope)
+	d.Set("schedule", schedule)
 
 	return nil
 }
