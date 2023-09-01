@@ -74,7 +74,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_date", testSchedule.StartDate),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_time", testSchedule.StartTime),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.rrule", testSchedule.RRule),
-					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.is_form", strconv.FormatBool(testSchedule.IsForm)),
 				),
 			},
 		},
@@ -138,7 +137,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_date", testSchedule.StartDate),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_time", testSchedule.StartTime),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.rrule", testSchedule.RRule),
-					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.is_form", strconv.FormatBool(testSchedule.IsForm)),
 				),
 			},
 			{
@@ -154,7 +152,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_time", testUpdateSchedule.StartTime),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.duration", strconv.FormatInt((int64)(testUpdateSchedule.Duration), 10)),
 					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.rrule", testUpdateSchedule.RRule),
-					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.is_form", strconv.FormatBool(testUpdateSchedule.IsForm)),
 				),
 			},
 		},
@@ -257,7 +254,6 @@ func testAccSumologicMutingSchedulesLibraryMutingSchedule(testName string) strin
 		start_time = "00:00"
 		duration = 40
 		rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
-        is_form = false
 	  }
 }
 `, testName, startDate)
@@ -282,7 +278,6 @@ func testAccSumologicMutingSchedulesLibraryMutingScheduleUpdate(testName string)
 	start_time = "01:00"
 	duration = 50
 	rrule = "FREQ=DAILY;INTERVAL=1"
-	is_form = false
 	}
 }
 `, testName, startDate)
@@ -306,7 +301,6 @@ func testAccSumologicMutingSchedulesLibraryMutingScheduleBadMonitorScope(testNam
 	start_time = "01:00"
 	duration = 50
 	rrule = "FREQ=DAILY;INTERVAL=1"
-	is_form = false
 	}
 }
 `, testName, startDate)

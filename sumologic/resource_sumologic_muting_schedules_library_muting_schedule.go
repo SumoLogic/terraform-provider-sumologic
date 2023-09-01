@@ -134,10 +134,6 @@ func getScheduleDefinitionSchemma() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Optional: true,
 		},
-		"is_form": {
-			Type:     schema.TypeBool,
-			Optional: true,
-		},
 	}
 }
 
@@ -254,7 +250,6 @@ func resourceSumologicMutingSchedulesLibraryMutingScheduleRead(d *schema.Resourc
 		"start_time": mutingSchedule.Schedule.StartTime,
 		"duration":   mutingSchedule.Schedule.Duration,
 		"rrule":      mutingSchedule.Schedule.RRule,
-		"is_form":    mutingSchedule.Schedule.IsForm,
 	}
 
 	d.Set("created_by", mutingSchedule.CreatedBy)
@@ -320,7 +315,6 @@ func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
 		StartTime: scheduleDefinitionDict["start_time"].(string),
 		Duration:  scheduleDefinitionDict["duration"].(int),
 		RRule:     scheduleDefinitionDict["rrule"].(string),
-		IsForm:    scheduleDefinitionDict["is_form"].(bool),
 	}
 	return scheduleDefinition
 }

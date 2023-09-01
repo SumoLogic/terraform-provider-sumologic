@@ -15,17 +15,17 @@ Provides the ability to create, read, delete, and update [MutingSchedule][1].
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
   description = "This is an example for one time Muting schedule for all monitor"
-	type = "MutingSchedulesLibraryMutingSchedule"
-	content_type = "MutingSchedule"
-	monitor {
-		all = true
-	  }
-	schedule  {
-		timezone = "America/Los_Angeles"
-		start_date = "2023-08-05"
-		start_time = "00:00"
-		duration = 60
-	}
+  type = "MutingSchedulesLibraryMutingSchedule"
+  content_type = "MutingSchedule"
+  monitor {
+	all = true
+  }
+  schedule  {
+	timezone = "America/Los_Angeles"
+	start_date = "2023-08-05"
+	start_time = "00:00"
+	duration = 60
+  }
 }
 ```
 
@@ -35,17 +35,17 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
   description = "This is an example for one time Muting schedule for all monitor"
-	type = "MutingSchedulesLibraryMutingSchedule"
-	content_type = "MutingSchedule"
-	monitor {
-		ids = ["0000000000200B92"]
-	  }
-	schedule  {
-		timezone = "America/Los_Angeles"
-		start_date = "2023-08-05"
-		start_time = "00:00"
-		duration = 60
-	}
+  type = "MutingSchedulesLibraryMutingSchedule"
+  content_type = "MutingSchedule"
+  monitor {
+	ids = ["0000000000200B92"]
+  }
+  schedule  {
+	timezone = "America/Los_Angeles"
+	start_date = "2023-08-05"
+	start_time = "00:00"
+	duration = 60
+  }
 }
 ```
 
@@ -55,18 +55,18 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
   description = "This is an example for one time Muting schedule for all monitor"
-	type = "MutingSchedulesLibraryMutingSchedule"
-	content_type = "MutingSchedule"
-	monitor {
-		all = true
-	  }
-	schedule  {
-		timezone = "America/Los_Angeles"
-		start_date = "2023-08-05"
-		start_time = "00:00"
-		duration = 30
-    	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
-	}
+  type = "MutingSchedulesLibraryMutingSchedule"
+  content_type = "MutingSchedule"
+  monitor {
+	all = true
+  }
+  schedule  {
+	timezone = "America/Los_Angeles"
+	start_date = "2023-08-05"
+	start_time = "00:00"
+	duration = 30
+	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
+  }
 }
 ```
 
@@ -115,7 +115,6 @@ The following arguments are supported:
   An event occurring on the first and second Monday of October would be specified by the rule: `FREQ=YEARLY;BYMONTH=10;BYDAY=MO;BYSETPOS=1,2`
   Event that repeats monthly: every 29th of every other month! `FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=29`
   (https://freetools.textmagic.com/rrule-generator)
-  - `is_form`- (Optional) A flag identifying if the RRule is created or modified through Form UI. This value is determined by the system and users don't have to define it.
 
 #### monitor_scope_type
   - `ids` - (Optional) List of monitor Ids in hex. Must be empty if `all` is true.
