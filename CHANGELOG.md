@@ -1,4 +1,6 @@
-## 2.25.1 (Unreleased)
+## 2.26.1 (Unreleased)
+
+## 2.26.0 (September 7, 2023)
 FEATURES:
 * **New Resource:** sumologic_muting_schedule (GH-569)
 * resource/sumologic_monitor: Added support for associating tags with a Monitor.
