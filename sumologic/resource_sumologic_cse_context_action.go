@@ -24,10 +24,9 @@ func resourceSumologicCSEContextAction() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validation.All(validation.StringIsNotEmpty, validation.StringInSlice([]string{"URL", "QUERY"}, false)),
-				},
+				ValidateFunc: validation.All(
+					validation.StringIsNotEmpty,
+					validation.StringInSlice([]string{"URL", "QUERY"}, false)),
 			},
 			"template": {
 				Type:     schema.TypeString,
