@@ -47,12 +47,12 @@ func testAccCSEAutomationDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "sumologic_cse_custom_entity_type" {
+		if rs.Type != "sumologic_cse_automation" {
 			continue
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("CSE Custom Entity Type Config destruction check: CSE Custom Entity Type Config ID is not set")
+			return fmt.Errorf("CSE Automation destruction check: CSE Automation ID is not set")
 		}
 
 		s, err := client.GetCSEAutomation(rs.Primary.ID)
@@ -60,7 +60,7 @@ func testAccCSEAutomationDestroy(s *terraform.State) error {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
 		if s != nil {
-			return fmt.Errorf("entity Custom Entity Type still exists")
+			return fmt.Errorf("automation still exists")
 		}
 	}
 	return nil
@@ -86,7 +86,7 @@ func testCheckCSEAutomationExists(n string, Automation *CSEAutomation) resource.
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("entity Custom Entity Type ID is not set")
+			return fmt.Errorf("automation ID is not set")
 		}
 
 		c := testAccProvider.Meta().(*Client)
