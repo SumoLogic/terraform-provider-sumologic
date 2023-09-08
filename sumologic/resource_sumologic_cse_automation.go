@@ -64,12 +64,12 @@ func resourceSumologicCSEAutomationRead(d *schema.ResourceData, meta interface{}
 
 	CSEAutomation, err := c.GetCSEAutomation(id)
 	if err != nil {
-		log.Printf("[WARN] CSE Custom Entity Type not found when looking by id: %s, err: %v", id, err)
+		log.Printf("[WARN] CSE Automation not found when looking by id: %s, err: %v", id, err)
 
 	}
 
 	if CSEAutomation == nil {
-		log.Printf("[WARN] CSE Custom Entity Type not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] CSE Automation not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return nil
 	}
