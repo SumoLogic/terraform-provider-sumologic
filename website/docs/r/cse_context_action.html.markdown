@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic CSE Context Action
 ---
 
-# sumologic_cse_automation
+# sumologic_cse_context_action
 Provides a Sumologic CSE Context Action.
 
 ## Example Usage
