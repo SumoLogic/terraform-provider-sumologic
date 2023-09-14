@@ -282,6 +282,8 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "tags.application", "sumologic"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "tags.team", "metrics"),
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
 			},
@@ -512,6 +514,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testGroupFields[0]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "2"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "tags.team", "metrics"),
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsMonitor),
 				),
 			},
@@ -535,6 +538,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.0", testUpdatedGroupFields[0]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "notification_group_fields.1", testUpdatedGroupFields[1]),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "obj_permission.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "tags.team", "monitor"),
 					// 1, instead of 2
 					testAccCheckMonitorsLibraryMonitorFGPBackend("sumologic_monitor.test", t, genExpectedPermStmtsForMonitorUpdate),
 				),
@@ -833,6 +837,10 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is a test playbook"  
 	alert_name =  "Alert from {{Name}}"
+	tags = {
+        team = "metrics"
+        application = "sumologic"
+    }
 	notification_group_fields = ["groupingField1", "groupingField2"]
 	obj_permission {
         subject_type = "role"
@@ -956,6 +964,10 @@ resource "sumologic_monitor" "test" {
 	  }
 	playbook = "This is an updated test playbook"
 	alert_name = "Updated Alert from {{Name}}"
+	tags = {
+        team = "monitor"
+        application = "sumologic"
+    }
 	notification_group_fields = ["groupingField3", "groupingField4"]
 		obj_permission {
           subject_type = "role"

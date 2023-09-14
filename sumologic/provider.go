@@ -43,6 +43,8 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_cse_tag_schema":                           resourceSumologicCSETagSchema(),
+			"sumologic_cse_context_action":                       resourceSumologicCSEContextAction(),
 			"sumologic_cse_automation":                           resourceSumologicCSEAutomation(),
 			"sumologic_cse_entity_normalization_configuration":   resourceSumologicCSEEntityNormalizationConfiguration(),
 			"sumologic_cse_inventory_entity_group_configuration": resourceSumologicCSEInventoryEntityGroupConfiguration(),
@@ -94,6 +96,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_connection":                               resourceSumologicConnection(),
 			"sumologic_monitor":                                  resourceSumologicMonitorsLibraryMonitor(),
 			"sumologic_monitor_folder":                           resourceSumologicMonitorsLibraryFolder(),
+			"sumologic_muting_schedule":                          resourceSumologicMutingSchedulesLibraryMutingSchedule(),
 			"sumologic_slo":                                      resourceSumologicSLO(),
 			"sumologic_slo_folder":                               resourceSumologicSLOLibraryFolder(),
 			"sumologic_ingest_budget_v2":                         resourceSumologicIngestBudgetV2(),

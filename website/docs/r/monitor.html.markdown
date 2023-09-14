@@ -42,6 +42,10 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Logs"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   queries {
     row_id = "A"
@@ -110,6 +114,10 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Metrics"
   evaluation_delay = "1m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   queries {
     row_id = "A"
@@ -160,6 +168,10 @@ resource "sumologic_monitor" "tf_slo_monitor_1" {
   monitor_type = "Slo"
   slo_id = "0000000000000009"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
   
   trigger_conditions {
     slo_sli_condition {
@@ -193,6 +205,10 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
   monitor_type = "Slo"
   slo_id = "0000000000000009"
   evaluation_delay = "5m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
 
   trigger_conditions {
     slo_burn_rate_condition {
@@ -253,6 +269,10 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
   is_disabled  = false
   content_type = "Monitor"
   monitor_type = "Logs"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
   queries {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
@@ -333,6 +353,7 @@ The following arguments are supported:
   - `Logs`: A logs query monitor.
   - `Metrics`: A metrics query monitor.
   - `Slo`: A SLO based monitor.
+- `tags` - (Optional) A map defining tag keys and tag values for the Monitor.
 - `evaluation_delay` - (Optional) Evaluation delay as a string consists of the following elements:
       1. `<number>`: number of time units,
       2. `<time_unit>`: time unit; possible values are: `h` (hour), `m` (minute), `s` (second).
@@ -348,7 +369,7 @@ The following arguments are supported:
 - `group_notifications` - (Optional) Whether or not to group notifications for individual items that meet the trigger condition. Defaults to true.
 - `playbook` - (Optional - Beta) Notes such as links and instruction to help you resolve alerts triggered by this monitor. {{Markdown}} supported. It will be enabled only if available for your organization. Please contact your Sumo Logic account team to learn more.
 - `alert_name` - (Optional) The display name when creating alerts. Monitor name will be used if `alert_name` is not provided. All template variables can be used in `alert_name` except `{{AlertName}}`, `{{AlertResponseURL}}`, `{{ResultsJson}}`, and `{{Playbook}}`.
-- `notification_group_fields` - (Optional) The set of fields to be used to group alerts and notifications for a monitor. The value of this field will be considered only when 'groupNotifications' is true. The fields with very high cardinality such as `_raw`, `_messagetime`, `_receipttime`, and `_messageid` are not allowed for Alert Grouping.
+- `notification_group_fields` - (Optional) The set of fields to be used to group alerts and notifications for a monitor. The value of this field will be considered only when 'groupNotifications' is true. The fields with very high cardinality such as `_blockid`, `_raw`, `_messagetime`, `_receipttime`, and `_messageid` are not allowed for Alert Grouping.
 - `obj_permission` - (Optional) `obj_permission` construct represents a Permission Statement associated with this Monitor. A set of `obj_permission` constructs can be specified under a Monitor. An `obj_permission` construct can be used to control permissions Explicitly associated with a Monitor. But, it cannot be used to control permissions Inherited from a Parent / Ancestor. Default FGP would be still set to the Monitor upon creation (e.g. the creating user would have full permission), even if no `obj_permission` construct is specified at a Monitor and the FGP feature is enabled at the account.
     - `subject_type` - (Required) Valid values:
         - `role`
