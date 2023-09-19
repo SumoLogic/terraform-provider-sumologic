@@ -18,20 +18,19 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"criticality": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "",
 			},
 			"group": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Default:    "",
-				Deprecated: "The field `group` is deprecated and will be removed in a future release of the provider -- please make usage of `inventory_key`, `inventory_value` instead.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
+				Deprecated:   "The field `group` is deprecated and will be removed in a future release of the provider -- please make usage of `inventory_key`, `inventory_value` instead.",
 			},
 			"inventory_type": {
 				Type:         schema.TypeString,
@@ -43,16 +42,19 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Required: true,
 			},
 			"inventory_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"inventory_value": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"tag_schema": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"dynamic_tags": {
 				Type:     schema.TypeBool,
@@ -60,8 +62,9 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Default:  false,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"suppressed": {
 				Type:     schema.TypeBool,
@@ -72,7 +75,8 @@ func resourceSumologicCSEInventoryEntityGroupConfiguration() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringIsNotEmpty,
 				},
 			},
 		},
