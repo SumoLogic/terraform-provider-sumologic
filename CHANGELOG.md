@@ -3,6 +3,12 @@ FEATURES:
 * **New Resource:** sumologic_cse_tag_schema (GH-575)
 * **New Resource:** sumologic_cse_context_action (GH-573) 
 
+ENHANCEMENTS:
+* resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)
+
+DEPRECATIONS:
+* resource/sumologic_cse_inventory_entity_group_configuration: Deprecated `groups` in favor of `inventory_key`, `inventory_value`. (GH-495)
+
 ## 2.26.0 (September 7, 2023)
 FEATURES:
 * **New Resource:** sumologic_muting_schedule (GH-569)
