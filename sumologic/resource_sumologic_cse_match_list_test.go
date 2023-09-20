@@ -24,7 +24,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	liDescription := "Match List Item Description"
 	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
-	liCount := 3
+	liCount := 1
 
 	// Update values
 	uDefaultTtl := 3600
