@@ -9,6 +9,9 @@ ENHANCEMENTS:
 DEPRECATIONS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Deprecated `groups` in favor of `inventory_key`, `inventory_value`. (GH-495)
 
+BUG FIXES:
+* Fixes `resource_sumologic_cse_match_list` Unable to add new items to match list (GH-579)
+
 ## 2.26.0 (September 7, 2023)
 FEATURES:
 * **New Resource:** sumologic_muting_schedule (GH-569)

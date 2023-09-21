@@ -254,8 +254,15 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		oldItemIds = append(oldItemIds, item.ID)
 	}
 
-	oldItemCount := CSEMatchListItems.Total
-	newItemCount := len(itemsData) + oldItemCount
+	// Delete old items
+	for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
+		if contains(oldItemIds, t.ID) {
+			err = c.DeleteCSEMatchListItem(t.ID)
+			if err != nil {
+				log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", t.ID, err)
+			}
+		}
+	}
 
 	//Add new items
 	if len(newItems) > 0 {
@@ -271,43 +278,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
 	}
 
-	// Wait for addition to finish
+	// Wait for update to finish
 	createStateConf := &resource.StateChangeConf{
-		Target: []string{
-			fmt.Sprint(newItemCount),
-		},
-		Refresh: func() (interface{}, string, error) {
-			CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
-			if err != nil {
-				log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
-				return 0, "", err
-			}
-
-			return CSEMatchListItems, fmt.Sprint(CSEMatchListItems.Total), nil
-		},
-		Timeout:                   d.Timeout(schema.TimeoutUpdate),
-		Delay:                     10 * time.Second,
-		MinTimeout:                5 * time.Second,
-		ContinuousTargetOccurence: 1,
-	}
-
-	_, err = createStateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
-	}
-
-	// Delete old items
-	for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
-		if contains(oldItemIds, t.ID) {
-			err = c.DeleteCSEMatchListItem(t.ID)
-			if err != nil {
-				log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", t.ID, err)
-			}
-		}
-	}
-
-	// Wait for deletion to finish
-	createStateConf = &resource.StateChangeConf{
 		Target: []string{
 			fmt.Sprint(len(newItems)),
 		},
