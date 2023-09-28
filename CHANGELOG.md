@@ -1,4 +1,6 @@
-## 2.26.1 (Unreleased)
+## 2.27.1 (Unreleased)
+
+## 2.27.0 (September 28, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_tag_schema (GH-575)
 * **New Resource:** sumologic_cse_context_action (GH-573) 
