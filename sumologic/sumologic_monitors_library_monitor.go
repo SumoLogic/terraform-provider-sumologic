@@ -150,7 +150,7 @@ type MonitorsLibraryMonitor struct {
 	SloID                   string                 `json:"sloId,omitempty"`
 	NotificationGroupFields []string               `json:"notificationGroupFields,omitempty"`
 	Tags                    map[string]interface{} `json:"tags"`
-	TimeZone                string                 `json:"timeZone"`
+	TimeZone                string                 `json:"timeZone,omitempty"`
 }
 
 type MonitorQuery struct {

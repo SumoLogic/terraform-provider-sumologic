@@ -1019,7 +1019,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	content_type = "Monitor"
 	monitor_type = "Logs"
 	evaluation_delay = "8m"
-	time_zone = "IST"
+	time_zone = "Asia/Kolkata"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"
