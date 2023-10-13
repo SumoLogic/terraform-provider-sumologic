@@ -203,6 +203,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	testMonitorType := "Logs"
 	testIsDisabled := false
 	canonicalTestEvaluationDelay := "1h"
+	testTimeZone := "America/New_York"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -272,6 +273,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", canonicalTestEvaluationDelay),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "time_zone", testTimeZone),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -372,6 +374,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testPlaybook := "This is a test playbook"
 	testIsDisabled := false
 	canonicalTestEvaluationDelay := "1h"
+	testTimeZone := "America/New_York"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -434,6 +437,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testUpdatedPlaybook := "This is an updated test playbook"
 	testUpdatedIsDisabled := true
 	testUpdatedEvaluationDelay := "8m"
+	testUpdatedTimeZone := "America/Chicago"
 	testUpdatedQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -503,6 +507,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", canonicalTestEvaluationDelay),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "time_zone", testTimeZone),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -527,6 +532,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testUpdatedType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testUpdatedEvaluationDelay),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "time_zone", testUpdatedTimeZone),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
@@ -802,6 +808,7 @@ resource "sumologic_monitor" "test" {
 	content_type = "Monitor"
 	monitor_type = "Logs"
 	evaluation_delay = "60m"
+	time_zone = "America/New_York"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager error"
@@ -929,6 +936,7 @@ resource "sumologic_monitor" "test" {
 	content_type = "Monitor"
 	monitor_type = "Logs"
 	evaluation_delay = "8m"
+	time_zone = "America/Chicago"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"
@@ -1011,6 +1019,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	content_type = "Monitor"
 	monitor_type = "Logs"
 	evaluation_delay = "8m"
+	time_zone = "IST"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"
@@ -1286,6 +1295,7 @@ resource "sumologic_monitor" "test" {
 	is_disabled = false
 	content_type = "Monitor"
 	monitor_type = "Slo"
+	time_zone = "America/New_York"
 	slo_id = sumologic_slo.slo_tf_window_metric_ratio.id
     trigger_conditions {
       %s

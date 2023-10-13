@@ -1,4 +1,6 @@
 ## 2.27.1 (Unreleased)
+FEATURES:
+* resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:
