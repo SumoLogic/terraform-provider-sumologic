@@ -1,4 +1,6 @@
 ## 2.27.1 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-57X)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:

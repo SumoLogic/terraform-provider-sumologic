@@ -25,18 +25,19 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket", "AzureEventHubLog"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
-		Required: true,
+		Optional: true,
 	}
 	pollingSource.Schema["paused"] = &schema.Schema{
 		Type:     schema.TypeBool,
-		Required: true,
+		Optional: true,
 	}
 	pollingSource.Schema["url"] = &schema.Schema{
 		Type:     schema.TypeString,
+		Optional: true,
 		Computed: true,
 	}
 	pollingSource.Schema["authentication"] = &schema.Schema{
@@ -50,7 +51,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account", "AzureEventHubAuthentication"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -104,6 +105,14 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"shared_access_policy_name": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"shared_access_policy_key": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
@@ -119,7 +128,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath", "AzureEventHubPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -220,6 +229,22 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						},
 					},
 				},
+				"namespace": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"event_hub_name": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"consumer_group": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
@@ -315,6 +340,11 @@ func resourceToGenericPollingSource(d *schema.ResourceData) (PollingSource, erro
 		URL:          d.Get("url").(string),
 	}
 
+	if source.ContentType == "AzureEventHubLog" {
+		pollingSource.Paused = false
+		pollingSource.ScanInterval = 300000
+	}
+
 	authSettings, errAuthSettings := getPollingAuthentication(d)
 	if errAuthSettings != nil {
 		return pollingSource, errAuthSettings
@@ -352,6 +382,10 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
+			"namespace":                     t.Path.Namespace,
+			"event_hub_name":                t.Path.EventHubName,
+			"consumer_group":                t.Path.ConsumerGroup,
+			"region":                        t.Path.Region,
 		}
 		s = append(s, mapping)
 	}
@@ -378,6 +412,8 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 			"token_uri":                   t.Authentication.TokenUrl,
 			"auth_provider_x509_cert_url": t.Authentication.AuthProviderX509CertUrl,
 			"client_x509_cert_url":        t.Authentication.ClientX509CertUrl,
+			"shared_access_policy_name":   t.Authentication.SharedAccessPolicyName,
+			"shared_access_policy_key":    t.Authentication.SharedAccessPolicyKey,
 		}
 		s = append(s, mapping)
 	}
@@ -539,6 +575,10 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			if err != nil {
 				return authSettings, err
 			}
+		case "AzureEventHubAuthentication":
+			authSettings.Type = "AzureEventHubAuthentication"
+			authSettings.SharedAccessPolicyName = auth["shared_access_policy_name"].(string)
+			authSettings.SharedAccessPolicyKey = auth["shared_access_policy_key"].(string)
 
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
@@ -625,6 +665,14 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 		case "GcpMetricsPath":
 			pathSettings.Type = pathType
 			addGcpMetricsPathSettings(&pathSettings, path)
+		case "AzureEventHubPath":
+			pathSettings.Type = "AzureEventHubPath"
+			pathSettings.Namespace = path["namespace"].(string)
+			pathSettings.EventHubName = path["event_hub_name"].(string)
+			pathSettings.ConsumerGroup = path["consumer_group"].(string)
+			if path["region"] != nil {
+				pathSettings.Region = path["region"].(string)
+			}
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)

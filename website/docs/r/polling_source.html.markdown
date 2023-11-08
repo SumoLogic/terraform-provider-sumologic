@@ -2,7 +2,7 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_polling_source"
 description: |-
-  Provides a Sumologic Polling source. This source is used to import data from various AWS products.
+  Provides a Sumologic Polling source. This source is used to import data from various AWS products as well as Azure Event Hub.
 ---
 
 # sumologic_polling_source
