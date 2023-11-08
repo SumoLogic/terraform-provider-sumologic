@@ -51,7 +51,7 @@ In addition to the [Common Source Properties](https://registry.terraform.io/prov
      + `namespace` - (Required) The namespace of the event hub. 
      + `event_hub_name` - (Required) The name of the event hub.
      + `consumer_group` - (Required) The consumer group of the event hub.
-     + `region` - (Required) The value must be either "Commercial" for azure or "US Gov" for azure gov. 
+     + `region` - (Optional) The value can be either "Commercial" for azure or "US Gov" for azure gov. Default is for azure. 
 
 [1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
 [2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/XXX
