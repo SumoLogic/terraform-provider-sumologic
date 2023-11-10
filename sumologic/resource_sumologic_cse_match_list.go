@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -93,7 +94,11 @@ func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{})
 	var CSEMatchList *CSEMatchListGet
 	id := d.Id()
 
-	CSEMatchList, err := c.GetCSEMatchList(id)
+	// Determine whether the target column is defined using its ID or its name
+	definedTargetColumnIsId, _ := regexp.MatchString("^-?[0-9]*$", d.Get("target_column").(string))
+	definedTargetColumnIsName := !definedTargetColumnIsId
+
+	CSEMatchList, err := c.GetCSEMatchList(id, definedTargetColumnIsName)
 	if err != nil {
 		log.Printf("[WARN] CSE Match List not found when looking by id: %s, err: %v", id, err)
 
