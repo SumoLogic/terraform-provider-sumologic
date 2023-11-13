@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -18,7 +19,7 @@ func TestAccPermission_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicPermissionCreate(
-					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+					otherResource, false, "create", "role", fmt.Sprintf("sumologic_role.permission_test_role_%s", uuid.New())),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
@@ -43,7 +44,8 @@ func TestAccPermission_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicPermissionCreate(
-					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+					otherResource, false, "create", "role", fmt.Sprintf("sumologic_role.permission_test_role_%s", uuid.New()),
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
@@ -78,7 +80,7 @@ func TestAccPermission_delete(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicPermissionCreate(
-					otherResource, false, "create", "role", "sumologic_role.permission_test_role"),
+					otherResource, false, "create", "role", fmt.Sprintf("sumologic_role.permission_test_role_%s", uuid.New())),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionExists("sumologic_content_permission.content_permission_test", &response, t),
 					testAccCheckPermissionAttributes("sumologic_content_permission.content_permission_test"),
