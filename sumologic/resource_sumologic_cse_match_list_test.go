@@ -78,7 +78,7 @@ func testAccCSEMatchListDestroy(s *terraform.State) error {
 			return fmt.Errorf("CSE Match List destruction check: CSE Match List ID is not set")
 		}
 
-		s, err := client.GetCSEMatchList(rs.Primary.ID)
+		s, err := client.GetCSEMatchList(rs.Primary.ID, false)
 		if err != nil {
 			return fmt.Errorf("Encountered an error: " + err.Error())
 		}
@@ -136,7 +136,8 @@ func testCheckCSEMatchListExists(n string, matchList *CSEMatchListGet) resource.
 			return fmt.Errorf("match List ID is not set")
 		}
 		c := testAccProvider.Meta().(*Client)
-		matchListResp, err := c.GetCSEMatchList(rs.Primary.ID)
+
+		matchListResp, err := c.GetCSEMatchList(rs.Primary.ID, false)
 		if err != nil {
 			return err
 		}

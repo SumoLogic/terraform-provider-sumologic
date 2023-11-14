@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -164,11 +165,13 @@ func TestAccSumologicUser_update(t *testing.T) {
 }
 
 func testAccCheckSumologicUserConfigImported(firstName string, lastName string, email string, isActive bool, transferTo string) string {
+	testUuid := uuid.New()
+
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
-	name = "testRole Name"
+	name = "testRole Name %s"
 	capabilities = []
-	description = "testRole Description"
+	description = "testRole Description %s"
 	filter_predicate = ""
 }
 resource "sumologic_user" "foo" {
@@ -179,15 +182,17 @@ resource "sumologic_user" "foo" {
       is_active = %t
       transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive, transferTo)
+`, testUuid, testUuid, firstName, lastName, email, isActive, transferTo)
 }
 
 func testAccSumologicUser(firstName string, lastName string, email string, isActive bool, transferTo string) string {
+	testUuid := uuid.New()
+
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
-	name = "testRole Name"
+	name = "testRole Name %s"
 	capabilities = []
-	description = "testRole Description"
+	description = "testRole Description %s"
 	filter_predicate = ""
 }
 resource "sumologic_user" "test" {
@@ -198,15 +203,17 @@ resource "sumologic_user" "test" {
     is_active = %t
     transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive, transferTo)
+`, testUuid, testUuid, firstName, lastName, email, isActive, transferTo)
 }
 
 func testAccSumologicUserUpdate(firstName string, lastName string, email string, isActive bool, transferTo string) string {
+	testUuid := uuid.New()
+
 	return fmt.Sprintf(`
 resource "sumologic_role" "testRole" {
-	name = "testRole Name"
+	name = "testRole Name %s"
 	capabilities = []
-	description = "testRole Description"
+	description = "testRole Description %s"
 	filter_predicate = ""
 }
 resource "sumologic_user" "test" {
@@ -217,7 +224,7 @@ resource "sumologic_user" "test" {
       is_active = %t
       transfer_to = "%s"
 }
-`, firstName, lastName, email, isActive, transferTo)
+`, testUuid, testUuid, firstName, lastName, email, isActive, transferTo)
 }
 
 func testAccCheckUserAttributes(name string) resource.TestCheckFunc {
