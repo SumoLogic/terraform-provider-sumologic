@@ -1,6 +1,10 @@
-## 2.27.1 (Unreleased)
+## 2.28.0 (Unreleased)
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
+
+## 2.27.1 (November 14, 2023)
+BUG FIXES: 
+* Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:
