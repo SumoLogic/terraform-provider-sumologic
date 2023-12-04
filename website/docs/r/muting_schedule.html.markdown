@@ -103,6 +103,7 @@ The following arguments are supported:
   - `MutingSchedule`
 - `monitor` - (Optional) The monitors which need to put in the muting schedule. see `monitor_scope_type`:
 - `schedule` - (Required) The schedule information. see `schedule_type`.
+- `notification_groups` -(Optinal) The muting schedule group supporting key and values. see `notification_group_type`
 
 #### schedule_type
   - `timezone` - (Required) Time zone for the schedule per
@@ -119,5 +120,9 @@ The following arguments are supported:
 #### monitor_scope_type
   - `ids` - (Optional) List of monitor Ids in hex. Must be empty if `all` is true.
   - `all` - (Optional) True if the schedule applies to all monitors
+
+#### notification_group_type
+  - `group_key` - (Required) the monitor notification group key .
+  - `group_values` - (Required) List of monitor notification group values.
 
 [1]: https://help.sumologic.com/docs/alerts/monitors/muting-schedules/

@@ -72,6 +72,28 @@ func getMutingScheduleBaseSchema() map[string]*schema.Schema {
 				Schema: getScheduleDefinitionSchemma(),
 			},
 		},
+		"notification_groups": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 10,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"group_key": {
+						Type:         schema.TypeString,
+						ValidateFunc: validation.StringLenBetween(1, 128),
+						Required:     true,
+					},
+					"group_values": {
+						Type:     schema.TypeList,
+						Required: true,
+						Elem: &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringLenBetween(1, 256),
+						},
+					},
+				},
+			},
+		},
 
 		"version": {
 			Type:     schema.TypeInt,
@@ -265,6 +287,7 @@ func resourceSumologicMutingSchedulesLibraryMutingScheduleRead(d *schema.Resourc
 	d.Set("is_system", mutingSchedule.IsSystem)
 	d.Set("monitor", monitorScope)
 	d.Set("schedule", schedule)
+	d.Set("notification_groups", notificationGroupArrayToResource(mutingSchedule.NotificationGroups))
 
 	return nil
 }
@@ -319,6 +342,31 @@ func getScheduleDefinition(d *schema.ResourceData) ScheduleDefinition {
 	return scheduleDefinition
 }
 
+func notificationGroupArrayToResource(notificationGroups []NotificationGroupDefinition) []map[string]interface{} {
+	result := make([]map[string]interface{}, len(notificationGroups))
+
+	for i, notificationGroup := range notificationGroups {
+		result[i] = map[string]interface{}{
+			"group_key":    notificationGroup.GroupKey,
+			"group_values": notificationGroup.GroupValues,
+		}
+	}
+	return result
+}
+
+func getNotificationGroupArray(resourceNotificationGroups []interface{}) []NotificationGroupDefinition {
+	result := make([]NotificationGroupDefinition, len(resourceNotificationGroups))
+
+	for i, resourceNotificationGroup := range resourceNotificationGroups {
+		resourceNotificationGroupMap := resourceNotificationGroup.(map[string]interface{})
+		result[i] = NotificationGroupDefinition{
+			GroupKey:    resourceNotificationGroupMap["group_key"].(string),
+			GroupValues: resourceToStringArray(resourceNotificationGroupMap["group_values"].([]interface{})),
+		}
+	}
+	return result
+}
+
 func StartDateIsAfterYesterday() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (warnings []string, errors []error) {
 		v, ok := i.(string)
@@ -351,20 +399,21 @@ func resourceToMutingSchedulesLibraryMutingSchedule(d *schema.ResourceData) Muti
 	scheduleDefinition := getScheduleDefinition(d)
 
 	return MutingSchedulesLibraryMutingSchedule{
-		CreatedBy:   d.Get("created_by").(string),
-		Name:        d.Get("name").(string),
-		ID:          d.Id(),
-		CreatedAt:   d.Get("created_at").(string),
-		Description: d.Get("description").(string),
-		ModifiedBy:  d.Get("modified_by").(string),
-		IsMutable:   d.Get("is_mutable").(bool),
-		Version:     d.Get("version").(int),
-		Type:        d.Get("type").(string),
-		ParentID:    d.Get("parent_id").(string),
-		ModifiedAt:  d.Get("modified_at").(string),
-		ContentType: d.Get("content_type").(string),
-		IsSystem:    d.Get("is_system").(bool),
-		Schedule:    scheduleDefinition,
-		Monitor:     monitorScope,
+		CreatedBy:          d.Get("created_by").(string),
+		Name:               d.Get("name").(string),
+		ID:                 d.Id(),
+		CreatedAt:          d.Get("created_at").(string),
+		Description:        d.Get("description").(string),
+		ModifiedBy:         d.Get("modified_by").(string),
+		IsMutable:          d.Get("is_mutable").(bool),
+		Version:            d.Get("version").(int),
+		Type:               d.Get("type").(string),
+		ParentID:           d.Get("parent_id").(string),
+		ModifiedAt:         d.Get("modified_at").(string),
+		ContentType:        d.Get("content_type").(string),
+		IsSystem:           d.Get("is_system").(bool),
+		Schedule:           scheduleDefinition,
+		Monitor:            monitorScope,
+		NotificationGroups: getNotificationGroupArray(d.Get("notification_groups").([]interface{})),
 	}
 }
