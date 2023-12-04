@@ -53,7 +53,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_create(t *testing.T) {
 		StartTime: "00:00",
 		Duration:  40,
 		RRule:     "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10",
-		IsForm:    false,
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -80,6 +79,57 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_create(t *testing.T) {
 	})
 }
 
+func TestAccSumologicMutingSchedulesLibraryMutingScheduleWithNotificationGroup_create(t *testing.T) {
+	var mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule
+	testNameSuffix := acctest.RandString(16)
+	tomorrow := time.Now().AddDate(0, 0, 1)
+
+	testName := "terraform_test_muting_schedule_" + testNameSuffix
+	testDescription := "terraform_test_muting_schedule_description"
+	testType := "MutingSchedulesLibraryMutingSchedule"
+	testContentType := "MutingSchedule"
+	testMonitor := MonitorScope{
+		All: true,
+	}
+	testSchedule := ScheduleDefinition{
+		TimeZone:  "America/Los_Angeles",
+		StartDate: tomorrow.Format("2006-01-02"),
+		StartTime: "00:00",
+		Duration:  40,
+		RRule:     "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10",
+	}
+	testNotificationGroup := []NotificationGroupDefinition{{
+		GroupKey:    "host",
+		GroupValues: []string{"localhost", "127.0.0.1"},
+	}}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMutingSchedulesLibraryMutingScheduleDestroy(mutingSchedulesLibraryMutingSchedule),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMutingSchedulesLibraryMutingScheduleWithNotificationGroups(testNameSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMutingSchedulesLibraryMutingScheduleExists("sumologic_muting_schedule.test", &mutingSchedulesLibraryMutingSchedule, t),
+					testAccCheckMutingSchedulesLibraryMutingScheduleAttributes("sumologic_muting_schedule.test"),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "name", testName),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "type", testType),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "description", testDescription),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "content_type", testContentType),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "monitor.0.all", strconv.FormatBool(testMonitor.All)),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.timezone", testSchedule.TimeZone),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_date", testSchedule.StartDate),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.start_time", testSchedule.StartTime),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "schedule.0.rrule", testSchedule.RRule),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "notification_groups.0.group_key", testNotificationGroup[0].GroupKey),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "notification_groups.0.group_values.0", testNotificationGroup[0].GroupValues[0]),
+					resource.TestCheckResourceAttr("sumologic_muting_schedule.test", "notification_groups.0.group_values.1", testNotificationGroup[0].GroupValues[1]),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 	var mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule
 	testNameSuffix := acctest.RandString(16)
@@ -98,7 +148,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 		StartTime: "00:00",
 		Duration:  40,
 		RRule:     "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10",
-		IsForm:    false,
 	}
 
 	// updated fields
@@ -115,7 +164,6 @@ func TestAccSumologicMutingSchedulesLibraryMutingSchedule_update(t *testing.T) {
 		StartTime: "01:00",
 		Duration:  50,
 		RRule:     "FREQ=DAILY;INTERVAL=1",
-		IsForm:    false,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -302,6 +350,34 @@ func testAccSumologicMutingSchedulesLibraryMutingScheduleBadMonitorScope(testNam
 	duration = 50
 	rrule = "FREQ=DAILY;INTERVAL=1"
 	}
+}
+`, testName, startDate)
+}
+
+func testAccSumologicMutingSchedulesLibraryMutingScheduleWithNotificationGroups(testName string) string {
+	tomorrow := time.Now().AddDate(0, 0, 1)
+	startDate := tomorrow.Format("2006-01-02")
+	return fmt.Sprintf(`
+    resource "sumologic_muting_schedule" "test" {
+	name = "terraform_test_muting_schedule_%s"
+	description = "terraform_test_muting_schedule_description"
+	type = "MutingSchedulesLibraryMutingSchedule"
+	content_type = "MutingSchedule"
+	monitor {
+		ids = []
+		all = true
+	  }
+	schedule  {
+		timezone = "America/Los_Angeles"
+		start_date = "%s"
+		start_time = "00:00"
+		duration = 40
+		rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
+	  }
+	notification_groups {
+		group_key = "host"
+		group_values =["localhost","127.0.0.1"]
+	}  
 }
 `, testName, startDate)
 }

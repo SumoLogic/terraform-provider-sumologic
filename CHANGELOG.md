@@ -3,6 +3,7 @@
 ## 2.28.0 (November 23, 2023)
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
+* resource/sumologic_muting_schedule: Added group supporting for muting schedule (GH-593)
 
 BUG FIXES: 
 * Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
