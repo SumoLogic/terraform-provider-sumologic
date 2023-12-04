@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -64,7 +63,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
-	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [Status=%s] [Number of Retries=%s]\n", req.Method, req.URL, maskedHeader, resp.Status, resp.Header.Get("numberOfRetries"))
+	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [Status=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
@@ -331,7 +330,6 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 
 func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {
 	log.Printf("[ERROR] Request %s failed after %d attempts with response: [%s]", resp.Request.URL, numTries, resp.Status)
-	resp.Header.Add("numberOfRetries", strconv.Itoa(numTries))
 	return resp, err
 }
 
