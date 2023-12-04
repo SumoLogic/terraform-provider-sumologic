@@ -330,7 +330,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 }
 
 func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {
-	log.Printf("[DEBUG] Resquest Failed after %d number of retries with Response: [%s]", numTries, resp.Status)
+	log.Printf("[ERROR] Request %s failed after %d attempts with response: [%s]", resp.Request.URL, numTries, resp.Status)
 	resp.Header.Add("numberOfRetries", strconv.Itoa(numTries))
 	return resp, err
 }
