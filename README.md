@@ -64,6 +64,7 @@ To run a specific acceptance test, run `go test -v ./sumologic  -run YourSpecifi
      $ export SUMOLOGIC_BASE_URL="yourEnvironmentAPIUrl"
      $ export TF_ACC=1
      ```
+    - More information on configuration can be found [here](https://github.com/SumoLogic/terraform-provider-sumologic/blob/master/website/docs/index.html.markdown#environment-variables).
 
 - Environment variable `SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS` must be set for gcp metrics acceptance tests to work properly (ex. below).
     - export SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS=`cat /path/to/service_acccount.json`
