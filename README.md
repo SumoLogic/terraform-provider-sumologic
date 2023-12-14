@@ -57,12 +57,12 @@ To run a specific acceptance test, run `go test -v ./sumologic  -run YourSpecifi
 
 *Note:* 
 - Acceptance tests *create real resources*, and often cost money to run. The environment variables `SUMOLOGIC_ACCESSID`, `SUMOLOGIC_ACCESSKEY`, `SUMOLOGIC_ENVIRONMENT` / `SUMOLOGIC_BASE_URL`,  and `TF_ACC` must also be set for acceptance tests to work properly.
-  - For example, you can generate a personal access key in stag-alpha [here](https://cse-stag-alpha.stag.sumologic.net/ui/#/preferences). Once your test runs, you are then capable of viewing the real resources created by Terraform in the [stag-alpha UI](https://cse-stag-alpha.stag.sumologic.net/sec/hud?hours=24).
+  - For example, you can generate a personal access key in stag-alpha. Once your test runs, you are then capable of viewing the real resources created by Terraform in the stag-alpha UI.
      ```sh
      $ export SUMOLOGIC_ACCESSID="yourAccessID"
      $ export SUMOLOGIC_ACCESSKEY="yourAccessKey"
      $ export SUMOLOGIC_ENVIRONMENT="stag"
-     $ export SUMOLOGIC_BASE_URL="https://stag-api.sumologic.net/api/"
+     $ export SUMOLOGIC_BASE_URL="stag api url"
      $ export TF_ACC=1
      ```
   - More information on configuration can be found at the [Terraform Provider codelabs documentation](https://github.com/Sanyaku/codelabs/blob/master/backend/pages/SumoLogicTerraformProvider.md).
