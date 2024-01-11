@@ -59,6 +59,11 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 					testCheckFirstSeenRuleValues(t, &updatedPayload, &result),
 				),
 			},
+            {
+                ResourceName:      resourceName,
+                ImportState:       true,
+                ImportStateVerify: true,
+            },
 		},
 	})
 }
