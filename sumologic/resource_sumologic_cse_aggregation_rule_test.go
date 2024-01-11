@@ -73,6 +73,11 @@ func TestAccSumologicCSEAggregationRule_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
+            {
+                ResourceName:      resourceName,
+                ImportState:       true,
+                ImportStateVerify: true,
+            },
 		},
 	})
 }
