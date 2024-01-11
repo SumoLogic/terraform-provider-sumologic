@@ -63,11 +63,11 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 					testCheckOutlierRuleValues(t, &updatedPayload, &result),
 				),
 			},
-            {
-                ResourceName:      resourceName,
-                ImportState:       true,
-                ImportStateVerify: true,
-            },
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

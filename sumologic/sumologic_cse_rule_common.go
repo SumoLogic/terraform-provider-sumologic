@@ -143,14 +143,14 @@ func severityMappingValueMappingArrayToResource(severityMappingValueMappings []S
 }
 
 func severityMappingToResource(severityMapping SeverityMapping) []map[string]interface{} {
-    return []map[string]interface{}{
-        {
-            "type":    severityMapping.Type,
-            "default": severityMapping.Default,
-            "field":   severityMapping.Field,
-            "mapping": severityMappingValueMappingArrayToResource(severityMapping.Mapping),
-        },
-    }
+	return []map[string]interface{}{
+		{
+			"type":    severityMapping.Type,
+			"default": severityMapping.Default,
+			"field":   severityMapping.Field,
+			"mapping": severityMappingValueMappingArrayToResource(severityMapping.Mapping),
+		},
+	}
 }
 
 type EntitySelector struct {
