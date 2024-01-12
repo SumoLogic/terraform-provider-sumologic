@@ -157,11 +157,11 @@ resource "sumologic_cse_custom_insight" "custom_insight2" {
     name = "Dynamic severity insight"
     severity = "LOW"
     dynamic_severity {
-        minimum_signal_severity = "%d"
+        minimum_signal_severity = %d
         insight_severity = "%s"
     }
     dynamic_severity {
-        minimum_signal_severity = "%d"
+        minimum_signal_severity = %d
         insight_severity = "%s"
     }
     tags = ["test tag"]
@@ -203,7 +203,7 @@ func testCheckCustomInsightValues(t *testing.T, CustomInsight *CSECustomInsight,
 		assert.Equal(t, severity, CustomInsight.Severity)
 		assert.Equal(t, signalName1, CustomInsight.SignalNames[0])
 		assert.Equal(t, signalName2, CustomInsight.SignalNames[1])
-		assert.Equal(t, tag, CustomInsight.Tags[0]) 
+		assert.Equal(t, tag, CustomInsight.Tags[0])
 		return nil
 	}
 }
