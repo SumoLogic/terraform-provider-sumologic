@@ -62,7 +62,7 @@ func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCSECustomInsightWithDynamicSeverity_createAndUpdate(t *testing.T) {
+func TestAccSumologicCSECustomInsight_createAndUpdateWithDynamicSeverity(t *testing.T) {
 	SkipCseTest(t)
 
 	var CustomInsight CSECustomInsight
