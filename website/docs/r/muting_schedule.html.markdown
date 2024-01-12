@@ -70,7 +70,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 }
 ```
 
-## Example Daily Muting Schedule From 9:00 AM to 9:30 and 10:00 AM to 10:30 AM Since 2023-08-05 For Specifc Monitor/Folder ids 
+## Example Daily Muting Schedule From 9:00 AM to 9:30 and 10:00 AM to 10:30 AM Since 2023-08-05 For Specific Monitor/Folder ids 
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -81,6 +81,31 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 	monitor {
 		ids = ["0000000000200B92"]
 	  }
+	schedule  {
+		timezone = "America/Los_Angeles"
+		start_date = "2023-08-05"
+		start_time = "00:00"
+		duration = 30
+    	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,10"
+	}
+}
+```
+
+## Example Daily Muting Schedule With Group Supporting 
+
+```hcl
+resource "sumologic_muting_schedule" "muting_schedule" {
+  name = "Muting Schedule For one time"
+  description = "This is an example for one time Muting schedule for all monitor"
+	type = "MutingSchedulesLibraryMutingSchedule"
+	content_type = "MutingSchedule"
+	monitor {
+		ids = ["0000000000200B92"]
+	  }
+  notification_groups {
+        group_key = "_sources"
+        group_values =["localhost","127.0.0.1"]
+      }
 	schedule  {
 		timezone = "America/Los_Angeles"
 		start_date = "2023-08-05"
@@ -103,7 +128,7 @@ The following arguments are supported:
   - `MutingSchedule`
 - `monitor` - (Optional) The monitors which need to put in the muting schedule. see `monitor_scope_type`:
 - `schedule` - (Required) The schedule information. see `schedule_type`.
-- `notification_groups` -(Optinal) The muting schedule group supporting key and values. see `notification_group_type`
+- `notification_groups` -(Optional) The muting schedule group supporting key and values. see `notification_group_type`
 
 #### schedule_type
   - `timezone` - (Required) Time zone for the schedule per
