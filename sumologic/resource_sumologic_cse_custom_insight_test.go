@@ -36,7 +36,7 @@ func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
 					ordered, name, severity, signalName1, signalName2, tag),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
-					testCheckCustomInsightValues(&CustomInsight, description, enabled,
+					testCheckCustomInsightValues(t, &CustomInsight, description, enabled,
 						ordered, name, severity, signalName1, signalName2, tag),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
@@ -47,7 +47,7 @@ func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
 					signalName2, tag),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
-					testCheckCustomInsightValues(&CustomInsight, description, enabled,
+					testCheckCustomInsightValues(t, &CustomInsight, description, enabled,
 						ordered, nameUpdated, severityUpdated, signalName1,
 						signalName2, tag),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
@@ -192,35 +192,18 @@ func testCheckCSECustomInsightExists(n string, CustomInsight *CSECustomInsight) 
 	}
 }
 
-func testCheckCustomInsightValues(CustomInsight *CSECustomInsight, description string,
+func testCheckCustomInsightValues(t *testing.T, CustomInsight *CSECustomInsight, description string,
 	enabled bool, ordered bool, name string, severity string, signalName1 string,
 	signalName2 string, tag string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if CustomInsight.Description != description {
-			return fmt.Errorf("bad description, expected \"%s\", got %#v", description, CustomInsight.Description)
-		}
-		if CustomInsight.Enabled != enabled {
-			return fmt.Errorf("bad enabled, expected \"%t\", got %#v", enabled, CustomInsight.Enabled)
-		}
-		if CustomInsight.Ordered != ordered {
-			return fmt.Errorf("bad ordered, expected \"%t\", got %#v", ordered, CustomInsight.Ordered)
-		}
-		if CustomInsight.Name != name {
-			return fmt.Errorf("bad name, expected \"%s\", got %#v", name, CustomInsight.Name)
-		}
-		if CustomInsight.Severity != severity {
-			return fmt.Errorf("bad severity, expected \"%s\", got %#v", severity, CustomInsight.Severity)
-		}
-		if CustomInsight.SignalNames[0] != signalName1 {
-			return fmt.Errorf("bad signalName1, expected \"%s\", got %#v", signalName1, CustomInsight.SignalNames[0])
-		}
-		if CustomInsight.SignalNames[1] != signalName2 {
-			return fmt.Errorf("bad signalName2, expected \"%s\", got %#v", signalName2, CustomInsight.SignalNames[1])
-		}
-		if CustomInsight.Tags[0] != tag {
-			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, CustomInsight.Tags[0])
-		}
-
+		assert.Equal(t, description, CustomInsight.Description)
+		assert.Equal(t, enabled, CustomInsight.Enabled)
+		assert.Equal(t, ordered, CustomInsight.Ordered)
+		assert.Equal(t, name, CustomInsight.Name)
+		assert.Equal(t, severity, CustomInsight.Severity)
+		assert.Equal(t, signalName1, CustomInsight.SignalNames[0])
+		assert.Equal(t, signalName2, CustomInsight.SignalNames[1])
+		assert.Equal(t, tag, CustomInsight.Tags[0]) 
 		return nil
 	}
 }
