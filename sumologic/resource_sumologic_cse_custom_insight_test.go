@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
@@ -17,15 +18,12 @@ func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
 	ordered := true
 	name := "Test Custom Insight"
 	severity := "HIGH"
-	minimumSignalSeverity := 5
-	insightSeverity := "CRITICAL"
 	signalName1 := "Some Signal Name *"
 	signalName2 := "Some Other Signal Name *"
 	tag := "foo"
 
 	nameUpdated := "Updated Custom Insight"
 	severityUpdated := "LOW"
-	minimumSignalSeverityUpdated := 8
 
 	resourceName := "sumologic_cse_custom_insight.custom_insight"
 	resource.Test(t, resource.TestCase{
@@ -35,23 +33,68 @@ func TestAccSumologicCSECustomInsight_createAndUpdate(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateCSECustomInsightConfig(description, enabled,
-					ordered, name, severity, minimumSignalSeverity, insightSeverity, signalName1, signalName2, tag),
+					ordered, name, severity, signalName1, signalName2, tag),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
 					testCheckCustomInsightValues(&CustomInsight, description, enabled,
-						ordered, name, severity, minimumSignalSeverity, insightSeverity, signalName1, signalName2, tag),
+						ordered, name, severity, signalName1, signalName2, tag),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			{
 				Config: testCreateCSECustomInsightConfig(description, enabled,
-					ordered, nameUpdated, severityUpdated, minimumSignalSeverityUpdated, insightSeverity, signalName1,
+					ordered, nameUpdated, severityUpdated, signalName1,
 					signalName2, tag),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
 					testCheckCustomInsightValues(&CustomInsight, description, enabled,
-						ordered, nameUpdated, severityUpdated, minimumSignalSeverityUpdated, insightSeverity, signalName1,
+						ordered, nameUpdated, severityUpdated, signalName1,
 						signalName2, tag),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSECustomInsightWithDynamicSeverity_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
+	var CustomInsight CSECustomInsight
+	minimumSignalSeverity1 := 5
+	dynamicSeverity1 := "MEDIUM"
+	minimumSignalSeverity2 := 8
+	dynamicSeverity2 := "HIGH"
+
+	updatedMinimumSignalSeverity2 := 9
+	updatedDynamicSeverity2 := "CRITICAL"
+
+	resourceName := "sumologic_cse_custom_insight.custom_insight2"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSECustomInsightDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSECustomInsightConfigWithDynamicSeverity(minimumSignalSeverity1, dynamicSeverity1, minimumSignalSeverity2, dynamicSeverity2),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
+					testCheckCustomInsightDynamicSeverity(t, &CustomInsight,
+						minimumSignalSeverity1, dynamicSeverity1, minimumSignalSeverity2, dynamicSeverity2),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testCreateCSECustomInsightConfigWithDynamicSeverity(minimumSignalSeverity1, dynamicSeverity1, updatedMinimumSignalSeverity2, updatedDynamicSeverity2),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
+					testCheckCustomInsightDynamicSeverity(t, &CustomInsight,
+						minimumSignalSeverity1, dynamicSeverity1, updatedMinimumSignalSeverity2, updatedDynamicSeverity2),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -89,7 +132,7 @@ func testAccCSECustomInsightDestroy(s *terraform.State) error {
 
 func testCreateCSECustomInsightConfig(
 	description string, enabled bool, ordered bool, name string,
-	severity string, minimumSignalSeverity int, insightSeverity string, signalName1 string, signalName2 string, tag string) string {
+	severity string, signalName1 string, signalName2 string, tag string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_custom_insight" "custom_insight" {
 	description = "%s"
@@ -97,14 +140,33 @@ resource "sumologic_cse_custom_insight" "custom_insight" {
     ordered = %t
     name = "%s"
     severity = "%s"
-    dynamic_severity {
-		minimum_signal_severity = "%d"
-		insight_severity = "%s"
-	}
     signal_names = ["%s", "%s"]
     tags = ["%s"]
 }
-`, description, enabled, ordered, name, severity, minimumSignalSeverity, insightSeverity, signalName1, signalName2, tag)
+`, description, enabled, ordered, name, severity, signalName1,
+		signalName2, tag)
+}
+
+func testCreateCSECustomInsightConfigWithDynamicSeverity(
+	minimumSignalSeverity1 int, dynamicSeverity1 string, minimumSignalSeverity2 int, dynamicSeverity2 string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_custom_insight" "custom_insight2" {
+	description = "Dynamic severity insight"
+    enabled = true
+    ordered = true
+    name = "Dynamic severity insight"
+    severity = "LOW"
+    dynamic_severity {
+        minimum_signal_severity = "%d"
+        insight_severity = "%s"
+    }
+    dynamic_severity {
+        minimum_signal_severity = "%d"
+        insight_severity = "%s"
+    }
+    tags = ["test tag"]
+}
+`, minimumSignalSeverity1, dynamicSeverity1, minimumSignalSeverity2, dynamicSeverity2)
 }
 
 func testCheckCSECustomInsightExists(n string, CustomInsight *CSECustomInsight) resource.TestCheckFunc {
@@ -115,7 +177,7 @@ func testCheckCSECustomInsightExists(n string, CustomInsight *CSECustomInsight) 
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("chain rule ID is not set")
+			return fmt.Errorf("CustomInsight ID is not set")
 		}
 
 		c := testAccProvider.Meta().(*Client)
@@ -131,7 +193,7 @@ func testCheckCSECustomInsightExists(n string, CustomInsight *CSECustomInsight) 
 }
 
 func testCheckCustomInsightValues(CustomInsight *CSECustomInsight, description string,
-	enabled bool, ordered bool, name string, severity string, minimumSignalSeverity int, insightSeverity string, signalName1 string,
+	enabled bool, ordered bool, name string, severity string, signalName1 string,
 	signalName2 string, tag string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if CustomInsight.Description != description {
@@ -149,14 +211,8 @@ func testCheckCustomInsightValues(CustomInsight *CSECustomInsight, description s
 		if CustomInsight.Severity != severity {
 			return fmt.Errorf("bad severity, expected \"%s\", got %#v", severity, CustomInsight.Severity)
 		}
-		if CustomInsight.Severity != severity {
-			return fmt.Errorf("bad severity, expected \"%s\", got %#v", severity, CustomInsight.Severity)
-		}
-		if CustomInsight.DynamicSeverity[0].MinimumSignalSeverity != minimumSignalSeverity {
-			return fmt.Errorf("bad minimumSignalSeverity, expected \"%d\", got %#v", minimumSignalSeverity, CustomInsight.DynamicSeverity[0].MinimumSignalSeverity)
-		}
-		if CustomInsight.DynamicSeverity[0].InsightSeverity != insightSeverity {
-			return fmt.Errorf("bad insightSeverity, expected \"%s\", got %#v", insightSeverity, CustomInsight.DynamicSeverity[0].InsightSeverity)
+		if CustomInsight.SignalNames[0] != signalName1 {
+			return fmt.Errorf("bad signalName1, expected \"%s\", got %#v", signalName1, CustomInsight.SignalNames[0])
 		}
 		if CustomInsight.SignalNames[1] != signalName2 {
 			return fmt.Errorf("bad signalName2, expected \"%s\", got %#v", signalName2, CustomInsight.SignalNames[1])
@@ -165,6 +221,18 @@ func testCheckCustomInsightValues(CustomInsight *CSECustomInsight, description s
 			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, CustomInsight.Tags[0])
 		}
 
+		return nil
+	}
+}
+
+func testCheckCustomInsightDynamicSeverity(t *testing.T, CustomInsight *CSECustomInsight,
+	minimumSignalSeverity1 int, dynamicSeverity1 string, minimumSignalSeverity2 int, dynamicSeverity2 string) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		assert.Equal(t, minimumSignalSeverity1, CustomInsight.DynamicSeverity[0].MinimumSignalSeverity)
+		assert.Equal(t, dynamicSeverity1, CustomInsight.DynamicSeverity[0].InsightSeverity)
+		assert.Equal(t, minimumSignalSeverity2, CustomInsight.DynamicSeverity[1].MinimumSignalSeverity)
+		assert.Equal(t, dynamicSeverity2, CustomInsight.DynamicSeverity[1].InsightSeverity)
 		return nil
 	}
 }
