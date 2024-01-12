@@ -335,7 +335,7 @@ func testAccSumologicMutingSchedulesLibraryMutingScheduleBadMonitorScope(testNam
 	tomorrow := time.Now().AddDate(0, 0, 1)
 	startDate := tomorrow.Format("2006-01-02")
 	return fmt.Sprintf(`
-   resource "sumologic_muting_schedule" "test" {
+    resource "sumologic_muting_schedule" "test" {
 	name = "terraform_test_muting_schedule_%s"
 	description = "terraform_test_muting_schedule_description"
 	type = "MutingSchedulesLibraryMutingSchedule"

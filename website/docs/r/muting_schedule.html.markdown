@@ -34,7 +34,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
-  description = "This is an example for one time Muting schedule for all monitor"
+  description = "This is an example for one time muting schedule for all monitor"
   type = "MutingSchedulesLibraryMutingSchedule"
   content_type = "MutingSchedule"
   monitor {
@@ -54,7 +54,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
-  description = "This is an example for one time Muting schedule for all monitor"
+  description = "This is an example for one time muting schedule for all monitor"
   type = "MutingSchedulesLibraryMutingSchedule"
   content_type = "MutingSchedule"
   monitor {
@@ -75,7 +75,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
-  description = "This is an example for one time Muting schedule for all monitor"
+  description = "This is an example for muting schedule with rrule and specific monitor id"
 	type = "MutingSchedulesLibraryMutingSchedule"
 	content_type = "MutingSchedule"
 	monitor {
@@ -96,13 +96,13 @@ resource "sumologic_muting_schedule" "muting_schedule" {
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
   name = "Muting Schedule For one time"
-  description = "This is an example for one time Muting schedule for all monitor"
+  description = "This is an example for muting schedule with rrule and specific monitor id and notification group key and values"
 	type = "MutingSchedulesLibraryMutingSchedule"
 	content_type = "MutingSchedule"
 	monitor {
 		ids = ["0000000000200B92"]
 	  }
-  notification_groups {
+    notification_groups {
         group_key = "_sources"
         group_values =["localhost","127.0.0.1"]
       }
@@ -126,11 +126,11 @@ The following arguments are supported:
 - `description` - (Optional) The description of the muting schedule.
 - `content_type` - (Optional) The type of the content object. Valid value:
   - `MutingSchedule`
-- `monitor` - (Optional) The monitors which need to put in the muting schedule. see `monitor_scope_type`:
-- `schedule` - (Required) The schedule information. see `schedule_type`.
-- `notification_groups` -(Optional) The muting schedule group supporting key and values. see `notification_group_type`
+- `monitor` - (Optional) The monitors which need to put in the muting schedule. see `monitor_scope`:
+- `schedule` - (Required) The schedule information. see `schedule`.
+- `notification_groups` -(Optional) The muting schedule group supporting key and values. see `notification_group`
 
-#### schedule_type
+#### schedule
   - `timezone` - (Required) Time zone for the schedule per
             [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
   - `start_date` - (Required) Schedule start date in the format of `yyyy-mm-dd`
@@ -142,11 +142,11 @@ The following arguments are supported:
   Event that repeats monthly: every 29th of every other month! `FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=29`
   (https://freetools.textmagic.com/rrule-generator)
 
-#### monitor_scope_type
+#### monitor_scope
   - `ids` - (Optional) List of monitor Ids in hex. Must be empty if `all` is true.
   - `all` - (Optional) True if the schedule applies to all monitors
 
-#### notification_group_type
+#### notification_group
   - `group_key` - (Required) the monitor notification group key .
   - `group_values` - (Required) List of monitor notification group values.
 
