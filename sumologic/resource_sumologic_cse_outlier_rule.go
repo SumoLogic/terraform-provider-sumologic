@@ -132,7 +132,7 @@ func resourceSumologicCSEOutlierRuleRead(d *schema.ResourceData, meta interface{
 		return nil
 	}
 
-	d.Set("aggregate_function", aggregationFunctionsArrayToResource(CSEOutlierRuleGet.AggregationFunctions))
+	d.Set("aggregation_functions", aggregationFunctionsArrayToResource(CSEOutlierRuleGet.AggregationFunctions))
 	d.Set("baseline_window_size", CSEOutlierRuleGet.BaselineWindowSize)
 	d.Set("description_expression", CSEOutlierRuleGet.DescriptionExpression)
 	d.Set("deviation_threshold", CSEOutlierRuleGet.DeviationThreshold)
