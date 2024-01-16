@@ -3,6 +3,9 @@
 ENHANCEMENTS:
 * Added support for `dynamic_severity` for the CSE Custom Insight. (GH-607)
 
+BUG FIXES:
+* Minor fixes enabling proper resource import for CSE Rules (`severity`, `severity_mapping`, `aggregation_functions`). (GH-606)
+
 ## 2.28.0 (November 23, 2023)
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
