@@ -1,5 +1,8 @@
 ## 2.28.1 (Unreleased)
 
+ENHANCEMENTS:
+* Added support for `dynamic_severity` for the CSE Custom Insight. (GH-607)
+
 BUG FIXES:
 * Minor fixes enabling proper resource import for CSE Rules (`severity`, `severity_mapping`, `aggregation_functions`). (GH-606)
 

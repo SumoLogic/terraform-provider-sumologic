@@ -72,14 +72,20 @@ type CSECustomInsightResponse struct {
 	CSECustomInsight CSECustomInsight `json:"data"`
 }
 
+type DynamicSeverity struct {
+	MinimumSignalSeverity int    `json:"minimumSignalSeverity"`
+	InsightSeverity       string `json:"insightSeverity"`
+}
+
 type CSECustomInsight struct {
-	ID          string   `json:"id,omitempty"`
-	Description string   `json:"description"`
-	Enabled     bool     `json:"enabled"`
-	Name        string   `json:"name"`
-	Ordered     bool     `json:"ordered"`
-	RuleIds     []string `json:"ruleIds"`
-	Severity    string   `json:"severity"`
-	SignalNames []string `json:"signalNames"`
-	Tags        []string `json:"tags"`
+	ID              string            `json:"id,omitempty"`
+	Description     string            `json:"description"`
+	Enabled         bool              `json:"enabled"`
+	Name            string            `json:"name"`
+	Ordered         bool              `json:"ordered"`
+	RuleIds         []string          `json:"ruleIds"`
+	Severity        string            `json:"severity"`
+	DynamicSeverity []DynamicSeverity `json:"dynamicSeverity"`
+	SignalNames     []string          `json:"signalNames"`
+	Tags            []string          `json:"tags"`
 }
