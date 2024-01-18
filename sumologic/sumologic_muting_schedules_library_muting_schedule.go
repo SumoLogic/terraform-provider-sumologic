@@ -116,21 +116,22 @@ func (s *Client) GetMutingSchedulesLibraryFolder(id string) (*MutingSchedulesLib
 
 // ---------- TYPES ----------
 type MutingSchedulesLibraryMutingSchedule struct {
-	ID          string             `json:"id"`
-	Type        string             `json:"type"`
-	IsSystem    bool               `json:"isSystem"`
-	IsMutable   bool               `json:"isMutable"`
-	Schedule    ScheduleDefinition `json:"schedule"`
-	Monitor     *MonitorScope      `json:"monitor"`
-	ParentID    string             `json:"parentId"`
-	Name        string             `json:"name"`
-	Version     int                `json:"version"`
-	CreatedBy   string             `json:"createdBy"`
-	Description string             `json:"description"`
-	CreatedAt   string             `json:"createdAt"`
-	ModifiedAt  string             `json:"modifiedAt"`
-	ContentType string             `json:"contentType"`
-	ModifiedBy  string             `json:"modifiedBy"`
+	ID                 string                        `json:"id"`
+	Type               string                        `json:"type"`
+	IsSystem           bool                          `json:"isSystem"`
+	IsMutable          bool                          `json:"isMutable"`
+	Schedule           ScheduleDefinition            `json:"schedule"`
+	Monitor            *MonitorScope                 `json:"monitor"`
+	ParentID           string                        `json:"parentId"`
+	Name               string                        `json:"name"`
+	Version            int                           `json:"version"`
+	CreatedBy          string                        `json:"createdBy"`
+	Description        string                        `json:"description"`
+	CreatedAt          string                        `json:"createdAt"`
+	ModifiedAt         string                        `json:"modifiedAt"`
+	ContentType        string                        `json:"contentType"`
+	ModifiedBy         string                        `json:"modifiedBy"`
+	NotificationGroups []NotificationGroupDefinition `json:"notificationGroups"`
 }
 
 type ScheduleDefinition struct {
@@ -139,12 +140,16 @@ type ScheduleDefinition struct {
 	StartTime string `json:"startTime"`
 	Duration  int    `json:"duration"`
 	RRule     string `json:"rrule,omitempty"`
-	IsForm    bool   `json:"isForm,omitempty"`
 }
 
 type MonitorScope struct {
 	Ids []string `json:"ids,omitempty"`
 	All bool     `json:"all,omitempty"`
+}
+
+type NotificationGroupDefinition struct {
+	GroupKey    string   `json:"groupKey"`
+	GroupValues []string `json:"groupValues"`
 }
 
 type MutingSchedulesLibraryFolder struct {
