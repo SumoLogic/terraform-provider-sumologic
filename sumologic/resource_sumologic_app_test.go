@@ -11,9 +11,9 @@ import (
 )
 
 func TestAccSumologicApp_basic(t *testing.T) {
-	// uuid of MySql - OpenTelemetry app
-	uuid := "1de46d03-e051-404e-8c6b-53aa7a057df6"
-	version := "1.0.5"
+	// uuid of Varnish - OpenTelemetry app
+	uuid := "d2ef33c3-67f2-4438-9124-14a30ec2ecf3"
+	version := "1.0.3"
 	parameterKey := "key"
 	parameterValue := "value"
 
@@ -37,9 +37,9 @@ func TestAccSumologicApp_basic(t *testing.T) {
 
 func TestAccSumologicApp_create(t *testing.T) {
 	// create config
-	// uuid of MySql - OpenTelemetry app
-	uuid := "1de46d03-e051-404e-8c6b-53aa7a057df6"
-	version := "1.0.5"
+	// uuid of Varnish - OpenTelemetry app
+	uuid := "d2ef33c3-67f2-4438-9124-14a30ec2ecf3"
+	version := "1.0.4"
 	parameterKey := "key"
 	parameterValue := "value"
 
