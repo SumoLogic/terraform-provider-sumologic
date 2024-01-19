@@ -75,7 +75,7 @@ func resourceSumologicCSERuleTuningExpressionRead(d *schema.ResourceData, meta i
 	d.Set("enabled", CSERuleTuningExpressionGet.Enabled)
 	d.Set("exclude", CSERuleTuningExpressionGet.Exclude)
 	d.Set("is_global", CSERuleTuningExpressionGet.IsGlobal)
-	d.Set("rule_Ids", CSERuleTuningExpressionGet.RuleIds)
+	d.Set("rule_ids", CSERuleTuningExpressionGet.RuleIds)
 
 	return nil
 }
