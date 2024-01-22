@@ -90,6 +90,6 @@ type CSETagSchema struct {
 
 type ValueOption struct {
 	Value string `json:"value"`
-	Label string `json:"label,omitempty"`
-	Link  string `json:"link,omitempty"`
+	Label string `json:"label"`
+	Link  string `json:"link"`
 }

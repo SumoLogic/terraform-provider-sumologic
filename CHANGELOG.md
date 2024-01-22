@@ -1,5 +1,6 @@
 ## 2.28.2 (Unreleased)
-
+BUG FIXES:
+* Fixes bug in `resource_sumologic_cse_tag_schema` where no link or label being passed in value option objects. ( GH-614)
 
 ## 2.28.1 (January 19, 2024)
 
