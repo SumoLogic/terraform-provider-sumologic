@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -18,7 +19,7 @@ func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
 	nEnabled := true
 	nExclude := true
 	nIsGlobal := false
-	nRuleIds := []string{"LEGACY-S00084"}
+	nRuleIds := []string{"LEGACY-S00084", "THRESHOLD-S00514", "AGGREGATION-S00002"}
 	resourceName := "sumologic_cse_rule_tuning_expression.rule_tuning_expression"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -66,6 +67,11 @@ func testAccCSERuleTuningExpressionDestroy(s *terraform.State) error {
 }
 
 func testCreateCSERuleTuningExpressionConfig(nName string, nDescription string, nExpression string, nEnabled bool, nExclude bool, nIsGlobal bool, nRuleIds []string) string {
+	quotedRuleIds := make([]string, len(nRuleIds))
+	for i, id := range nRuleIds {
+		quotedRuleIds[i] = fmt.Sprintf(`"%s"`, id)
+	}
+
 	return fmt.Sprintf(`
 resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 	name = "%s"
@@ -74,9 +80,9 @@ resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 	enabled = "%t"
 	exclude = "%t"
 	is_global = "%t"
-	rule_ids = ["%s"]
+	rule_ids = [%s]
 }
-`, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, nRuleIds[0])
+`, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, strings.Join(quotedRuleIds, ", "))
 }
 
 func testCheckCSERuleTuningExpressionExists(n string, ruleTuningExpression *CSERuleTuningExpression) resource.TestCheckFunc {
