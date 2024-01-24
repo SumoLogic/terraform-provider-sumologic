@@ -41,7 +41,7 @@ func resourceSumologicCSERuleTuningExpression() *schema.Resource {
 				Required: true,
 			},
 			"rule_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -75,7 +75,7 @@ func resourceSumologicCSERuleTuningExpressionRead(d *schema.ResourceData, meta i
 	d.Set("enabled", CSERuleTuningExpressionGet.Enabled)
 	d.Set("exclude", CSERuleTuningExpressionGet.Exclude)
 	d.Set("is_global", CSERuleTuningExpressionGet.IsGlobal)
-	d.Set("rule_Ids", CSERuleTuningExpressionGet.RuleIds)
+	d.Set("rule_ids", CSERuleTuningExpressionGet.RuleIds)
 
 	return nil
 }
@@ -98,7 +98,7 @@ func resourceSumologicCSERuleTuningExpressionCreate(d *schema.ResourceData, meta
 			Enabled:     d.Get("enabled").(bool),
 			Exclude:     d.Get("exclude").(bool),
 			IsGlobal:    d.Get("is_global").(bool),
-			RuleIds:     resourceRuleIdsToStringArray(d.Get("rule_ids").([]interface{})),
+			RuleIds:     resourceRuleIdsToStringArray(d.Get("rule_ids").(*schema.Set)),
 		})
 
 		if err != nil {
@@ -125,11 +125,11 @@ func resourceSumologicCSERuleTuningExpressionUpdate(d *schema.ResourceData, meta
 	return resourceSumologicCSERuleTuningExpressionRead(d, meta)
 }
 
-func resourceRuleIdsToStringArray(resourceRuleIds []interface{}) []string {
-	ruleIds := make([]string, len(resourceRuleIds))
-
-	for i, ruleId := range resourceRuleIds {
-		ruleIds[i] = ruleId.(string)
+func resourceRuleIdsToStringArray(resourceRuleIds *schema.Set) []string {
+	rawRuleIds := resourceRuleIds.List()
+	ruleIds := make([]string, len(rawRuleIds))
+	for i, v := range rawRuleIds {
+		ruleIds[i] = v.(string)
 	}
 
 	return ruleIds
@@ -149,6 +149,6 @@ func resourceToCSERuleTuningExpression(d *schema.ResourceData) (CSERuleTuningExp
 		Enabled:     d.Get("enabled").(bool),
 		Exclude:     d.Get("exclude").(bool),
 		IsGlobal:    d.Get("is_global").(bool),
-		RuleIds:     resourceRuleIdsToStringArray(d.Get("rule_ids").([]interface{})),
+		RuleIds:     resourceRuleIdsToStringArray(d.Get("rule_ids").(*schema.Set)),
 	}, nil
 }
