@@ -17,7 +17,7 @@ resource "sumologic_cse_tag_schema" "tag_schema" {
 	free_form = "true"	    
 	value_options {
     	value = "option value"
-    	label = option label"
+    	label = "option label"
 		link = "http://foo.bar.com"
     }
 }
