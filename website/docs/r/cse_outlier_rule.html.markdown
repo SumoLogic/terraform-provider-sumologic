@@ -10,30 +10,37 @@ Provides a Sumo Logic CSE [Outlier Rule](https://help.sumologic.com/docs/cse/rul
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
+resource "sumologic_cse_outlier_rule" "outlier_rule" {
+  name = "Spike in Login Failures from a User"
+  enabled = true
+  severity = 4
+  is_prototype = false
+  summary_expression = "Excessive count of failure login events identified for user: {{user_username}} based on daily historic activity"
+
   aggregation_functions {
-  		name = "total"
-  		function = "count"
-  		arguments = ["true"]
+    name = "current" 
+    function = "count"
+    arguments = ["true"]
   }
-  baseline_window_size   = "1209600000" // 14 days
-  description_expression = "Spike in Login Failures - {{ user_username }}"
-  enabled                = true
+  group_by_fields = ["user_username"]
+  
+  window_size = "T24H"
+  baseline_window_size = 604800000  
+  retention_window_size = 7776000000
+
+  floor_value = 10
+
+  name_expression = "Spike in Login Failures from a User"
+  description_expression = "Detects excessive failed login attempts for the same username based on a daily outlier standard deviation for said user. This is designed to catch both slow and quick brute force type attacks using a user specific historic baseline. The minimum floor of failures expected by default is set to 10."
+  match_expression = "objectType = 'Authentication'\nAND normalizedAction = 'logon'\nAND success = false"
+  deviation_threshold = 2
+
   entity_selectors {
     entity_type = "_username"
     expression = "user_username"
   }
-  floor_value            = 0
-  deviation_threshold    = 3
-  group_by_fields        = ["user_username"]
-  is_prototype           = false
-  match_expression       = "objectType=\"Authentication\" AND success=false"
-  name                   = "Spike in Login Failures"
-  name_expression        = "Spike in Login Failures - {{ user_username }}"
-  retention_window_size  = "7776000000" // 90 days
-  severity               = 1
-  summary_expression     = "Spike in Login Failures - {{ user_username }}"
-  window_size            = "T24H"
+
+  tags = ["_mitreAttackTactic:TA0006", "_mitreAttackTechnique:T1110"]
 }
 ```
 ## Argument Reference
