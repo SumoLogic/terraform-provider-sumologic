@@ -1,4 +1,7 @@
-## 2.28.2 (Unreleased)
+## 2.28.3 (Unreleased)
+
+
+## 2.28.2 (February 1, 2024)
 
 BUG FIXES:
 * Uses the recently added API support for `rule_ids` for CSE Rule Tuning Expressions to fix the resource import functionality. (GH-612)
