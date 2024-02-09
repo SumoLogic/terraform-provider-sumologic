@@ -3,12 +3,14 @@ package sumologic
 import (
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 	"text/template"
+
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
@@ -27,7 +29,7 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 		GroupByFields:       []string{"user_username"},
 		IsPrototype:         false,
 		MatchExpression:     `objectType="Network"`,
-		Name:                "OutlierRuleTerraformTest",
+		Name:                fmt.Sprintf("OutlierRuleTerraformTest %s", uuid.New()),
 		NameExpression:      "OutlierRuleTerraformTest - {{ user_username }}",
 		RetentionWindowSize: "1209600000",
 		Severity:            1,
@@ -60,6 +62,11 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 					testCheckCSEOutlierRuleExists(resourceName, &result),
 					testCheckOutlierRuleValues(t, &updatedPayload, &result),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

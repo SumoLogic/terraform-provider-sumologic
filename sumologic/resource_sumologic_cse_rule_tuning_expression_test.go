@@ -2,10 +2,12 @@ package sumologic
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
@@ -18,7 +20,7 @@ func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
 	nEnabled := true
 	nExclude := true
 	nIsGlobal := false
-	nRuleIds := []string{"LEGACY-S00084"}
+	nRuleIds := []string{"LEGACY-S00084", "THRESHOLD-S00514", "AGGREGATION-S00002"}
 	resourceName := "sumologic_cse_rule_tuning_expression.rule_tuning_expression"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -29,9 +31,14 @@ func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
 				Config: testCreateCSERuleTuningExpressionConfig(nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, nRuleIds),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSERuleTuningExpressionExists(resourceName, &ruleTuningExpression),
-					testCheckRuleTuningExpressionValues(&ruleTuningExpression, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal),
+					testCheckRuleTuningExpressionValues(t, &ruleTuningExpression, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, nRuleIds),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -61,6 +68,11 @@ func testAccCSERuleTuningExpressionDestroy(s *terraform.State) error {
 }
 
 func testCreateCSERuleTuningExpressionConfig(nName string, nDescription string, nExpression string, nEnabled bool, nExclude bool, nIsGlobal bool, nRuleIds []string) string {
+	quotedRuleIds := make([]string, len(nRuleIds))
+	for i, id := range nRuleIds {
+		quotedRuleIds[i] = fmt.Sprintf(`"%s"`, id)
+	}
+
 	return fmt.Sprintf(`
 resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 	name = "%s"
@@ -69,9 +81,9 @@ resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
 	enabled = "%t"
 	exclude = "%t"
 	is_global = "%t"
-	rule_ids = ["%s"]
+	rule_ids = [%s]
 }
-`, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, nRuleIds[0])
+`, nName, nDescription, nExpression, nEnabled, nExclude, nIsGlobal, strings.Join(quotedRuleIds, ", "))
 }
 
 func testCheckCSERuleTuningExpressionExists(n string, ruleTuningExpression *CSERuleTuningExpression) resource.TestCheckFunc {
@@ -97,27 +109,15 @@ func testCheckCSERuleTuningExpressionExists(n string, ruleTuningExpression *CSER
 	}
 }
 
-func testCheckRuleTuningExpressionValues(ruleTuningExpression *CSERuleTuningExpression, nName string, nDescription string, nExpression string, nEnabled bool, nExclude bool, nIsGlobal bool) resource.TestCheckFunc {
+func testCheckRuleTuningExpressionValues(t *testing.T, ruleTuningExpression *CSERuleTuningExpression, nName string, nDescription string, nExpression string, nEnabled bool, nExclude bool, nIsGlobal bool, nRuleIds []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if ruleTuningExpression.Name != nName {
-			return fmt.Errorf("bad name, expected \"%s\", got: %#v", nName, ruleTuningExpression.Name)
-		}
-		if ruleTuningExpression.Description != nDescription {
-			return fmt.Errorf("bad description, expected \"%s\", got: %#v", nDescription, ruleTuningExpression.Description)
-		}
-		if ruleTuningExpression.Expression != nExpression {
-			return fmt.Errorf("bad expression, expected \"%s\", got: %#v", nExpression, ruleTuningExpression.Expression)
-		}
-		if ruleTuningExpression.Enabled != nEnabled {
-			return fmt.Errorf("bad enabled flag, expected \"%t\", got: %#v", nEnabled, ruleTuningExpression.Enabled)
-		}
-		if ruleTuningExpression.Exclude != nExclude {
-			return fmt.Errorf("bad exclude flag, expected \"%t\", got: %#v", nExclude, ruleTuningExpression.Exclude)
-		}
-		if ruleTuningExpression.IsGlobal != nIsGlobal {
-			return fmt.Errorf("bad isGlobal flag, expected \"%t\", got: %#v", nIsGlobal, ruleTuningExpression.IsGlobal)
-		}
-
+		assert.Equal(t, nName, ruleTuningExpression.Name)
+		assert.Equal(t, nDescription, ruleTuningExpression.Description)
+		assert.Equal(t, nExpression, ruleTuningExpression.Expression)
+		assert.Equal(t, nEnabled, ruleTuningExpression.Enabled)
+		assert.Equal(t, nExclude, ruleTuningExpression.Exclude)
+		assert.Equal(t, nIsGlobal, ruleTuningExpression.IsGlobal)
+		assert.ElementsMatch(t, nRuleIds, ruleTuningExpression.RuleIds)
 		return nil
 	}
 }

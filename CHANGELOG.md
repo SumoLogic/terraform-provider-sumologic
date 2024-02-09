@@ -1,6 +1,26 @@
-## 2.27.1 (Unreleased)
+## 2.28.3 (Unreleased)
 FEATURES:
 * **New Resource:** sumologic_azure_event_hub_log_source (GH-590)
+
+## 2.28.2 (February 1, 2024)
+
+BUG FIXES:
+* Uses the recently added API support for `rule_ids` for CSE Rule Tuning Expressions to fix the resource import functionality. (GH-612)
+
+## 2.28.1 (January 19, 2024)
+
+ENHANCEMENTS:
+* Added support for `dynamic_severity` for the CSE Custom Insight. (GH-607)
+
+BUG FIXES:
+* Minor fixes enabling proper resource import for CSE Rules (`severity`, `severity_mapping`, `aggregation_functions`). (GH-606)
+
+## 2.28.0 (November 23, 2023)
+FEATURES:
+* resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
+
+BUG FIXES: 
+* Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:

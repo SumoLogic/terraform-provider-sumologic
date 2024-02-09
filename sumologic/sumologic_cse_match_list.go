@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func (s *Client) GetCSEMatchList(id string) (*CSEMatchListGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-lists/%s", id))
+func (s *Client) GetCSEMatchList(id string, getCustomTargetColumnName bool) (*CSEMatchListGet, error) {
+	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-lists/%s?getTargetCustomColumnName=%t", id, getCustomTargetColumnName))
 	if err != nil {
 		return nil, err
 	}

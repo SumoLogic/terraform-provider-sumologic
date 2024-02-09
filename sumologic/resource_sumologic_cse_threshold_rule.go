@@ -110,6 +110,7 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("is_prototype", CSEThresholdRuleGet.IsPrototype)
 	d.Set("limit", CSEThresholdRuleGet.Limit)
 	d.Set("name", CSEThresholdRuleGet.Name)
+	d.Set("severity", CSEThresholdRuleGet.Severity)
 	d.Set("summary_expression", CSEThresholdRuleGet.SummaryExpression)
 	d.Set("tags", CSEThresholdRuleGet.Tags)
 	d.Set("window_size", CSEThresholdRuleGet.WindowSizeName)

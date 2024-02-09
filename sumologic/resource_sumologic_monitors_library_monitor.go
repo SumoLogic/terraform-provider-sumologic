@@ -65,6 +65,11 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 			DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 		},
 
+		"time_zone": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+
 		"alert_name": {
 			Type:         schema.TypeString,
 			Optional:     true,
@@ -813,6 +818,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("slo_id", monitor.SloID)
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
 	d.Set("tags", monitor.Tags)
+	d.Set("time_zone", monitor.TimeZone)
 
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
@@ -1564,6 +1570,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		ModifiedBy:              d.Get("modified_by").(string),
 		IsMutable:               d.Get("is_mutable").(bool),
 		Version:                 d.Get("version").(int),
+		TimeZone:                d.Get("time_zone").(string),
 		Notifications:           notifications,
 		Type:                    d.Get("type").(string),
 		ParentID:                d.Get("parent_id").(string),
