@@ -8,6 +8,71 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+func TestAccSumologicCSEThresholdRuleWithCustomWindowSize_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
+	var thresholdRule CSEThresholdRule
+	countDistinct := true
+	countField := "dstDevice_hostname"
+	description := "Test description"
+	enabled := true
+	entitySelectorEntityType := "_ip"
+	entitySelectorExpression := "srcDevice_ip"
+	expression := "foo = bar"
+	groupByField := "destPort"
+	isPrototype := false
+	limit := 20
+	name := "Test Threshold Rule With Custom WindowSize"
+	severity := 5
+	summaryExpression := "Signal Summary"
+	tag := "foo"
+	windowSize := "CUSTOM"
+	windowSizeMillis := "10800000"        // 3h
+	updatedWindowSizeMillis := "14400000" // 4h
+
+	resourceName := "sumologic_cse_threshold_rule.threshold_rule"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEThresholdRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(countDistinct, countField,
+					description, enabled, entitySelectorEntityType,
+					entitySelectorExpression, expression, groupByField, isPrototype,
+					limit, name, severity, summaryExpression, tag, windowSize, windowSizeMillis),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
+					testCheckThresholdRuleValues(&thresholdRule, countDistinct, countField,
+						description, enabled, entitySelectorEntityType,
+						entitySelectorExpression, expression, groupByField, isPrototype,
+						limit, name, severity, summaryExpression, tag, windowSize, windowSizeMillis),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(countDistinct, countField,
+					description, enabled, entitySelectorEntityType,
+					entitySelectorExpression, expression, groupByField, isPrototype,
+					limit, name, severity, summaryExpression, tag, windowSize, updatedWindowSizeMillis),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
+					testCheckThresholdRuleValues(&thresholdRule, countDistinct, countField,
+						description, enabled, entitySelectorEntityType,
+						entitySelectorExpression, expression, groupByField, isPrototype,
+						limit, name, severity, summaryExpression, tag, windowSize, updatedWindowSizeMillis),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
@@ -46,7 +111,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 					testCheckThresholdRuleValues(&thresholdRule, countDistinct, countField,
 						description, enabled, entitySelectorEntityType,
 						entitySelectorExpression, expression, groupByField, isPrototype,
-						limit, name, severity, summaryExpression, tag, windowSize),
+						limit, name, severity, summaryExpression, tag, windowSize, ""),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -60,7 +125,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 					testCheckThresholdRuleValues(&thresholdRule, countDistinct, countField,
 						description, enabled, entitySelectorEntityType,
 						entitySelectorExpression, expression, groupByField, isPrototype,
-						limit, nameUpdated, severity, summaryExpression, tag, windowSizeUpdated),
+						limit, nameUpdated, severity, summaryExpression, tag, windowSizeUpdated, ""),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -94,6 +159,38 @@ func testAccCSEThresholdRuleDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func testCreateCSEThresholdRuleConfigWithCustomWindowSize(
+	countDistinct bool, countField string, description string, enabled bool,
+	entitySelectorEntityType string, entitySelectorExpression string,
+	expression string, groupByField string, isPrototype bool, limit int,
+	name string, severity int, summaryExpression string, tag string,
+	windowSize string, windowSizeMillis string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_threshold_rule" "threshold_rule" {
+	count_distinct = %t
+	count_field = "%s"
+	description = "%s"
+    enabled = %t
+    entity_selectors {
+    	entity_type = "%s"
+    	expression = "%s"
+    }
+    expression = "%s"
+    group_by_fields = ["%s"]
+    is_prototype = %t
+    limit = %d
+    name = "%s"
+    severity = %d
+    summary_expression = "%s"
+    tags = ["%s"]
+    window_size = "%s"
+    window_size_millis = "%s"
+}
+`, countDistinct, countField, description, enabled, entitySelectorEntityType,
+		entitySelectorExpression, expression, groupByField, isPrototype, limit, name,
+		severity, summaryExpression, tag, windowSize, windowSizeMillis)
 }
 
 func testCreateCSEThresholdRuleConfig(
@@ -154,7 +251,7 @@ func testCheckThresholdRuleValues(thresholdRule *CSEThresholdRule, countDistinct
 	countField string, description string, enabled bool, entitySelectorEntityType string,
 	entitySelectorExpression string, expression string, groupByField string,
 	isPrototype bool, limit int, name string, severity int, summaryExpression string,
-	tag string, windowSize string) resource.TestCheckFunc {
+	tag string, windowSize string, windowSizeMillis string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if thresholdRule.CountDistinct != countDistinct {
 			return fmt.Errorf("bad countDistinct, expected \"%t\", got %#v", countDistinct, thresholdRule.CountDistinct)
@@ -199,7 +296,10 @@ func testCheckThresholdRuleValues(thresholdRule *CSEThresholdRule, countDistinct
 			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, thresholdRule.Tags[0])
 		}
 		if thresholdRule.WindowSizeName != windowSize {
-			return fmt.Errorf("bad windowSize, expected \"%s\", got %#v", windowSize, thresholdRule.WindowSize)
+			return fmt.Errorf("bad windowSize, expected \"%s\", got %#v", windowSize, thresholdRule.WindowSizeName)
+		}
+		if thresholdRule.WindowSizeName == "CUSTOM" && string(thresholdRule.WindowSize) != windowSizeMillis {
+			return fmt.Errorf("bad WindowSize, expected \"%s\", got %#v", windowSizeMillis, thresholdRule.WindowSize)
 		}
 
 		return nil
