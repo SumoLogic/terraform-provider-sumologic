@@ -2,13 +2,14 @@ package sumologic
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccSumologicCSEThresholdRuleWithCustomWindowSize_createAndUpdate(t *testing.T) {
+func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
 	var thresholdRule CSEThresholdRule
@@ -298,7 +299,7 @@ func testCheckThresholdRuleValues(thresholdRule *CSEThresholdRule, countDistinct
 		if thresholdRule.WindowSizeName != windowSize {
 			return fmt.Errorf("bad windowSize, expected \"%s\", got %#v", windowSize, thresholdRule.WindowSizeName)
 		}
-		if thresholdRule.WindowSizeName == "CUSTOM" && string(thresholdRule.WindowSize) != windowSizeMillis {
+		if strings.EqualFold(thresholdRule.WindowSizeName, "CUSTOM") && string(thresholdRule.WindowSize) != windowSizeMillis {
 			return fmt.Errorf("bad WindowSize, expected \"%s\", got %#v", windowSizeMillis, thresholdRule.WindowSize)
 		}
 

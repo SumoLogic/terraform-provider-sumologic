@@ -1,9 +1,11 @@
 package sumologic
 
 import (
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceSumologicCSEThresholdRule() *schema.Resource {
@@ -118,7 +120,7 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("summary_expression", CSEThresholdRuleGet.SummaryExpression)
 	d.Set("tags", CSEThresholdRuleGet.Tags)
 	d.Set("window_size", CSEThresholdRuleGet.WindowSizeName)
-	if CSEThresholdRuleGet.WindowSizeName == "CUSTOM" {
+	if strings.EqualFold(CSEThresholdRuleGet.WindowSizeName, "CUSTOM") {
 		d.Set("window_size_millis", CSEThresholdRuleGet.WindowSize)
 	}
 	return nil
