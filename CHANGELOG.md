@@ -1,5 +1,6 @@
 ## 2.28.3 (Unreleased)
-
+FEATURES:
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
 
 ## 2.28.2 (February 1, 2024)
 
