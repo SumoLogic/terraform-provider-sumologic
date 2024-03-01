@@ -4,6 +4,9 @@
 ## 2.28.2 (February 1, 2024)
 
 BUG FIXES:
+
+* Updated logging of Response to print Status instead of Status code. (GH-610)
+* Added error handler to log failed request with correct Error code in response. (GH-610)
 * Uses the recently added API support for `rule_ids` for CSE Rule Tuning Expressions to fix the resource import functionality. (GH-612)
 
 ## 2.28.1 (January 19, 2024)
