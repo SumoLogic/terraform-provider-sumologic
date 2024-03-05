@@ -1,7 +1,7 @@
 ## 2.28.4 (Unreleased)
 
 
-## 2.28.3 (March 4, 2024)
+## 2.28.3 (March 5, 2024)
 
 BUG FIXES:
 * Update module dependencies to pick up security fixes. (GH-602)
