@@ -99,12 +99,12 @@ func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
 	payload := getCSEThresholdRuleTestPayload()
-	payload.WindowSizeName = "T30M"
+	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
 
 	updatedPayload := payload
 	updatedPayload.Name = fmt.Sprintf("Updated Threshold Rule %s", uuid.New())
-	updatedPayload.WindowSizeName = "T12H"
+	updatedPayload.WindowSize = "T12H"
 
 	var thresholdRule CSEThresholdRule
 	resourceName := "sumologic_cse_threshold_rule.threshold_rule"
