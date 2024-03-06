@@ -31,7 +31,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *tes
 		CheckDestroy: testAccCSEThresholdRuleDestroy,
 		Steps: []resource.TestStep{
 			{ // create
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &payload),
+				Config: testCreateCSEThresholdRuleConfig(t, &payload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &payload, &thresholdRule),
@@ -39,7 +39,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *tes
 				),
 			},
 			{ // update
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &updatedPayload),
+				Config: testCreateCSEThresholdRuleConfig(t, &updatedPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &updatedPayload, &thresholdRule),
@@ -72,7 +72,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testi
 		CheckDestroy: testAccCSEThresholdRuleDestroy,
 		Steps: []resource.TestStep{
 			{ // create
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &payload),
+				Config: testCreateCSEThresholdRuleConfig(t, &payload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &payload, &thresholdRule),
@@ -80,7 +80,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testi
 				),
 			},
 			{ // update
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &updatedPayload),
+				Config: testCreateCSEThresholdRuleConfig(t, &updatedPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &updatedPayload, &thresholdRule),
@@ -114,7 +114,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCSEThresholdRuleDestroy,
 		Steps: []resource.TestStep{
 			{ // create
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &payload),
+				Config: testCreateCSEThresholdRuleConfig(t, &payload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &payload, &thresholdRule),
@@ -122,7 +122,7 @@ func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 				),
 			},
 			{ // update
-				Config: testCreateCSEThresholdRuleConfigWithCustomWindowSize(t, &updatedPayload),
+				Config: testCreateCSEThresholdRuleConfig(t, &updatedPayload),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
 					testCheckCSEThresholdRuleValues(t, &updatedPayload, &thresholdRule),
@@ -160,7 +160,7 @@ func testAccCSEThresholdRuleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEThresholdRuleConfigWithCustomWindowSize(t *testing.T, payload *CSEThresholdRule) string {
+func testCreateCSEThresholdRuleConfig(t *testing.T, payload *CSEThresholdRule) string {
 	resourceTemlpate := `
 		resource "sumologic_cse_threshold_rule" "threshold_rule" {
 			count_distinct = {{ .CountDistinct }}
