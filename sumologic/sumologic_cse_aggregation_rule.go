@@ -79,22 +79,23 @@ type AggregationFunction struct {
 }
 
 type CSEAggregationRule struct {
-	ID                    string                `json:"id,omitempty"`
-	AggregationFunctions  []AggregationFunction `json:"aggregationFunctions"`
-	DescriptionExpression string                `json:"descriptionExpression"`
-	Enabled               bool                  `json:"enabled"`
-	EntitySelectors       []EntitySelector      `json:"entitySelectors"`
-	GroupByEntity         bool                  `json:"groupByAsset"`
-	GroupByFields         []string              `json:"groupByFields"`
-	IsPrototype           bool                  `json:"isPrototype"`
-	MatchExpression       string                `json:"matchExpression"`
-	Name                  string                `json:"name"`
-	NameExpression        string                `json:"nameExpression"`
-	SeverityMapping       SeverityMapping       `json:"scoreMapping"`
-	Stream                string                `json:"stream"`
-	SummaryExpression     string                `json:"summaryExpression"`
-	TriggerExpression     string                `json:"triggerExpression"`
-	Tags                  []string              `json:"tags"`
-	WindowSize            windowSizeField       `json:"windowSize,omitempty"`
-	WindowSizeName        string                `json:"windowSizeName,omitempty"`
+	ID                     string                `json:"id,omitempty"`
+	AggregationFunctions   []AggregationFunction `json:"aggregationFunctions"`
+	DescriptionExpression  string                `json:"descriptionExpression"`
+	Enabled                bool                  `json:"enabled"`
+	EntitySelectors        []EntitySelector      `json:"entitySelectors"`
+	GroupByEntity          bool                  `json:"groupByAsset"`
+	GroupByFields          []string              `json:"groupByFields"`
+	IsPrototype            bool                  `json:"isPrototype"`
+	MatchExpression        string                `json:"matchExpression"`
+	Name                   string                `json:"name"`
+	NameExpression         string                `json:"nameExpression"`
+	SeverityMapping        SeverityMapping       `json:"scoreMapping"`
+	Stream                 string                `json:"stream"`
+	SummaryExpression      string                `json:"summaryExpression"`
+	TriggerExpression      string                `json:"triggerExpression"`
+	Tags                   []string              `json:"tags"`
+	WindowSize             windowSizeField       `json:"windowSize,omitempty"`
+	WindowSizeName         string                `json:"windowSizeName,omitempty"`
+	WindowSizeMilliseconds string                `json:"windowSizeMilliseconds,omitempty"`
 }

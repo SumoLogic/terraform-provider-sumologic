@@ -1,9 +1,11 @@
 package sumologic
 
 import (
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceSumologicCSEThresholdRule() *schema.Resource {
@@ -79,6 +81,10 @@ func resourceSumologicCSEThresholdRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"window_size_millis": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -114,7 +120,9 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("summary_expression", CSEThresholdRuleGet.SummaryExpression)
 	d.Set("tags", CSEThresholdRuleGet.Tags)
 	d.Set("window_size", CSEThresholdRuleGet.WindowSizeName)
-
+	if strings.EqualFold(CSEThresholdRuleGet.WindowSizeName, "CUSTOM") {
+		d.Set("window_size_millis", CSEThresholdRuleGet.WindowSize)
+	}
 	return nil
 }
 
@@ -130,22 +138,23 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 
 	if d.Id() == "" {
 		id, err := c.CreateCSEThresholdRule(CSEThresholdRule{
-			CountDistinct:     d.Get("count_distinct").(bool),
-			CountField:        d.Get("count_field").(string),
-			Description:       d.Get("description").(string),
-			Enabled:           d.Get("enabled").(bool),
-			EntitySelectors:   resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-			Expression:        d.Get("expression").(string),
-			GroupByFields:     resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-			IsPrototype:       d.Get("is_prototype").(bool),
-			Limit:             d.Get("limit").(int),
-			Name:              d.Get("name").(string),
-			Severity:          d.Get("severity").(int),
-			Stream:            "record",
-			SummaryExpression: d.Get("summary_expression").(string),
-			Tags:              resourceToStringArray(d.Get("tags").([]interface{})),
-			Version:           1,
-			WindowSize:        windowSizeField(d.Get("window_size").(string)),
+			CountDistinct:          d.Get("count_distinct").(bool),
+			CountField:             d.Get("count_field").(string),
+			Description:            d.Get("description").(string),
+			Enabled:                d.Get("enabled").(bool),
+			EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+			Expression:             d.Get("expression").(string),
+			GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+			IsPrototype:            d.Get("is_prototype").(bool),
+			Limit:                  d.Get("limit").(int),
+			Name:                   d.Get("name").(string),
+			Severity:               d.Get("severity").(int),
+			Stream:                 "record",
+			SummaryExpression:      d.Get("summary_expression").(string),
+			Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+			Version:                1,
+			WindowSize:             windowSizeField(d.Get("window_size").(string)),
+			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 		})
 
 		if err != nil {
@@ -178,22 +187,23 @@ func resourceToCSEThresholdRule(d *schema.ResourceData) (CSEThresholdRule, error
 	}
 
 	return CSEThresholdRule{
-		ID:                id,
-		CountDistinct:     d.Get("count_distinct").(bool),
-		CountField:        d.Get("count_field").(string),
-		Description:       d.Get("description").(string),
-		Enabled:           d.Get("enabled").(bool),
-		EntitySelectors:   resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-		Expression:        d.Get("expression").(string),
-		GroupByFields:     resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-		IsPrototype:       d.Get("is_prototype").(bool),
-		Limit:             d.Get("limit").(int),
-		Name:              d.Get("name").(string),
-		Severity:          d.Get("severity").(int),
-		Stream:            "record",
-		SummaryExpression: d.Get("summary_expression").(string),
-		Tags:              resourceToStringArray(d.Get("tags").([]interface{})),
-		Version:           1,
-		WindowSize:        windowSizeField(d.Get("window_size").(string)),
+		ID:                     id,
+		CountDistinct:          d.Get("count_distinct").(bool),
+		CountField:             d.Get("count_field").(string),
+		Description:            d.Get("description").(string),
+		Enabled:                d.Get("enabled").(bool),
+		EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+		Expression:             d.Get("expression").(string),
+		GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+		IsPrototype:            d.Get("is_prototype").(bool),
+		Limit:                  d.Get("limit").(int),
+		Name:                   d.Get("name").(string),
+		Severity:               d.Get("severity").(int),
+		Stream:                 "record",
+		SummaryExpression:      d.Get("summary_expression").(string),
+		Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+		Version:                1,
+		WindowSize:             windowSizeField(d.Get("window_size").(string)),
+		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 	}, nil
 }
