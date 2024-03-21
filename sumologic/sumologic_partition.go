@@ -6,6 +6,21 @@ import (
 	"strings"
 )
 
+func (s *Client) ListPartitions() ([]Partition, error) {
+	data, _, err := s.Get("v1/partitions")
+	if err != nil {
+		return nil, err
+	}
+
+	var spartitions []Partition
+	err = json.Unmarshal(data, &spartitions)
+	if err != nil {
+		return nil, err
+	}
+
+	return spartitions, nil
+}
+
 func (s *Client) GetPartition(id string) (*Partition, error) {
 	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
 	if err != nil {
