@@ -23,7 +23,7 @@ install: fmtcheck
 install-dev: fmtcheck
 	mkdir -vp $(PLUGIN_DIR)
 ifeq ($(UNAME), arm64)
-	go build ${DEBUG_FLAGS} -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic 
+	go build ${DEBUG_FLAGS} -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_arm64/terraform-provider-sumologic
 else
 	go build ${DEBUG_FLAGS} -o $(PLUGIN_DIR)/sumologic.com/dev/sumologic/1.0.0/darwin_amd64/terraform-provider-sumologic
 endif
@@ -49,7 +49,7 @@ fmtcheck:
 lint:
 	@echo "==> Checking source code against linters..."
 	golangci-lint run ./...
-	
+
 test: fmtcheck
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
