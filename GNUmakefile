@@ -2,7 +2,7 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=sumologic
-PLUGIN_DIR=~/.terraform.d/plugins/registry.terraform.io/imranismail/$(PKG_NAME)/0.1.0/darwin_arm64
+PLUGIN_DIR=~/.terraform.d/plugins
 UNAME=$(shell uname -m)
 DEBUG_FLAGS=-gcflags="all=-N -l"
 
