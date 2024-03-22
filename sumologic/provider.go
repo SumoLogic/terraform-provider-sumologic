@@ -76,6 +76,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_s3_audit_source":                          resourceSumologicGenericPollingSource(),
 			"sumologic_s3_archive_source":                        resourceSumologicGenericPollingSource(),
 			"sumologic_s3_data_forwarding_destination":           resourceSumologicS3DataForwardingDestination(),
+			"sumologic_s3_data_forwarding_rule":                  resourceSumologicS3DataForwardingRule(),
 			"sumologic_cloudwatch_source":                        resourceSumologicGenericPollingSource(),
 			"sumologic_aws_inventory_source":                     resourceSumologicGenericPollingSource(),
 			"sumologic_aws_xray_source":                          resourceSumologicGenericPollingSource(),

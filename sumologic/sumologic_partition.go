@@ -6,19 +6,48 @@ import (
 	"strings"
 )
 
+type ListPartitionResp struct {
+	Data []Partition `json:"data"`
+	Next string      `json:"next"`
+}
+
 func (s *Client) ListPartitions() ([]Partition, error) {
+	var listPartitionResp ListPartitionResp
+
 	data, _, err := s.Get("v1/partitions")
 	if err != nil {
 		return nil, err
 	}
 
-	var spartitions []Partition
-	err = json.Unmarshal(data, &spartitions)
+	err = json.Unmarshal(data, &listPartitionResp)
 	if err != nil {
 		return nil, err
 	}
 
-	return spartitions, nil
+	spartitions := listPartitionResp.Data
+
+	for listPartitionResp.Next != "" {
+		data, _, err = s.Get("v1/partitions?token=" + listPartitionResp.Next)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &listPartitionResp)
+		if err != nil {
+			return nil, err
+		}
+
+		spartitions = append(spartitions, listPartitionResp.Data...)
+	}
+
+	var activePartitions []Partition
+	for _, partition := range spartitions {
+		if partition.IsActive {
+			activePartitions = append(activePartitions, partition)
+		}
+	}
+
+	return activePartitions, nil
 }
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
@@ -41,7 +70,7 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 	err = json.Unmarshal(data, &spartition)
 	if err != nil {
 		return nil, err
-	} else if spartition.IsActive == false {
+	} else if !spartition.IsActive {
 		return nil, nil
 	}
 

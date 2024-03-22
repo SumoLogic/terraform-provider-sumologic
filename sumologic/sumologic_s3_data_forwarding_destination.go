@@ -8,7 +8,7 @@ import (
 
 type S3DataForwardingDestination struct {
 	ID                 string `json:"id,omitempty"`
-	Name               string `json:"name"`
+	Name               string `json:"destinationName,omitempty"`
 	Description        string `json:"description,omitempty"`
 	AuthenticationMode string `json:"authenticationMode"`
 	AccessKeyID        string `json:"accessKeyId,omitempty"`
@@ -17,7 +17,7 @@ type S3DataForwardingDestination struct {
 	Region             string `json:"region,omitempty"`
 	Encrypted          bool   `json:"encrypted"`
 	Enabled            bool   `json:"enabled"`
-	BucketName         string `json:"bucketName"`
+	BucketName         string `json:"bucketName,omitempty"`
 }
 
 func (s *Client) GetS3DataForwardingDestination(id string) (*S3DataForwardingDestination, error) {

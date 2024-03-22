@@ -49,10 +49,12 @@ func resourceSumologicS3DataForwardingDestination() *schema.Resource {
 			"encrypted": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 			"bucket_name": {
 				Type:     schema.TypeString,
@@ -120,6 +122,7 @@ func resourceSumologicS3DataForwardingDestinationDelete(d *schema.ResourceData, 
 
 func resourceToS3DataForwardingDestination(d *schema.ResourceData) S3DataForwardingDestination {
 	return S3DataForwardingDestination{
+		ID:                 d.Id(),
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		AuthenticationMode: d.Get("authentication_mode").(string),
