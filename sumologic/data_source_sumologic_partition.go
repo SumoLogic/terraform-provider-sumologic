@@ -13,7 +13,6 @@ func dataSourceSumologicPartition() *schema.Resource {
 			"id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
