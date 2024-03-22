@@ -62,8 +62,8 @@ func resourceSumologicS3DataForwardingDestination() *schema.Resource {
 	}
 }
 
-func resourceSumologicS3DataForwardingDestinationCreate(d *schema.ResourceData, m interface{}) error {
-	c := m.(*Client)
+func resourceSumologicS3DataForwardingDestinationCreate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 
 	if d.Id() == "" {
 		dfd := resourceToS3DataForwardingDestination(d)
@@ -76,11 +76,11 @@ func resourceSumologicS3DataForwardingDestinationCreate(d *schema.ResourceData, 
 		d.SetId(createdDfd.ID)
 	}
 
-	return resourceSumologicS3DataForwardingDestinationUpdate(d, m)
+	return resourceSumologicS3DataForwardingDestinationUpdate(d, meta)
 }
 
-func resourceSumologicS3DataForwardingDestinationRead(d *schema.ResourceData, m interface{}) error {
-	c := m.(*Client)
+func resourceSumologicS3DataForwardingDestinationRead(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 	dfd, err := c.GetS3DataForwardingDestination(d.Id())
 
 	if err != nil {
@@ -101,8 +101,8 @@ func resourceSumologicS3DataForwardingDestinationRead(d *schema.ResourceData, m 
 	return nil
 }
 
-func resourceSumologicS3DataForwardingDestinationUpdate(d *schema.ResourceData, m interface{}) error {
-	c := m.(*Client)
+func resourceSumologicS3DataForwardingDestinationUpdate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 	dfd := resourceToS3DataForwardingDestination(d)
 	err := c.UpdateS3DataForwardingDestination(dfd)
 
@@ -110,11 +110,11 @@ func resourceSumologicS3DataForwardingDestinationUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	return resourceSumologicS3DataForwardingDestinationRead(d, m)
+	return resourceSumologicS3DataForwardingDestinationRead(d, meta)
 }
 
-func resourceSumologicS3DataForwardingDestinationDelete(d *schema.ResourceData, m interface{}) error {
-	c := m.(*Client)
+func resourceSumologicS3DataForwardingDestinationDelete(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 	return c.DeleteS3DataForwardingDestination(d.Id())
 }
 
