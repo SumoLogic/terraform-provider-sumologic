@@ -846,7 +846,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 			internalNotification["subject"] = internalNotificationDict["subject"].(string)
 			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
 			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
-			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+			if internalNotificationDict["timeZone"] != nil {
+				internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+			}
 		} else {
 			internalNotification["action_type"] = "NamedConnectionAction"
 			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
