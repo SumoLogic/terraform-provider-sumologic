@@ -2,7 +2,10 @@
 FEATURES:
 * **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
 
-## 2.28.3 (March 4, 2024)
+ENHANCEMENTS:
+* Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
+
+## 2.28.3 (March 5, 2024)
 
 BUG FIXES:
 * Update module dependencies to pick up security fixes. (GH-602)

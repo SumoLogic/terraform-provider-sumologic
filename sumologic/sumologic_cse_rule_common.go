@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -158,10 +160,11 @@ type EntitySelector struct {
 	EntityType string `json:"entityType"`
 }
 
-// Use explicit windowSizeField type so that we can ignore it when unmarshalling
+// Use explicit windowSizeField type so that we can unmarshall Int value as String
 type windowSizeField string
 
-func (r windowSizeField) UnmarshalJSON(data []byte) error {
-	r = ""
+func (r *windowSizeField) UnmarshalJSON(data []byte) error {
+	cleanedData := strings.Trim(string(data), `"`)
+	*r = windowSizeField(cleanedData)
 	return nil
 }
