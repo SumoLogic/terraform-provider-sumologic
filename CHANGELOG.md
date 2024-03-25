@@ -3,6 +3,9 @@
 ENHANCEMENTS:
 * Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
 
+BUG FIXES:
+* Fix error while importing monitor having timeZone as `null` in the Email notification object. (GH-637)
+
 ## 2.28.3 (March 5, 2024)
 
 BUG FIXES:
