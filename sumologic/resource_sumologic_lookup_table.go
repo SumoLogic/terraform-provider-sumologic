@@ -95,6 +95,11 @@ func resourceSumologicLookupTable() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"csv_file_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -188,6 +193,7 @@ func resourceToLookupTable(d *schema.ResourceData) LookupTable {
 		SizeLimitAction: d.Get("size_limit_action").(string),
 		PrimaryKeys:     primaryKeys,
 		ParentFolderId:  d.Get("parent_folder_id").(string),
+		CsvFilePath:     d.Get("csv_file_path").(string),
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"time"
@@ -57,6 +58,46 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 	} else {
 		req.Header.Add("Authorization", "Bearer "+authJwt)
 	}
+	return req, nil
+}
+
+func createMultipartRequest(method, url string, accessID string, accessKey string, authJwt string, fieldName string, fileName string, file io.Reader) (*http.Request, error) {
+	// Create a new buffer to store the request body
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+
+	// Create a form file field
+	part, err := writer.CreateFormFile(fieldName, fileName)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+
+	// Copy the file content to the form field
+	_, err = io.Copy(part, file)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+
+	// Close the multipart writer
+	writer.Close()
+
+	// Create a POST request
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+	req.Header.Add("User-Agent", "SumoLogicTerraformProvider/"+ProviderVersion)
+	if authJwt == "" {
+		req.SetBasicAuth(accessID, accessKey)
+	} else {
+		req.Header.Add("Authorization", "Bearer "+authJwt)
+	}
+
+	// Set the content type header
+	req.Header.Add("Content-Type", writer.FormDataContentType())
 	return req, nil
 }
 
@@ -153,6 +194,40 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 
 	body, _ := json.Marshal(payload)
 	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
+	<-rateLimiter.C
+	resp, err := s.httpClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	logRequestAndResponse(req, resp)
+	defer resp.Body.Close()
+
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 400 {
+		return nil, errors.New(string(d))
+	}
+
+	return d, nil
+}
+
+func (s *Client) PostMultipart(urlPath string, fieldName string, fileName string, file io.Reader) ([]byte, error) {
+	relativeURL, _ := url.Parse(urlPath)
+	sumoURL := s.BaseURL.ResolveReference(relativeURL)
+
+	req, err := createMultipartRequest(http.MethodPost, sumoURL.String(), s.AccessID, s.AccessKey, s.AuthJwt, fieldName, fileName, file)
 	if err != nil {
 		return nil, err
 	}

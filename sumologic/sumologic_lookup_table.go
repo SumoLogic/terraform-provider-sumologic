@@ -15,11 +15,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 )
 
 func (s *Client) CreateLookupTable(lookupTable LookupTable) (string, error) {
 	urlWithoutParams := "v1/lookupTables"
-
+	csvFilePath := lookupTable.CsvFilePath
+	lookupTable.CsvFilePath = ""
 	data, err := s.Post(urlWithoutParams, lookupTable)
 	if err != nil {
 		return "", err
@@ -33,6 +35,14 @@ func (s *Client) CreateLookupTable(lookupTable LookupTable) (string, error) {
 	}
 
 	log.Printf("##DEBUG## created lookuptable: %+v\n\n", createdLookupTable)
+
+	err = s.PopulateLookupTable(lookupTable.ID, csvFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("##DEBUG## populated lookuptable: %+v\n\n", createdLookupTable)
+
 	return createdLookupTable.ID, nil
 
 }
@@ -86,12 +96,33 @@ func (s *Client) UpdateLookupTable(lookupTable LookupTable) error {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
+	csvFilePath := lookupTable.CsvFilePath
+	lookupId := lookupTable.ID
 	lookupTable.ID = ""
-
+	lookupTable.CsvFilePath = ""
 	_, err := s.Put(urlWithParams, lookupTable)
+
+	s.PopulateLookupTable(lookupId, csvFilePath)
 
 	return err
 
+}
+
+func (s *Client) PopulateLookupTable(lookupTableId string, csvFilePath string) error {
+	if csvFilePath != "" && lookupTableId != "" {
+		file, err := os.Open(csvFilePath)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return err
+		}
+		defer file.Close()
+
+		url := fmt.Sprintf("v1/lookupTables/%s/upload", lookupTableId)
+		_, err = s.PostMultipart(url, "file", "lookup_contents.csv", file)
+
+		return err
+	}
+	return nil
 }
 
 type LookupTable struct {
@@ -103,6 +134,7 @@ type LookupTable struct {
 	PrimaryKeys     []string           `json:"primaryKeys,omitempty"`
 	Description     string             `json:"description"`
 	Ttl             int                `json:"ttl"`
+	CsvFilePath     string             `json:"csvFilePath,omitempty"`
 }
 
 type LookupTableField struct {
