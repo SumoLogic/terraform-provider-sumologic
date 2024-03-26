@@ -5,6 +5,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix error while importing monitor having timeZone as `null` in the Email notification object. (GH-637)
+* Fix perpetual diff in Extraction Rules by normalizing the parse expression.  
 
 ## 2.28.3 (March 5, 2024)
 
