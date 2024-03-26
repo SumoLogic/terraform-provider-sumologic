@@ -1,4 +1,6 @@
 ## 2.28.4 (Unreleased)
+FEATURES:
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
 
 ENHANCEMENTS:
 * Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
