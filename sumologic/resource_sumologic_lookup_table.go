@@ -147,6 +147,7 @@ func resourceSumologicLookupTableRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("parent_folder_id", lookupTable.ParentFolderId)
 	d.Set("size_limit_action", lookupTable.SizeLimitAction)
 	d.Set("description", lookupTable.Description)
+	//d.Set("csv_file_path", lookupTable.CsvFilePath)
 
 	return nil
 }

@@ -36,7 +36,7 @@ func (s *Client) CreateLookupTable(lookupTable LookupTable) (string, error) {
 
 	log.Printf("##DEBUG## created lookuptable: %+v\n\n", createdLookupTable)
 
-	err = s.PopulateLookupTable(lookupTable.ID, csvFilePath)
+	err = s.populateLookupTable(lookupTable.ID, csvFilePath)
 	if err != nil {
 		return "", err
 	}
@@ -101,15 +101,17 @@ func (s *Client) UpdateLookupTable(lookupTable LookupTable) error {
 	lookupTable.ID = ""
 	lookupTable.CsvFilePath = ""
 	_, err := s.Put(urlWithParams, lookupTable)
+	if err != nil {
+		return err
+	}
 
-	s.PopulateLookupTable(lookupId, csvFilePath)
-
+	err = s.populateLookupTable(lookupId, csvFilePath)
 	return err
-
 }
 
-func (s *Client) PopulateLookupTable(lookupTableId string, csvFilePath string) error {
+func (s *Client) populateLookupTable(lookupTableId string, csvFilePath string) error {
 	if csvFilePath != "" && lookupTableId != "" {
+		log.Printf("populating lookuptable with file contents: %s", csvFilePath)
 		file, err := os.Open(csvFilePath)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -122,6 +124,7 @@ func (s *Client) PopulateLookupTable(lookupTableId string, csvFilePath string) e
 
 		return err
 	}
+	log.Printf("populated lookuptable with file contents: %s", csvFilePath)
 	return nil
 }
 
