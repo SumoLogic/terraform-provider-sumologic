@@ -13,10 +13,12 @@ package sumologic
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
+	"os"
+	"strconv"
+	"time"
 )
 
 func resourceSumologicLookupTable() *schema.Resource {
@@ -97,11 +99,25 @@ func resourceSumologicLookupTable() *schema.Resource {
 			},
 
 			"csv_file_path": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: diffSuppressFileChange,
 			},
 		},
 	}
+}
+
+func diffSuppressFileChange(k, oldFilePathWithTimestamp, newFilePath string, d *schema.ResourceData) bool {
+	if newFilePath == "" {
+		return false // Return false to allow changes when the new value is empty or nil
+	}
+	if newFilePath != "" {
+		lastUpdatedTime, _ := getLastModifiedTimeInMillis(newFilePath)
+		newFilePathWithTimestamp := newFilePath + "_" + strconv.FormatInt(lastUpdatedTime, 10)
+		log.Printf("newFilePathWithTimestamp: %s", newFilePathWithTimestamp)
+		return newFilePathWithTimestamp == oldFilePathWithTimestamp
+	}
+	return false
 }
 
 func resourceSumologicLookupTableCreate(d *schema.ResourceData, meta interface{}) error {
@@ -185,6 +201,14 @@ func resourceToLookupTable(d *schema.ResourceData) LookupTable {
 		primaryKeys = append(primaryKeys, data.(string))
 	}
 
+	csv_file_path := d.Get("csv_file_path").(string)
+	if csv_file_path != "" {
+		lastUpdatedTime, _ := getLastModifiedTimeInMillis(csv_file_path)
+		log.Printf("lastUpdatedTime: %d", lastUpdatedTime)
+		csv_file_path = csv_file_path + "_" + strconv.FormatInt(lastUpdatedTime, 10)
+		d.Set("csv_file_path", csv_file_path)
+	}
+
 	return LookupTable{
 		Name:            d.Get("name").(string),
 		ID:              d.Id(),
@@ -194,8 +218,24 @@ func resourceToLookupTable(d *schema.ResourceData) LookupTable {
 		SizeLimitAction: d.Get("size_limit_action").(string),
 		PrimaryKeys:     primaryKeys,
 		ParentFolderId:  d.Get("parent_folder_id").(string),
-		CsvFilePath:     d.Get("csv_file_path").(string),
+		CsvFilePath:     csv_file_path,
 	}
+}
+
+func getLastModifiedTimeInMillis(filePath string) (int64, error) {
+	// Get file information
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	// Get the last modified timestamp
+	lastModifiedTime := fileInfo.ModTime()
+
+	// Convert last modified time to milliseconds since Unix epoch
+	lastModifiedTimeMillis := lastModifiedTime.UnixNano() / int64(time.Millisecond)
+
+	return lastModifiedTimeMillis, nil
 }
 
 func resourceToLookupTableField(data interface{}) LookupTableField {

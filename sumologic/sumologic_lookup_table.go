@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func (s *Client) CreateLookupTable(lookupTable LookupTable) (string, error) {
@@ -110,6 +111,7 @@ func (s *Client) UpdateLookupTable(lookupTable LookupTable) error {
 }
 
 func (s *Client) populateLookupTable(lookupTableId string, csvFilePath string) error {
+	csvFilePath = removeSuffixAfterLastUnderscore(csvFilePath)
 	if csvFilePath != "" && lookupTableId != "" {
 		log.Printf("populating lookuptable with file contents: %s", csvFilePath)
 		file, err := os.Open(csvFilePath)
@@ -126,6 +128,17 @@ func (s *Client) populateLookupTable(lookupTableId string, csvFilePath string) e
 	}
 	log.Printf("populated lookuptable with file contents: %s", csvFilePath)
 	return nil
+}
+
+func removeSuffixAfterLastUnderscore(str string) string {
+	// Find the last occurrence of underscore
+	lastUnderscoreIndex := strings.LastIndex(str, "_")
+	if lastUnderscoreIndex == -1 {
+		// If no underscore is found, return the original string
+		return str
+	}
+	// Return substring up to and including the last underscore
+	return str[:lastUnderscoreIndex]
 }
 
 type LookupTable struct {
