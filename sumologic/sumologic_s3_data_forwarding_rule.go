@@ -19,7 +19,7 @@ func (s *Client) GetS3DataForwardingRule(indexId string) (*S3DataForwardingRule,
 	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/rules/%s", indexId))
 
 	if err != nil {
-		if strings.Contains(err.Error(), "partition:partition_not_found") {
+		if strings.Contains(err.Error(), "partition:partition_not_found") || strings.Contains(err.Error(), "gn:data_forwarding_rule_not_found") {
 			return nil, nil
 		}
 		return nil, err
