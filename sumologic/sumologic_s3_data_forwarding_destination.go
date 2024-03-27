@@ -22,18 +22,16 @@ type S3DataForwardingDestination struct {
 
 func (s *Client) GetS3DataForwardingDestination(id string) (*S3DataForwardingDestination, error) {
 	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/destinations/%s", id))
+
 	if err != nil {
-		if strings.Contains(err.Error(), "S3DataForwardingDestination Not Found") {
-			if data == nil {
-				return nil, nil
-			} else {
-				return nil, err
-			}
-		}
-	} else {
-		if data == nil {
+		if strings.Contains(err.Error(), "gn:destination_name_not_exists") {
 			return nil, nil
 		}
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, nil
 	}
 
 	var dfd S3DataForwardingDestination

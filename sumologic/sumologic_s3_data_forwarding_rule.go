@@ -15,20 +15,18 @@ type S3DataForwardingRule struct {
 	Format        string `json:"format,omitempty"`
 }
 
-func (s *Client) GetS3DataForwardingRule(id string) (*S3DataForwardingRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/rules/%s", id))
+func (s *Client) GetS3DataForwardingRule(indexId string) (*S3DataForwardingRule, error) {
+	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/rules/%s", indexId))
+
 	if err != nil {
-		if strings.Contains(err.Error(), "S3DataForwardingRule Not Found") {
-			if data == nil {
-				return nil, nil
-			} else {
-				return nil, err
-			}
-		}
-	} else {
-		if data == nil {
+		if strings.Contains(err.Error(), "partition:partition_not_found") {
 			return nil, nil
 		}
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, nil
 	}
 
 	var dfr S3DataForwardingRule

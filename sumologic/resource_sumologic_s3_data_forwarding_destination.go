@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
@@ -83,12 +85,19 @@ func resourceSumologicS3DataForwardingDestinationCreate(d *schema.ResourceData, 
 
 func resourceSumologicS3DataForwardingDestinationRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	dfd, err := c.GetS3DataForwardingDestination(d.Id())
+	id := d.Id()
+	dfd, err := c.GetS3DataForwardingDestination(id)
 
 	if err != nil {
 		return err
 	}
 
+	if dfd == nil {
+		d.SetId("")
+		return fmt.Errorf("S3DataForwardingDestination for id %s not found", id)
+	}
+
+	d.SetId(dfd.ID)
 	d.Set("name", dfd.Name)
 	d.Set("description", dfd.Description)
 	d.Set("authentication_mode", dfd.AuthenticationMode)

@@ -109,7 +109,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
 	d.Set("is_compliant", spartition.IsCompliant)
-	d.Set("data_forwarding_id", spartition.DataForwardingId)
+	d.Set("data_forwarding_id", spartition.DataForwardingID)
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
@@ -141,7 +141,7 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		AnalyticsTier:                    d.Get("analytics_tier").(string),
 		RetentionPeriod:                  d.Get("retention_period").(int),
 		IsCompliant:                      d.Get("is_compliant").(bool),
-		DataForwardingId:                 d.Get("data_forwarding_id").(string),
+		DataForwardingID:                 d.Get("data_forwarding_id").(string),
 		IsActive:                         d.Get("is_active").(bool),
 		TotalBytes:                       d.Get("total_bytes").(int),
 		IndexType:                        d.Get("index_type").(string),

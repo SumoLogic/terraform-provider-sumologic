@@ -114,7 +114,7 @@ type Partition struct {
 	AnalyticsTier                    string `json:"analyticsTier"`
 	RetentionPeriod                  int    `json:"retentionPeriod"`
 	IsCompliant                      bool   `json:"isCompliant"`
-	DataForwardingId                 string `json:"dataForwardingId"`
+	DataForwardingID                 string `json:"dataForwardingId"`
 	IsActive                         bool   `json:"isActive"`
 	TotalBytes                       int    `json:"totalBytes"`
 	IndexType                        string `json:"indexType"`

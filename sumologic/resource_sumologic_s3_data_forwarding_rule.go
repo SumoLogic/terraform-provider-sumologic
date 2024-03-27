@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -52,7 +54,7 @@ func resourceSumologicS3DataForwardingRuleCreate(d *schema.ResourceData, meta in
 			return err
 		}
 
-		d.SetId(createdDfd.ID)
+		d.SetId(createdDfd.IndexID)
 	}
 
 	return resourceSumologicS3DataForwardingRuleUpdate(d, meta)
@@ -60,12 +62,19 @@ func resourceSumologicS3DataForwardingRuleCreate(d *schema.ResourceData, meta in
 
 func resourceSumologicS3DataForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	dfr, err := c.GetS3DataForwardingRule(d.Id())
+	id := d.Id()
+	dfr, err := c.GetS3DataForwardingRule(id)
 
 	if err != nil {
 		return err
 	}
 
+	if dfr == nil {
+		d.SetId("")
+		return fmt.Errorf("S3DataForwardingRule for id %s not found", id)
+	}
+
+	d.SetId(dfr.IndexID)
 	d.Set("index_id", dfr.IndexID)
 	d.Set("destination_id", dfr.DestinationID)
 	d.Set("enabled", dfr.Enabled)
@@ -94,7 +103,6 @@ func resourceSumologicS3DataForwardingRuleDelete(d *schema.ResourceData, meta in
 
 func resourceToS3DataForwardingRule(d *schema.ResourceData) S3DataForwardingRule {
 	return S3DataForwardingRule{
-		ID:            d.Id(),
 		IndexID:       d.Get("index_id").(string),
 		DestinationID: d.Get("destination_id").(string),
 		Enabled:       d.Get("enabled").(bool),
