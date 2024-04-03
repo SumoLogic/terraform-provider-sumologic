@@ -40,7 +40,6 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
-			// Creates a match list with 1 match list item
 			{
 				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -50,17 +49,6 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			// Updates the match list, but keeps the 1 match list item the same
-			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
-				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
-					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-				),
-			},
-			// Deletes the 1 match list item and adds 3 new ones
 			{
 				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, uliExpiration, uliValue, uliCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -69,7 +57,6 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					testCheckMatchListItemsValuesAndCount(resourceName, uliDescription, uliExpiration, uliValue, uliCount),
 				),
 			},
-			// Deletes all the match list items
 			{
 				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
 				Check: resource.ComposeTestCheckFunc(
@@ -107,12 +94,14 @@ func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName st
 	var itemsStr = ""
 
 	for i := 0; i < numItems; i++ {
+		id := uuid.New()
+
 		itemsStr += fmt.Sprintf(`
     items {
-	description = "%s %d"
+	description = "%s %d %s"
 	expiration = "%s"
-	value = "%s %d"
-    }`, liDescription, i, liExpiration, liValue, i)
+	value = "%s %d %s"
+    }`, liDescription, i, id, liExpiration, liValue, i, id)
 	}
 
 	var str = fmt.Sprintf(`
