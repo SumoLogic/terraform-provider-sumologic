@@ -171,7 +171,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		})
 
 		if err != nil {
-			return err
+			return fmt.Errorf("[ERROR] An error occurred converting resource to match list with id %s, err: %v", d.Id(), err)
 		}
 		d.SetId(id)
 
@@ -185,7 +185,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 		if len(items) > 0 {
 			err = c.CreateCSEMatchListItems(items, id)
 			if err != nil {
-				log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", id, err)
+				return fmt.Errorf("[ERROR] An error occurred while adding match list items to match list with id %s, err: %v", id, err)
 			}
 
 		}
@@ -197,7 +197,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 			Refresh: func() (interface{}, string, error) {
 				resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
 				if err != nil {
-					log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+					log.Printf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 					return 0, "", err
 				}
 				return resp, fmt.Sprint(resp.Total), nil
@@ -210,7 +210,7 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 
 		_, err = createStateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("error waiting for match list (%s) to be created: %s", d.Id(), err)
+			return fmt.Errorf("[ERROR] error waiting for match list with id %s to be created: %s", d.Id(), err)
 		}
 
 	}
@@ -235,52 +235,83 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
 	CSEMatchListPost, err := resourceToCSEMatchList(d)
 	if err != nil {
-		return err
+		return fmt.Errorf("[ERROR] An error occurred converting resource to match list with id %s, err: %v", d.Id(), err)
 	}
 
 	c := meta.(*Client)
 	if err = c.UpdateCSEMatchList(CSEMatchListPost); err != nil {
-		return err
+		return fmt.Errorf("[ERROR] An error occurred updating match list with id %s, err: %v", d.Id(), err)
 	}
 
 	itemsData := d.Get("items").(*schema.Set).List()
 	var newItems []CSEMatchListItemPost
+	var newItemIds []string
 	for _, data := range itemsData {
 		item := resourceToCSEMatchListItem([]interface{}{data})
 		newItems = append(newItems, item)
+		newItemIds = append(newItemIds, item.ID)
 	}
 
 	CSEMatchListItems, err := c.GetCSEMatchListItemsInMatchList(d.Id())
 	if err != nil {
-		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+		return fmt.Errorf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 	}
-	var oldItemIds []string
+
+	var deleteItemIds []string
+	var updateItemIds []string
+
+	// Compare currently existing match list items with the new items to determine if they should be deleted or updated
 	for _, item := range CSEMatchListItems.CSEMatchListItemsGetObjects {
-		oldItemIds = append(oldItemIds, item.ID)
+		var oldItemId = item.ID
+		if contains(newItemIds, oldItemId) {
+			updateItemIds = append(updateItemIds, oldItemId)
+		} else {
+			deleteItemIds = append(deleteItemIds, oldItemId)
+		}
+	}
+
+	var updateItems []CSEMatchListItemPost
+	var addItems []CSEMatchListItemPost
+
+	// Any new items that are not updates to existing items should be added instead
+	for _, newItem := range newItems {
+		if contains(updateItemIds, newItem.ID) {
+			updateItems = append(updateItems, newItem)
+		} else {
+			addItems = append(addItems, newItem)
+		}
 	}
 
 	// Delete old items
-	for _, t := range CSEMatchListItems.CSEMatchListItemsGetObjects {
-		if contains(oldItemIds, t.ID) {
-			err = c.DeleteCSEMatchListItem(t.ID)
+	for _, oldItem := range CSEMatchListItems.CSEMatchListItemsGetObjects {
+		if contains(deleteItemIds, oldItem.ID) {
+			err = c.DeleteCSEMatchListItem(oldItem.ID)
 			if err != nil {
-				log.Printf("[WARN] An error occurred deleting match list item with id: %s, err: %v", t.ID, err)
+				return fmt.Errorf("[ERROR] An error occurred while deleting match list item with id %s, err: %v", oldItem.ID, err)
 			}
 		}
 	}
 
-	//Add new items
-	if len(newItems) > 0 {
-		err = c.CreateCSEMatchListItems(newItems, d.Id())
+	// Update old items with new items
+	for _, updateItem := range updateItems {
+		err = c.UpdateCSEMatchListItem(updateItem)
 		if err != nil {
-			log.Printf("[WARN] An error occurred while adding match list items to match list id: %s, err: %v", d.Id(), err)
+			return fmt.Errorf("[ERROR] An error occurred while updating match list item with id %s, err: %v", t.ID, err)
+		}
+	}
+
+	//Add new items
+	if len(addItems) > 0 {
+		err = c.CreateCSEMatchListItems(addItems, d.Id())
+		if err != nil {
+			return fmt.Errorf("[ERROR] An error occurred while adding match list items to match list id %s, err: %v", d.Id(), err)
 		}
 
 	}
 
 	CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
 	if err != nil {
-		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+		return fmt.Errorf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 	}
 
 	// Wait for update to finish
@@ -291,7 +322,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		Refresh: func() (interface{}, string, error) {
 			resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
 			if err != nil {
-				log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", d.Id(), err)
+				log.Printf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 				return 0, "", err
 			}
 			return resp, fmt.Sprint(resp.Total), nil
@@ -304,7 +335,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 
 	_, err = createStateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("error waiting for match list (%s) to be updated: %s", d.Id(), err)
+		return fmt.Errorf("[ERROR] Error waiting for match list with id %s to be updated: %s", d.Id(), err)
 	}
 
 	return resourceSumologicCSEMatchListRead(d, meta)
