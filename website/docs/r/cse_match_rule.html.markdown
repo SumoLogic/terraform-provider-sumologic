@@ -27,6 +27,7 @@ resource "sumologic_cse_match_rule" "match_rule" {
   }
   summary_expression = "Signal summary"
   tags = ["_mitreAttackTactic:TA0009"]
+  suppression_window_size = 2100000
 }
 ```
 
@@ -53,6 +54,7 @@ The following arguments are supported:
     - `to` - (Required) The severity value to map to
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Required) The tags of the generated Signals
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than 0 and less than the global limit of 7 days.
 
 The following attributes are exported:
 

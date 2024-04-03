@@ -19,9 +19,12 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *tes
 	payload := getCSEThresholdRuleTestPayload()
 	payload.WindowSize = "CUSTOM"
 	payload.WindowSizeMilliseconds = "10800000" //3h
+	payload.SuppressionWindowSize = nil
 
+	updatedSuppression := 5 * 60 * 60 * 1000
 	updatedPayload := payload
 	updatedPayload.WindowSizeMilliseconds = "14400000" //4h
+	updatedPayload.SuppressionWindowSize = &updatedSuppression
 
 	var thresholdRule CSEThresholdRule
 	resourceName := "sumologic_cse_threshold_rule.threshold_rule"
@@ -53,16 +56,21 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *tes
 		},
 	})
 }
+
 func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
+	suppression := 35 * 60 * 1000
 	payload := getCSEThresholdRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	payload.SuppressionWindowSize = &suppression
 
+	updatedSuppression := 5 * 60 * 60 * 1000
 	updatedPayload := payload
 	updatedPayload.WindowSize = "CUSTOM"
 	updatedPayload.WindowSizeMilliseconds = "14400000" //4h
+	updatedPayload.SuppressionWindowSize = &updatedSuppression
 
 	var thresholdRule CSEThresholdRule
 	resourceName := "sumologic_cse_threshold_rule.threshold_rule"
@@ -98,13 +106,17 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testi
 func TestAccSumologicCSEThresholdRule_createAndUpdate(t *testing.T) {
 	SkipCseTest(t)
 
+	suppression := 35 * 60 * 1000
 	payload := getCSEThresholdRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	payload.SuppressionWindowSize = &suppression
 
+	updatedSuppression := 13 * 60 * 60 * 1000
 	updatedPayload := payload
 	updatedPayload.Name = fmt.Sprintf("Updated Threshold Rule %s", uuid.New())
 	updatedPayload.WindowSize = "T12H"
+	updatedPayload.SuppressionWindowSize = &updatedSuppression
 
 	var thresholdRule CSEThresholdRule
 	resourceName := "sumologic_cse_threshold_rule.threshold_rule"
@@ -185,6 +197,9 @@ func testCreateCSEThresholdRuleConfig(t *testing.T, payload *CSEThresholdRule) s
 			{{ if eq .WindowSize "CUSTOM" }}
 			window_size_millis = "{{ .WindowSizeMilliseconds }}"
 			{{ end }}
+			{{ if ne .SuppressionWindowSize nil }}
+			suppression_window_size = {{ .SuppressionWindowSize }}
+			{{ end }}
 		}
 		`
 
@@ -198,7 +213,6 @@ func testCreateCSEThresholdRuleConfig(t *testing.T, payload *CSEThresholdRule) s
 	if err := configTemplate.Execute(&buffer, payload); err != nil {
 		t.Error(err)
 	}
-
 	return buffer.String()
 }
 
@@ -219,6 +233,7 @@ func getCSEThresholdRuleTestPayload() CSEThresholdRule {
 		Tags:                   []string{"foo"},
 		WindowSize:             windowSizeField("CUSTOM"),
 		WindowSizeMilliseconds: "10800000",
+		SuppressionWindowSize:  nil,
 	}
 }
 
@@ -264,6 +279,7 @@ func testCheckCSEThresholdRuleValues(t *testing.T, expected *CSEThresholdRule, a
 		if strings.EqualFold(actual.WindowSizeName, "CUSTOM") {
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 		return nil
 	}
 }

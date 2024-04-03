@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -24,9 +25,11 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 	severityMappingDefault := 5
 	summaryExpression := "Signal Summary"
 	tag := "foo"
+	suppressionWindowSize := 24 * 60 * 60 * 1000
 
 	nameUpdated := "Updated Match Rule"
 	tagUpdated := "bar"
+	suppressionWindowSizeUpdated := 25 * 60 * 60 * 1000
 
 	resourceName := "sumologic_cse_match_rule.match_rule"
 	resource.Test(t, resource.TestCase{
@@ -38,13 +41,13 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 				Config: testCreateCSEMatchRuleConfig(descriptionExpression, enabled,
 					entitySelectorEntityType, entitySelectorExpression, expression,
 					isPrototype, name, nameExpression, severityMappingType, severityMappingDefault,
-					summaryExpression, tag),
+					summaryExpression, tag, &suppressionWindowSize),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchRuleExists(resourceName, &matchRule),
 					testCheckMatchRuleValues(&matchRule, descriptionExpression, enabled,
 						entitySelectorEntityType, entitySelectorExpression, expression,
 						isPrototype, name, nameExpression, severityMappingType, severityMappingDefault,
-						summaryExpression, tag),
+						summaryExpression, tag, &suppressionWindowSize),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -52,13 +55,13 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 				Config: testCreateCSEMatchRuleConfig(descriptionExpression, enabled,
 					entitySelectorEntityType, entitySelectorExpression, expression,
 					isPrototype, nameUpdated, nameExpression, severityMappingType, severityMappingDefault,
-					summaryExpression, tagUpdated),
+					summaryExpression, tagUpdated, &suppressionWindowSizeUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchRuleExists(resourceName, &matchRule),
 					testCheckMatchRuleValues(&matchRule, descriptionExpression, enabled,
 						entitySelectorEntityType, entitySelectorExpression, expression,
 						isPrototype, nameUpdated, nameExpression, severityMappingType, severityMappingDefault,
-						summaryExpression, tagUpdated),
+						summaryExpression, tagUpdated, &suppressionWindowSizeUpdated),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -66,6 +69,39 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSEMatchRule_failSuppressionValidation(t *testing.T) {
+	SkipCseTest(t)
+
+	descriptionExpression := "Test description"
+	enabled := true
+	entitySelectorEntityType := "_ip"
+	entitySelectorExpression := "srcDevice_ip"
+	expression := "foo = bar"
+	isPrototype := false
+	name := "Test Match Rule"
+	nameExpression := "Signal Name"
+	severityMappingType := "constant"
+	severityMappingDefault := 5
+	summaryExpression := "Signal Summary"
+	tag := "foo"
+	suppressionWindowSize := 8 * 24 * 60 * 60 * 1000
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEMatchRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSEMatchRuleConfig(descriptionExpression, enabled,
+					entitySelectorEntityType, entitySelectorExpression, expression,
+					isPrototype, name, nameExpression, severityMappingType, severityMappingDefault,
+					summaryExpression, tag, &suppressionWindowSize),
+				ExpectError: regexp.MustCompile("expected suppression_window_size to be in the range"),
 			},
 		},
 	})
@@ -98,7 +134,7 @@ func testCreateCSEMatchRuleConfig(
 	descriptionExpression string, enabled bool, entitySelectorEntityType string,
 	entitySelectorExpression string, expression string, isPrototype bool, name string,
 	nameExpression string, severityMappingType string, severityMappingDefault int,
-	summaryExpression string, tag string) string {
+	summaryExpression string, tag string, suppressionWindowSize *int) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_match_rule" "match_rule" {
 	description_expression = "%s"
@@ -117,10 +153,11 @@ resource "sumologic_cse_match_rule" "match_rule" {
     }
     summary_expression = "%s"
     tags = ["%s"]
+		suppression_window_size = %d
 }
 `, descriptionExpression, enabled, entitySelectorEntityType, entitySelectorExpression,
 		expression, isPrototype, name, nameExpression, severityMappingType, severityMappingDefault,
-		summaryExpression, tag)
+		summaryExpression, tag, *suppressionWindowSize)
 }
 
 func testCheckCSEMatchRuleExists(n string, matchRule *CSEMatchRule) resource.TestCheckFunc {
@@ -149,7 +186,7 @@ func testCheckCSEMatchRuleExists(n string, matchRule *CSEMatchRule) resource.Tes
 func testCheckMatchRuleValues(matchRule *CSEMatchRule, descriptionExpression string, enabled bool,
 	entitySelectorEntityType string, entitySelectorExpression string, expression string,
 	isPrototype bool, name string, nameExpression string, severityMappingType string, severityMappingDefault int,
-	summaryExpression string, tag string) resource.TestCheckFunc {
+	summaryExpression string, tag string, suppressionWindowSize *int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if matchRule.DescriptionExpression != descriptionExpression {
 			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, matchRule.DescriptionExpression)
@@ -186,6 +223,10 @@ func testCheckMatchRuleValues(matchRule *CSEMatchRule, descriptionExpression str
 		}
 		if matchRule.Tags[0] != tag {
 			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, matchRule.Tags[0])
+		}
+		if ((matchRule.SuppressionWindowSize == nil) != (suppressionWindowSize == nil)) ||
+			(suppressionWindowSize != nil && (*matchRule.SuppressionWindowSize != *suppressionWindowSize)) {
+			return fmt.Errorf("bad suppressionWindowSize, expected %d, got %#v", suppressionWindowSize, matchRule.SuppressionWindowSize)
 		}
 
 		return nil

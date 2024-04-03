@@ -22,6 +22,8 @@ func TestAccSumologicCSEAggregationRule_createAndUpdateWithCustomWindowSize(t *t
 
 	updatedPayload := payload
 	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 5 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var aggregationRule CSEAggregationRule
 	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
@@ -60,10 +62,14 @@ func TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize(t *tes
 	payload := getCSEAggregationRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
 
 	updatedPayload := payload
 	updatedPayload.WindowSize = "CUSTOM"
 	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 5 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var aggregationRule CSEAggregationRule
 	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
@@ -102,10 +108,14 @@ func TestAccSumologicCSEAggregationRule_createAndUpdate(t *testing.T) {
 	payload := getCSEAggregationRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
 
 	updatedPayload := payload
 	updatedPayload.Name = fmt.Sprintf("Updated Aggregation Rule %s", uuid.New())
 	updatedPayload.WindowSize = "T12H"
+	updatedSuppressionWindow := 13 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var aggregationRule CSEAggregationRule
 	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
@@ -196,6 +206,9 @@ func testCreateCSEAggregationRuleConfig(t *testing.T, payload *CSEAggregationRul
 			{{ if eq .WindowSize "CUSTOM" }}
 			window_size_millis = "{{ .WindowSizeMilliseconds }}"
 			{{ end }}
+			{{ if ne .SuppressionWindowSize nil }}
+			suppression_window_size = {{ .SuppressionWindowSize }}
+			{{ end }}
 		}
 	`
 
@@ -239,6 +252,7 @@ func getCSEAggregationRuleTestPayload() CSEAggregationRule {
 		Tags:                   []string{"foo"},
 		WindowSize:             windowSizeField("CUSTOM"),
 		WindowSizeMilliseconds: "10800000",
+		SuppressionWindowSize:  nil,
 	}
 }
 
@@ -285,6 +299,7 @@ func testCheckCSEAggregationRuleValues(t *testing.T, expected *CSEAggregationRul
 		if strings.EqualFold(actual.WindowSizeName, "CUSTOM") {
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 		return nil
 	}
 }

@@ -85,6 +85,12 @@ func resourceSumologicCSEThresholdRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -123,6 +129,9 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	if strings.EqualFold(CSEThresholdRuleGet.WindowSizeName, "CUSTOM") {
 		d.Set("window_size_millis", CSEThresholdRuleGet.WindowSize)
 	}
+	if CSEThresholdRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEThresholdRuleGet.SuppressionWindowSize)
+	}
 	return nil
 }
 
@@ -137,6 +146,13 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEThresholdRule(CSEThresholdRule{
 			CountDistinct:          d.Get("count_distinct").(bool),
 			CountField:             d.Get("count_field").(string),
@@ -155,6 +171,7 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 			Version:                1,
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -186,6 +203,12 @@ func resourceToCSEThresholdRule(d *schema.ResourceData) (CSEThresholdRule, error
 		return CSEThresholdRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEThresholdRule{
 		ID:                     id,
 		CountDistinct:          d.Get("count_distinct").(bool),
@@ -205,5 +228,6 @@ func resourceToCSEThresholdRule(d *schema.ResourceData) (CSEThresholdRule, error
 		Version:                1,
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }

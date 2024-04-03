@@ -91,4 +91,5 @@ type CSEFirstSeenRule struct {
 	Tags                  []string         `json:"tags"`
 	ValueFields           []string         `json:"valueFields"`
 	Version               int              `json:"version"`
+	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
 }

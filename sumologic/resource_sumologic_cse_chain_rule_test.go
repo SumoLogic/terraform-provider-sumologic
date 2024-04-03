@@ -22,6 +22,8 @@ func TestAccSumologicCSEChainRule_createAndUpdateWithCustomWindowSize(t *testing
 
 	updatedPayload := payload
 	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 15000000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var chainRule CSEChainRule
 	resourceName := "sumologic_cse_chain_rule.chain_rule"
@@ -60,10 +62,14 @@ func TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize(t *testing.T
 	payload := getCSEChainRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 2000000
+	payload.SuppressionWindowSize = &suppressionWindow
 
 	updatedPayload := payload
 	updatedPayload.WindowSize = "CUSTOM"
 	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 20000000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var chainRule CSEChainRule
 	resourceName := "sumologic_cse_chain_rule.chain_rule"
@@ -102,10 +108,14 @@ func TestAccSumologicCSEChainRule_createAndUpdate(t *testing.T) {
 	payload := getCSEChainRuleTestPayload()
 	payload.WindowSize = "T30M"
 	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
 
 	updatedPayload := payload
 	updatedPayload.Name = fmt.Sprintf("Updated Chain Rule %s", uuid.New())
 	updatedPayload.WindowSize = "T12H"
+	updatedSuppressionWindow := 13 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
 	var chainRule CSEChainRule
 	resourceName := "sumologic_cse_chain_rule.chain_rule"
@@ -189,6 +199,9 @@ func testCreateCSEChainRuleConfig(t *testing.T, payload *CSEChainRule) string {
 			{{ if eq .WindowSize "CUSTOM" }}
 			window_size_millis = "{{ .WindowSizeMilliseconds }}"
 			{{ end }}
+			{{ if ne .SuppressionWindowSize nil }}
+			suppression_window_size = {{ .SuppressionWindowSize }}
+			{{ end }}
 		}
 		`
 
@@ -221,6 +234,7 @@ func getCSEChainRuleTestPayload() CSEChainRule {
 		Tags:                   []string{"foo"},
 		WindowSize:             windowSizeField("CUSTOM"),
 		WindowSizeMilliseconds: "10800000",
+		SuppressionWindowSize:  nil,
 	}
 }
 
@@ -264,6 +278,7 @@ func testCheckCSEChainRuleValues(t *testing.T, expected *CSEChainRule, actual *C
 		if strings.EqualFold(actual.WindowSizeName, "CUSTOM") {
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 		return nil
 	}
 }

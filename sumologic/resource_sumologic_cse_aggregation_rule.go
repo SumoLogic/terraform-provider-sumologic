@@ -105,6 +105,12 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -145,6 +151,9 @@ func resourceSumologicCSEAggregationRuleRead(d *schema.ResourceData, meta interf
 	if strings.EqualFold(CSEAggregationRuleGet.WindowSizeName, "CUSTOM") {
 		d.Set("window_size_millis", CSEAggregationRuleGet.WindowSize)
 	}
+	if CSEAggregationRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEAggregationRuleGet.SuppressionWindowSize)
+	}
 	return nil
 }
 
@@ -159,6 +168,13 @@ func resourceSumologicCSEAggregationRuleCreate(d *schema.ResourceData, meta inte
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEAggregationRule(CSEAggregationRule{
 			AggregationFunctions:   resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
 			DescriptionExpression:  d.Get("description_expression").(string),
@@ -177,6 +193,7 @@ func resourceSumologicCSEAggregationRuleCreate(d *schema.ResourceData, meta inte
 			TriggerExpression:      d.Get("trigger_expression").(string),
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -237,6 +254,12 @@ func resourceToCSEAggregationRule(d *schema.ResourceData) (CSEAggregationRule, e
 		return CSEAggregationRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEAggregationRule{
 		ID:                     id,
 		AggregationFunctions:   resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
@@ -256,5 +279,6 @@ func resourceToCSEAggregationRule(d *schema.ResourceData) (CSEAggregationRule, e
 		TriggerExpression:      d.Get("trigger_expression").(string),
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }
