@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
@@ -187,8 +188,9 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 			if err != nil {
 				return fmt.Errorf("[ERROR] An error occurred while adding match list items to match list with id %s, err: %v", id, err)
 			}
-
 		}
+
+		fmt.Fprintln(os.Stdout, "resourceSumologicCSEMatchListCreate items: ", items)
 
 		createStateConf := &resource.StateChangeConf{
 			Target: []string{
@@ -282,6 +284,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	fmt.Fprintln(os.Stdout, "resourceSumologicCSEMatchListUpdate deleteItemIds: ", deleteItemIds, "updateItems: ", updateItems, "addItems: s", addItems)
+
 	// Delete old items
 	for _, oldItem := range CSEMatchListItems.CSEMatchListItemsGetObjects {
 		if contains(deleteItemIds, oldItem.ID) {
@@ -296,7 +300,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	for _, updateItem := range updateItems {
 		err = c.UpdateCSEMatchListItem(updateItem)
 		if err != nil {
-			return fmt.Errorf("[ERROR] An error occurred while updating match list item with id %s, err: %v", t.ID, err)
+			return fmt.Errorf("[ERROR] An error occurred while updating match list item with id %s, err: %v", updateItem.ID, err)
 		}
 	}
 
@@ -304,9 +308,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	if len(addItems) > 0 {
 		err = c.CreateCSEMatchListItems(addItems, d.Id())
 		if err != nil {
-			return fmt.Errorf("[ERROR] An error occurred while adding match list items to match list id %s, err: %v", d.Id(), err)
+			return fmt.Errorf("[ERROR] An error occurred while adding match list items to match list with id %s, err: %v", d.Id(), err)
 		}
-
 	}
 
 	CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
