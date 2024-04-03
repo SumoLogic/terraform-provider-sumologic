@@ -24,7 +24,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	liDescription := "Match List Item Description"
 	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
-	liCount := 1
+	liIDs := []uuid.UUID{uuid.New(), uuid.New()}
 
 	// Update values
 	uDefaultTtl := 3600
@@ -32,34 +32,37 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	uliDescription := "Updated Match List item Description"
 	uliExpiration := "2122-02-27T05:00:00"
 	uliValue := "updated value"
-	uliCount := 3
+	uliIds := []uuid.UUID{liIDs[0], uuid.New()}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
+			// Creates a match list with 2 items
 			{
-				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
+				Config: testCreateOrUpdateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liIDs),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
-					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
+					testCheckMatchListItemsValuesAndIds(resourceName, liDescription, liExpiration, liValue, liIDs),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
+			// Deletes 1 of the old match list items, updates 1 of the old match list items, and adds 1 new match list item
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, uliExpiration, uliValue, uliCount),
+				Config: testCreateOrUpdateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, uliExpiration, uliValue, uliIds),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
-					testCheckMatchListItemsValuesAndCount(resourceName, uliDescription, uliExpiration, uliValue, uliCount),
+					testCheckMatchListItemsValuesAndIds(resourceName, uliDescription, uliExpiration, uliValue, uliIds),
 				),
 			},
+			// Deletes the match list
 			{
 				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckMatchListItemsValuesAndCount(resourceName, "", "", "", 0),
+					testCheckMatchListItemsValuesAndIds(resourceName, "", "", "", []uuid.UUID{}),
 				),
 			},
 		},
@@ -89,18 +92,16 @@ func testAccCSEMatchListDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string, numItems int) string {
+func testCreateOrUpdateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName string, nTargetColumn string, liDescription string, liExpiration string, liValue string, liIDs []uuid.UUID) string {
 	var itemsStr = ""
 
-	for i := 0; i < numItems; i++ {
-		id := uuid.New()
-
+	for i, itemID := range liIDs {
 		itemsStr += fmt.Sprintf(`
     items {
 	description = "%s %d %s"
 	expiration = "%s"
 	value = "%s %d %s"
-    }`, liDescription, i, id, liExpiration, liValue, i, id)
+    }`, liDescription, i, itemID, liExpiration, liValue, i, itemID)
 	}
 
 	var str = fmt.Sprintf(`
@@ -167,7 +168,7 @@ func testCheckMatchListValues(matchList *CSEMatchListGet, nDefaultTtl int, nDesc
 	}
 }
 
-func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescription string, expectedExpiration string, expectedValue string, expectedCount int) resource.TestCheckFunc {
+func testCheckMatchListItemsValuesAndIds(resourceName string, expectedDescription string, expectedExpiration string, expectedValue string, expectedLiIDS []uuid.UUID) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -185,17 +186,29 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 		}
 
 		actualCount := len(matchListResp.CSEMatchListItemsGetObjects)
-		if actualCount != expectedCount {
-			return fmt.Errorf("expected %d match list items, but found %d instead", expectedCount, actualCount)
+		if actualCount != len(expectedLiIDS) {
+			return fmt.Errorf("expected %d match list items, but found %d instead", len(expectedLiIDS), actualCount)
 		}
 
-		if expectedCount == 0 {
+		if len(expectedLiIDS) == 0 {
 			return nil
 		}
 
 		for _, item := range matchListResp.CSEMatchListItemsGetObjects {
 			if item.ID == "" {
 				return fmt.Errorf("expected match list item ID to be non-empty, but found empty string instead")
+			}
+
+			foundItemID := false
+			for _, expectedID := range expectedLiIDS {
+				if item.ID == fmt.Sprintf("%v", expectedID) {
+					foundItemID = true
+					break
+				}
+			}
+
+			if !foundItemID {
+				return fmt.Errorf("expected match list items %v to contain match list item id %s", expectedLiIDS, item.ID)
 			}
 			if !strings.Contains(item.Meta.Description, expectedDescription) {
 				return fmt.Errorf("expected match list item description to contain \"%s\", but found \"%s\" instead", expectedDescription, item.Meta.Description)
