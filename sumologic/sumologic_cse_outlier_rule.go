@@ -93,4 +93,5 @@ type CSEOutlierRule struct {
 	Tags                  []string              `json:"tags"`
 	WindowSize            windowSizeField       `json:"windowSize,omitempty"`
 	WindowSizeName        string                `json:"windowSizeName,omitempty"`
+	SuppressionWindowSize *int                  `json:"suppressionWindowSize,omitempty"`
 }

@@ -94,4 +94,5 @@ type CSEChainRule struct {
 	WindowSize             windowSizeField      `json:"windowSize,omitempty"`
 	WindowSizeName         string               `json:"windowSizeName,omitempty"`
 	WindowSizeMilliseconds string               `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int                 `json:"suppressionWindowSize,omitempty"`
 }
