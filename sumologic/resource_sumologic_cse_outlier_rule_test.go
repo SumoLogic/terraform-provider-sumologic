@@ -132,7 +132,7 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
   summary_expression	= "{{ .SummaryExpression }}"
   tags                  = {{ quoteStringArray .Tags }}
   window_size 		 	= "{{ .WindowSize }}"
-	{{ if ne .SuppressionWindowSize nil }}
+	{{ if .SuppressionWindowSize }}
 	suppression_window_size = {{ .SuppressionWindowSize }}
 	{{ end }}
 }
@@ -141,7 +141,7 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
 	if err := configTemplate.Execute(&buffer, payload); err != nil {
 		t.Error(err)
 	}
-
+	fmt.Printf("Resource: %s\n", buffer.String())
 	return buffer.String()
 }
 
