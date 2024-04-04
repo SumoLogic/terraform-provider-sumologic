@@ -52,11 +52,11 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 			},
 			// Updates the match list and its 1 match list item
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, uliExpiration, liValue, liCount),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
 					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
-					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, uliExpiration, liValue, liCount),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
