@@ -52,11 +52,11 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 			},
 			// Updates the match list and its 1 match list item
 			{
-				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
+				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, uliExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEMatchListExists(resourceName, &matchList),
-					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
-					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
+					testCheckMatchListValues(&matchList, uDefaultTtl, uDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, uliExpiration, liValue, liCount),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -107,14 +107,12 @@ func testCreateCSEMatchListConfig(nDefaultTtl int, nDescription string, nName st
 	var itemsStr = ""
 
 	for i := 0; i < numItems; i++ {
-		id := uuid.New()
-
 		itemsStr += fmt.Sprintf(`
     items {
-	description = "%s %d %s"
+	description = "%s %d"
 	expiration = "%s"
-	value = "%s %d %s"
-    }`, liDescription, i, id, liExpiration, liValue, i, id)
+	value = "%s %d"
+    }`, liDescription, i, liExpiration, liValue, i)
 	}
 
 	var str = fmt.Sprintf(`
