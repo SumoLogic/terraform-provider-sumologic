@@ -132,7 +132,7 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
   summary_expression	= "{{ .SummaryExpression }}"
   tags                  = {{ quoteStringArray .Tags }}
   window_size 		 	= "{{ .WindowSize }}"
-	{{ if ne .SuppressionWindowSize nil }}
+	{{ if .SuppressionWindowSize }}
 	suppression_window_size = {{ .SuppressionWindowSize }}
 	{{ end }}
 }

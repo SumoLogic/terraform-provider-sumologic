@@ -117,7 +117,7 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
   retention_window_size = "{{ .RetentionWindowSize }}"
   severity              = {{ .Severity }}
   value_fields          = {{ quoteStringArray .ValueFields }}
-	{{ if ne .SuppressionWindowSize nil }}
+	{{ if .SuppressionWindowSize }}
 	suppression_window_size = {{ .SuppressionWindowSize }}
 	{{ end }}
 }

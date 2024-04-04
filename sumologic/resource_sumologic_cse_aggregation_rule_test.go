@@ -206,7 +206,7 @@ func testCreateCSEAggregationRuleConfig(t *testing.T, payload *CSEAggregationRul
 			{{ if eq .WindowSize "CUSTOM" }}
 			window_size_millis = "{{ .WindowSizeMilliseconds }}"
 			{{ end }}
-			{{ if ne .SuppressionWindowSize nil }}
+			{{ if .SuppressionWindowSize }}
 			suppression_window_size = {{ .SuppressionWindowSize }}
 			{{ end }}
 		}
