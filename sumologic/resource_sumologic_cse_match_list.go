@@ -3,7 +3,6 @@ package sumologic
 import (
 	"fmt"
 	"log"
-	"os"
 	"regexp"
 	"time"
 
@@ -190,8 +189,6 @@ func resourceSumologicCSEMatchListCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 
-		fmt.Fprintln(os.Stdout, "resourceSumologicCSEMatchListCreate items: ", items)
-
 		createStateConf := &resource.StateChangeConf{
 			Target: []string{
 				fmt.Sprint(len(items)),
@@ -284,8 +281,6 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	fmt.Fprintln(os.Stdout, "resourceSumologicCSEMatchListUpdate deleteItemIds: ", deleteItemIds, "updateItems: ", updateItems, "addItems: s", addItems)
-
 	// Delete old items
 	for _, oldItem := range CSEMatchListItems.CSEMatchListItemsGetObjects {
 		if contains(deleteItemIds, oldItem.ID) {
@@ -312,13 +307,8 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	CSEMatchListItems, err = c.GetCSEMatchListItemsInMatchList(d.Id())
-	if err != nil {
-		return fmt.Errorf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
-	}
-
 	// Wait for update to finish
-	createStateConf := &resource.StateChangeConf{
+	updateStateConf := &resource.StateChangeConf{
 		Target: []string{
 			fmt.Sprint(len(newItems)),
 		},
@@ -336,7 +326,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		ContinuousTargetOccurence: 1,
 	}
 
-	_, err = createStateConf.WaitForState()
+	_, err = updateStateConf.WaitForState()
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error waiting for match list with id %s to be updated: %s", d.Id(), err)
 	}

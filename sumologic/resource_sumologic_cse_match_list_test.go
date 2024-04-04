@@ -2,7 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -25,7 +24,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	liDescription := "Match List Item Description"
 	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
-	liCount := 1
+	liCount := 2
 
 	// Update values
 	uDefaultTtl := 3600
@@ -40,7 +39,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
-			// Creates a match list with 1 match list item
+			// Creates a match list with 2 match list items
 			{
 				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -50,7 +49,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			// Updates the match list and its 1 match list item
+			// Updates the match list and its 2 match list items
 			{
 				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -60,7 +59,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			// Deletes the 1 match list item and adds 3 new ones
+			// Deletes the 2 old match list items and adds 3 new ones
 			{
 				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, uliDescription, uliExpiration, uliValue, uliCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -122,8 +121,6 @@ resource "sumologic_cse_match_list" "match_list" {
     name = "%s"
     target_column = "%s" %s
 }`, nDefaultTtl, nDescription, nName, nTargetColumn, itemsStr)
-
-	fmt.Fprintln(os.Stdout, "testCreateCSEMatchListConfig: ", str)
 
 	return str
 }
