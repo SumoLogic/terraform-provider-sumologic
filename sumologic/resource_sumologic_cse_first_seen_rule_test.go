@@ -3,12 +3,13 @@ package sumologic
 import (
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 	"text/template"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
@@ -23,15 +24,16 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 			{EntityType: "_username", Expression: "user_username"},
 			{EntityType: "_hostname", Expression: "dstDevice_hostname"},
 		},
-		FilterExpression:    `objectType="Network"`,
-		GroupByFields:       []string{"user_username"},
-		IsPrototype:         false,
-		Name:                "FirstSeenRuleTerraformTest",
-		NameExpression:      "FirstSeenRuleTerraformTest - {{ user_username }}",
-		RetentionWindowSize: "86400000",
-		Severity:            1,
-		ValueFields:         []string{"dstDevice_hostname"},
-		Version:             1,
+		FilterExpression:      `objectType="Network"`,
+		GroupByFields:         []string{"user_username"},
+		IsPrototype:           false,
+		Name:                  "FirstSeenRuleTerraformTest",
+		NameExpression:        "FirstSeenRuleTerraformTest - {{ user_username }}",
+		RetentionWindowSize:   "86400000",
+		Severity:              1,
+		ValueFields:           []string{"dstDevice_hostname"},
+		Version:               1,
+		SuppressionWindowSize: nil,
 	}
 	updatedPayload := payload
 	updatedPayload.Enabled = false
@@ -115,6 +117,9 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
   retention_window_size = "{{ .RetentionWindowSize }}"
   severity              = {{ .Severity }}
   value_fields          = {{ quoteStringArray .ValueFields }}
+	{{ if .SuppressionWindowSize }}
+	suppression_window_size = {{ .SuppressionWindowSize }}
+	{{ end }}
 }
 `))
 	var buffer bytes.Buffer
@@ -162,6 +167,7 @@ func testCheckFirstSeenRuleValues(t *testing.T, expected *CSEFirstSeenRule, actu
 		assert.Equal(t, expected.RetentionWindowSize, actual.RetentionWindowSize)
 		assert.Equal(t, expected.Severity, actual.Severity)
 		assert.Equal(t, expected.ValueFields, actual.ValueFields)
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 
 		return nil
 	}

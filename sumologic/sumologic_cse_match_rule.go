@@ -99,4 +99,5 @@ type CSEMatchRule struct {
 	Stream                string           `json:"stream"`
 	SummaryExpression     string           `json:"summaryExpression"`
 	Tags                  []string         `json:"tags"`
+	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
 }

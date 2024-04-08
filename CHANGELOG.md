@@ -1,5 +1,8 @@
 ## 2.28.4 (Unreleased)
 
+FEATURES:
+* Added support for signal suppression window size in CSE Rules. (GH-641)
+
 ENHANCEMENTS:
 * Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
 
@@ -30,13 +33,13 @@ BUG FIXES:
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
 
-BUG FIXES: 
+BUG FIXES:
 * Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_tag_schema (GH-575)
-* **New Resource:** sumologic_cse_context_action (GH-573) 
+* **New Resource:** sumologic_cse_context_action (GH-573)
 
 ENHANCEMENTS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)
