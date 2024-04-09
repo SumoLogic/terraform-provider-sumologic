@@ -1,4 +1,7 @@
-## 2.28.4 (Unreleased)
+## 2.29.1 (Unreleased)
+
+
+## 2.29.0 (April 9, 2024)
 
 FEATURES:
 * Added support for signal suppression window size in CSE Rules. (GH-641)
