@@ -1,9 +1,10 @@
 package sumologic
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceSumologicCSEFirstSeenRule() *schema.Resource {
@@ -86,6 +87,12 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 					ValidateFunc: validation.StringIsNotEmpty,
 				},
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -122,6 +129,9 @@ func resourceSumologicCSEFirstSeenRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("summary_expression", CSEFirstSeenRuleGet.SummaryExpression)
 	d.Set("tags", CSEFirstSeenRuleGet.Tags)
 	d.Set("value_fields", CSEFirstSeenRuleGet.ValueFields)
+	if CSEFirstSeenRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEFirstSeenRuleGet.SuppressionWindowSize)
+	}
 
 	return nil
 }
@@ -137,6 +147,12 @@ func resourceSumologicCSEFirstSeenRuleCreate(d *schema.ResourceData, meta interf
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEFirstSeenRule(CSEFirstSeenRule{
 			BaselineType:          d.Get("baseline_type").(string),
 			BaselineWindowSize:    d.Get("baseline_window_size").(string),
@@ -154,6 +170,7 @@ func resourceSumologicCSEFirstSeenRuleCreate(d *schema.ResourceData, meta interf
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 			ValueFields:           resourceToStringArray(d.Get("value_fields").([]interface{})),
 			Version:               1,
+			SuppressionWindowSize: suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -185,6 +202,12 @@ func resourceToCSEFirstSeenRule(d *schema.ResourceData) (CSEFirstSeenRule, error
 		return CSEFirstSeenRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEFirstSeenRule{
 		ID:                    id,
 		BaselineType:          d.Get("baseline_type").(string),
@@ -203,5 +226,6 @@ func resourceToCSEFirstSeenRule(d *schema.ResourceData) (CSEFirstSeenRule, error
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		ValueFields:           resourceToStringArray(d.Get("value_fields").([]interface{})),
 		Version:               1,
+		SuppressionWindowSize: suppressionWindowSize,
 	}, nil
 }

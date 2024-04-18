@@ -833,6 +833,8 @@ func getVariable(tfVariable map[string]interface{}) Variable {
 }
 
 func getSourceDefinition(tfSourceDef map[string]interface{}) interface{} {
+	const defaultFilterValue = ""
+
 	if val := tfSourceDef["log_query_variable_source_definition"].([]interface{}); len(val) == 1 {
 		logQuerySourceDef := val[0].(map[string]interface{})
 		return LogQueryVariableSourceDefinition{
@@ -842,9 +844,13 @@ func getSourceDefinition(tfSourceDef map[string]interface{}) interface{} {
 		}
 	} else if val := tfSourceDef["metadata_variable_source_definition"].([]interface{}); len(val) == 1 {
 		metadataSourceDef := val[0].(map[string]interface{})
+		filter, hasFilter := metadataSourceDef["filter"].(string)
+		if !hasFilter {
+			filter = defaultFilterValue
+		}
 		return MetadataVariableSourceDefinition{
 			VariableSourceType: "MetadataVariableSourceDefinition",
-			Filter:             metadataSourceDef["filter"].(string),
+			Filter:             filter,
 			Key:                metadataSourceDef["key"].(string),
 		}
 	} else if val := tfSourceDef["csv_variable_source_definition"].([]interface{}); len(val) == 1 {

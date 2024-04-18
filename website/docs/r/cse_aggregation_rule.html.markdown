@@ -36,6 +36,7 @@ resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
   tags = ["_mitreAttackTactic:TA0009"]
   trigger_expression = "distinct_eventid_count > 5"
   window_size = "T30M"
+  suppression_window_size = 2100000
 }
 ```
 
@@ -69,7 +70,9 @@ The following arguments are supported:
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Required) The tags of the generated Signals
 - `trigger_expression` - (Required) The expression to determine whether a Signal should be created based on the aggregation results
-- `window_size` - (Required) How long of a window to aggregate records for. Current acceptable values are T05M, T10M, T30M, T60M, T24H, T12H, or T05D.
+- `window_size` - (Required) How long of a window to aggregate records for. Current acceptable values are T05M, T10M, T30M, T60M, T24H, T12H, T05D or CUSTOM
+  + `window_size_millis` - (Optional) Used only when `window_size` is set to CUSTOM. Window size in milliseconds ranging from 1 minute to 5 days ("60000" to "432000000").
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than `window_size` and less than the global limit of 7 days.
 
 The following attributes are exported:
 

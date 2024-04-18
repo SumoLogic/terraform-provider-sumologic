@@ -1,17 +1,49 @@
-## 2.28.1 (Unreleased)
-* resource/sumologic_muting_schedule: Added group supporting for muting schedule (GH-593)
+## 2.29.1 (Unreleased)
+FEATURES:
+* resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
+
+## 2.29.0 (April 9, 2024)
+
+FEATURES:
+* Added support for signal suppression window size in CSE Rules. (GH-641)
+
+ENHANCEMENTS:
+* Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
+
+BUG FIXES:
+* Fix error while importing monitor having timeZone as `null` in the Email notification object. (GH-637)
+* Fix perpetual diff in Extraction Rules by normalizing the parse expression.
+* Fix `resource_sumologic_cse_match_list` timing out when updating match list items (GH-640)
+
+## 2.28.3 (March 5, 2024)
+
+BUG FIXES:
+* Update module dependencies to pick up security fixes. (GH-602)
+
+## 2.28.2 (February 1, 2024)
+
+BUG FIXES:
+* Uses the recently added API support for `rule_ids` for CSE Rule Tuning Expressions to fix the resource import functionality. (GH-612)
+
+## 2.28.1 (January 19, 2024)
+
+ENHANCEMENTS:
+* Added support for `dynamic_severity` for the CSE Custom Insight. (GH-607)
+
+BUG FIXES:
+* Minor fixes enabling proper resource import for CSE Rules (`severity`, `severity_mapping`, `aggregation_functions`). (GH-606)
 
 ## 2.28.0 (November 23, 2023)
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
 
-BUG FIXES: 
+BUG FIXES:
 * Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_tag_schema (GH-575)
-* **New Resource:** sumologic_cse_context_action (GH-573) 
+* **New Resource:** sumologic_cse_context_action (GH-573)
 
 ENHANCEMENTS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)

@@ -1,9 +1,11 @@
 package sumologic
 
 import (
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 )
 
 func resourceSumologicCSEThresholdRule() *schema.Resource {
@@ -79,6 +81,16 @@ func resourceSumologicCSEThresholdRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"window_size_millis": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -110,10 +122,16 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("is_prototype", CSEThresholdRuleGet.IsPrototype)
 	d.Set("limit", CSEThresholdRuleGet.Limit)
 	d.Set("name", CSEThresholdRuleGet.Name)
+	d.Set("severity", CSEThresholdRuleGet.Severity)
 	d.Set("summary_expression", CSEThresholdRuleGet.SummaryExpression)
 	d.Set("tags", CSEThresholdRuleGet.Tags)
 	d.Set("window_size", CSEThresholdRuleGet.WindowSizeName)
-
+	if strings.EqualFold(CSEThresholdRuleGet.WindowSizeName, "CUSTOM") {
+		d.Set("window_size_millis", CSEThresholdRuleGet.WindowSize)
+	}
+	if CSEThresholdRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEThresholdRuleGet.SuppressionWindowSize)
+	}
 	return nil
 }
 
@@ -128,23 +146,32 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEThresholdRule(CSEThresholdRule{
-			CountDistinct:     d.Get("count_distinct").(bool),
-			CountField:        d.Get("count_field").(string),
-			Description:       d.Get("description").(string),
-			Enabled:           d.Get("enabled").(bool),
-			EntitySelectors:   resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-			Expression:        d.Get("expression").(string),
-			GroupByFields:     resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-			IsPrototype:       d.Get("is_prototype").(bool),
-			Limit:             d.Get("limit").(int),
-			Name:              d.Get("name").(string),
-			Severity:          d.Get("severity").(int),
-			Stream:            "record",
-			SummaryExpression: d.Get("summary_expression").(string),
-			Tags:              resourceToStringArray(d.Get("tags").([]interface{})),
-			Version:           1,
-			WindowSize:        windowSizeField(d.Get("window_size").(string)),
+			CountDistinct:          d.Get("count_distinct").(bool),
+			CountField:             d.Get("count_field").(string),
+			Description:            d.Get("description").(string),
+			Enabled:                d.Get("enabled").(bool),
+			EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+			Expression:             d.Get("expression").(string),
+			GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+			IsPrototype:            d.Get("is_prototype").(bool),
+			Limit:                  d.Get("limit").(int),
+			Name:                   d.Get("name").(string),
+			Severity:               d.Get("severity").(int),
+			Stream:                 "record",
+			SummaryExpression:      d.Get("summary_expression").(string),
+			Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+			Version:                1,
+			WindowSize:             windowSizeField(d.Get("window_size").(string)),
+			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -176,23 +203,31 @@ func resourceToCSEThresholdRule(d *schema.ResourceData) (CSEThresholdRule, error
 		return CSEThresholdRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEThresholdRule{
-		ID:                id,
-		CountDistinct:     d.Get("count_distinct").(bool),
-		CountField:        d.Get("count_field").(string),
-		Description:       d.Get("description").(string),
-		Enabled:           d.Get("enabled").(bool),
-		EntitySelectors:   resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-		Expression:        d.Get("expression").(string),
-		GroupByFields:     resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-		IsPrototype:       d.Get("is_prototype").(bool),
-		Limit:             d.Get("limit").(int),
-		Name:              d.Get("name").(string),
-		Severity:          d.Get("severity").(int),
-		Stream:            "record",
-		SummaryExpression: d.Get("summary_expression").(string),
-		Tags:              resourceToStringArray(d.Get("tags").([]interface{})),
-		Version:           1,
-		WindowSize:        windowSizeField(d.Get("window_size").(string)),
+		ID:                     id,
+		CountDistinct:          d.Get("count_distinct").(bool),
+		CountField:             d.Get("count_field").(string),
+		Description:            d.Get("description").(string),
+		Enabled:                d.Get("enabled").(bool),
+		EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+		Expression:             d.Get("expression").(string),
+		GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+		IsPrototype:            d.Get("is_prototype").(bool),
+		Limit:                  d.Get("limit").(int),
+		Name:                   d.Get("name").(string),
+		Severity:               d.Get("severity").(int),
+		Stream:                 "record",
+		SummaryExpression:      d.Get("summary_expression").(string),
+		Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+		Version:                1,
+		WindowSize:             windowSizeField(d.Get("window_size").(string)),
+		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }

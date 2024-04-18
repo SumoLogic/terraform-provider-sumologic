@@ -63,7 +63,7 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
-	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [StatusCode=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
+	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [Status=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
 func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
@@ -328,12 +328,17 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	return d, nil
 }
 
+func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {
+	log.Printf("[ERROR] Request %s failed after %d attempts with response: [%s]", resp.Request.URL, numTries, resp.Status)
+	return resp, err
+}
+
 func NewClient(accessID, accessKey, authJwt, environment, base_url string, admin bool) (*Client, error) {
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 10
 	// Disable DEBUG logs (https://github.com/hashicorp/go-retryablehttp/issues/31)
 	retryClient.Logger = nil
-
+	retryClient.ErrorHandler = ErrorHandler
 	client := Client{
 		AccessID:      accessID,
 		AccessKey:     accessKey,

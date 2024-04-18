@@ -73,22 +73,24 @@ type CSEThresholdRuleResponse struct {
 }
 
 type CSEThresholdRule struct {
-	ID                string           `json:"id,omitempty"`
-	CountDistinct     bool             `json:"countDistinct"`
-	CountField        string           `json:"countField"`
-	Description       string           `json:"description"`
-	Enabled           bool             `json:"enabled"`
-	EntitySelectors   []EntitySelector `json:"entitySelectors"`
-	Expression        string           `json:"expression"`
-	GroupByFields     []string         `json:"groupByFields"`
-	IsPrototype       bool             `json:"isPrototype"`
-	Limit             int              `json:"limit"`
-	Name              string           `json:"name"`
-	Severity          int              `json:"score"`
-	Stream            string           `json:"stream"`
-	SummaryExpression string           `json:"summaryExpression"`
-	Tags              []string         `json:"tags"`
-	Version           int              `json:"version"`
-	WindowSize        windowSizeField  `json:"windowSize,omitempty"`
-	WindowSizeName    string           `json:"windowSizeName,omitempty"`
+	ID                     string           `json:"id,omitempty"`
+	CountDistinct          bool             `json:"countDistinct"`
+	CountField             string           `json:"countField"`
+	Description            string           `json:"description"`
+	Enabled                bool             `json:"enabled"`
+	EntitySelectors        []EntitySelector `json:"entitySelectors"`
+	Expression             string           `json:"expression"`
+	GroupByFields          []string         `json:"groupByFields"`
+	IsPrototype            bool             `json:"isPrototype"`
+	Limit                  int              `json:"limit"`
+	Name                   string           `json:"name"`
+	Severity               int              `json:"score"`
+	Stream                 string           `json:"stream"`
+	SummaryExpression      string           `json:"summaryExpression"`
+	Tags                   []string         `json:"tags"`
+	Version                int              `json:"version"`
+	WindowSize             windowSizeField  `json:"windowSize,omitempty"`
+	WindowSizeName         string           `json:"windowSizeName,omitempty"`
+	WindowSizeMilliseconds string           `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int             `json:"suppressionWindowSize,omitempty"`
 }

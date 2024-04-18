@@ -1,77 +1,148 @@
 package sumologic
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 	"testing"
+	"text/template"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestAccSumologicCSEAggregationRule_createAndUpdate(t *testing.T) {
+func TestAccSumologicCSEAggregationRule_createAndUpdateWithCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
-	var AggregationRule CSEAggregationRule
-	aggregationFunctionName := "distinct_eventid_count"
-	aggregationFunction := "count_distinct"
-	aggregationFunctionArgument := "metadata_deviceEventId"
-	descriptionExpression := "Test description"
-	enabled := true
-	entitySelectorEntityType := "_ip"
-	entitySelectorExpression := "srcDevice_ip"
-	groupByEntity := true
-	groupByField := "dstDevice_hostname"
-	isPrototype := false
-	matchExpression := "foo = bar"
-	name := "Test Aggregation Rule"
-	nameExpression := "Signal Name"
-	severityMappingType := "constant"
-	severityMappingDefault := 5
-	summaryExpression := "Signal Summary"
-	triggerExpression := "foo = bar"
-	tag := "foo"
-	windowSize := "T30M"
+	payload := getCSEAggregationRuleTestPayload()
+	payload.WindowSize = "CUSTOM"
+	payload.WindowSizeMilliseconds = "10800000" // 3h
 
-	nameUpdated := "Updated Aggregation Rule"
-	tagUpdated := "bar"
+	updatedPayload := payload
+	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 5 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
+	var aggregationRule CSEAggregationRule
 	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEAggregationRuleDestroy,
 		Steps: []resource.TestStep{
-			{
-				Config: testCreateCSEAggregationRuleConfig(aggregationFunctionName, aggregationFunction,
-					aggregationFunctionArgument, descriptionExpression, enabled, entitySelectorEntityType,
-					entitySelectorExpression, groupByEntity, groupByField, isPrototype, matchExpression,
-					name, nameExpression, severityMappingType, severityMappingDefault, summaryExpression,
-					triggerExpression, tag, windowSize),
+			{ // create
+				Config: testCreateCSEAggregationRuleConfig(t, &payload),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEAggregationRuleExists(resourceName, &AggregationRule),
-					testCheckAggregationRuleValues(&AggregationRule, aggregationFunctionName,
-						aggregationFunction, aggregationFunctionArgument, descriptionExpression, enabled,
-						entitySelectorEntityType, entitySelectorExpression, groupByEntity, groupByField,
-						isPrototype, matchExpression, name, nameExpression, severityMappingType,
-						severityMappingDefault, summaryExpression, triggerExpression, tag, windowSize),
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &payload, &aggregationRule),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			{
-				Config: testCreateCSEAggregationRuleConfig(aggregationFunctionName, aggregationFunction,
-					aggregationFunctionArgument, descriptionExpression, enabled, entitySelectorEntityType,
-					entitySelectorExpression, groupByEntity, groupByField, isPrototype, matchExpression,
-					nameUpdated, nameExpression, severityMappingType, severityMappingDefault, summaryExpression,
-					triggerExpression, tagUpdated, windowSize),
+			{ // update
+				Config: testCreateCSEAggregationRuleConfig(t, &updatedPayload),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEAggregationRuleExists(resourceName, &AggregationRule),
-					testCheckAggregationRuleValues(&AggregationRule, aggregationFunctionName,
-						aggregationFunction, aggregationFunctionArgument, descriptionExpression, enabled,
-						entitySelectorEntityType, entitySelectorExpression, groupByEntity, groupByField,
-						isPrototype, matchExpression, nameUpdated, nameExpression, severityMappingType,
-						severityMappingDefault, summaryExpression, triggerExpression, tagUpdated, windowSize),
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &updatedPayload, &aggregationRule),
+				),
+			},
+			{ // import
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize(t *testing.T) {
+	SkipCseTest(t)
+
+	payload := getCSEAggregationRuleTestPayload()
+	payload.WindowSize = "T30M"
+	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
+
+	updatedPayload := payload
+	updatedPayload.WindowSize = "CUSTOM"
+	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 5 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
+
+	var aggregationRule CSEAggregationRule
+	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEAggregationRuleDestroy,
+		Steps: []resource.TestStep{
+			{ // create
+				Config: testCreateCSEAggregationRuleConfig(t, &payload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &payload, &aggregationRule),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
+			},
+			{ // update
+				Config: testCreateCSEAggregationRuleConfig(t, &updatedPayload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &updatedPayload, &aggregationRule),
+				),
+			},
+			{ // import
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSEAggregationRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
+	payload := getCSEAggregationRuleTestPayload()
+	payload.WindowSize = "T30M"
+	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
+
+	updatedPayload := payload
+	updatedPayload.Name = fmt.Sprintf("Updated Aggregation Rule %s", uuid.New())
+	updatedPayload.WindowSize = "T12H"
+	updatedSuppressionWindow := 13 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
+
+	var aggregationRule CSEAggregationRule
+	resourceName := "sumologic_cse_aggregation_rule.aggregation_rule"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEAggregationRuleDestroy,
+		Steps: []resource.TestStep{
+			{ // create
+				Config: testCreateCSEAggregationRuleConfig(t, &payload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &payload, &aggregationRule),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{ // update
+				Config: testCreateCSEAggregationRuleConfig(t, &updatedPayload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckCSEAggregationRuleValues(t, &updatedPayload, &aggregationRule),
+				),
+			},
+			{ // import
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -100,46 +171,89 @@ func testAccCSEAggregationRuleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEAggregationRuleConfig(
-	aggregationFunctionName string, aggregationFunction string,
-	aggregationFunctionArgument string, descriptionExpression string, enabled bool,
-	entitySelectorEntityType string, entitySelectorExpression string, groupByEntity bool,
-	groupByField string, isPrototype bool, matchExpression string, name string,
-	nameExpression string, severityMappingType string, severityMappingDefault int,
-	summaryExpression string, triggerExpression string, tag string, windowSize string) string {
-	return fmt.Sprintf(`
-resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
-	aggregation_functions {
-		name = "%s"
-		function = "%s"
-		arguments = ["%s"]
+func testCreateCSEAggregationRuleConfig(t *testing.T, payload *CSEAggregationRule) string {
+	resourceTemplate := `
+		resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
+			{{ range .AggregationFunctions }}
+			aggregation_functions {
+					name = "{{ .Name }}"
+					function = "{{ .Function }}"
+					arguments = {{ quoteStringArray .Arguments }}
+			}
+			{{ end }}
+			description_expression = "{{ .DescriptionExpression }}"
+			enabled = {{ .Enabled }}
+			{{ range .EntitySelectors }}
+			entity_selectors {
+				entity_type = "{{ .EntityType }}"
+				expression = "{{ .Expression }}"
+			}
+			{{ end }}
+			group_by_entity = {{ .GroupByEntity }}
+			group_by_fields = {{ quoteStringArray .GroupByFields }}
+			is_prototype = {{ .IsPrototype }}
+			match_expression = "{{ js .MatchExpression }}"
+			name = "{{ .Name }}"
+			name_expression = "{{ .NameExpression }}"
+			severity_mapping {
+				type = "{{ .SeverityMapping.Type }}"
+				default = {{ .SeverityMapping.Default }}
+			}
+			summary_expression = "{{ .SummaryExpression }}"
+			trigger_expression = "{{ js .TriggerExpression }}"
+			tags = {{ quoteStringArray .Tags }}
+			window_size = "{{ .WindowSize }}"
+			{{ if eq .WindowSize "CUSTOM" }}
+			window_size_millis = "{{ .WindowSizeMilliseconds }}"
+			{{ end }}
+			{{ if .SuppressionWindowSize }}
+			suppression_window_size = {{ .SuppressionWindowSize }}
+			{{ end }}
+		}
+	`
+
+	configTemplate := template.Must(template.New("aggregation_rule").Funcs(template.FuncMap{
+		"quoteStringArray": func(arr []string) string {
+			return `["` + strings.Join(arr, `","`) + `"]`
+		},
+		"js": func(in string) string {
+			escaped := strings.Replace(in, `"`, `\"`, -1)
+			escaped = strings.Replace(escaped, `$`, `$$`, -1) // Escape Terraform interpolation
+			return escaped
+		},
+	}).Parse(resourceTemplate))
+
+	var buffer bytes.Buffer
+	if err := configTemplate.Execute(&buffer, payload); err != nil {
+		t.Error(err)
 	}
-	description_expression = "%s"
-    enabled = %t
-    entity_selectors {
-    	entity_type = "%s"
-    	expression = "%s"
-    }
-    group_by_entity = %t
-    group_by_fields = ["%s"]
-    is_prototype = %t
-    match_expression = "%s"
-    name = "%s"
-    name_expression = "%s"
-    severity_mapping {
-    	type = "%s"
-        default = %d
-    }
-    summary_expression = "%s"
-    trigger_expression = "%s"
-    tags = ["%s"]
-    window_size = "%s"
+
+	return buffer.String()
 }
-`, aggregationFunctionName, aggregationFunction, aggregationFunctionArgument,
-		descriptionExpression, enabled, entitySelectorEntityType, entitySelectorExpression,
-		groupByEntity, groupByField, isPrototype, matchExpression, name, nameExpression,
-		severityMappingType, severityMappingDefault, summaryExpression, triggerExpression,
-		tag, windowSize)
+
+func getCSEAggregationRuleTestPayload() CSEAggregationRule {
+	return CSEAggregationRule{
+		AggregationFunctions:  []AggregationFunction{{Name: "distinct_eventid_count", Function: "count_distinct", Arguments: []string{"metadata_deviceEventId"}}},
+		DescriptionExpression: "Test description",
+		Enabled:               true,
+		EntitySelectors:       []EntitySelector{{EntityType: "_ip", Expression: "srcDevice_ip"}},
+		GroupByEntity:         true,
+		GroupByFields:         []string{"dstDevice_hostname"},
+		IsPrototype:           false,
+		MatchExpression:       "foo = bar",
+		Name:                  fmt.Sprintf("Test Aggregation Rule %s", uuid.New()),
+		NameExpression:        "Signal Name",
+		SeverityMapping: SeverityMapping{
+			Type:    "constant",
+			Default: 5,
+		},
+		SummaryExpression:      "Signal Summary",
+		TriggerExpression:      "foo = bar",
+		Tags:                   []string{"foo"},
+		WindowSize:             windowSizeField("CUSTOM"),
+		WindowSizeMilliseconds: "10800000",
+		SuppressionWindowSize:  nil,
+	}
 }
 
 func testCheckCSEAggregationRuleExists(n string, AggregationRule *CSEAggregationRule) resource.TestCheckFunc {
@@ -150,7 +264,7 @@ func testCheckCSEAggregationRuleExists(n string, AggregationRule *CSEAggregation
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("match rule ID is not set")
+			return fmt.Errorf("aggregation rule ID is not set")
 		}
 
 		c := testAccProvider.Meta().(*Client)
@@ -165,71 +279,27 @@ func testCheckCSEAggregationRuleExists(n string, AggregationRule *CSEAggregation
 	}
 }
 
-func testCheckAggregationRuleValues(AggregationRule *CSEAggregationRule, aggregationFunctionName string,
-	aggregationFunction string, aggregationFunctionArgument string, descriptionExpression string,
-	enabled bool, entitySelectorEntityType string, entitySelectorExpression string, groupByEntity bool,
-	groupByField string, isPrototype bool, matchExpression string, name string, nameExpression string,
-	severityMappingType string, severityMappingDefault int, summaryExpression string,
-	triggerExpression string, tag string, windowSize string) resource.TestCheckFunc {
+func testCheckCSEAggregationRuleValues(t *testing.T, expected *CSEAggregationRule, actual *CSEAggregationRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if AggregationRule.AggregationFunctions[0].Name != aggregationFunctionName {
-			return fmt.Errorf("bad aggregationFunctionName, expected \"%s\", got %#v", aggregationFunctionName, AggregationRule.AggregationFunctions[0].Name)
+		assert.Equal(t, expected.AggregationFunctions, actual.AggregationFunctions)
+		assert.Equal(t, expected.DescriptionExpression, actual.DescriptionExpression)
+		assert.Equal(t, expected.Enabled, actual.Enabled)
+		assert.Equal(t, expected.EntitySelectors, actual.EntitySelectors)
+		assert.Equal(t, expected.GroupByEntity, actual.GroupByEntity)
+		assert.Equal(t, expected.GroupByFields, actual.GroupByFields)
+		assert.Equal(t, expected.IsPrototype, actual.IsPrototype)
+		assert.Equal(t, expected.MatchExpression, actual.MatchExpression)
+		assert.Equal(t, expected.Name, actual.Name)
+		assert.Equal(t, expected.NameExpression, actual.NameExpression)
+		assert.Equal(t, expected.SeverityMapping, actual.SeverityMapping)
+		assert.Equal(t, expected.SummaryExpression, actual.SummaryExpression)
+		assert.Equal(t, expected.TriggerExpression, actual.TriggerExpression)
+		assert.Equal(t, expected.Tags, actual.Tags)
+		assert.Equal(t, string(expected.WindowSize), actual.WindowSizeName)
+		if strings.EqualFold(actual.WindowSizeName, "CUSTOM") {
+			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
-		if AggregationRule.AggregationFunctions[0].Function != aggregationFunction {
-			return fmt.Errorf("bad aggregationFunction, expected \"%s\", got %#v", aggregationFunction, AggregationRule.AggregationFunctions[0].Function)
-		}
-		if AggregationRule.AggregationFunctions[0].Arguments[0] != aggregationFunctionArgument {
-			return fmt.Errorf("bad aggregationFunctionArgument, expected \"%s\", got %#v", aggregationFunctionArgument, AggregationRule.AggregationFunctions[0].Arguments[0])
-		}
-		if AggregationRule.DescriptionExpression != descriptionExpression {
-			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, AggregationRule.DescriptionExpression)
-		}
-		if AggregationRule.Enabled != enabled {
-			return fmt.Errorf("bad enabled, expected \"%t\", got %#v", enabled, AggregationRule.Enabled)
-		}
-		if AggregationRule.EntitySelectors[0].EntityType != entitySelectorEntityType {
-			return fmt.Errorf("bad entitySelectorEntityType, expected \"%s\", got %#v", entitySelectorEntityType, AggregationRule.EntitySelectors[0].EntityType)
-		}
-		if AggregationRule.EntitySelectors[0].Expression != entitySelectorExpression {
-			return fmt.Errorf("bad entitySelectorExpression, expected \"%s\", got %#v", entitySelectorExpression, AggregationRule.EntitySelectors[0].Expression)
-		}
-		if AggregationRule.GroupByEntity != groupByEntity {
-			return fmt.Errorf("bad groupByEntity, expected \"%t\", got %#v", groupByEntity, AggregationRule.GroupByEntity)
-		}
-		if AggregationRule.GroupByFields[0] != groupByField {
-			return fmt.Errorf("bad groupByField, expected \"%s\", got %#v", groupByField, AggregationRule.GroupByFields[0])
-		}
-		if AggregationRule.IsPrototype != isPrototype {
-			return fmt.Errorf("bad isPrototype, expected \"%t\", got %#v", isPrototype, AggregationRule.IsPrototype)
-		}
-		if AggregationRule.MatchExpression != matchExpression {
-			return fmt.Errorf("bad matchExpression, expected \"%s\", got %#v", matchExpression, AggregationRule.MatchExpression)
-		}
-		if AggregationRule.Name != name {
-			return fmt.Errorf("bad name, expected \"%s\", got %#v", name, AggregationRule.Name)
-		}
-		if AggregationRule.NameExpression != nameExpression {
-			return fmt.Errorf("bad nameExpression, expected \"%s\", got %#v", nameExpression, AggregationRule.NameExpression)
-		}
-		if AggregationRule.SeverityMapping.Type != severityMappingType {
-			return fmt.Errorf("bad severityMappingType, expected \"%s\", got %#v", severityMappingType, AggregationRule.SeverityMapping.Type)
-		}
-		if AggregationRule.SeverityMapping.Default != severityMappingDefault {
-			return fmt.Errorf("bad severityMappingDefault, expected \"%d\", got %#v", severityMappingDefault, AggregationRule.SeverityMapping.Default)
-		}
-		if AggregationRule.SummaryExpression != summaryExpression {
-			return fmt.Errorf("bad summaryExpression, expected \"%s\", got %#v", summaryExpression, AggregationRule.SummaryExpression)
-		}
-		if AggregationRule.Tags[0] != tag {
-			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, AggregationRule.Tags[0])
-		}
-		if AggregationRule.TriggerExpression != triggerExpression {
-			return fmt.Errorf("bad triggerExpression, expected \"%s\", got %#v", triggerExpression, AggregationRule.TriggerExpression)
-		}
-		if AggregationRule.WindowSizeName != windowSize {
-			return fmt.Errorf("bad windowSize, expected \"%s\", got %#v", windowSize, AggregationRule.WindowSize)
-		}
-
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 		return nil
 	}
 }
