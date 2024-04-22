@@ -148,7 +148,7 @@ func testCheckCSEMatchListExists(n string, matchList *CSEMatchListGet) resource.
 		}
 		c := testAccProvider.Meta().(*Client)
 
-		matchListResp, err := c.GetCSEMatchList(rs.Primary.ID, false)
+		matchListResp, err := c.GetCSEMatchList(rs.Primary.ID, true)
 		if err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func testCheckMatchListValues(matchList *CSEMatchListGet, nDefaultTtl int, nDesc
 			return fmt.Errorf("bad name, expected \"%s\", got: \"%s\"", nName, matchList.Name)
 		}
 		if matchList.TargetColumn != nTargetColumn {
-			return fmt.Errorf("bad target column, expected \"%s\", got: \"%s\"", nName, matchList.Name)
+			return fmt.Errorf("bad target column, expected \"%s\", got: \"%s\"", nTargetColumn, matchList.TargetColumn)
 		}
 
 		return nil
