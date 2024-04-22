@@ -1,5 +1,6 @@
 ## 2.29.1 (Unreleased)
-
+FEATURES:
+* resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
 
 ## 2.29.0 (April 9, 2024)
 
