@@ -89,6 +89,12 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -125,6 +131,9 @@ func resourceSumologicCSEChainRuleRead(d *schema.ResourceData, meta interface{})
 	if strings.EqualFold(CSEChainRuleGet.WindowSizeName, "CUSTOM") {
 		d.Set("window_size_millis", CSEChainRuleGet.WindowSize)
 	}
+	if CSEChainRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEChainRuleGet.SuppressionWindowSize)
+	}
 
 	return nil
 }
@@ -140,6 +149,13 @@ func resourceSumologicCSEChainRuleCreate(d *schema.ResourceData, meta interface{
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEChainRule(CSEChainRule{
 			Description:            d.Get("description").(string),
 			Enabled:                d.Get("enabled").(bool),
@@ -155,6 +171,7 @@ func resourceSumologicCSEChainRuleCreate(d *schema.ResourceData, meta interface{
 			Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -212,6 +229,12 @@ func resourceToCSEChainRule(d *schema.ResourceData) (CSEChainRule, error) {
 		return CSEChainRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEChainRule{
 		ID:                     id,
 		Description:            d.Get("description").(string),
@@ -228,5 +251,6 @@ func resourceToCSEChainRule(d *schema.ResourceData) (CSEChainRule, error) {
 		Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }

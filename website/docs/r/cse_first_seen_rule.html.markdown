@@ -34,6 +34,7 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
   retention_window_size = "86400000"
   severity              = 1
   value_fields          = ["dstDevice_hostname"]
+  suppression_window_size = 2100000
 }
 ```
 
@@ -42,7 +43,7 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
 The following arguments are supported:
 
 - `baseline_type` - (Required) The baseline type. Current acceptable values are GLOBAL or PER_ENTITY
-- `baseline_window_size` - (Required) The baseline window size in milliseconds 
+- `baseline_window_size` - (Required) The baseline window size in milliseconds
 - `category` - (Optional) The category
 - `description_expression` - (Required) The description of the generated Signals
 - `enabled` - (Required) Whether the rule should generate Signals
@@ -52,13 +53,14 @@ The following arguments are supported:
 - `filter_expression` - (Required) The expression for which records to match on
 - `group_by_fields` - (Optional) A list of fields to group records by
 - `is_prototype` - (Optional) Whether the generated Signals should be prototype Signals
-- `name` - (Required) The name of the Rule 
+- `name` - (Required) The name of the Rule
 - `name_expression` - (Required) The name of the generated Signals
 - `retention_window_size` - (Required) The retention window size in milliseconds
 - `severity` - (Required) The severity of the generated Signals
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Optional) The tags of the generated Signals
 - `value_fields` - (Required) The value fields
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than 0 and less than the global limit of 7 days.
 
 The following attributes are exported:
 

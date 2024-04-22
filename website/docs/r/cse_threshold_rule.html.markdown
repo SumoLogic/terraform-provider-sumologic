@@ -28,6 +28,7 @@ resource "sumologic_cse_threshold_rule" "threshold_rule" {
   summary_expression = "Signal summary"
   tags = ["_mitreAttackTactic:TA0009"]
   window_size = "T30M"
+  suppression_window_size = 2100000
 }
 ```
 
@@ -52,6 +53,7 @@ The following arguments are supported:
 - `tags` - (Required) The tags of the generated Signals
 - `window_size` - (Required) How long of a window to aggregate records for. Current acceptable values are T05M, T10M, T30M, T60M, T24H, T12H, T05D or CUSTOM
   + `window_size_millis` - (Optional) Used only when `window_size` is set to CUSTOM. Window size in milliseconds ranging from 1 minute to 5 days ("60000" to "432000000").
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than `window_size` and less than the global limit of 7 days.
 
 The following attributes are exported:
 
