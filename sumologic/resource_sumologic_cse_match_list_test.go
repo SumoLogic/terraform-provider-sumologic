@@ -17,7 +17,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	// Create values
-	nName := fmt.Sprintf("Terraform Test Match List %s", uuid.New())
+	nName := fmt.Sprintf("Terraform Test Match List Loop %s", uuid.New())
 	nDefaultTtl := 10800
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
@@ -49,7 +49,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			// Updates the match list and its 2 match list items
+			// Updates the match list description only
 			{
 				Config: testCreateCSEMatchListConfig(uDefaultTtl, uDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -73,6 +73,73 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 				Config: testDeleteCSEMatchListItemConfig(uDefaultTtl, uDescription, nName, nTargetColumn),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckMatchListItemsValuesAndCount(resourceName, "", "", "", 0),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
+	SkipCseTest(t)
+
+	var matchList CSEMatchListGet
+	resourceName := "sumologic_cse_match_list.match_list"
+
+	// Create values
+	nName := fmt.Sprintf("Terraform Test Match List %s", uuid.New())
+	nDefaultTtl := 10800
+	nDescription := "Match List Description"
+	nTargetColumn := "SrcIp"
+	liDescription := "Match List Item Description"
+	liExpiration := "2122-02-27T04:00:00"
+	liValue := "value"
+	liCount := 3
+
+	unDescription := "Updated Match List Description"
+	uliDescription := "Updated Match List Item Description"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEMatchListDestroy,
+		Steps: []resource.TestStep{
+			// Creates a match list with 3 match list items
+			{
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{ // change match list description only
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, unDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, unDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Add two match list items
+			{
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, unDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount+2),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, unDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount+2),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Remove couple items, change value in remaining two
+			{
+				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, uliDescription, liExpiration, liValue, liCount-1),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, uliDescription, liExpiration, liValue, liCount-1),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 		},

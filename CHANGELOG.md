@@ -2,6 +2,9 @@
 FEATURES:
 * resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
 
+BUG FIXES:
+* Speed up match list updates. (GH-645)
+
 ## 2.29.0 (April 9, 2024)
 
 FEATURES:
