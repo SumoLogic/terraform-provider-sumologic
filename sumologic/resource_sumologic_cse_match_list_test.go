@@ -17,7 +17,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	// Create values
-	nName := fmt.Sprintf("Terraform Test Match List For Loop %s", uuid.New())
+	nName := fmt.Sprintf("Terraform Test Match List Loop %s", uuid.New())
 	nDefaultTtl := 10800
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
