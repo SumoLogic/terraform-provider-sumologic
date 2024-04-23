@@ -242,13 +242,22 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("[ERROR] An error occurred updating match list with id %s, err: %v", d.Id(), err)
 	}
 
+	var deleteItemIds []string
+	var updateItems []CSEMatchListItemPost
+	var addItems []CSEMatchListItemPost
+
 	itemsData := d.Get("items").(*schema.Set).List()
-	var newItems []CSEMatchListItemPost
-	var newItemIds []string
+	itemsWithIDsMap := make(map[string]CSEMatchListItemPost)
 	for _, data := range itemsData {
 		item := resourceToCSEMatchListItem([]interface{}{data})
-		newItems = append(newItems, item)
-		newItemIds = append(newItemIds, item.ID)
+
+		if item.ID == "" {
+			// empty ID means item is to be added
+			addItems = append(addItems, item)
+		} else {
+			// item with and ID is already existing/potentially modified
+			itemsWithIDsMap[item.ID] = item
+		}
 	}
 
 	CSEMatchListItems, err := c.GetCSEMatchListItemsInMatchList(d.Id())
@@ -256,30 +265,28 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 	}
 
-	var deleteItemIds []string
-	var updateItemIds []string
-
 	// Compare currently existing match list items with the new items to determine if they should be deleted or updated
+	oldItemsMap := make(map[string]CSEMatchListItemGet)
 	for _, item := range CSEMatchListItems.CSEMatchListItemsGetObjects {
-		var oldItemId = item.ID
-		if contains(newItemIds, oldItemId) {
-			updateItemIds = append(updateItemIds, oldItemId)
+		oldItemsMap[item.ID] = item
+	}
+
+	for oldItemId, oldItem := range oldItemsMap {
+		newItem, ok := itemsWithIDsMap[oldItemId]
+		if ok {
+			if matches(oldItem, newItem) {
+				// skip (unchanged)
+			} else {
+				// same ID, changed contents
+				updateItems = append(updateItems, newItem)
+			}
 		} else {
+			// match list item doesn't exist any more
 			deleteItemIds = append(deleteItemIds, oldItemId)
 		}
 	}
 
-	var updateItems []CSEMatchListItemPost
-	var addItems []CSEMatchListItemPost
-
-	// Any new items that are not updates to existing items should be added instead
-	for _, newItem := range newItems {
-		if contains(updateItemIds, newItem.ID) {
-			updateItems = append(updateItems, newItem)
-		} else {
-			addItems = append(addItems, newItem)
-		}
-	}
+	log.Printf("[DEBUG] Match List update items - to add: %d, to update: %d, to delete: %d", len(addItems), len(updateItems), len(deleteItemIds))
 
 	// Delete old items
 	for _, oldItem := range CSEMatchListItems.CSEMatchListItemsGetObjects {
@@ -310,7 +317,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	// Wait for update to finish
 	updateStateConf := &resource.StateChangeConf{
 		Target: []string{
-			fmt.Sprint(len(newItems)),
+			fmt.Sprint(len(itemsData)),
 		},
 		Refresh: func() (interface{}, string, error) {
 			resp, err := c.GetCSEMatchListItemsInMatchList(d.Id())
@@ -318,6 +325,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 				log.Printf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 				return 0, "", err
 			}
+			log.Printf("[DEBUG] Match List update awaiting '%s', got '%s'", fmt.Sprint(len(itemsData)), fmt.Sprint(resp.Total))
 			return resp, fmt.Sprint(resp.Total), nil
 		},
 		Timeout:                   d.Timeout(schema.TimeoutUpdate),
@@ -332,6 +340,14 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	return resourceSumologicCSEMatchListRead(d, meta)
+}
+
+func matches(oldItem CSEMatchListItemGet, newItem CSEMatchListItemPost) bool {
+	return oldItem.ID == newItem.ID &&
+		oldItem.Expiration == newItem.Expiration &&
+		oldItem.Active == newItem.Active &&
+		oldItem.Value == newItem.Value &&
+		oldItem.Meta.Description == newItem.Description
 }
 
 func contains(slice []string, item string) bool {
