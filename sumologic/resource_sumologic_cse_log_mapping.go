@@ -2,8 +2,10 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSumologicCSELogMapping() *schema.Resource {
@@ -424,6 +426,7 @@ func setFields(d *schema.ResourceData, fields []CSELogMappingField) {
 	var f []map[string]interface{}
 
 	for _, t := range fields {
+		_, splitIndex := strconv.Atoi(t.SplitIndex)
 		mapping := map[string]interface{}{
 			"name":              t.Name,
 			"value":             t.Value,
@@ -435,7 +438,7 @@ func setFields(d *schema.ResourceData, fields []CSELogMappingField) {
 			"alternate_values":  t.AlternateValues,
 			"time_zone":         t.TimeZone,
 			"split_delimiter":   t.SplitDelimiter,
-			"split_index":       t.SplitIndex,
+			"split_index":       splitIndex,
 			"field_join":        t.FieldJoin,
 			"join_delimiter":    t.JoinDelimiter,
 			"format_parameters": t.FormatParameters,
