@@ -2,8 +2,6 @@ module github.com/SumoLogic/terraform-provider-sumologic
 
 go 1.21
 
-toolchain go1.22.2
-
 require (
 	github.com/go-errors/errors v1.4.0
 	github.com/google/go-cmp v0.6.0
