@@ -2,14 +2,15 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"log"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -109,7 +110,7 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
-       resource "sumologic_monitor" "test" { 
+       resource "sumologic_monitor" "test" {
          name = "test"
          type = "MonitorsLibraryMonitor"
          monitor_type = "Logs"
@@ -117,7 +118,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
            threshold_type = "foo"
          }
        }`
-	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
+	expectedError := regexp.MustCompile(`.*expected triggers.0.threshold_type to be one of \["LessThan" "LessThanOrEqual" "GreaterThan" "GreaterThanOrEqual"\], got foo.*`)
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
@@ -145,7 +146,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 			Steps: []resource.TestStep{
 				{
 					Config:      monitorConfig(testName),
-					ExpectError: regexp.MustCompile("config is invalid"),
+					ExpectError: regexp.MustCompile("Missing required argument"),
 				},
 			},
 		})
@@ -683,7 +684,7 @@ func TestAccSumologicMonitorsLibraryMonitor_override_payload(t *testing.T) {
 	})
 }
 
-func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, _ *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//fetching monitor information
 		monitorResource, ok := s.RootModule().Resources[monitorName]
@@ -733,7 +734,7 @@ func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderNam
 	}
 }
 
-func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLibraryMonitor) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorDestroy(_ MonitorsLibraryMonitor) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
@@ -750,7 +751,7 @@ func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLi
 	}
 }
 
-func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonitor *MonitorsLibraryMonitor, t *testing.T) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonitor *MonitorsLibraryMonitor, _ *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -842,7 +843,7 @@ resource "sumologic_monitor" "test" {
 		  }
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
-	playbook = "This is a test playbook"  
+	playbook = "This is a test playbook"
 	alert_name =  "Alert from {{Name}}"
 	tags = {
         team = "metrics"
@@ -921,7 +922,7 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				trigger_type = "ResolvedCritical"
 				detection_method = "StaticCondition"
 			}
-			playbook = "This is a test playbook"  
+			playbook = "This is a test playbook"
 			alert_name =  "Alert from {{Name}}"
 		}`, testName)
 }
@@ -1045,7 +1046,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	  }
 	notifications {
 		notification {
-			connection_type = "Webhook"			
+			connection_type = "Webhook"
 			connection_id = sumologic_connection.connection_01.id
 			payload_override = <<JSON
 %s
@@ -1058,7 +1059,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	}
 	playbook = "This is an updated test playbook"
 	alert_name = "Updated Alert from {{Name}}"
-	
+
 	obj_permission {
 		subject_type = "role"
 		subject_id = sumologic_role.tf_test_role_01.id
@@ -1077,7 +1078,7 @@ resource "sumologic_role" "tf_test_role_01" {
 }
 
 func testAccEmulateFGPDriftingMonitor(
-	t *testing.T,
+	_ *testing.T,
 	// expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
 ) resource.TestCheckFunc {
 
@@ -1152,7 +1153,7 @@ func testAccSumologicMonitorsLibraryMonitorFolderUpdate(testName string, parentI
 resource "sumologic_monitor_folder" "tf_folder_01" {
 	name = "tf_test_folder_01_%s"
 	description = "1st folder"
-}	
+}
 resource "sumologic_monitor_folder" "tf_folder_02" {
 	name = "tf_test_folder_02_%s"
 	description = "1st folder"
@@ -1495,26 +1496,6 @@ var allExampleMonitors = []func(testName string) string{
 	exampleSloBurnRateMonitor,
 }
 
-func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
-	return fmt.Sprintf(`
-resource "sumologic_monitor" "test" {
-	name = "terraform_test_monitor_%s"
-	description = "terraform_test_monitor_description"
-	type = "MonitorsLibraryMonitor"
-	is_disabled = false
-	content_type = "Monitor"
-	monitor_type = "Logs"
-	evaluation_delay = "60m"
-	queries {
-		row_id = "A"
-		query = "_sourceCategory=monitor-manager error"
-	  }
-	trigger_conditions  {
-		%s
-	}
-}`, testName, triggerCondition)
-}
-
 func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
 	return TriggerCondition{
 		TimeRange:       "30m",
@@ -1660,7 +1641,7 @@ func genExpectedPermStmtsForMonitorUpdate(s *terraform.State, targetId string) (
 
 func testAccCheckMonitorsLibraryMonitorFGPBackend(
 	name string,
-	t *testing.T,
+	_ *testing.T,
 	expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
 ) resource.TestCheckFunc {
 
