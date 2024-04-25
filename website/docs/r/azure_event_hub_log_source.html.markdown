@@ -2,11 +2,11 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_azure_event_hub_log_source"
 description: |-
-  Provides a Sumologic Azure Event Hub Log Source in GA.
+  Provides a Sumologic Azure Event Hub Log Source.
 ---
 
 # sumologic_azure_event_hub_log_source
-Provides a [Sumologic Azure Event Hub Log Source].
+Provides a [Sumologic Azure Event Hub Log Source](https://help.sumologic.com/docs/send-data/collect-from-other-data-sources/azure-monitoring/ms-azure-event-hubs-source/).
 
 __IMPORTANT:__ The Azure Event Hub credentials are stored in plain-text in the state. This is a potential security issue.
 
@@ -20,14 +20,14 @@ resource "sumologic_azure_event_hub_log_source" "terraform_azure_event_hub_log_s
   collector_id  = "${sumologic_collector.collector.id}"
   authentication {
     type = "AzureEventHubAuthentication"
-	  shared_access_policy_name = "%s"
-	  shared_access_policy_key = "%s"
+    shared_access_policy_name = "%s"
+    shared_access_policy_key = "%s"
   }
   path {
     type = "AzureEventHubPath"
-	  namespace     = "%s"
-	  event_hub_name = "%s"
-	  consumer_group = "%s"
+    namespace     = "%s"
+    event_hub_name = "%s"
+    consumer_group = "%s"
     region = "%s"
   }
 }
