@@ -44,20 +44,20 @@ type PollingAuthentication struct {
 }
 
 type PollingPath struct {
-	Type                      string                            `json:"type"`
-	BucketName                string                            `json:"bucketName,omitempty"`
-	PathExpression            string                            `json:"pathExpression,omitempty"`
-	LimitToRegions            []string                          `json:"limitToRegions,omitempty"`
-	LimitToNamespaces         []string                          `json:"limitToNamespaces,omitempty"`
-	LimitToServices           []string                          `json:"limitToServices,omitempty"`
-	CustomServices            []string                          `json:"customServices,omitempty"`
-	TagFilters                []TagFilter                       `json:"tagFilters,omitempty"`
-	SnsTopicOrSubscriptionArn *PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
-	UseVersionedApi           *bool                             `json:"useVersionedApi,omitempty"`
-	Namespace                 string                            `json:"namespace,omitempty"`
-	EventHubName              string                            `json:"eventHubName,omitempty"`
-	ConsumerGroup             string                            `json:"consumerGroup,omitempty"`
-	Region                    string                            `json:"region,omitempty"`
+	Type                      string                           `json:"type"`
+	BucketName                string                           `json:"bucketName,omitempty"`
+	PathExpression            string                           `json:"pathExpression,omitempty"`
+	LimitToRegions            []string                         `json:"limitToRegions,omitempty"`
+	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
+	LimitToServices           []string                         `json:"limitToServices,omitempty"`
+	CustomServices            []string                         `json:"customServices,omitempty"`
+	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
+	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
+	UseVersionedApi           *bool                            `json:"useVersionedApi,omitempty"`
+	Namespace                 string                           `json:"namespace,omitempty"`
+	EventHubName              string                           `json:"eventHubName,omitempty"`
+	ConsumerGroup             string                           `json:"consumerGroup,omitempty"`
+	Region                    string                           `json:"region,omitempty"`
 }
 
 type TagFilter struct {

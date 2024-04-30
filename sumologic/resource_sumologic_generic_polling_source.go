@@ -374,24 +374,20 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 
 	for _, t := range pollingResource {
 		mapping := map[string]interface{}{
-			"type":                t.Path.Type,
-			"bucket_name":         t.Path.BucketName,
-			"path_expression":     t.Path.PathExpression,
-			"limit_to_regions":    t.Path.LimitToRegions,
-			"limit_to_namespaces": t.Path.LimitToNamespaces,
-			"limit_to_services":   t.Path.LimitToServices,
-			"use_versioned_api":   t.Path.UseVersionedApi,
-			"custom_services":     flattenCustomServices(t.Path.CustomServices),
-			"tag_filters":         flattenPollingTagFilters(t.Path.TagFilters),
-			// "sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
-			"namespace":      t.Path.Namespace,
-			"event_hub_name": t.Path.EventHubName,
-			"consumer_group": t.Path.ConsumerGroup,
-			"region":         t.Path.Region,
-		}
-
-		if t.Path.SnsTopicOrSubscriptionArn != nil {
-			mapping["sns_topic_or_subscription_arn"] = flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn)
+			"type":                          t.Path.Type,
+			"bucket_name":                   t.Path.BucketName,
+			"path_expression":               t.Path.PathExpression,
+			"limit_to_regions":              t.Path.LimitToRegions,
+			"limit_to_namespaces":           t.Path.LimitToNamespaces,
+			"limit_to_services":             t.Path.LimitToServices,
+			"use_versioned_api":             t.Path.UseVersionedApi,
+			"custom_services":               flattenCustomServices(t.Path.CustomServices),
+			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
+			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
+			"namespace":                     t.Path.Namespace,
+			"event_hub_name":                t.Path.EventHubName,
+			"consumer_group":                t.Path.ConsumerGroup,
+			"region":                        t.Path.Region,
 		}
 
 		s = append(s, mapping)
@@ -497,7 +493,7 @@ func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	return filters
 }
 
-func flattenPollingSnsTopicOrSubscriptionArn(v *PollingSnsTopicOrSubscriptionArn) []map[string]interface{} {
+func flattenPollingSnsTopicOrSubscriptionArn(v PollingSnsTopicOrSubscriptionArn) []map[string]interface{} {
 	var snsTopicOrSubscriptionArn []map[string]interface{}
 	snsTopic := map[string]interface{}{
 		"is_success": v.IsSuccess,
@@ -507,7 +503,7 @@ func flattenPollingSnsTopicOrSubscriptionArn(v *PollingSnsTopicOrSubscriptionArn
 	return snsTopicOrSubscriptionArn
 }
 
-func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) *PollingSnsTopicOrSubscriptionArn {
+func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) PollingSnsTopicOrSubscriptionArn {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	snsConfig := path["sns_topic_or_subscription_arn"].([]interface{})
@@ -520,7 +516,7 @@ func getPollingSnsTopicOrSubscriptionArn(d *schema.ResourceData) *PollingSnsTopi
 			snsTopicOrSubscriptionArn.Arn = config["arn"].(string)
 		}
 	}
-	return &snsTopicOrSubscriptionArn
+	return snsTopicOrSubscriptionArn
 }
 
 func addGcpServiceAccountDetailsToAuth(authSettings *PollingAuthentication, auth map[string]interface{}) error {
