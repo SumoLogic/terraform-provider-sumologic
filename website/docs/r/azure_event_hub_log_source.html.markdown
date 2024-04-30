@@ -12,29 +12,30 @@ __IMPORTANT:__ The Azure Event Hub credentials are stored in plain-text in the s
 
 ## Example Usage
 ```hcl
-resource "sumologic_azure_event_hub_log_source" "terraform_azure_event_hub_log_source" {
-  name          = "Azure Event Hub Log Source"
-  description   = "My description"
-  category      = "azure/eventhub"
-  content_type  = "AzureEventHubLog"
-  collector_id  = "${sumologic_collector.collector.id}"
-  authentication {
-    type = "AzureEventHubAuthentication"
-    shared_access_policy_name = "%s"
-    shared_access_policy_key = "%s"
+  resource "sumologic_azure_event_hub_log_source" "terraform_azure_event_hub_log_source" {
+    name          = "Azure Event Hub Log Source"
+    description   = "My description"
+    category      = "azure/eventhub"
+    content_type  = "AzureEventHubLog"
+    collector_id  = "${sumologic_collector.collector.id}"
+    authentication {
+      type = "AzureEventHubAuthentication"
+      shared_access_policy_name = "%s"
+      shared_access_policy_key = "%s"
+    }
+    path {
+      type = "AzureEventHubPath"
+      namespace     = "%s"
+      event_hub_name = "%s"
+      consumer_group = "%s"
+      region = "%s"
+    }
   }
-  path {
-    type = "AzureEventHubPath"
-    namespace     = "%s"
-    event_hub_name = "%s"
-    consumer_group = "%s"
-    region = "%s"
+  
+  resource "sumologic_collector" "collector" {
+    name        = "my-collector"
+    description = "Just testing this"
   }
-}
-resource "sumologic_collector" "collector" {
-  name        = "my-collector"
-  description = "Just testing this"
-}
 ```
 
 ## Argument reference
