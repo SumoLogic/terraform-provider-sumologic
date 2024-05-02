@@ -11,7 +11,7 @@ Provider to manage Sumologic Role V2s
 ## Example Usage
 ```hcl
 resource "sumologic_role_v2" "example_role_v2" {
-    selected_views = ""
+    selected_views = "[{"viewName": "view1"}, {"viewName": "view2"}]"
     name = "DataAdmin"
     audit_data_filter = "info"
     selection_type = "Allow"
@@ -19,7 +19,6 @@ resource "sumologic_role_v2" "example_role_v2" {
     description = "Manage data of the org."
     security_data_filter = "error"
     log_analytics_filter = "!_sourceCategory=collector"
-    selected_views = "[{"viewName": "view1"}, {"viewName": "view2"}]"
 }
 ```
 ## Argument reference
