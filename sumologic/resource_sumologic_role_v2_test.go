@@ -51,7 +51,7 @@ func TestAccSumologicRoleV2_basic(t *testing.T) {
 func TestAccRoleV2_create(t *testing.T) {
 	var roleV2 RoleV2
 	testSelectedViews := []ViewFilterDefinition{
-		ViewFilterDefinition{
+		{
 			ViewName: "createViewTest",
 		},
 	}
@@ -90,7 +90,7 @@ func TestAccRoleV2_create(t *testing.T) {
 func TestAccRoleV2_update(t *testing.T) {
 	var roleV2 RoleV2
 	testSelectedViews := []ViewFilterDefinition{
-		ViewFilterDefinition{
+		{
 			ViewName: "updateViewCreateTest",
 		},
 	}
@@ -103,7 +103,7 @@ func TestAccRoleV2_update(t *testing.T) {
 	testLogAnalyticsFilter := "!_sourceCategory=collector"
 
 	testUpdatedSelectedViews := []ViewFilterDefinition{
-		ViewFilterDefinition{
+		{
 			ViewName: "updateViewUpdateTest",
 		},
 	}
