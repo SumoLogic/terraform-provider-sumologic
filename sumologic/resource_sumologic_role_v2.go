@@ -12,6 +12,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -106,14 +107,18 @@ func resourceSumologicRoleV2Read(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
-	d.Set("selected_views", roleV2.SelectedViews)
 	d.Set("name", roleV2.Name)
 	d.Set("audit_data_filter", roleV2.AuditDataFilter)
 	d.Set("selection_type", roleV2.SelectionType)
-	d.Set("capabilities", roleV2.Capabilities)
 	d.Set("description", roleV2.Description)
 	d.Set("security_data_filter", roleV2.SecurityDataFilter)
 	d.Set("log_analytics_filter", roleV2.LogAnalyticsFilter)
+	if err := d.Set("capabilities", roleV2.Capabilities); err != nil {
+		return fmt.Errorf("error setting capabilities for resource %s: %s", d.Id(), err)
+	}
+	if err := d.Set("selected_views", flattenSelectedViews(roleV2.SelectedViews)); err != nil {
+		return fmt.Errorf("error setting selected views for datasource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }
@@ -190,4 +195,21 @@ func resourceToViewFilterDefinition(data interface{}) ViewFilterDefinition {
 	}
 
 	return viewFilterDefinition
+}
+
+func flattenSelectedViews(objs []ViewFilterDefinition) []interface{} {
+	if objs == nil {
+		return nil
+	}
+	items := []interface{}{}
+	for _, item := range objs {
+		i := map[string]interface{}{
+			"view_name":   item.ViewName,
+			"view_filter": item.ViewFilter,
+		}
+		items = append(items, i)
+	}
+
+	return items
+
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -30,44 +29,42 @@ func dataSourceSumologicRoleV2() *schema.Resource {
 				Computed: true,
 			},
 			"selected_views": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "List of views which with specific view level filters in accordance to the selectionType chosen.",
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
 						"view_name": {
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 
 						"view_filter": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 						},
 					},
 				},
 			},
 			"security_data_filter": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"selection_type": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"log_analytics_filter": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 
 			"audit_data_filter": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"capabilities": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Computed:    true,
 				Description: "List of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -107,16 +104,19 @@ func dataSourceSumologicRoleV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(roleV2.ID)
-	d.Set("selected_views", roleV2.SelectedViews)
 	d.Set("name", roleV2.Name)
 	d.Set("audit_data_filter", roleV2.AuditDataFilter)
 	d.Set("selection_type", roleV2.SelectionType)
-	d.Set("capabilities", roleV2.Capabilities)
 	d.Set("description", roleV2.Description)
 	d.Set("security_data_filter", roleV2.SecurityDataFilter)
 	d.Set("log_analytics_filter", roleV2.LogAnalyticsFilter)
+	if err := d.Set("capabilities", roleV2.Capabilities); err != nil {
+		return fmt.Errorf("error setting capabilities for datasource %s: %s", d.Id(), err)
+	}
+	if err := d.Set("selected_views", flattenSelectedViews(roleV2.SelectedViews)); err != nil {
+		return fmt.Errorf("error setting selected views for datasource %s: %s", d.Id(), err)
+	}
 
-	log.Printf("[DEBUG] data_source_sumologic_role: retrieved %v", roleV2)
 	return nil
 }
 
