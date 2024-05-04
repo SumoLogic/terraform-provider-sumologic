@@ -13,7 +13,7 @@ func TestAccDataSourceSumologicRoleV2_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAccSumologicRoleConfig,
+				Config: testDataSourceAccSumologicRoleV2Config,
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceRoleV2Check("data.sumologic_role_v2.by_name", "sumologic_role_v2.test"),
 					testAccDataSourceRoleV2Check("data.sumologic_role_v2.by_id", "sumologic_role_v2.test"),
