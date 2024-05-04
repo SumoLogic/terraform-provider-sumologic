@@ -117,7 +117,7 @@ func resourceSumologicRoleV2Read(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error setting capabilities for resource %s: %s", d.Id(), err)
 	}
 	if err := d.Set("selected_views", flattenSelectedViews(roleV2.SelectedViews)); err != nil {
-		return fmt.Errorf("error setting selected views for datasource %s: %s", d.Id(), err)
+		return fmt.Errorf("error setting selected views for resource %s: %s", d.Id(), err)
 	}
 
 	return nil

@@ -1,6 +1,8 @@
 ## 2.29.1 (Unreleased)
 FEATURES:
 * resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
+* **New Resource:** sumologic_role_v2 (GH-651)
+* **New Data Source:** sumologic_role_v2 (GH-651)
 
 BUG FIXES:
 * Speed up match list updates. (GH-645)

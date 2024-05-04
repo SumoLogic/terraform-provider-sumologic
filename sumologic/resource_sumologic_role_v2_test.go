@@ -48,7 +48,7 @@ func TestAccSumologicRoleV2_basic(t *testing.T) {
 		},
 	})
 }
-func TestAccRoleV2_create(t *testing.T) {
+func TestAccSumologicRoleV2_create(t *testing.T) {
 	var roleV2 RoleV2
 	testSelectedViews := []ViewFilterDefinition{
 		{
@@ -87,7 +87,7 @@ func TestAccRoleV2_create(t *testing.T) {
 	})
 }
 
-func TestAccRoleV2_update(t *testing.T) {
+func TestAccSumologicRoleV2_update(t *testing.T) {
 	var roleV2 RoleV2
 	testSelectedViews := []ViewFilterDefinition{
 		{
