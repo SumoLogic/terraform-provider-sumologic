@@ -23,7 +23,6 @@ import (
 
 func TestAccSumologicRoleV2_basic(t *testing.T) {
 	var roleV2 RoleV2
-	testSelectedViews := []ViewFilterDefinition{}
 	testName := "DataAdmin"
 	testAuditDataFilter := "info"
 	testSelectionType := "All"
@@ -38,7 +37,7 @@ func TestAccSumologicRoleV2_basic(t *testing.T) {
 		CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSumologicRoleV2ConfigImported(testSelectedViews, testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
+				Config: testAccCheckSumologicRoleV2ConfigImported(testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
 			},
 			{
 				ResourceName:      "sumologic_role_v2.foo",
@@ -50,14 +49,9 @@ func TestAccSumologicRoleV2_basic(t *testing.T) {
 }
 func TestAccSumologicRoleV2_create(t *testing.T) {
 	var roleV2 RoleV2
-	testSelectedViews := []ViewFilterDefinition{
-		{
-			ViewName: "createViewTest",
-		},
-	}
-	testName := "DataAdmin"
+	testName := "DataAdminRoleV2createtest"
 	testAuditDataFilter := "info"
-	testSelectionType := "All"
+	testSelectionType := "Allow"
 	testCapabilities := []string{"\"manageContent\""}
 	testDescription := "Manage data of the org."
 	testSecurityDataFilter := "error"
@@ -68,12 +62,10 @@ func TestAccSumologicRoleV2_create(t *testing.T) {
 		CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicRoleV2(testSelectedViews, testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
+				Config: testAccSumologicRoleV2(testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
 					testAccCheckRoleV2Attributes("sumologic_role_v2.test"),
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.0.view_name", testSelectedViews[0].ViewName),
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.#", fmt.Sprint(len(testSelectedViews))),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "audit_data_filter", testAuditDataFilter),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", testSelectionType),
@@ -89,27 +81,17 @@ func TestAccSumologicRoleV2_create(t *testing.T) {
 
 func TestAccSumologicRoleV2_update(t *testing.T) {
 	var roleV2 RoleV2
-	testSelectedViews := []ViewFilterDefinition{
-		{
-			ViewName: "updateViewCreateTest",
-		},
-	}
 	testName := "DataAdmin"
 	testAuditDataFilter := "info"
-	testSelectionType := "All"
+	testSelectionType := "Allow"
 	testCapabilities := []string{"\"manageContent\""}
 	testDescription := "Manage data of the org."
 	testSecurityDataFilter := "error"
 	testLogAnalyticsFilter := "!_sourceCategory=collector"
 
-	testUpdatedSelectedViews := []ViewFilterDefinition{
-		{
-			ViewName: "updateViewUpdateTest",
-		},
-	}
 	testUpdatedName := "DataAdminUpdate"
 	testUpdatedAuditDataFilter := "infoUpdate"
-	testUpdatedSelectionType := "AllUpdate"
+	testUpdatedSelectionType := "All"
 	testUpdatedCapabilities := []string{"\"manageContent\""}
 	testUpdatedDescription := "Manage data of the org.Update"
 	testUpdatedSecurityDataFilter := "errorUpdate"
@@ -121,12 +103,10 @@ func TestAccSumologicRoleV2_update(t *testing.T) {
 		CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicRoleV2(testSelectedViews, testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
+				Config: testAccSumologicRoleV2(testName, testAuditDataFilter, testSelectionType, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
 					testAccCheckRoleV2Attributes("sumologic_role_v2.test"),
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.0.view_name", testSelectedViews[0].ViewName),
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.#", fmt.Sprint(len(testSelectedViews))),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "audit_data_filter", testAuditDataFilter),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", testSelectionType),
@@ -137,10 +117,8 @@ func TestAccSumologicRoleV2_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicRoleV2Update(testUpdatedSelectedViews, testUpdatedName, testUpdatedAuditDataFilter, testUpdatedSelectionType, testUpdatedCapabilities, testUpdatedDescription, testUpdatedSecurityDataFilter, testUpdatedLogAnalyticsFilter),
+				Config: testAccSumologicRoleV2Update(testUpdatedName, testUpdatedAuditDataFilter, testUpdatedSelectionType, testUpdatedCapabilities, testUpdatedDescription, testUpdatedSecurityDataFilter, testUpdatedLogAnalyticsFilter),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.0.view_name", testUpdatedSelectedViews[0].ViewName),
-					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.#", fmt.Sprint(len(testUpdatedSelectedViews))),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "audit_data_filter", testUpdatedAuditDataFilter),
 					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", testUpdatedSelectionType),
@@ -194,10 +172,9 @@ func testAccCheckRoleV2Exists(name string, roleV2 *RoleV2, t *testing.T) resourc
 		return nil
 	}
 }
-func testAccCheckSumologicRoleV2ConfigImported(selectedViews []ViewFilterDefinition, name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
+func testAccCheckSumologicRoleV2ConfigImported(name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role_v2" "foo" {
-      selected_views = %v
       name = "%s"
       audit_data_filter = "%s"
       selection_type = "%s"
@@ -206,13 +183,15 @@ resource "sumologic_role_v2" "foo" {
       security_data_filter = "%s"
       log_analytics_filter = "%s"
 }
-`, selectedViews, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
+`, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
 }
 
-func testAccSumologicRoleV2(selectedViews []ViewFilterDefinition, name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
+func testAccSumologicRoleV2(name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
-    selected_views = %v
+    selected_views {
+		view_name = "sumologic_default"
+	}
     name = "%s"
     audit_data_filter = "%s"
     selection_type = "%s"
@@ -221,13 +200,12 @@ resource "sumologic_role_v2" "test" {
     security_data_filter = "%s"
     log_analytics_filter = "%s"
 }
-`, selectedViews, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
+`, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
 }
 
-func testAccSumologicRoleV2Update(selectedViews []ViewFilterDefinition, name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
+func testAccSumologicRoleV2Update(name string, auditDataFilter string, selectionType string, capabilities []string, description string, securityDataFilter string, logAnalyticsFilter string) string {
 	return fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
-      selected_views = %v
       name = "%s"
       audit_data_filter = "%s"
       selection_type = "%s"
@@ -236,13 +214,12 @@ resource "sumologic_role_v2" "test" {
       security_data_filter = "%s"
       log_analytics_filter = "%s"
 }
-`, selectedViews, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
+`, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
 }
 
 func testAccCheckRoleV2Attributes(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		f := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet(name, "selected_views"),
 			resource.TestCheckResourceAttrSet(name, "name"),
 			resource.TestCheckResourceAttrSet(name, "audit_data_filter"),
 			resource.TestCheckResourceAttrSet(name, "selection_type"),
