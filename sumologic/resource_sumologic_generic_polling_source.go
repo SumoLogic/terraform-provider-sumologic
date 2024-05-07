@@ -30,10 +30,16 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
 		Optional: true,
+		Default:  300000,
+		DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+			contentType := d.Get("content_type").(string)
+			return contentType == "AzureEventHubLog"
+		},
 	}
 	pollingSource.Schema["paused"] = &schema.Schema{
 		Type:     schema.TypeBool,
 		Optional: true,
+		Default:  false,
 	}
 	pollingSource.Schema["url"] = &schema.Schema{
 		Type:     schema.TypeString,
@@ -215,18 +221,15 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				},
 				"sns_topic_or_subscription_arn": {
 					Type:     schema.TypeList,
-					Optional: true,
 					Computed: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"is_success": {
 								Type:     schema.TypeBool,
-								Optional: true,
 								Computed: true,
 							},
 							"arn": {
 								Type:     schema.TypeString,
-								Optional: true,
 								Computed: true,
 							},
 						},
@@ -344,7 +347,7 @@ func resourceToGenericPollingSource(d *schema.ResourceData) (PollingSource, erro
 	}
 
 	if source.ContentType == "AzureEventHubLog" {
-		pollingSource.ScanInterval = 300000
+		pollingSource.ScanInterval = -1
 	}
 
 	authSettings, errAuthSettings := getPollingAuthentication(d)
