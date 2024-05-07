@@ -781,7 +781,7 @@ func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta 
 
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
-		log.Printf("[DEBUG] creating monitor: %+v\n", monitor)
+		log.Printf("creating monitor: %+v\n", monitor)
 		if monitor.ParentID == "" {
 			rootFolder, err := c.GetMonitorsLibraryFolder("root")
 			if err != nil {
@@ -817,7 +817,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	c := meta.(*Client)
 
 	monitor, err := c.MonitorsRead(d.Id())
-	log.Printf("[DEBUG] read monitor: %+v\n", monitor)
+	log.Printf("read monitor: %+v\n", monitor)
 	if err != nil {
 		return err
 	}
@@ -840,6 +840,10 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
 	}
 
+	// Always use "Normal" as status; otherwise it can cause state to drift from backend.
+	// For e.g., with anomaly monitor status is initially "GeneratingModel" and then switches to
+	// "Normal" after training is complete. This will cause backend to drift from tf state.
+	monitor.Status = []string{"Normal"}
 	d.Set("created_by", monitor.CreatedBy)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
@@ -1258,9 +1262,7 @@ func logsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCond
 	if subBlock, ok := fromSingletonArray(block, "critical"); ok {
 		subBlock["alert"] = toSingletonArray(map[string]interface{}{})
 		subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
-		log.Printf("[DEBUG] subBlock=%+v\n", subBlock)
 	}
-	log.Printf("[DEBUG] block=%+v\n", block)
 	return base.cloneReadingFromNestedBlocks(block)
 }
 
@@ -1555,11 +1557,10 @@ func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]i
 	block["anomaly_detector_type"] = conditions[0].AnomalyDetectorType
 	block["sensitivity"] = conditions[0].Sensitivity
 
-	var criticalDict, warningDict = dict{}, dict{}
+	var criticalDict = dict{}
 	block["critical"] = toSingletonArray(criticalDict)
-	block["warning"] = toSingletonArray(warningDict)
 
-	var hasCritical, hasWarning = false, false
+	var hasCritical = false
 	for _, condition := range conditions {
 		switch condition.TriggerType {
 		case "Critical":
@@ -1574,9 +1575,6 @@ func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]i
 	}
 	if !hasCritical {
 		delete(block, "critical")
-	}
-	if !hasWarning {
-		delete(block, "warning")
 	}
 	return block
 }
@@ -1651,11 +1649,12 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	notifications := getNotifications(d)
 	triggers := getTriggers(d)
 	queries := getQueries(d)
-	rawStatus := d.Get("status").([]interface{})
-	status := make([]string, len(rawStatus))
-	for i := range rawStatus {
-		status[i] = rawStatus[i].(string)
-	}
+
+	// Always use "Normal" as status; otherwise it can cause state to drift from backend.
+	// For e.g., with anomaly monitor status is initially "GeneratingModel" and then switches to
+	// "Normal" after training is complete. This will cause backend to drift from tf state.
+	status := []string{"Normal"}
+
 	rawGroupFields := d.Get("notification_group_fields").([]interface{})
 	notificationGroupFields := make([]string, len(rawGroupFields))
 	for i := range rawGroupFields {
@@ -1846,7 +1845,6 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 		}
 		conditions = append(conditions, warningCondition, resolvedWarningCondition)
 	}
-	log.Printf("[DEBUG] [cloneReadingFromNestedBlocks] conditions=%+v\n", conditions)
 	return conditions
 }
 
