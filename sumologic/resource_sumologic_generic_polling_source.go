@@ -43,7 +43,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 	}
 	pollingSource.Schema["url"] = &schema.Schema{
 		Type:     schema.TypeString,
-		Optional: true,
 		Computed: true,
 	}
 	pollingSource.Schema["authentication"] = &schema.Schema{
