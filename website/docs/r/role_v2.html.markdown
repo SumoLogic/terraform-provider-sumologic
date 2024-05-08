@@ -2,10 +2,10 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_role_v2"
 description: |-
-  Provides a Sumologic Role V2
+  Provides a Sumologic Role v2
 ---
 
-# sumologic_role_v2
+# sumologic_role_v2 ( beta )
 Provider to manage Sumologic Role v2
 
 ## Example Usage

@@ -5,7 +5,7 @@ description: |-
   Provides a way to retrieve Sumo Logic role details (id, names, etc) for a role managed outside of terraform.
 ---
 
-# sumologic_role_v2
+# sumologic_role_v2 ( beta )
 
 Provides a way to retrieve Sumo Logic role details (id, names, etc) for a role
 managed by another terraform stack.
