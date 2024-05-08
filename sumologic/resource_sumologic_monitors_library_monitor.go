@@ -174,7 +174,6 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 					},
 				},
 			},
-			AtLeastOneOf: triggerConditionsAtleastOneKey,
 		},
 
 		"is_disabled": {
