@@ -23,7 +23,7 @@ import (
 
 func TestAccSumologicRoleV2_basic(t *testing.T) {
 	var roleV2 RoleV2
-	testName := "DataAdmin"
+	testName := "DataAdminWithRoleV2basic"
 	testAuditDataFilter := "info"
 	testSelectionType := "All"
 	testCapabilities := []string{"\"manageContent\""}
@@ -81,7 +81,7 @@ func TestAccSumologicRoleV2_create(t *testing.T) {
 
 func TestAccSumologicRoleV2_update(t *testing.T) {
 	var roleV2 RoleV2
-	testName := "DataAdmin"
+	testName := "DataAdminWithRoleV2"
 	testAuditDataFilter := "info"
 	testSelectionType := "Allow"
 	testCapabilities := []string{"\"manageContent\""}
@@ -89,7 +89,7 @@ func TestAccSumologicRoleV2_update(t *testing.T) {
 	testSecurityDataFilter := "error"
 	testLogAnalyticsFilter := "!_sourceCategory=collector"
 
-	testUpdatedName := "DataAdminUpdate"
+	testUpdatedName := "DataAdminUpdateWithRoleV2"
 	testUpdatedAuditDataFilter := "infoUpdate"
 	testUpdatedSelectionType := "All"
 	testUpdatedCapabilities := []string{"\"manageContent\""}

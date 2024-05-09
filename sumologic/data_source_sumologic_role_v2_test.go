@@ -73,7 +73,7 @@ func TestAccDataSourceSumologicRoleV2_role_id_doesnt_exist(t *testing.T) {
 
 var testDataSourceAccSumologicRoleV2Config = `
 resource "sumologic_role_v2" "test" {
-  name = "My_SumoRoleV2"
+  name = "My_SumoRole_V2"
   description = "My_SumoRoleDesc"
   capabilities = ["viewCollectors"]
   selection_type = "All"
