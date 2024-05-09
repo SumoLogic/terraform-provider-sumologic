@@ -17,13 +17,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccSumologicRoleV2_basic(t *testing.T) {
 	var roleV2 RoleV2
-	testName := "DataAdminWithRoleV2basic"
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testAuditDataFilter := "info"
 	testSelectionType := "All"
 	testCapabilities := []string{"\"manageContent\""}
@@ -49,7 +50,7 @@ func TestAccSumologicRoleV2_basic(t *testing.T) {
 }
 func TestAccSumologicRoleV2_create(t *testing.T) {
 	var roleV2 RoleV2
-	testName := "DataAdminRoleV2createtest"
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testAuditDataFilter := "info"
 	testSelectionType := "Allow"
 	testCapabilities := []string{"\"manageContent\""}
@@ -81,7 +82,7 @@ func TestAccSumologicRoleV2_create(t *testing.T) {
 
 func TestAccSumologicRoleV2_update(t *testing.T) {
 	var roleV2 RoleV2
-	testName := "DataAdminWithRoleV2"
+	testName := acctest.RandomWithPrefix("tf-acc-test")
 	testAuditDataFilter := "info"
 	testSelectionType := "Allow"
 	testCapabilities := []string{"\"manageContent\""}
@@ -89,7 +90,7 @@ func TestAccSumologicRoleV2_update(t *testing.T) {
 	testSecurityDataFilter := "error"
 	testLogAnalyticsFilter := "!_sourceCategory=collector"
 
-	testUpdatedName := "DataAdminUpdateWithRoleV2"
+	testUpdatedName := acctest.RandomWithPrefix("tf-acc-test")
 	testUpdatedAuditDataFilter := "infoUpdate"
 	testUpdatedSelectionType := "All"
 	testUpdatedCapabilities := []string{"\"manageContent\""}
