@@ -45,4 +45,3 @@ The following attributes are exported:
   - `All` selectionType would allow access to all views in the org.
   - `Allow` selectionType would allow access to specific views mentioned in "selectedViews" parameter.
   - `Deny` selectionType would deny access to specific views mentioned in "selectedViews" parameter.
-
