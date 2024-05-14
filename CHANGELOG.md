@@ -1,6 +1,7 @@
 ## 2.29.1 (Unreleased)
 FEATURES:
 * resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
 
 BUG FIXES:
 * Speed up match list updates. (GH-645)
