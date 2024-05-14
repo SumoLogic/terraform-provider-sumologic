@@ -1443,7 +1443,7 @@ var exampleLogsAnomalyTriggerConditionBlock = `
     logs_anomaly_condition {
     	field = "_count"
      	sensitivity = 0.5
-      anomaly_detector_type = "SpikeDetector"
+      anomaly_detector_type = "Cluster"
       critical {
       	min_anomaly_count = 5
        	time_range = "-1h"

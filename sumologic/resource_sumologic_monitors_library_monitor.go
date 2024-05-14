@@ -633,7 +633,7 @@ var logsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
 	"anomaly_detector_type": {
 		Type:         schema.TypeString,
 		Required:     true,
-		ValidateFunc: validation.StringInSlice([]string{"SpikeDetector", "Cluster"}, false),
+		ValidateFunc: validation.StringInSlice([]string{"Cluster"}, false),
 	},
 	"sensitivity": {
 		Type:     schema.TypeFloat,
