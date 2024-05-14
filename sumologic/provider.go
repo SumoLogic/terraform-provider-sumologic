@@ -117,6 +117,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_log_search":                               resourceSumologicLogSearch(),
 			"sumologic_metrics_search":                           resourceSumologicMetricsSearch(),
 			"sumologic_rum_source":                               resourceSumologicRumSource(),
+			"sumologic_role_v2":                                  resourceSumologicRoleV2(),
 			"sumologic_azure_event_hub_log_source":               resourceSumologicGenericPollingSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -129,6 +130,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_folder":                         dataSourceSumologicFolder(),
 			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
 			"sumologic_role":                           dataSourceSumologicRole(),
+			"sumologic_role_v2":                        dataSourceSumologicRoleV2(),
 			"sumologic_user":                           dataSourceSumologicUser(),
 		},
 		ConfigureFunc: providerConfigure,
