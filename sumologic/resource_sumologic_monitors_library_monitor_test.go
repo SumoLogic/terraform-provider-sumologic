@@ -108,7 +108,6 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
        resource "sumologic_monitor" "test" {
          name = "test"
@@ -120,11 +119,8 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
        }`
 	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		CheckDestroy: func() resource.TestCheckFunc {
-			var _ MonitorsLibraryMonitor = monitorsLibraryMonitor
-			return testAccCheckMonitorsLibraryMonitorDestroy()
-		}(),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config:      config,
@@ -136,19 +132,15 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	for _, monitorConfig := range allInvalidTriggerConditionMonitorResources {
 		testNameSuffix := acctest.RandString(16)
 
 		testName := "terraform_test_invalid_monitor_" + testNameSuffix
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: testAccProviders,
-			CheckDestroy: func() resource.TestCheckFunc {
-				var _ MonitorsLibraryMonitor = monitorsLibraryMonitor
-				return testAccCheckMonitorsLibraryMonitorDestroy()
-			}(),
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 			Steps: []resource.TestStep{
 				{
 					Config:      monitorConfig(testName),
@@ -160,15 +152,11 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	canonicalTimeRange := "1h"
 
 	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		CheckDestroy: func() resource.TestCheckFunc {
-			var _ MonitorsLibraryMonitor = monitorsLibraryMonitor
-			return testAccCheckMonitorsLibraryMonitorDestroy()
-		}(),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor("triggers_negative_expanded_hour"),
@@ -181,18 +169,14 @@ func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
 	testName := "terraform_test_monitor_" + testNameSuffix
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		CheckDestroy: func() resource.TestCheckFunc {
-			var _ MonitorsLibraryMonitor = monitorsLibraryMonitor
-			return testAccCheckMonitorsLibraryMonitorDestroy()
-		}(),
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testName),
