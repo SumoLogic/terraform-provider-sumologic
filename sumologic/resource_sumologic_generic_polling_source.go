@@ -129,16 +129,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Default:  true,
-					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-						contentType := d.Get("content_type").(string)
-						if contentType != "AwsS3Bucket" {
-							if old == "false" && old != new {
-								return false
-							}
-							return true
-						}
-						return false
-					},
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
@@ -588,11 +578,8 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-			if d.Get("content_type").(string) == "AwsS3Bucket" && path["use_versioned_api"] != nil {
+			if path["use_versioned_api"] != nil {
 				val := path["use_versioned_api"].(bool)
-				pathSettings.UseVersionedApi = &val
-			} else {
-				val := true
 				pathSettings.UseVersionedApi = &val
 			}
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
