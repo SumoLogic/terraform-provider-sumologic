@@ -58,6 +58,14 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 		Title: "Text Panel Title",
 		Text:  "This is a text panel",
 	}
+	serviceMapPanel := ServiceMapPanel{
+		Key:                "service-map-panel-001",
+		Title:              "Service Map Panel Title",
+		Application:        "example-app",
+		Service:            "example-service",
+		ShowRemoteServices: true,
+		Environment:        "example-env",
+	}
 	layout := GridLayout{
 		LayoutStructures: []LayoutStructure{
 			{
@@ -86,7 +94,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
-					topologyLabel, domain, literalRangeName, relativeTime, textPanel, layout, variable),
+					topologyLabel, domain, literalRangeName, relativeTime, textPanel, serviceMapPanel, layout, variable),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDashboardExists("sumologic_dashboard.tf_crud_test", &dashboard, t),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -144,6 +152,14 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 		Key:   "text-panel-001",
 		Title: "Text Panel Title",
 		Text:  "This is a text panel",
+	}
+	serviceMapPanel := ServiceMapPanel{
+		Key:                "service-map-panel-001",
+		Title:              "Service Map Panel Title",
+		Application:        "example-app",
+		Service:            "example-service",
+		ShowRemoteServices: true,
+		Environment:        "example-env",
 	}
 	layout := GridLayout{
 		LayoutStructures: []LayoutStructure{
@@ -223,7 +239,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: dashboardCreateConfig(title, description, theme, refreshInterval,
-					topologyLabel, domain, literalRangeName, relativeTime, textPanel, layout, csvVariable),
+					topologyLabel, domain, literalRangeName, relativeTime, textPanel, serviceMapPanel, layout, csvVariable),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDashboardExists("sumologic_dashboard.tf_crud_test", &dashboard, t),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
@@ -427,7 +443,7 @@ func dashboardImportConfig(title string) string {
 }
 
 func dashboardCreateConfig(title string, description string, theme string, refreshInterval int,
-	topologyLabel TopologyLabel, domain string, rangeName string, relativeTime string, textPanel TextPanel,
+	topologyLabel TopologyLabel, domain string, rangeName string, relativeTime string, textPanel TextPanel, serviceMapPanel ServiceMapPanel,
 	layout GridLayout, variable Variable) string {
 
 	return fmt.Sprintf(`
@@ -472,6 +488,17 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 					keep_visual_settings_consistent_with_parent = true
 					text = "%s"
 				}
+				panel {
+					service_map_panel {
+						key                 = "%s"
+						title               = "%s"
+						VisualSettings		= "{\"general\":{\"type\":\"column\"}}"
+						application         = "%s"
+						service             = "%s"
+						show_remote_services = %t
+						environment         = "%s"
+					}
+				}
 			}
 			layout {
 				grid {
@@ -497,7 +524,8 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 		}`,
 		title, description, refreshInterval, theme, firstLabelKey, topologyLabel.Data[firstLabelKey][0],
 		secondLabelKey, topologyLabel.Data[secondLabelKey][0], topologyLabel.Data[secondLabelKey][1],
-		domain, rangeName, relativeTime, textPanel.Key, textPanel.Title, textPanel.Text,
+		domain, rangeName, relativeTime, textPanel.Key, textPanel.Title, textPanel.Text, serviceMapPanel.Key,
+		serviceMapPanel.Title, serviceMapPanel.Application, serviceMapPanel.Service, serviceMapPanel.ShowRemoteServices, serviceMapPanel.Environment,
 		layout.LayoutStructures[0].Key, variable.Name, variable.DisplayName, variable.DefaultValue,
 		variable.SourceDefinition.(CsvVariableSourceDefinition).Values,
 	)

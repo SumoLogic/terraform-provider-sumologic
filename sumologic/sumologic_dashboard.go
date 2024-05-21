@@ -99,6 +99,28 @@ type SumoSearchPanel struct {
 	LinkedDashboards []LinkedDashboard  `json:"linkedDashboards"`
 }
 
+type TracesListPanel struct {
+	ID             string             `json:"id,omitempty"`
+	Key            string             `json:"key"`
+	Title          string             `json:"title"`
+	PanelType      string             `json:"panelType"`
+	VisualSettings string             `json:"visualSettings"`
+	Queries        []SearchPanelQuery `json:"queries"`
+	TimeRange      interface{}        `json:"timeRange"`
+}
+
+type ServiceMapPanel struct {
+	ID                 string `json:"id,omitempty"`
+	Key                string `json:"key"`
+	Title              string `json:"title"`
+	VisualSettings     string `json:"visualSettings"`
+	Application        string `json:"application,omitempty"`
+	Service            string `json:"service,omitempty"`
+	ShowRemoteServices bool   `json:"showRemoteServices,omitempty"`
+	Environment        string `json:"environment,omitempty"`
+	PanelType          string `json:"panelType"`
+}
+
 type SearchPanelQuery struct {
 	QueryString      string            `json:"queryString"`
 	QueryType        string            `json:"queryType"`
