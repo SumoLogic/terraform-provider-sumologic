@@ -158,7 +158,7 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 		Title:              "Service Map Panel Title",
 		Application:        "example-app",
 		Service:            "example-service",
-		ShowRemoteServices: true,
+		ShowRemoteServices: false,
 		Environment:        "example-env",
 	}
 	layout := GridLayout{
