@@ -767,6 +767,9 @@ func getTracesListPanel(tfPanel map[string]interface{}) interface{} {
 	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
 		panel.VisualSettings = visualSettings
 	}
+	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+		panel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
+	}
 	tfQueries := tfPanel["query"].([]interface{})
 	var queries []SearchPanelQuery
 	for _, tfQuery := range tfQueries {
@@ -791,6 +794,9 @@ func getServiceMapPanel(tfPanel map[string]interface{}) interface{} {
 	}
 	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
 		panel.VisualSettings = visualSettings
+	}
+	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+		panel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
 	}
 	if application, ok := tfPanel["application"].(string); ok {
 		panel.Application = application
@@ -1139,9 +1145,9 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 		} else if panel["panelType"] == "SumoSearchPanel" {
 			tfPanel["sumo_search_panel"] = getTerraformSearchPanel(panel)
 		} else if panel["panelType"] == "TracesListPanel" {
-			tfPanel["sumo_search_panel"] = getTerraformTracesListPanel(panel)
+			tfPanel["traces_list_panel"] = getTerraformTracesListPanel(panel)
 		} else if panel["panelType"] == "ServiceMapPanel" {
-			tfPanel["sumo_search_panel"] = getTerraformServiceMapPanel(panel)
+			tfPanel["service_map_panel"] = getTerraformServiceMapPanel(panel)
 		}
 
 		tfPanels[i] = tfPanel
@@ -1209,6 +1215,9 @@ func getTerraformTracesListPanel(panel map[string]interface{}) TerraformObject {
 	if visualSettings, ok := panel["visual_settings"].(string); ok {
 		tfTracesListPanel[0]["visual_settings"] = visualSettings
 	}
+	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfTracesListPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
 
 	tfTracesListPanel[0]["queries"] = getTerraformSearchPanelQuery(panel["queries"].([]interface{}))
 
@@ -1229,6 +1238,9 @@ func getTerraformServiceMapPanel(panel map[string]interface{}) TerraformObject {
 	}
 	if visualSettings, ok := panel["visual_settings"].(string); ok {
 		tfServiceMapPanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfServiceMapPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
 	}
 	if application, ok := panel["application"].(string); ok {
 		tfServiceMapPanel[0]["application"] = application

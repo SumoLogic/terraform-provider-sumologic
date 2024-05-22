@@ -63,7 +63,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 		Title:              "Service Map Panel Title",
 		Application:        "example-app",
 		Service:            "example-service",
-		ShowRemoteServices: true,
+		ShowRemoteServices: false,
 		Environment:        "example-env",
 	}
 	layout := GridLayout{
@@ -118,7 +118,7 @@ func TestAccSumologicDashboard_create(t *testing.T) {
 						"time_range.0.begin_bounded_time_range.0.to.0.relative_time_range.0.relative_time",
 						canonicalRelativeTime),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
-						"panel.#", "1"),
+						"panel.#", "2"),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
 						"panel.0.text_panel.0.key", textPanel.Key),
 					resource.TestCheckResourceAttr("sumologic_dashboard.tf_crud_test",
