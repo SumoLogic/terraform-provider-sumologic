@@ -493,7 +493,7 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 				service_map_panel {
 					key                 = "%s"
 					title               = "%s"
-					visual_settings		= "{\"general\":{\"type\":\"column\"}}"
+					visual_settings		= ""
 					application         = "%s"
 					service             = "%s"
 					show_remote_services = %t
