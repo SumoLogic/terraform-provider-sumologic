@@ -488,16 +488,16 @@ func dashboardCreateConfig(title string, description string, theme string, refre
 					keep_visual_settings_consistent_with_parent = true
 					text = "%s"
 				}
-				panel {
-					service_map_panel {
-						key                 = "%s"
-						title               = "%s"
-						VisualSettings		= "{\"general\":{\"type\":\"column\"}}"
-						application         = "%s"
-						service             = "%s"
-						show_remote_services = %t
-						environment         = "%s"
-					}
+			}
+			panel {
+				service_map_panel {
+					key                 = "%s"
+					title               = "%s"
+					VisualSettings		= "{\"general\":{\"type\":\"column\"}}"
+					application         = "%s"
+					service             = "%s"
+					show_remote_services = %t
+					environment         = "%s"
 				}
 			}
 			layout {
