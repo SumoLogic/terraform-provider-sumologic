@@ -276,7 +276,9 @@ func getSumoSearchPanelSchema() map[string]*schema.Schema {
 }
 
 func getTracesListPanelSchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
+	panelSchema := getPanelBaseSchema()
+
+	traceListPanelSchema := map[string]*schema.Schema{
 		"queries": {
 			Type:     schema.TypeList,
 			Optional: true,
@@ -294,10 +296,18 @@ func getTracesListPanelSchema() map[string]*schema.Schema {
 			},
 		},
 	}
+
+	for k, v := range traceListPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
 }
 
 func getServiceMapPanelSchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
+	panelSchema := getPanelBaseSchema()
+
+	serviceMapPanelSchema := map[string]*schema.Schema{
 		"application": {
 			Type:     schema.TypeString,
 			Optional: true,
@@ -315,6 +325,12 @@ func getServiceMapPanelSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 	}
+
+	for k, v := range serviceMapPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
 }
 
 func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
@@ -1122,6 +1138,10 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 			tfPanel["text_panel"] = getTerraformTextPanel(panel)
 		} else if panel["panelType"] == "SumoSearchPanel" {
 			tfPanel["sumo_search_panel"] = getTerraformSearchPanel(panel)
+		} else if panel["panelType"] == "TracesListPanel" {
+			tfPanel["sumo_search_panel"] = getTerraformTracesListPanel(panel)
+		} else if panel["panelType"] == "ServiceMapPanel" {
+			tfPanel["sumo_search_panel"] = getTerraformServiceMapPanel(panel)
 		}
 
 		tfPanels[i] = tfPanel

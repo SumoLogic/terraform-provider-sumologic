@@ -100,7 +100,7 @@ type SumoSearchPanel struct {
 }
 
 type TracesListPanel struct {
-	ID             string             `json:"id,omitempty"`
+	Id             string             `json:"id,omitempty"`
 	Key            string             `json:"key"`
 	Title          string             `json:"title"`
 	PanelType      string             `json:"panelType"`
@@ -110,7 +110,7 @@ type TracesListPanel struct {
 }
 
 type ServiceMapPanel struct {
-	ID                 string `json:"id,omitempty"`
+	Id                 string `json:"id,omitempty"`
 	Key                string `json:"key"`
 	Title              string `json:"title"`
 	VisualSettings     string `json:"visualSettings"`
