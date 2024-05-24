@@ -39,6 +39,8 @@ type PollingAuthentication struct {
 	TokenUrl                string `json:"token_uri"`
 	AuthProviderX509CertUrl string `json:"auth_provider_x509_cert_url"`
 	ClientX509CertUrl       string `json:"client_x509_cert_url"`
+	SharedAccessPolicyName  string `json:"sharedAccessPolicyName"`
+	SharedAccessPolicyKey   string `json:"sharedAccessPolicyKey"`
 }
 
 type PollingPath struct {
@@ -52,6 +54,10 @@ type PollingPath struct {
 	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
 	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 	UseVersionedApi           *bool                            `json:"useVersionedApi,omitempty"`
+	Namespace                 string                           `json:"namespace,omitempty"`
+	EventHubName              string                           `json:"eventHubName,omitempty"`
+	ConsumerGroup             string                           `json:"consumerGroup,omitempty"`
+	Region                    string                           `json:"region,omitempty"`
 }
 
 type TagFilter struct {
