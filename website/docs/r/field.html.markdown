@@ -25,7 +25,7 @@ The following arguments are supported:
 
 - `field_name` - (Required)  Name of the field.
 - `field_id` - (Required) Field identifier.
-- `data_type` - (Optional) Field type. Currently only possible values is `String`.
+- `data_type` - (Optional) Field type - Deprecated. Possible values are `String`, `Long`, `Int`, `Double`, and `Boolean`.
 - `state` - (Optional) State of the field (either `Enabled` or `Disabled`).
 
 ## Import
