@@ -37,9 +37,9 @@ The following attributes are exported:
 - `description` - The description of the role.
 - `capabilities` - The list of capabilities associated with the role.
 - `selected_views` - List of views with specific view level filters in accordance to the selectionType chosen.
-- `audit_data_filter` - The search filter which would be applied on partitions which belong to Audit Data product area. Help Doc : (https://help.sumologic.com/docs/manage/security/audit-index/). Applicable with only `All` selectionType
-- `security_data_filter` - The search filter which would be applied on partitions which belong to Security Data product area. Applicable with only `All` selectionType.
-- `log_analytics_filter` - The search filter which would be applied on partitions which belong to Log Analytics product area. Applicable with only `All` selectionType
+- `audit_data_filter` - The search filter which would be applied on partitions which belong to Audit Data product area. Help Doc : (https://help.sumologic.com/docs/manage/security/audit-index/).
+- `security_data_filter` - The search filter which would be applied on partitions which belong to Security Data product area.
+- `log_analytics_filter` - The search filter which would be applied on partitions which belong to Log Analytics product area.
 - `selection_type` - Describes the Permission Construct for the list of views in "selectedViews" parameter.
 ### Values in selection type are : 
   - `All` selectionType would allow access to all views in the org.

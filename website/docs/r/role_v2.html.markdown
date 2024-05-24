@@ -34,9 +34,9 @@ The following arguments are supported:
 - `name` - (Required) Name of the role.
 - `capabilities` - (Optional) List of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role. 
 - `description` - (Optional) Description of the role.
-- `security_data_filter` - (Optional) A search filter which would be applied on partitions which belong to Security Data product area. Applicable with only `All` selectionType.
-- `log_analytics_filter` - (Optional) A search filter which would be applied on partitions which belong to Log Analytics product area. Applicable with only `All` selectionType
-- `audit_data_filter` - (Optional) A search filter which would be applied on partitions which belong to Audit Data product area. Help Doc : (https://help.sumologic.com/docs/manage/security/audit-index/). Applicable with only `All` selectionType
+- `security_data_filter` - (Optional) A search filter which would be applied on partitions which belong to Security Data product area.
+- `log_analytics_filter` - (Optional) A search filter which would be applied on partitions which belong to Log Analytics product area.
+- `audit_data_filter` - (Optional) A search filter which would be applied on partitions which belong to Audit Data product area. Help Doc : (https://help.sumologic.com/docs/manage/security/audit-index/).
 - `selection_type` - (Optional) Describes the Permission Construct for the list of views in "selectedViews" parameter. 
 ### Valid Values are : 
   - `All` selectionType would allow access to all views in the org.
