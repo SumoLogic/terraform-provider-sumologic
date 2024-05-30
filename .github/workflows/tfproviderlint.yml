@@ -27,4 +27,6 @@ jobs:
     - uses: actions/checkout@v2.0.0
     - uses: bflad/tfproviderlint-github-action@master
       with:
-        args: -buildvcs=false ./...
+        args: ./...
+      env:
+        GOFLAGS: "-buildvcs=false"
