@@ -1,4 +1,8 @@
-## 2.30.1 (Unreleased)
+## 2.30.2 (Unreleased)
+
+## 2.30.1 (May 25, 2024)
+BUG FIXES:
+* Corrected examples and removed dataType in the Fields terraform documentation (GH-648)
 
 ## 2.30.0 (May 21, 2024)
 FEATURES:
