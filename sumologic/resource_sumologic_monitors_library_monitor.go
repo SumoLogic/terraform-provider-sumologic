@@ -1831,8 +1831,6 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 			resolvedCriticalCondition.readFrom(resolved)
 		}
 		conditions = append(conditions, criticalCondition, resolvedCriticalCondition)
-		fmt.Printf("##DEBUG## [cloneReadingFromNestedBlocks] criticalCondition: %+v\n", criticalCondition)
-		fmt.Printf("##DEBUG## [cloneReadingFromNestedBlocks] resolvedCriticalCondition: %+v\n", resolvedCriticalCondition)
 	}
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)
