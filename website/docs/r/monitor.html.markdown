@@ -51,7 +51,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     row_id = "A"
     query  = "_sourceCategory=event-action info"
   }
-  
+
   trigger_conditions {
     logs_static_condition {
       critical {
@@ -67,7 +67,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
       }
     }
   }
-  
+
   notifications {
     notification {
       connection_type = "Email"
@@ -92,8 +92,8 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   notification_group_fields = ["_sourceHost"]
   obj_permission {
     subject_type = "role"
-    subject_id = sumologic_role.tf_test_role_01.id 
-    permissions = ["Read","Update"] 
+    subject_id = sumologic_role.tf_test_role_01.id
+    permissions = ["Read","Update"]
   }
   obj_permission {
     subject_type = "role"
@@ -172,7 +172,7 @@ resource "sumologic_monitor" "tf_slo_monitor_1" {
     "team" = "monitoring"
     "application" = "sumologic"
   }
-  
+
   trigger_conditions {
     slo_sli_condition {
       critical {
@@ -183,7 +183,7 @@ resource "sumologic_monitor" "tf_slo_monitor_1" {
       }
     }
   }
-  
+
   notifications {
     notification {
       connection_type = "Email"
@@ -230,7 +230,7 @@ resource "sumologic_monitor" "tf_slo_monitor_2" {
       }
     }
   }
-  
+
   #...
 }
 
@@ -333,6 +333,48 @@ JSON
 }
 ```
 
+
+## Example Logs Anomaly Monitor
+```hcl
+resource "sumologic_monitor" "tf_example_anomaly_monitor" {
+  name = "Example Anomaly Monitor"
+  description = "example anomaly monitor"
+  type = "MonitorsLibraryMonitor"
+  monitor_type = "Logs"
+  is_disabled = false
+
+  queries {
+      row_id = "A"
+      query = "_sourceCategory=api error | timeslice 5m | count by _sourceHost"
+  }
+
+  trigger_conditions {
+    logs_anomaly_condition {
+      field = "_count"
+      anomaly_detector_type = "Cluster"
+      critical {
+        sensitivity = 0.4
+        min_anomaly_count = 9
+        time_range = "-3h"
+      }
+    }
+  }
+
+  notifications {
+    notification {
+      connection_type = "Email"
+      recipients = [
+        "anomaly@example.com",
+      ]
+      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
+      time_zone    = "PST"
+      message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+    }
+    run_for_trigger_types = ["Critical", "ResolvedCritical"]
+  }
+}
+```
+
 ## Monitor Folders
 
 NOTE: Monitor folders are considered a different resource from Library content folders. See [sumologic_monitor_folder][2] for more details.
@@ -362,7 +404,7 @@ The following arguments are supported:
       `2m50s` means 2 minutes and 50 seconds.
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
 - `queries` - (Required if `monitor_type` is not `Slo`) All queries from the monitor.
-- `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument. 
+- `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument.
   - `resolution_window` - The resolution window that the recovery condition must be met in each evaluation that happens within this entire duration before the alert is recovered (resolved). If not specified, the time range of your trigger will be used.
 - `triggers` - (Deprecated) Defines the conditions of when to send notifications.
 - `notifications` - (Optional) The notifications the monitor will send when the respective trigger condition is met.
@@ -438,6 +480,7 @@ A `trigger_conditions` block contains one or more subblocks of the following typ
 - `metrics_missing_data_condition`
 - `slo_sli_condition`
 - `slo_burn_rate_condition`
+- `log_anomaly_condition`
 
 Subblocks should be limited to at most 1 missing data condition and at most 1 static / outlier condition.
 
@@ -513,7 +556,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `sli_threshold` (Required) : The remaining SLI error budget threshold percentage [0,100).
   - `warning`
     - `sli_threshold` (Required)
-  
+
 #### slo_burn_rate_condition
   - `critical`
     - `time_range` (Deprecated) : The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
@@ -527,6 +570,14 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `burn_rate` (Required if above two fields are not present): Block to specify burn rate threshold and time range for the condition.
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
       - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+
+#### log_anomaly_condition
+  - `field`: The name of the field that the trigger condition will alert on. The trigger could compare the value of specified field with the threshold. If field is not specified, monitor would default to result count instead.
+  - `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
+  - `critical`
+    - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
+    - `min_anomaly_count` (Required) : The minimum number of anomalies required to exist in the current time range for the condition to trigger.
+    - `time_range` (Required) : The relative time range for anomaly evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 
 ## The `triggers` block
 The `triggers` block is deprecated. Please use `trigger_conditions` to specify notification conditions.
