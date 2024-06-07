@@ -351,9 +351,9 @@ resource "sumologic_monitor" "tf_example_anomaly_monitor" {
   trigger_conditions {
     logs_anomaly_condition {
       field = "_count"
-      sensitivity = 0.4
       anomaly_detector_type = "Cluster"
       critical {
+        sensitivity = 0.4
         min_anomaly_count = 9
         time_range = "-3h"
       }
@@ -372,7 +372,6 @@ resource "sumologic_monitor" "tf_example_anomaly_monitor" {
     }
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
-
 }
 ```
 
@@ -574,9 +573,9 @@ Here is a summary of arguments for each condition type (fields which are not mar
 
 #### log_anomaly_condition
   - `field`: The name of the field that the trigger condition will alert on. The trigger could compare the value of specified field with the threshold. If field is not specified, monitor would default to result count instead.
-  - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
   - `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
   - `critical`
+    - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
     - `min_anomaly_count` (Required) : The minimum number of anomalies required to exist in the current time range for the condition to trigger.
     - `time_range` (Required) : The relative time range for anomaly evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 

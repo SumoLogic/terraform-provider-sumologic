@@ -635,12 +635,13 @@ var logsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
 		Required:     true,
 		ValidateFunc: validation.StringInSlice([]string{"Cluster"}, false),
 	},
-	"sensitivity": {
-		Type:     schema.TypeFloat,
-		Optional: true,
-		Default:  0.5,
-	},
 	"critical": nested(false, schemaMap{
+		"sensitivity": {
+			Type:         schema.TypeFloat,
+			Optional:     true,
+			Default:      0.5,
+			ValidateFunc: validation.FloatBetween(0.1, 1.0),
+		},
 		"min_anomaly_count": {
 			Type:     schema.TypeInt,
 			Optional: true,
@@ -978,6 +979,7 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 		monitor = *updatedMonitor
 	}
 	monitor.Type = "MonitorsLibraryMonitorUpdate"
+	log.Printf("updating monitor: %+v\n", monitor)
 	err := c.UpdateMonitorsLibraryMonitor(monitor)
 	if err != nil {
 		return err
@@ -1253,7 +1255,6 @@ func logsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCond
 		Field:               block["field"].(string),
 		Direction:           block["direction"].(string),
 		AnomalyDetectorType: block["anomaly_detector_type"].(string),
-		Sensitivity:         block["sensitivity"].(float64),
 		DetectionMethod:     logsAnomalyConditionDetectionMethod,
 	}
 	// log anomaly condition does not have 'alert' and 'resolution' objects. Here we generate empty blocks
@@ -1554,7 +1555,6 @@ func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]i
 	block["field"] = conditions[0].Field
 	block["direction"] = conditions[0].Direction
 	block["anomaly_detector_type"] = conditions[0].AnomalyDetectorType
-	block["sensitivity"] = conditions[0].Sensitivity
 
 	var criticalDict = dict{}
 	block["critical"] = toSingletonArray(criticalDict)
@@ -1564,10 +1564,12 @@ func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]i
 		switch condition.TriggerType {
 		case "Critical":
 			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
 			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 		case "ResolvedCritical":
 			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
 			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
 			criticalDict["time_range"] = condition.PositiveTimeRange()
 		}
@@ -1817,7 +1819,9 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 
 		if criticalCondition.DetectionMethod == logsAnomalyConditionDetectionMethod {
 			criticalCondition.MinAnomalyCount = critical["min_anomaly_count"].(int)
+			criticalCondition.Sensitivity = critical["sensitivity"].(float64)
 			resolvedCriticalCondition.MinAnomalyCount = criticalCondition.MinAnomalyCount
+			resolvedCriticalCondition.Sensitivity = criticalCondition.Sensitivity
 		}
 
 		if alert, ok := fromSingletonArray(critical, "alert"); ok {
@@ -1827,6 +1831,8 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 			resolvedCriticalCondition.readFrom(resolved)
 		}
 		conditions = append(conditions, criticalCondition, resolvedCriticalCondition)
+		fmt.Printf("##DEBUG## [cloneReadingFromNestedBlocks] criticalCondition: %+v\n", criticalCondition)
+		fmt.Printf("##DEBUG## [cloneReadingFromNestedBlocks] resolvedCriticalCondition: %+v\n", resolvedCriticalCondition)
 	}
 	if warning, ok := fromSingletonArray(block, "warning"); ok {
 		warningCondition.readFrom(warning)

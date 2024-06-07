@@ -1426,12 +1426,12 @@ var exampleSloBurnRateTriggerConditionBlock = `
 var exampleLogsAnomalyTriggerConditionBlock = `
     logs_anomaly_condition {
     	field = "_count"
-     	sensitivity = 0.5
-      anomaly_detector_type = "Cluster"
-      critical {
-      	min_anomaly_count = 5
-       	time_range = "-1h"
-      }
+      	anomaly_detector_type = "Cluster"
+       	critical {
+       		sensitivity = 0.5
+       		min_anomaly_count = 5
+         	time_range = "-1h"
+        }
     }`
 
 func exampleLogsStaticMonitor(testName string) string {
