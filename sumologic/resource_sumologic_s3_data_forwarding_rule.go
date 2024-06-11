@@ -57,7 +57,7 @@ func resourceSumologicS3DataForwardingRuleCreate(d *schema.ResourceData, meta in
 		d.SetId(createdDfd.IndexID)
 	}
 
-	return resourceSumologicS3DataForwardingRuleUpdate(d, meta)
+	return resourceSumologicS3DataForwardingRuleRead(d, meta)
 }
 
 func resourceSumologicS3DataForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {

@@ -11,10 +11,15 @@ type ListPartitionResp struct {
 	Next string      `json:"next"`
 }
 
+func (s *ListPartitionResp) Reset() {
+	s.Data = nil
+	s.Next = ""
+}
+
 func (s *Client) ListPartitions() ([]Partition, error) {
 	var listPartitionResp ListPartitionResp
 
-	data, _, err := s.Get("v1/partitions")
+	data, _, err := s.Get("v1/partitions?limit=1000")
 	if err != nil {
 		return nil, err
 	}
@@ -31,6 +36,8 @@ func (s *Client) ListPartitions() ([]Partition, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		listPartitionResp.Reset()
 
 		err = json.Unmarshal(data, &listPartitionResp)
 		if err != nil {

@@ -80,7 +80,7 @@ func resourceSumologicS3DataForwardingDestinationCreate(d *schema.ResourceData, 
 		d.SetId(createdDfd.ID)
 	}
 
-	return resourceSumologicS3DataForwardingDestinationUpdate(d, meta)
+	return resourceSumologicS3DataForwardingDestinationRead(d, meta)
 }
 
 func resourceSumologicS3DataForwardingDestinationRead(d *schema.ResourceData, meta interface{}) error {
