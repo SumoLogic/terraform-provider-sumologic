@@ -1,6 +1,6 @@
 module github.com/SumoLogic/terraform-provider-sumologic
 
-go 1.22.2
+go 1.22
 
 require (
 	github.com/go-errors/errors v1.4.0
