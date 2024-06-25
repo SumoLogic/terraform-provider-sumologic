@@ -2,7 +2,7 @@
 # behavior.
 before:
   hooks:
-    - go mod tidy -compat=1.17
+    - go mod tidy -compat=1.22
 builds:
 - env:
     - CGO_ENABLED=0
