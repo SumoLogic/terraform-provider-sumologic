@@ -1,6 +1,6 @@
 ## 2.31.1 (Unreleased)
 
-## 2.31.0 (June 27, 2024)
+## 2.31.0 (June 28, 2024)
 ENHANCEMENTS:
 * Add support for AnomalyLogCondition to Monitor resource (GH-653)
 
