@@ -1,6 +1,12 @@
-## 2.30.2 (Unreleased)
+## 2.31.1 (Unreleased)
+
+## 2.31.0 (June 27, 2024)
 ENHANCEMENTS:
 * Add support for AnomalyLogCondition to Monitor resource (GH-653)
+
+BUG FIXES:
+* Upgrade GoLang to handle new module versions and prevent future CVE (GH-666)
+* Upgrade GoLang modules (x/net, protobuf, go-retryablehttp, go-getter) to address CVE (GH-667)
 
 ## 2.30.1 (June 6, 2024)
 BUG FIXES:
