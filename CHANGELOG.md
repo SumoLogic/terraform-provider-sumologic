@@ -1,6 +1,17 @@
-## 2.29.1 (Unreleased)
+## 2.30.2 (Unreleased)
+ENHANCEMENTS:
+* Add support for AnomalyLogCondition to Monitor resource (GH-653)
+
+## 2.30.1 (June 6, 2024)
+BUG FIXES:
+* Corrected examples and removed dataType in the Fields terraform documentation (GH-648)
+
+## 2.30.0 (May 21, 2024)
 FEATURES:
 * resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
+* **New Resource:** sumologic_role_v2 (GH-651)
+* **New Data Source:** sumologic_role_v2 (GH-651)
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
 
 BUG FIXES:
 * Speed up match list updates. (GH-645)

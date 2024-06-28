@@ -28,3 +28,5 @@ jobs:
     - uses: bflad/tfproviderlint-github-action@master
       with:
         args: ./...
+      env:
+        GOFLAGS: "-buildvcs=false"
