@@ -47,6 +47,7 @@ func TestAccSumologicGcpMetricsSource_create(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", customServicePrefix),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.1", "compute.googleapis.com/guest/"),
 					),
+					ExpectNonEmptyPlan: true,
 				},
 			},
 		})
@@ -80,6 +81,7 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", customServicePrefix),
 					),
+					ExpectNonEmptyPlan: true,
 				},
 				{
 					Config: testAccSumologicGcpMetricsSourceConfig(t, cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, updatedCustomServicePrefix),
@@ -94,6 +96,7 @@ func TestAccSumologicGcpMetricsSource_update(t *testing.T) {
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.type", "GcpMetricsPath"),
 						resource.TestCheckResourceAttr(GcpMetricsResourceName, "path.0.custom_services.1.prefixes.0", updatedCustomServicePrefix),
 					),
+					ExpectNonEmptyPlan: true,
 				},
 			},
 		})

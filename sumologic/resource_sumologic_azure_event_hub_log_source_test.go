@@ -41,6 +41,7 @@ func TestAccSumologicAzureEventHubLogSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "content_type", "AzureEventHubLog"),
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "path.0.type", "AzureEventHubPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -74,6 +75,7 @@ func TestAccSumologicAzureEventHubLogSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "content_type", "AzureEventHubLog"),
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "path.0.type", "AzureEventHubPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccSumologicAzureEventHubLogSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testSASKeyName, testSASKey, testNamespace, testEventHub, testConsumerGroup, testRegion),
@@ -87,6 +89,7 @@ func TestAccSumologicAzureEventHubLogSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "content_type", "AzureEventHubLog"),
 					resource.TestCheckResourceAttr(azureEventHubLogResourceName, "path.0.type", "AzureEventHubPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
