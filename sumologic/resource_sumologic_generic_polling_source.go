@@ -143,13 +143,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Default:  true,
-					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-						contentType := d.Get("content_type").(string)
-						if contentType != "AwsS3Bucket" {
-							return true
-						}
-						return false
-					},
 				},
 				"path_expression": {
 					Type:     schema.TypeString,

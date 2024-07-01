@@ -36,6 +36,7 @@ func TestAccSumologicCloudWatchSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -64,6 +65,7 @@ func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccSumologicCloudWatchSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testAwsRoleArn),
@@ -77,6 +79,7 @@ func TestAccSumologicCloudWatchSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "content_type", "AwsCloudWatch"),
 					resource.TestCheckResourceAttr(cloudWatchResourceName, "path.0.type", "CloudWatchPath"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
