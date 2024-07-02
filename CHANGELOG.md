@@ -1,4 +1,7 @@
-## 2.31.1 (Unreleased)
+## 2.31.2 (Unreleased)
+
+
+## 2.31.1 (July 2, 2024)
 BUG FIXES:
 * Fix use_versioned_api default value discrepancy (GH-650)
 
