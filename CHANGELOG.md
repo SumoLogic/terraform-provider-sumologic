@@ -1,5 +1,6 @@
 ## 2.31.2 (Unreleased)
-
+ENHANCEMENTS:
+* Add IsIncludedInDefaultSearch field to partition resource (GH-674)
 
 ## 2.31.1 (July 2, 2024)
 BUG FIXES:
