@@ -75,4 +75,5 @@ type Partition struct {
 	TotalBytes                       int    `json:"totalBytes"`
 	IndexType                        string `json:"indexType"`
 	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately,omitempty"`
+	IsIncludedInDefaultSearch        bool   `json:"isIncludedInDefaultSearch"`
 }

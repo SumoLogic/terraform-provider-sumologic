@@ -67,6 +67,11 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"is_included_in_default_search": {
+				Type:        schema.TypeBool,
+				Description: "Indicates whether the partition is included in the default search scope. Configuring this property is exclusively permitted for flex partitions.",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -113,6 +118,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
+	d.Set("is_included_in_default_search", spartition.IsIncludedInDefaultSearch)
 
 	return nil
 }
@@ -146,5 +152,6 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		TotalBytes:                       d.Get("total_bytes").(int),
 		IndexType:                        d.Get("index_type").(string),
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
+		IsIncludedInDefaultSearch:        d.Get("is_included_in_default_search").(bool),
 	}
 }
