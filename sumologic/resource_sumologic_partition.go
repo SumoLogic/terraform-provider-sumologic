@@ -42,7 +42,7 @@ func resourceSumologicPartition() *schema.Resource {
 					return new == "-1" && old != ""
 				},
 			},
-			"is_compliantt": {
+			"is_compliant": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -71,7 +71,6 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Indicates whether the partition is included in the default search scope. Configuring this property is exclusively permitted for flex partitions.",
 				Optional:    true,
-				Default:     true,
 			},
 		},
 	}
@@ -90,7 +89,7 @@ func resourceSumologicPartitionCreate(d *schema.ResourceData, meta interface{}) 
 		d.SetId(createdSpartition.ID)
 	}
 
-	return resourceSumologicPartitionUpdate(d, meta)
+	return resourceSumologicPartitionRead(d, meta)
 }
 
 func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) error {
@@ -114,12 +113,12 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", spartition.Name)
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
-	d.Set("is_compliantt", spartition.IsCompliant)
+	d.Set("is_compliant", spartition.IsCompliant)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
-	d.Set("is_included_in_default_search", spartition.IsIncludedInDefaultSearch)
+	d.Set("is_included_in_default_search", *spartition.IsIncludedInDefaultSearch)
 
 	return nil
 }
@@ -141,18 +140,30 @@ func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceToPartition(d *schema.ResourceData) Partition {
+
+	analyticsTier := d.Get("analytics_tier").(string)
+	isIncludedInDefaultSearch := d.Get("is_included_in_default_search").(bool)
+
+	var isIncludedInDefaultSearchPtr *bool
+	if analyticsTier == "flex" || analyticsTier == "" {
+		isIncludedInDefaultSearchPtr = new(bool)
+		*isIncludedInDefaultSearchPtr = isIncludedInDefaultSearch
+	} else {
+		isIncludedInDefaultSearchPtr = nil
+	}
+
 	return Partition{
 		ID:                               d.Id(),
 		Name:                             d.Get("name").(string),
 		RoutingExpression:                d.Get("routing_expression").(string),
-		AnalyticsTier:                    d.Get("analytics_tier").(string),
+		AnalyticsTier:                    analyticsTier,
 		RetentionPeriod:                  d.Get("retention_period").(int),
-		IsCompliant:                      d.Get("is_compliantt").(bool),
+		IsCompliant:                      d.Get("is_compliant").(bool),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
 		IsActive:                         d.Get("is_active").(bool),
 		TotalBytes:                       d.Get("total_bytes").(int),
 		IndexType:                        d.Get("index_type").(string),
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
-		IsIncludedInDefaultSearch:        d.Get("is_included_in_default_search").(bool),
+		IsIncludedInDefaultSearch:        isIncludedInDefaultSearchPtr,
 	}
 }
