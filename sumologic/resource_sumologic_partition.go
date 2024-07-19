@@ -118,7 +118,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
-	d.Set("is_included_in_default_search", *spartition.IsIncludedInDefaultSearch)
+	d.Set("is_included_in_default_search", spartition.IsIncludedInDefaultSearch)
 
 	return nil
 }
