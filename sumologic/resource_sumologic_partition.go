@@ -42,7 +42,7 @@ func resourceSumologicPartition() *schema.Resource {
 					return new == "-1" && old != ""
 				},
 			},
-			"is_compliant": {
+			"is_compliantt": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -71,6 +71,7 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Indicates whether the partition is included in the default search scope. Configuring this property is exclusively permitted for flex partitions.",
 				Optional:    true,
+				Default:     true,
 			},
 		},
 	}
@@ -113,7 +114,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", spartition.Name)
 	d.Set("analytics_tier", spartition.AnalyticsTier)
 	d.Set("retention_period", spartition.RetentionPeriod)
-	d.Set("is_compliant", spartition.IsCompliant)
+	d.Set("is_compliantt", spartition.IsCompliant)
 	d.Set("data_forwarding_id", spartition.DataForwardingId)
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
@@ -146,7 +147,7 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		RoutingExpression:                d.Get("routing_expression").(string),
 		AnalyticsTier:                    d.Get("analytics_tier").(string),
 		RetentionPeriod:                  d.Get("retention_period").(int),
-		IsCompliant:                      d.Get("is_compliant").(bool),
+		IsCompliant:                      d.Get("is_compliantt").(bool),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
 		IsActive:                         d.Get("is_active").(bool),
 		TotalBytes:                       d.Get("total_bytes").(int),
