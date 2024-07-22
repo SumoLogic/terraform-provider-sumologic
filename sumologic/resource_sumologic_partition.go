@@ -71,6 +71,7 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Indicates whether the partition is included in the default search scope. Configuring this property is exclusively permitted for flex partitions.",
 				Optional:    true,
+				Default:     true,
 			},
 		},
 	}
