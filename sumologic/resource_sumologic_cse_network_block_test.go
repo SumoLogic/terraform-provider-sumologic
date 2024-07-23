@@ -2,6 +2,8 @@ package sumologic
 
 import (
 	"fmt"
+	"math/rand"
+	"net"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,7 +14,7 @@ func TestAccSumologicSCENetworkBlock_create(t *testing.T) {
 	SkipCseTest(t)
 
 	var networkBlock CSENetworkBlock
-	nAddressBlock := "10.0.1.0/26"
+	nAddressBlock := generateRandomCIDRBlock()
 	nLabel := "network block test"
 	nInternal := true
 	nSuppressesSignals := false
@@ -111,4 +113,13 @@ func testCheckNetworkBlockValues(networkBlock *CSENetworkBlock, nAddressBlock st
 		}
 		return nil
 	}
+}
+
+func generateRandomCIDRBlock() string {
+	ip := make(net.IP, 4)
+	for i := 0; i < 4; i++ {
+		ip[i] = byte(rand.Intn(256))
+	}
+
+	return ip.String() + "/26"
 }

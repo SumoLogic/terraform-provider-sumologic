@@ -24,7 +24,7 @@ import (
 
 func TestAccSumologicFieldExtractionRule_basic(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
-	testName := FieldsMap["FieldExtractionRule"]["name"+acctest.RandString(8)]
+	testName := FieldsMap["FieldExtractionRule"]["name"] + acctest.RandString(8)
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
@@ -48,7 +48,7 @@ func TestAccSumologicFieldExtractionRule_basic(t *testing.T) {
 
 func TestAccSumologicFieldExtractionRule_create(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
-	testName := FieldsMap["FieldExtractionRule"]["name"+acctest.RandString(8)]
+	testName := FieldsMap["FieldExtractionRule"]["name"] + acctest.RandString(8)
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
@@ -116,12 +116,12 @@ func testAccCheckFieldExtractionRuleExists(name string, fieldextractionrule *Fie
 func TestAccSumologicFieldExtractionRule_update(t *testing.T) {
 	var fieldextractionrule FieldExtractionRule
 	randomSuffix := acctest.RandString(8)
-	testName := FieldsMap["FieldExtractionRule"]["name"+randomSuffix]
+	testName := FieldsMap["FieldExtractionRule"]["name"] + randomSuffix
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
 
-	testUpdatedName := FieldsMap["FieldExtractionRule"]["updatedName"+randomSuffix]
+	testUpdatedName := FieldsMap["FieldExtractionRule"]["updatedName"] + randomSuffix
 	testUpdatedScope := FieldsMap["FieldExtractionRule"]["updatedScope"]
 	testUpdatedParseExpression := FieldsMap["FieldExtractionRule"]["updatedParseExpression"]
 	testUpdatedEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["updatedEnabled"])
