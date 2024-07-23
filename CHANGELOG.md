@@ -1,5 +1,6 @@
 ## 2.31.2 (Unreleased)
-
+BUG FIXES:
+* Fix cse_log_mappings resource conversion affecting import  (GH-675)
 
 ## 2.31.1 (July 2, 2024)
 BUG FIXES:
