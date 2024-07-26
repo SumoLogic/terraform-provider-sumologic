@@ -89,21 +89,21 @@ type CSELogMapping struct {
 }
 
 type CSELogMappingField struct {
-	Name             string                `json:"name"`
-	Value            string                `json:"value"`
-	ValueType        string                `json:"valueType"`
-	SkippedValues    []string              `json:"skippedValues"`
-	DefaultValue     string                `json:"defaultValue"`
-	Format           string                `json:"format"`
-	CaseInsensitive  bool                  `json:"caseInsensitive"`
-	AlternateValues  []string              `json:"alternateValues"`
-	TimeZone         string                `json:"timeZone"`
-	SplitDelimiter   string                `json:"splitDelimiter"`
-	SplitIndex       string                `json:"splitIndex"`
-	FieldJoin        []string              `json:"fieldJoin"`
-	JoinDelimiter    string                `json:"joinDelimiter"`
-	FormatParameters []string              `json:"formatParameters"`
-	LookUp           []CSELogMappingLookUp `json:"lookup"`
+	Name             string                 `json:"name"`
+	Value            string                 `json:"value,omitempty"`
+	ValueType        string                 `json:"valueType,omitempty"`
+	SkippedValues    []string               `json:"skippedValues,omitempty"`
+	DefaultValue     string                 `json:"defaultValue,omitempty"`
+	Format           string                 `json:"format,omitempty"`
+	CaseInsensitive  bool                   `json:"caseInsensitive,omitempty"`
+	AlternateValues  []string               `json:"alternateValues,omitempty"`
+	TimeZone         string                 `json:"timeZone,omitempty"`
+	SplitDelimiter   string                 `json:"splitDelimiter,omitempty"`
+	SplitIndex       string                 `json:"splitIndex,omitempty"`
+	FieldJoin        []string               `json:"fieldJoin,omitempty"`
+	JoinDelimiter    string                 `json:"joinDelimiter,omitempty"`
+	FormatParameters []string               `json:"formatParameters,omitempty"`
+	LookUp           *[]CSELogMappingLookUp `json:"lookup,omitempty"`
 }
 
 type CSELogMappingLookUp struct {
