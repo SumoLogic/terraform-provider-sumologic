@@ -117,9 +117,10 @@ func testCheckNetworkBlockValues(networkBlock *CSENetworkBlock, nAddressBlock st
 
 func generateRandomCIDRBlock() string {
 	ip := make(net.IP, 4)
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		ip[i] = byte(rand.Intn(256))
 	}
+	ip[3] = 0
 
 	return ip.String() + "/26"
 }
