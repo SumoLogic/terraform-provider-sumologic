@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -19,7 +20,7 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 	entitySelectorExpression := "srcDevice_ip"
 	expression := "foo = bar"
 	isPrototype := false
-	name := "Test Match Rule"
+	name := acctest.RandomWithPrefix("Test Match Rule")
 	nameExpression := "Signal Name"
 	severityMappingType := "constant"
 	severityMappingDefault := 5
@@ -27,7 +28,7 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 	tag := "foo"
 	suppressionWindowSize := 24 * 60 * 60 * 1000
 
-	nameUpdated := "Updated Match Rule"
+	nameUpdated := acctest.RandomWithPrefix("Updated Match Rule")
 	tagUpdated := "bar"
 	suppressionWindowSizeUpdated := 25 * 60 * 60 * 1000
 
@@ -83,7 +84,7 @@ func TestAccSumologicCSEMatchRule_failSuppressionValidation(t *testing.T) {
 	entitySelectorExpression := "srcDevice_ip"
 	expression := "foo = bar"
 	isPrototype := false
-	name := "Test Match Rule"
+	name := acctest.RandomWithPrefix("Test Match Rule")
 	nameExpression := "Signal Name"
 	severityMappingType := "constant"
 	severityMappingDefault := 5

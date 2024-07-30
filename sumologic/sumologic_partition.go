@@ -26,7 +26,7 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 	err = json.Unmarshal(data, &spartition)
 	if err != nil {
 		return nil, err
-	} else if spartition.IsActive == false {
+	} else if !spartition.IsActive {
 		return nil, nil
 	}
 
@@ -75,4 +75,5 @@ type Partition struct {
 	TotalBytes                       int    `json:"totalBytes"`
 	IndexType                        string `json:"indexType"`
 	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately,omitempty"`
+	IsIncludedInDefaultSearch        *bool  `json:"isIncludedInDefaultSearch,omitempty"`
 }
