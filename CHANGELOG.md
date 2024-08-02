@@ -1,6 +1,10 @@
-## 2.31.2 (Unreleased)
+## 2.31.3 (Unreleased)
+
+
+## 2.31.2 (August 2, 2024)
 ENHANCEMENTS:
 * Add IsIncludedInDefaultSearch field to partition resource (GH-674)
+
 BUG FIXES:
 * Fix cse_log_mappings resource conversion affecting import  (GH-675)
 
