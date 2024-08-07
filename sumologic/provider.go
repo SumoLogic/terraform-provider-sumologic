@@ -88,7 +88,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_role":                                     resourceSumologicRole(),
 			"sumologic_user":                                     resourceSumologicUser(),
 			"sumologic_ingest_budget":                            resourceSumologicIngestBudget(),
-			"sumologic_collector_ingestcf_budget_assignment":     resourceSumologicCollectorIngestBudgetAssignment(),
+			"sumologic_collector_ingest_budget_assignment":       resourceSumologicCollectorIngestBudgetAssignment(),
 			"sumologic_folder":                                   resourceSumologicFolder(),
 			"sumologic_content":                                  resourceSumologicContent(),
 			"sumologic_scheduled_view":                           resourceSumologicScheduledView(),
