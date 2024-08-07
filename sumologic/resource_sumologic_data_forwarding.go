@@ -21,7 +21,6 @@ func resourceSumologicDataForwarding() *schema.Resource {
 			"destination_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				//What validation func do we need for this fields?
 			},
 			"description": {
 				Type:     schema.TypeString,

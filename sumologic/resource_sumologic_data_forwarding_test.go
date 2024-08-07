@@ -106,8 +106,9 @@ func TestAccSumologicDataForwarding_update(t *testing.T) {
 func TestAccSumologicDataForwarding_delete(t *testing.T) {
 	dataForwardingResourceName, destinationName, description, region, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckWithAWS(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheckWithAWS(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataForwardingDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, region),
