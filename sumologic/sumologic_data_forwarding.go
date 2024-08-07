@@ -61,14 +61,12 @@ func (s *Client) DeleteDataForwarding(id string) error {
 type DataForwarding struct {
 	ID                     string `json:"id,omitempty"`
 	DestinationName        string `json:"destinationName"`
-	Description            string `json:"description"`
-	DestinationType        string `json:"destinationType"`
+	Description            string `json:"description,omitempty"`
 	BucketName             string `json:"bucketName"`
-	Status                 string `json:"status"`
 	AccessMethod           string `json:"authenticationMode"`
-	AccessKey              string `json:"accessKeyId"`
-	SecretKey              string `json:"secretAccessKey"`
-	RoleArn                string `json:"roleArn"`
-	S3Region               string `json:"region"`
+	AccessKey              string `json:"accessKeyId,omitempty"`
+	SecretKey              string `json:"secretAccessKey,omitempty"`
+	RoleArn                string `json:"roleArn,omitempty"`
+	S3Region               string `json:"region,omitempty"`
 	S3ServerSideEncryption bool   `json:"encrypted"`
 }

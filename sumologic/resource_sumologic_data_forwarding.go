@@ -12,6 +12,9 @@ func resourceSumologicDataForwarding() *schema.Resource {
 		Read:   resourceSumologicDataForwardingRead,
 		Update: resourceSumologicDataForwardingUpdate,
 		Delete: resourceSumologicDataForwardingDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 
@@ -24,18 +27,10 @@ func resourceSumologicDataForwarding() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"destination_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"bucket_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"authentication": {
 				Type:     schema.TypeList,
@@ -67,7 +62,7 @@ func resourceSumologicDataForwarding() *schema.Resource {
 				Optional: true,
 			},
 			"s3_server_side_encryption": {
-				Type:     schema.TypeBool, //bool
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 		},
@@ -126,9 +121,7 @@ func resourceSumologicDataForwardingRead(d *schema.ResourceData, meta interface{
 
 	d.Set("destination_name", dataForwarding.DestinationName)
 	d.Set("description", dataForwarding.Description)
-	d.Set("destination_type", dataForwarding.DestinationType)
 	d.Set("bucket_name", dataForwarding.BucketName)
-	d.Set("status", dataForwarding.Status)
 	d.Set("S3_region", dataForwarding.S3Region)
 	d.Set("S3_server_side_encryption", dataForwarding.S3ServerSideEncryption)
 
@@ -150,9 +143,7 @@ func resourceToDataForwarding(d *schema.ResourceData) DataForwarding {
 		ID:                     d.Id(),
 		DestinationName:        d.Get("destination_name").(string),
 		Description:            d.Get("description").(string),
-		DestinationType:        d.Get("destination_type").(string),
 		BucketName:             d.Get("bucket_name").(string),
-		Status:                 d.Get("status").(string),
 		AccessMethod:           authentication["type"].(string),
 		AccessKey:              authentication["access_key"].(string),
 		SecretKey:              authentication["secret_key"].(string),
@@ -169,9 +160,9 @@ func extractAuthenticationDetails(authenticationList []interface{}) map[string]i
 	}
 	// Default values if authentication block is not provided
 	return map[string]interface{}{
-		"type":       "",
-		"role_arn":   "",
-		"access_key": "",
-		"secret_key": "",
+		"type":       nil,
+		"role_arn":   nil,
+		"access_key": nil,
+		"secret_key": nil,
 	}
 }
