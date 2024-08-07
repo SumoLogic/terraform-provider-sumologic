@@ -155,7 +155,7 @@ func testAccCheckDataForwardingDestroy() resource.TestCheckFunc {
 			}
 
 			if p != nil {
-				return fmt.Errorf("Data Forwarding still exists")
+				return fmt.Errorf("Data Forwarding still exists!")
 			}
 		}
 		return nil
