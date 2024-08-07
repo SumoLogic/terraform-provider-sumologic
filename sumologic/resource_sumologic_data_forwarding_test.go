@@ -28,7 +28,6 @@ func getRandomizedDataForwardingParams() (string, string, string) {
 func TestAccSumologicDataForwarding_create(t *testing.T) {
 	dataForwardingResourceName, destinationName, description, region, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:   true,
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataForwardingDestroy(),
@@ -50,7 +49,6 @@ func TestAccSumologicDataForwarding_create(t *testing.T) {
 func TestAccSumologicDataForwarding_read(t *testing.T) {
 	dataForwardingResourceName, destinationName, description, region, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:   true,
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataForwardingDestroy(),
@@ -77,7 +75,6 @@ func TestAccSumologicDataForwarding_read(t *testing.T) {
 func TestAccSumologicDataForwarding_update(t *testing.T) {
 	dataForwardingResourceName, destinationName, description, region, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:   true,
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataForwardingDestroy(),
@@ -109,9 +106,8 @@ func TestAccSumologicDataForwarding_update(t *testing.T) {
 func TestAccSumologicDataForwarding_delete(t *testing.T) {
 	dataForwardingResourceName, destinationName, description, region, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
-		IsUnitTest: true,
-		PreCheck:   func() { testAccPreCheckWithAWS(t) },
-		Providers:  testAccProviders,
+		PreCheck:  func() { testAccPreCheckWithAWS(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, region),
