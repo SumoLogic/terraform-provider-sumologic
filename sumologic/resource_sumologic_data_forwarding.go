@@ -158,7 +158,6 @@ func extractAuthenticationDetails(authenticationList []interface{}) map[string]i
 		authMap := authenticationList[0].(map[string]interface{})
 		return authMap
 	}
-	// Default values if authentication block is not provided
 	return map[string]interface{}{
 		"type":       nil,
 		"role_arn":   nil,
