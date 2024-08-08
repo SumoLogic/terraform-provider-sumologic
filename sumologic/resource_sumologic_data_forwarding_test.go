@@ -11,7 +11,7 @@ import (
 )
 
 func getTestParams() (string, string, string, string, string, string) {
-	dataForwardingResourceName := "sumologic_data_forwarding.test"
+	dataForwardingResourceName := "sumologic_s3_data_forwarding_destination.test"
 	destinationName, description, region := getRandomizedDataForwardingParams()
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
@@ -165,7 +165,7 @@ func testAccCheckDataForwardingDestroy() resource.TestCheckFunc {
 
 func testAccSumologicDataForwardingCreateConfig(destinationName string, description string, testAwsBucket string, testAwsRoleArn string, region string) string {
 	return fmt.Sprintf(`
-resource "sumologic_data_forwarding" "test" {
+resource "sumologic_s3_data_forwarding_destination" "test" {
     destination_name = "%s"
 	description = "%s"
     bucket_name      = "%s"
@@ -182,7 +182,7 @@ resource "sumologic_data_forwarding" "test" {
 
 func testAccSumologicDataForwardingUpdateConfig(destinationName string, description string, testAwsBucket string, testAwsRoleArn string, region string) string {
 	return fmt.Sprintf(`
-resource "sumologic_data_forwarding" "test" {
+resource "sumologic_s3_data_forwarding_destination" "test" {
     destination_name = "%s"
 	description = "%s"
     bucket_name      = "%s"
