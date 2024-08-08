@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 )
 
@@ -19,8 +20,9 @@ func resourceSumologicDataForwarding() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"destination_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringLenBetween(1, 255),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -29,7 +31,6 @@ func resourceSumologicDataForwarding() *schema.Resource {
 			"bucket_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"authentication": {
 				Type:     schema.TypeList,
@@ -38,8 +39,9 @@ func resourceSumologicDataForwarding() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RoleBased", "AccessKey"}, false),
 						},
 						"role_arn": {
 							Type:     schema.TypeString,
