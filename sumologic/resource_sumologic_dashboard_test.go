@@ -590,6 +590,7 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 						query_string = "%s"
 						query_type = "Logs"
 						query_key = "%s"
+						time_source = "Receipt"
 					}
 					time_range {
 						begin_bounded_time_range {
