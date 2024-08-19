@@ -26,6 +26,6 @@ resource "sumologic_app" "example_app" {
 The following arguments are supported:
 
 - `uuid` - UUID of the app to install/uninstall/upgrade.
-- `version` - Version of the app to install. You can either specify a specific version of the app or use latest to install the latest version of the app.
+- `version` - Version of the app to install.
 - `parameters` - (Optional) Map of additional parameters for the app installation.
 
