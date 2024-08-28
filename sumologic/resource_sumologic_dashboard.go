@@ -361,6 +361,28 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 				Schema: getMetricsQueryDataSchema(),
 			},
 		},
+		"parse_mode": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "Auto",
+			ValidateFunc: validation.StringInSlice([]string{"Auto", "Manual"}, false),
+		},
+		"time_source": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "Message",
+			ValidateFunc: validation.StringInSlice([]string{"Message", "Receipt"}, false),
+		},
+		"transient": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  false,
+		},
+		"output_cardinality_limit": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Default:  1000,
+		},
 	}
 }
 
@@ -829,6 +851,18 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 			query.MetricsQueryData = getMetricsQueryData(tfQueryData[0].(map[string]interface{}))
 		}
 	}
+	if val, ok := tfQuery["parse_mode"]; ok {
+		query.ParseMode = val.(string)
+	}
+	if val, ok := tfQuery["time_source"]; ok {
+		query.TimeSource = val.(string)
+	}
+	if val, ok := tfQuery["transient"]; ok {
+		query.Transient = val.(bool)
+	}
+	if val, ok := tfQuery["output_cardinality_limit"]; ok {
+		query.OutputCardinalityLimit = val.(int)
+	}
 
 	return query
 }
@@ -1273,6 +1307,18 @@ func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{
 		if metricsQueryData, ok := query["metricsQueryData"]; ok && metricsQueryData != nil {
 			tfPanelQueries[i]["metrics_query_data"] =
 				getTerraformMetricsQueryDataScheme(metricsQueryData.(map[string]interface{}))
+		}
+		if parseMode, ok := query["parseMode"]; ok {
+			tfPanelQueries[i]["parse_mode"] = parseMode
+		}
+		if timeSource, ok := query["timeSource"]; ok {
+			tfPanelQueries[i]["time_source"] = timeSource
+		}
+		if transient, ok := query["transient"]; ok {
+			tfPanelQueries[i]["transient"] = transient
+		}
+		if outputCardinalityLimit, ok := query["outputCardinalityLimit"]; ok {
+			tfPanelQueries[i]["output_cardinality_limit"] = outputCardinalityLimit
 		}
 	}
 	return tfPanelQueries

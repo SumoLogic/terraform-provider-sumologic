@@ -126,11 +126,15 @@ type ServiceMapPanel struct {
 }
 
 type SearchPanelQuery struct {
-	QueryString      string            `json:"queryString"`
-	QueryType        string            `json:"queryType"`
-	QueryKey         string            `json:"queryKey"`
-	MetricsQueryMode string            `json:"metricsQueryMode,omitempty"`
-	MetricsQueryData *MetricsQueryData `json:"metricsQueryData,omitempty"`
+	QueryString            string            `json:"queryString"`
+	QueryType              string            `json:"queryType"`
+	QueryKey               string            `json:"queryKey"`
+	MetricsQueryMode       string            `json:"metricsQueryMode,omitempty"`
+	MetricsQueryData       *MetricsQueryData `json:"metricsQueryData,omitempty"`
+	ParseMode              string            `json:"parseMode,omitempty"`
+	TimeSource             string            `json:"timeSource,omitempty"`
+	Transient              bool              `json:"transient,omitempty"`
+	OutputCardinalityLimit int               `json:"outputCardinalityLimit,omitempty"`
 }
 
 type MetricsQueryData struct {
