@@ -1,5 +1,9 @@
-## 2.31.3 (Unreleased)
+## 2.31.4 (Unreleased)
 
+
+## 2.31.3 (August 28, 2024)
+ENHANCEMENTS:
+* Add time source and parse mode to dashboard search panel query (GH-679)
 
 ## 2.31.2 (August 2, 2024)
 ENHANCEMENTS:
