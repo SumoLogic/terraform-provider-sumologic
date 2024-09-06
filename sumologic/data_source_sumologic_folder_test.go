@@ -15,7 +15,7 @@ func TestAccDataSourceFolder_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: folderConfig("/Library/Installed Apps"),
+				Config: folderConfig("/Library/Users/dgould+terraform@sumologic.com"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSumoLogicfDataSourceID("data.sumologic_folder.personal_folder"),
 					testAccDataSourceFolderCheck("data.sumologic_folder.personal_folder"),
