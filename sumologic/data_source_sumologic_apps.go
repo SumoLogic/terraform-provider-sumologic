@@ -90,25 +90,21 @@ func dataSourceSumoLogicAppsRead(d *schema.ResourceData, meta interface{}) error
 	c := meta.(*Client)
 
 	// Read apps from the API
-	id, fapps, err := c.getApps(d.Get("name").(string), d.Get("author").(string))
+	id, apps, err := c.getApps(d.Get("name").(string), d.Get("author").(string))
 	if err != nil {
 		return err
 	}
 
-	// if err := d.Set("apps", flattenApps(apps)); err != nil {
-	// 	return err
-	// }
+	if err := d.Set("apps", flattenApps(apps)); err != nil {
+		return err
+	}
 
-	//fmt.Printf("%v\n", apps)
 	d.SetId(id)
-	fmt.Printf("%v\n", fapps)
-	d.Set("apps", fapps)
-	fmt.Printf("%v\n", d.Get("apps"))
 
 	return nil
 }
 
-func (s *Client) getApps(name string, author string) (string, []interface{}, error) {
+func (s *Client) getApps(name string, author string) (string, []App, error) {
 	// Construct the base URL
 	baseURL := "v2/apps"
 
@@ -134,7 +130,7 @@ func (s *Client) getApps(name string, author string) (string, []interface{}, err
 
 	apps := AppsResponse{}
 	err = json.Unmarshal(data, &apps)
-	//fmt.Printf("%v\n", apps)
+
 	if err != nil {
 		return "", nil, err
 	}
@@ -142,7 +138,7 @@ func (s *Client) getApps(name string, author string) (string, []interface{}, err
 	// Generate a unique ID for this data source
 	id := generateDataSourceId(name, author, apps.Apps)
 
-	return id, flattenApps(apps.Apps), nil
+	return id, apps.Apps, nil
 }
 
 func generateDataSourceId(name string, author string, apps []App) string {
@@ -170,7 +166,6 @@ func flattenApps(apps []App) []interface{} {
 	var flattenedApps []interface{}
 	for _, app := range apps {
 
-		//attributes := make([]interface{}, 1)
 		internalAttributes := make(map[string]interface{})
 		internalAttributes["category"] = app.Attributes.Category
 		internalAttributes["use_case"] = app.Attributes.UseCase
@@ -198,16 +193,6 @@ func flattenApps(apps []App) []interface{} {
 		flattenedApps = append(flattenedApps, flattenedApp)
 	}
 	return flattenedApps
-}
-
-// Helper function to convert []string to []interface{}
-func convertStringSliceToInterfaceSlice(input []string) []interface{} {
-	result := make([]interface{}, len(input))
-	for i, v := range input {
-		result[i] = v
-	}
-	fmt.Printf("%v\n", result)
-	return result
 }
 
 type AppsResponse struct {
