@@ -24,6 +24,10 @@ func dataSourceSumoLogicApps() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"apps": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -44,9 +48,33 @@ func dataSourceSumoLogicApps() *schema.Resource {
 						"installs": {Type: schema.TypeInt, Computed: true},
 						"app_type": {Type: schema.TypeString, Computed: true},
 						"attributes": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeList, Elem: &schema.Schema{Type: schema.TypeString}},
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"category": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"use_case": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"collection": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
 						},
 						"family":              {Type: schema.TypeString, Computed: true},
 						"installable":         {Type: schema.TypeBool, Computed: true},
@@ -58,25 +86,29 @@ func dataSourceSumoLogicApps() *schema.Resource {
 	}
 }
 
-func dataSourceSumoLogicAppsRead(d *schema.ResourceData, m interface{}) error {
-	c := m.(*Client)
+func dataSourceSumoLogicAppsRead(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
 
 	// Read apps from the API
-	id, apps, err := c.getApps(d.Get("name").(string), d.Get("author").(string))
+	id, fapps, err := c.getApps(d.Get("name").(string), d.Get("author").(string))
 	if err != nil {
 		return err
 	}
 
-	if err := d.Set("apps", flattenApps(apps)); err != nil {
-		return err
-	}
+	// if err := d.Set("apps", flattenApps(apps)); err != nil {
+	// 	return err
+	// }
 
+	//fmt.Printf("%v\n", apps)
 	d.SetId(id)
+	fmt.Printf("%v\n", fapps)
+	d.Set("apps", fapps)
+	fmt.Printf("%v\n", d.Get("apps"))
 
 	return nil
 }
 
-func (s *Client) getApps(name string, author string) (string, []App, error) {
+func (s *Client) getApps(name string, author string) (string, []interface{}, error) {
 	// Construct the base URL
 	baseURL := "v2/apps"
 
@@ -102,6 +134,7 @@ func (s *Client) getApps(name string, author string) (string, []App, error) {
 
 	apps := AppsResponse{}
 	err = json.Unmarshal(data, &apps)
+	//fmt.Printf("%v\n", apps)
 	if err != nil {
 		return "", nil, err
 	}
@@ -109,7 +142,7 @@ func (s *Client) getApps(name string, author string) (string, []App, error) {
 	// Generate a unique ID for this data source
 	id := generateDataSourceId(name, author, apps.Apps)
 
-	return id, apps.Apps, nil
+	return id, flattenApps(apps.Apps), nil
 }
 
 func generateDataSourceId(name string, author string, apps []App) string {
@@ -136,6 +169,16 @@ func generateDataSourceId(name string, author string, apps []App) string {
 func flattenApps(apps []App) []interface{} {
 	var flattenedApps []interface{}
 	for _, app := range apps {
+
+		//attributes := make([]interface{}, 1)
+		internalAttributes := make(map[string]interface{})
+		internalAttributes["category"] = app.Attributes.Category
+		internalAttributes["use_case"] = app.Attributes.UseCase
+		internalAttributes["collection"] = app.Attributes.Collection
+		attributes := []interface{}{
+			internalAttributes,
+		}
+
 		flattenedApp := map[string]interface{}{
 			"uuid":                app.UUID,
 			"name":                app.Name,
@@ -147,7 +190,7 @@ func flattenApps(apps []App) []interface{} {
 			"beta":                app.Beta,
 			"installs":            app.Installs,
 			"app_type":            app.AppType,
-			"attributes":          app.Attributes,
+			"attributes":          attributes,
 			"family":              app.Family,
 			"installable":         app.Installable,
 			"show_on_marketplace": app.ShowOnMarketplace,
@@ -157,23 +200,37 @@ func flattenApps(apps []App) []interface{} {
 	return flattenedApps
 }
 
+// Helper function to convert []string to []interface{}
+func convertStringSliceToInterfaceSlice(input []string) []interface{} {
+	result := make([]interface{}, len(input))
+	for i, v := range input {
+		result[i] = v
+	}
+	fmt.Printf("%v\n", result)
+	return result
+}
+
 type AppsResponse struct {
 	Apps []App `json:"apps"`
 }
 
 type App struct {
-	UUID              string                 `json:"uuid"`
-	Name              string                 `json:"name"`
-	Description       string                 `json:"description"`
-	LatestVersion     string                 `json:"latestVersion"`
-	Icon              string                 `json:"icon"`
-	Author            string                 `json:"author"`
-	AccountTypes      []string               `json:"accountTypes"`
-	Beta              bool                   `json:"beta"`
-	Installs          int                    `json:"installs"`
-	AppType           string                 `json:"appType"`
-	Attributes        map[string]interface{} `json:"attributes"`
-	Family            string                 `json:"family"`
-	Installable       bool                   `json:"installable"`
-	ShowOnMarketplace bool                   `json:"showOnMarketplace"`
+	UUID          string   `json:"uuid"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description"`
+	LatestVersion string   `json:"latestVersion"`
+	Icon          string   `json:"icon"`
+	Author        string   `json:"author"`
+	AccountTypes  []string `json:"accountTypes"`
+	Beta          bool     `json:"beta"`
+	Installs      int      `json:"installs"`
+	AppType       string   `json:"appType"`
+	Attributes    struct {
+		Category   []string `json:"category"`
+		UseCase    []string `json:"useCase"`
+		Collection []string `json:"collection"`
+	} `json:"attributes"`
+	Family            string `json:"family"`
+	Installable       bool   `json:"installable"`
+	ShowOnMarketplace bool   `json:"showOnMarketplace"`
 }
