@@ -16,9 +16,9 @@ func getTestParams() (string, string, string, string, string, string) {
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
-	println("AWS Test Bucket:", testAwsBucket)
-	println("AWS Test ARN:", testAwsRoleArn)
-	println("AWS Test Region:", testAwsRegion)
+	println("AWS Test Bucket: ", testAwsBucket)
+	println("AWS Test ARN: ", testAwsRoleArn)
+	println("AWS Test Region: ", testAwsRegion)
 	return dataForwardingResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket
 }
 
