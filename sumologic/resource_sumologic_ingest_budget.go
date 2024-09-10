@@ -9,6 +9,7 @@ import (
 
 func resourceSumologicIngestBudget() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "Use resource_sumologic_ingest_budget_v2 instead.",
 		Create: func(d *schema.ResourceData, meta any) error {
 			return errors.New("Use resource_sumologic_ingest_budget_v2 instead.")
 		},
