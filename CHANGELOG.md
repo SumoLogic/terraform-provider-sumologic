@@ -1,5 +1,6 @@
-## 2.31.4 (Unreleased)
-
+## 3.0.0 (Unreleased)
+DEPRECATIONS:
+* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 
 ## 2.31.3 (August 28, 2024)
 ENHANCEMENTS:
