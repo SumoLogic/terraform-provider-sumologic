@@ -49,6 +49,7 @@ func dataSourceSumoLogicApps() *schema.Resource {
 						"app_type": {Type: schema.TypeString, Computed: true},
 						"attributes": {
 							Type:     schema.TypeList,
+							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
