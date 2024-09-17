@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (s *Client) getDataForwarding(id string) (*DataForwarding, error) {
+func (s *Client) getDataForwardingDestination(id string) (*DataForwardingDestination, error) {
 
 	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/destinations/%s", id))
 	if err != nil {
@@ -15,42 +15,42 @@ func (s *Client) getDataForwarding(id string) (*DataForwarding, error) {
 		return nil, nil
 	}
 
-	var dataForwarding DataForwarding
-	err = json.Unmarshal(data, &dataForwarding)
+	var dataForwardingDestination DataForwardingDestination
+	err = json.Unmarshal(data, &dataForwardingDestination)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dataForwarding, nil
+	return &dataForwardingDestination, nil
 
 }
-func (s *Client) CreateDataForwarding(dataForwarding DataForwarding) (*DataForwarding, error) {
-	var createdDataForwarding DataForwarding
+func (s *Client) CreateDataForwardingDestination(dataForwardingDestination DataForwardingDestination) (*DataForwardingDestination, error) {
+	var createdDataForwardingDestination DataForwardingDestination
 
-	responseBody, err := s.Post("v1/logsDataForwarding/destinations", dataForwarding)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(responseBody, &createdDataForwarding)
+	responseBody, err := s.Post("v1/logsDataForwarding/destinations", dataForwardingDestination)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &createdDataForwarding, nil
+	err = json.Unmarshal(responseBody, &createdDataForwardingDestination)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &createdDataForwardingDestination, nil
 }
 
-func (s *Client) UpdateDataForwarding(dataForwarding DataForwarding) error {
+func (s *Client) UpdateDataForwardingDestination(dataForwardingDestination DataForwardingDestination) error {
 
-	url := fmt.Sprintf("v1/logsDataForwarding/destinations/%s", dataForwarding.ID)
-	_, err := s.Put(url, dataForwarding)
+	url := fmt.Sprintf("v1/logsDataForwarding/destinations/%s", dataForwardingDestination.ID)
+	_, err := s.Put(url, dataForwardingDestination)
 
 	return err
 }
-func (s *Client) DeleteDataForwarding(id string) error {
+func (s *Client) DeleteDataForwardingDestination(id string) error {
 	url := fmt.Sprintf("v1/logsDataForwarding/destinations/%s", id)
 
 	_, err := s.Delete(url)
@@ -58,7 +58,7 @@ func (s *Client) DeleteDataForwarding(id string) error {
 	return err
 }
 
-type DataForwarding struct {
+type DataForwardingDestination struct {
 	ID                     string `json:"id,omitempty"`
 	DestinationName        string `json:"destinationName"`
 	Description            string `json:"description,omitempty"`

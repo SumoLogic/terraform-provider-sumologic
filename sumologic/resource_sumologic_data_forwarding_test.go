@@ -135,7 +135,7 @@ func testAccCheckDataForwardingExists() resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
-			if _, err := client.getDataForwarding(id); err != nil {
+			if _, err := client.getDataForwardingDestination(id); err != nil {
 				return fmt.Errorf("Received an error retrieving data forwarding %s", err)
 			}
 		}
@@ -148,7 +148,7 @@ func testAccCheckDataForwardingDestroy() resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
-			p, err := client.getDataForwarding(id)
+			p, err := client.getDataForwardingDestination(id)
 
 			if err != nil {
 				if strings.Contains(err.Error(), "Data forwarding Destination doesn't exists") {

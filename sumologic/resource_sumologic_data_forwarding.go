@@ -6,13 +6,13 @@ import (
 	"log"
 )
 
-func resourceSumologicDataForwarding() *schema.Resource {
+func resourceSumologicDataForwardingDestination() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceSumologicDataForwardingCreate,
-		Read:   resourceSumologicDataForwardingRead,
-		Update: resourceSumologicDataForwardingUpdate,
-		Delete: resourceSumologicDataForwardingDelete,
+		Create: resourceSumologicDataForwardingDestinationCreate,
+		Read:   resourceSumologicDataForwardingDestinationRead,
+		Update: resourceSumologicDataForwardingDestinationUpdate,
+		Delete: resourceSumologicDataForwardingDestinationDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -71,76 +71,76 @@ func resourceSumologicDataForwarding() *schema.Resource {
 
 }
 
-func resourceSumologicDataForwardingCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicDataForwardingDestinationCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		dataForwarding := resourceToDataForwarding(d)
-		createdDataForwarding, err := c.CreateDataForwarding(dataForwarding)
+		dataForwardingDestination := resourceToDataForwardingDestination(d)
+		createdDataForwardingDestination, err := c.CreateDataForwardingDestination(dataForwardingDestination)
 
 		if err != nil {
 			return err
 		}
 
-		d.SetId(createdDataForwarding.ID)
+		d.SetId(createdDataForwardingDestination.ID)
 
 	}
 
-	return resourceSumologicDataForwardingUpdate(d, meta)
+	return resourceSumologicDataForwardingDestinationUpdate(d, meta)
 }
 
-func resourceSumologicDataForwardingUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicDataForwardingDestinationUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	dataForwarding := resourceToDataForwarding(d)
+	dataForwardingDestination := resourceToDataForwardingDestination(d)
 
 	c := meta.(*Client)
-	err := c.UpdateDataForwarding(dataForwarding)
+	err := c.UpdateDataForwardingDestination(dataForwardingDestination)
 
 	if err != nil {
 		return err
 	}
 
-	return resourceSumologicDataForwardingRead(d, meta)
+	return resourceSumologicDataForwardingDestinationRead(d, meta)
 }
 
-func resourceSumologicDataForwardingRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicDataForwardingDestinationRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	id := d.Id()
-	dataForwarding, err := c.getDataForwarding(id)
+	dataForwardingDestination, err := c.getDataForwardingDestination(id)
 
 	if err != nil {
 		return err
 	}
 
-	if dataForwarding == nil {
-		log.Printf("[WARN] Data Forwarding not found, removing from state: %v - %v", id, err)
+	if dataForwardingDestination == nil {
+		log.Printf("[WARN] Data Forwarding destination not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
 	}
 
-	d.Set("destination_name", dataForwarding.DestinationName)
-	d.Set("description", dataForwarding.Description)
-	d.Set("bucket_name", dataForwarding.BucketName)
-	d.Set("S3_region", dataForwarding.S3Region)
-	d.Set("S3_server_side_encryption", dataForwarding.S3ServerSideEncryption)
+	d.Set("destination_name", dataForwardingDestination.DestinationName)
+	d.Set("description", dataForwardingDestination.Description)
+	d.Set("bucket_name", dataForwardingDestination.BucketName)
+	d.Set("S3_region", dataForwardingDestination.S3Region)
+	d.Set("S3_server_side_encryption", dataForwardingDestination.S3ServerSideEncryption)
 
 	return nil
 }
 
-func resourceSumologicDataForwardingDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceSumologicDataForwardingDestinationDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 	id := d.Id()
 
-	return c.DeleteDataForwarding(id)
+	return c.DeleteDataForwardingDestination(id)
 }
 
-func resourceToDataForwarding(d *schema.ResourceData) DataForwarding {
+func resourceToDataForwardingDestination(d *schema.ResourceData) DataForwardingDestination {
 
 	authentication := extractAuthenticationDetails(d.Get("authentication").([]interface{}))
 
-	return DataForwarding{
+	return DataForwardingDestination{
 		ID:                     d.Id(),
 		DestinationName:        d.Get("destination_name").(string),
 		Description:            d.Get("description").(string),
