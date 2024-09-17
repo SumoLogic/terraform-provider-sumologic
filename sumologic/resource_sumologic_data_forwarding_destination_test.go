@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestAccSumologicDataForwardingDestination_basic(t *testing.T) {
+func TestAccDataForwardingDestination_basic(t *testing.T) {
 	var dataForwardingDestination DataForwardingDestination
 	testDestinationName := "df-destination"
 	testRoleArn := "roleArn"
