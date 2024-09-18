@@ -92,6 +92,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_folder":                                   resourceSumologicFolder(),
 			"sumologic_content":                                  resourceSumologicContent(),
 			"sumologic_scheduled_view":                           resourceSumologicScheduledView(),
+			"sumologic_data_forwarding_destination":              resourceSumologicDataForwardingDestination(),
 			"sumologic_partition":                                resourceSumologicPartition(),
 			"sumologic_field_extraction_rule":                    resourceSumologicFieldExtractionRule(),
 			"sumologic_connection":                               resourceSumologicConnection(),
