@@ -33,10 +33,12 @@ func resourceSumologicDataForwardingRule() *schema.Resource {
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 			"file_prefix": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "{index}_{day}_{hour}_{minute}_{second}",
 			},
 			"payload_schema": {
 				Type:         schema.TypeString,
@@ -86,7 +88,7 @@ func resourceSumologicDataForwardingRuleUpdate(d *schema.ResourceData, meta inte
 func resourceSumologicDataForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	return c.DeleteDataForwardingRule(d.Id())
+	return c.DeleteDataForwardingRule(d.Get("index_id").(string))
 }
 
 func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
@@ -106,6 +108,7 @@ func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
+	d.SetId(dataForwardingRule.IndexId)
 	d.Set("index_id", indexId)
 	d.Set("destination_id", dataForwardingRule.DestinationId)
 	d.Set("enabled", dataForwardingRule.Enabled)
