@@ -11,38 +11,38 @@ import (
 )
 
 func getTestParams() (string, string, string, string, string, string) {
-	dataForwardingResourceName := "sumologic_data_forwarding_destination.test"
-	destinationName, description := getRandomizedDataForwardingParams()
+	dataForwardingDestinationResourceName := "sumologic_data_forwarding_destination.test"
+	destinationName, description := getRandomizedDataForwardingDestinationParams()
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
 	println("AWS Test Bucket: ", testAwsBucket)
 	println("AWS Test ARN: ", testAwsRoleArn)
 	println("AWS Test Region: ", testAwsRegion)
-	return dataForwardingResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket
+	return dataForwardingDestinationResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket
 }
 
-func getRandomizedDataForwardingParams() (string, string) {
+func getRandomizedDataForwardingDestinationParams() (string, string) {
 	destinationName := acctest.RandomWithPrefix("tf-acc-test")
 	description := acctest.RandomWithPrefix("tf-acc-test")
 	return destinationName, description
 }
 
 func TestAccSumologicDataForwarding_create(t *testing.T) {
-	dataForwardingResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket := getTestParams()
+	dataForwardingDestinationResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket := getTestParams()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataForwardingDestroy(),
+		CheckDestroy: testAccCheckDataForwardingDestinationDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, testAwsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataForwardingExists(),
-					resource.TestCheckResourceAttr(dataForwardingResourceName, "destination_name", destinationName),
-					resource.TestCheckResourceAttr(dataForwardingResourceName, "description", description),
-					resource.TestCheckResourceAttr(dataForwardingResourceName, "s3_region", testAwsRegion),
-					resource.TestCheckResourceAttr(dataForwardingResourceName, "s3_server_side_encryption", "false"),
+					testAccCheckDataForwardingDestinationExists(),
+					resource.TestCheckResourceAttr(dataForwardingDestinationResourceName, "destination_name", destinationName),
+					resource.TestCheckResourceAttr(dataForwardingDestinationResourceName, "description", description),
+					resource.TestCheckResourceAttr(dataForwardingDestinationResourceName, "s3_region", testAwsRegion),
+					resource.TestCheckResourceAttr(dataForwardingDestinationResourceName, "s3_server_side_encryption", "false"),
 				),
 			},
 		},
@@ -54,12 +54,12 @@ func TestAccSumologicDataForwarding_read(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataForwardingDestroy(),
+		CheckDestroy: testAccCheckDataForwardingDestinationDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, testAwsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataForwardingExists(),
+					testAccCheckDataForwardingDestinationExists(),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "destination_name", destinationName),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "description", description),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "bucket_name", testAwsBucket),
@@ -80,12 +80,12 @@ func TestAccSumologicDataForwarding_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataForwardingDestroy(),
+		CheckDestroy: testAccCheckDataForwardingDestinationDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, testAwsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataForwardingExists(),
+					testAccCheckDataForwardingDestinationExists(),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "destination_name", destinationName),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "description", description),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "s3_region", testAwsRegion),
@@ -94,7 +94,7 @@ func TestAccSumologicDataForwarding_update(t *testing.T) {
 			}, {
 				Config: testAccSumologicDataForwardingUpdateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, testAwsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataForwardingExists(),
+					testAccCheckDataForwardingDestinationExists(),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "destination_name", destinationName),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "description", description),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "s3_region", testAwsRegion),
@@ -111,12 +111,12 @@ func TestAccSumologicDataForwarding_delete(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckWithAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataForwardingDestroy(),
+		CheckDestroy: testAccCheckDataForwardingDestinationDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicDataForwardingCreateConfig(destinationName, description, testAwsBucket, testAwsRoleArn, testAwsRegion),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataForwardingExists(),
+					testAccCheckDataForwardingDestinationExists(),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "destination_name", destinationName),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "description", description),
 					resource.TestCheckResourceAttr(dataForwardingResourceName, "s3_region", testAwsRegion),
@@ -124,26 +124,26 @@ func TestAccSumologicDataForwarding_delete(t *testing.T) {
 				),
 			}, {
 				Config: testAccSumologicDataForwardingDeleteConfig(),
-				Check:  resource.ComposeTestCheckFunc(testAccCheckDataForwardingDestroy()),
+				Check:  resource.ComposeTestCheckFunc(testAccCheckDataForwardingDestinationDestroy()),
 			},
 		},
 	})
 }
 
-func testAccCheckDataForwardingExists() resource.TestCheckFunc {
+func testAccCheckDataForwardingDestinationExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
 			if _, err := client.getDataForwardingDestination(id); err != nil {
-				return fmt.Errorf("Received an error retrieving data forwarding %s", err)
+				return fmt.Errorf("Received an error retrieving data forwarding destination %s", err)
 			}
 		}
 		return nil
 	}
 }
 
-func testAccCheckDataForwardingDestroy() resource.TestCheckFunc {
+func testAccCheckDataForwardingDestinationDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
@@ -159,7 +159,7 @@ func testAccCheckDataForwardingDestroy() resource.TestCheckFunc {
 			}
 
 			if p != nil {
-				return fmt.Errorf("Data Forwarding still exists!")
+				return fmt.Errorf("Data Forwarding Destination still exists!")
 			}
 		}
 		return nil
