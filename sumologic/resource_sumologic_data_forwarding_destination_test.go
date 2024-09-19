@@ -22,7 +22,7 @@ func getTestParams() (string, string, string, string, string, string) {
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
 	println("AWS Test Bucket b64: ", b64.StdEncoding.EncodeToString([]byte("foo."+testAwsBucket+".")))
-	println("AWS Test ARN b64: ", b64.StdEncoding.EncodeToString([]byte("phoo."+testAwsRoleArn+".")))
+	println("AWS Test ARN b64: ", b64.StdEncoding.EncodeToString([]byte(strings.Replace("phoo."+testAwsRoleArn+".", ":", "_", -1))))
 	println("AWS Test Region b64: ", b64.StdEncoding.EncodeToString([]byte("fu."+testAwsRegion+".")))
 	return dataForwardingDestinationResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket
 }
