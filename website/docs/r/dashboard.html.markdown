@@ -370,6 +370,19 @@ for details.
 One of `Basic` or `Advanced`.
 - `metric_query_data` - (Optional) _Should only be specified for metric query_. Data format for the metric query. See
 [metric_query_data schema](#schema-for-metric_query_data) for details.
+- `parse_mode` - (Optional) This field only applies for queryType of `Logs` but other query types may be supported in the future.
+            Define the parsing mode to scan the JSON format log messages. Possible values are:
+              1. `Auto`
+              2. `Manual`
+            In AutoParse mode, the system automatically figures out fields to parse based on the search query.
+            While in the Manual mode, no fields are parsed out automatically.
+            For more information see [Dynamic Parsing](https://help.sumologic.com/?cid=0011).
+- `time_source` - This field only applies for queryType of `Logs` but other query types may be supported in the future.
+            Define the time source of this query. Possible values are `Message` and `Receipt`.
+            `Message` will use the timeStamp on the message, while `Receipt` will use the timestamp it was received
+            by Sumo.
+- `transient` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Determines if the row should be returned in the response. Can be used in conjunction with a join, if only the result of the join is needed, and not the intermediate rows. Setting `transient` to `true` wherever the intermediate results aren't required speeds up the computation and reduces the amount of data transferred over the network.
+- `output_cardinality_limit` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Specifies the output cardinality limitations for the query, which is the maximum number of timeseries returned in the result.
 
 ### Schema for `metric_query_data`
 - `metric` - (Required) The metric of the query.
