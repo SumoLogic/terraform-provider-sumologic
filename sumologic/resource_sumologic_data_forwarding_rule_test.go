@@ -48,7 +48,7 @@ func TestAccSumologicDataForwardingRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "index_id", indexId),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "destination_id", destinationId),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "file_prefix", "test/{index}"),
+					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "file_format", "test/{index}"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "payload_schema", "allFields"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "format", "csv"),
 				),
@@ -61,7 +61,7 @@ func TestAccSumologicDataForwardingRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "index_id", indexId),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "destination_id", destinationId),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "file_prefix", "test/"),
+					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "file_format", "test/"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "payload_schema", "builtInFields"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "format", "json"),
 				),
@@ -216,7 +216,7 @@ func testAccSumologicDataForwardingRuleCreateConfig() string {
 			index_id = "%s"
 			destination_id = "%s"
 			enabled = true
-			file_prefix = "test/{index}"
+			file_format = "test/{index}"
 			payload_schema = "allFields"
 			format = "csv"
 		}`, indexId, destinationId)
@@ -228,7 +228,7 @@ func testAccSumologicDataForwardingRuleUpdateConfig() string {
 			index_id = "%s"
 			destination_id = "%s"
 			enabled = true
-			file_prefix = "test/"
+			file_format = "test/"
 			payload_schema = "builtInFields"
 			format = "json"
 		}`, indexId, destinationId)

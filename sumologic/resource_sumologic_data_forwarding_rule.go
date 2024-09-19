@@ -35,7 +35,7 @@ func resourceSumologicDataForwardingRule() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"file_prefix": {
+			"file_format": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "{index}_{day}_{hour}_{minute}_{second}",
@@ -112,7 +112,7 @@ func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interf
 	d.Set("index_id", indexId)
 	d.Set("destination_id", dataForwardingRule.DestinationId)
 	d.Set("enabled", dataForwardingRule.Enabled)
-	d.Set("file_prefix", dataForwardingRule.FileFormat)
+	d.Set("file_format", dataForwardingRule.FileFormat)
 	d.Set("payload_schema", dataForwardingRule.PayloadSchema)
 	d.Set("format", dataForwardingRule.Format)
 
@@ -160,7 +160,7 @@ func resourceToDataForwardingRule(d *schema.ResourceData) DataForwardingRule {
 		IndexId:       d.Get("index_id").(string),
 		DestinationId: d.Get("destination_id").(string),
 		Enabled:       d.Get("enabled").(bool),
-		FileFormat:    d.Get("file_prefix").(string),
+		FileFormat:    d.Get("file_format").(string),
 		PayloadSchema: d.Get("payload_schema").(string),
 		Format:        d.Get("format").(string),
 	}
