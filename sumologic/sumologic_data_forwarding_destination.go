@@ -67,6 +67,7 @@ type DataForwardingDestination struct {
 	AccessKey              string `json:"accessKeyId,omitempty"`
 	SecretKey              string `json:"secretAccessKey,omitempty"`
 	RoleArn                string `json:"roleArn,omitempty"`
+	Enabled                bool   `json:"enabled"`
 	S3Region               string `json:"region,omitempty"`
 	S3ServerSideEncryption bool   `json:"encrypted"`
 }
