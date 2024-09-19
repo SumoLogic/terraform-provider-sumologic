@@ -58,6 +58,11 @@ func resourceSumologicDataForwardingDestination() *schema.Resource {
 					},
 				},
 			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"s3_region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -124,6 +129,7 @@ func resourceSumologicDataForwardingDestinationRead(d *schema.ResourceData, meta
 	d.Set("description", dataForwardingDestination.Description)
 	d.Set("bucket_name", dataForwardingDestination.BucketName)
 	d.Set("S3_region", dataForwardingDestination.S3Region)
+	d.Set("enabled", dataForwardingDestination.Enabled)
 	d.Set("S3_server_side_encryption", dataForwardingDestination.S3ServerSideEncryption)
 
 	return nil
@@ -149,6 +155,7 @@ func resourceToDataForwardingDestination(d *schema.ResourceData) DataForwardingD
 		AccessKey:              authentication["access_key"].(string),
 		SecretKey:              authentication["secret_key"].(string),
 		RoleArn:                authentication["role_arn"].(string),
+		Enabled:                d.Get("enabled").(bool),
 		S3Region:               d.Get("s3_region").(string),
 		S3ServerSideEncryption: d.Get("s3_server_side_encryption").(bool),
 	}
