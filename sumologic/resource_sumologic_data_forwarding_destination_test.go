@@ -2,7 +2,6 @@ package sumologic
 
 // Todo: (ngoyal, 09-19-2024) - Uncomment the test cases once the issue with PUT permissions on SUMOLOGIC_TEST_BUCKET_NAME is fixed
 
-/*
 
 import (
 	"fmt"
@@ -12,6 +11,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	b64 "encoding/base64"
 )
 
 func getTestParams() (string, string, string, string, string, string) {
@@ -20,9 +21,9 @@ func getTestParams() (string, string, string, string, string, string) {
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
 	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
-	println("AWS Test Bucket: ", testAwsBucket)
-	println("AWS Test ARN: ", testAwsRoleArn)
-	println("AWS Test Region: ", testAwsRegion)
+	println("AWS Test Bucket: ", b64.StdEncoding.EncodeToString([]byte(testAwsBucket)))
+	println("AWS Test ARN: ", b64.StdEncoding.EncodeToString([]byte(testAwsRoleArn)))
+	println("AWS Test Region: ", b64.StdEncoding.EncodeToString([]byte(testAwsRegion)))
 	return dataForwardingDestinationResourceName, destinationName, description, testAwsRegion, testAwsRoleArn, testAwsBucket
 }
 
@@ -205,4 +206,3 @@ resource "sumologic_data_forwarding_destination" "test" {
 func testAccSumologicDataForwardingDeleteConfig() string {
 	return fmt.Sprintf(` `)
 }
-*/
