@@ -60,7 +60,7 @@ func TestAccSumologicDataForwardingRule_basic(t *testing.T) {
 					testAccCheckDataForwardingRuleExists(),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "index_id", indexId),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "destination_id", destinationId),
-					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "enabled", "false"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "file_format", "test/"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "payload_schema", "builtInFields"),
 					resource.TestCheckResourceAttr(dataForwardingRuleResourceName, "format", "json"),
@@ -227,7 +227,7 @@ func testAccSumologicDataForwardingRuleUpdateConfig() string {
 		resource "sumologic_data_forwarding_rule" "test" {
 			index_id = "%s"
 			destination_id = "%s"
-			enabled = true
+			enabled = false
 			file_format = "test/"
 			payload_schema = "builtInFields"
 			format = "json"

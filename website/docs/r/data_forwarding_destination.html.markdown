@@ -20,6 +20,7 @@ resource "sumologic_data_forwarding_destination" "example_data_forwarding_destin
     secret_access_key = "secretAccessKey"
     role_arn = "arn:aws:iam::some-valid-arn"
     encrypted = "false"
+    enabled = "true"
 }
 ```
 ## Argument reference
@@ -35,6 +36,7 @@ The following arguments are supported:
 - `secret_access_key` - (Optional) The AWS Secret Key to access the S3 bucket.
 - `role_arn` - (Optional) The AWS Role ARN to access the S3 bucket.
 - `encrypted` - (Optional) Enable S3 server-side encryption.
+- `enabled` - (Optional) True when the data forwarding destination is enabled. Will be treated as _false_ if left blank.
 
 The following attributes are exported:
 

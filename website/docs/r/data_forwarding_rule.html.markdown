@@ -25,7 +25,7 @@ The following arguments are supported:
 
 - `index_id` - (Required) The _id_ of the Partition or Scheduled View the rule applies to.
 - `destination_id` - (Required) The data forwarding destination id.
-- `enabled` - (Required) True when the data forwarding rule is enabled.
+- `enabled` - (Optional) True when the data forwarding rule is enabled. Will be treated as _false_ if left blank.
 - `file_format` - (Optional) Specify the path prefix to a directory in the S3 bucket and how to format the file name.
 - `payload_schema` - (Optional) Schema for the payload. Default value of the payload schema is _allFields_ for scheduled view, and _builtInFields_ for partition.
   _raw_ payloadSchema should be used in conjunction with _text_ format and vice versa.
