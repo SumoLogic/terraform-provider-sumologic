@@ -2,7 +2,7 @@
 DEPRECATIONS:
 * resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 BUG FIXES:
-* fix analytics_tier case sensitivity in resource_sumologic_partition
+* fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
 
 ## 2.31.4 (September 19, 2024)
 * **New Resource:** sumologic_data_forwarding_destination (GH-678)
