@@ -33,6 +33,12 @@ func resourceSumologicPartition() *schema.Resource {
 			"analytics_tier": {
 				Type:     schema.TypeString,
 				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.ToLower(old) == strings.ToLower(new) {
+						return true
+					}
+					return false
+				},
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
