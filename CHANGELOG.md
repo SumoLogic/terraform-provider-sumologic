@@ -1,6 +1,8 @@
 ## 3.0.0 (Unreleased)
 DEPRECATIONS:
 * resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
+
+## 2.31.5 (Unreleased)
 BUG FIXES:
 * fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
 
