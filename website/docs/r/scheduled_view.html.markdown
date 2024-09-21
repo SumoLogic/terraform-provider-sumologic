@@ -23,6 +23,7 @@ QUERY
   retention_period = 365
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [index_id]
   }
 }
 ```
@@ -44,7 +45,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - The internal ID of the scheduled view.
-- `index_id` - The Index ID of the scheduled view.
+- `index_id` - The Index ID of the scheduled view. It never updates at any point of time during resource updates, therefore make sure to ignore this via `ignore_changes = [index_id]`.
 
 ## Import
 Scheduled Views can can be imported using the id. The list of scheduled views and their ids can be obtained using the Sumologic [scheduled views api][2].

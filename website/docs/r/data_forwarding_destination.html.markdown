@@ -19,8 +19,8 @@ resource "sumologic_data_forwarding_destination" "example_data_forwarding_destin
     access_key_id = "accessKeyId"
     secret_access_key = "secretAccessKey"
     role_arn = "arn:aws:iam::some-valid-arn"
-    encrypted = "false"
-    enabled = "true"
+    encrypted = false
+    enabled = true
 }
 ```
 ## Argument reference
