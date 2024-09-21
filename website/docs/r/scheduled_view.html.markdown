@@ -44,6 +44,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - The internal ID of the scheduled view.
+- `index_id` - The Index ID of the scheduled view.
 
 ## Import
 Scheduled Views can can be imported using the id. The list of scheduled views and their ids can be obtained using the Sumologic [scheduled views api][2].
