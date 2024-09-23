@@ -40,6 +40,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"index_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -80,6 +81,7 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 		}
 
 		d.SetId(createdSview.ID)
+		d.Set("index_id", createdSview.IndexId)
 		d.Set("retention_period", createdSview.RetentionPeriod)
 	}
 
