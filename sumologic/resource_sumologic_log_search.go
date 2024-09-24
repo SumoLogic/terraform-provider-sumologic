@@ -1,17 +1,13 @@
 package sumologic
 
 import (
-	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceSumologicLogSearch() *schema.Resource {
-
-	nameRegex := `^[a-zA-Z0-9 +%\-@.,_()]+$`
 
 	return &schema.Resource{
 		Create: resourceSumologicLogSearchCreate,
@@ -28,7 +24,6 @@ func resourceSumologicLogSearch() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 255),
-					validation.StringMatch(regexp.MustCompile(nameRegex), fmt.Sprintf("Must match regex %s", nameRegex)),
 				),
 			},
 			"description": {
