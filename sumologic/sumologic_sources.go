@@ -144,10 +144,10 @@ func resourceSumologicSource() *schema.Resource {
 				},
 			},
 			"hash_algorithm": {
-				Type: schema.TypeString,
-				Optional: true
-				Default: nil,
-				ValidateFunc: validation.StringInSlice([]string{"MD5", "SHA-256"}, false)
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      nil,
+				ValidateFunc: validation.StringInSlice([]string{"MD5", "SHA-256"}, false),
 			},
 			"cutoff_timestamp": {
 				Type:     schema.TypeInt,
@@ -241,7 +241,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.ForceTimeZone = d.Get("force_timezone").(bool)
 	source.DefaultDateFormats = getDefaultDateFormats(d)
 	source.Filters = getFilters(d)
-	source.HashAlgorithm = d.get("hash_algorithm").(string)
+	source.HashAlgorithm = d.Get("hash_algorithm").(string)
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
 	source.Fields = d.Get("fields").(map[string]interface{})
