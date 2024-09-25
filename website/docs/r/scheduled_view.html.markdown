@@ -45,7 +45,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - The internal ID of the scheduled view.
-- `index_id` - The Index ID of the scheduled view. It never updates at any point of time during resource updates, therefore make sure to ignore this via `ignore_changes = [index_id]`.
+- `index_id` - The Index ID of the scheduled view. It remains unchanged during resource updates, and any manual modifications will be disregarded. While it’s not mandatory, we recommend to ignore this via `ignore_changes = [index_id]`.
 
 ## Import
 Scheduled Views can can be imported using the id. The list of scheduled views and their ids can be obtained using the Sumologic [scheduled views api][2].

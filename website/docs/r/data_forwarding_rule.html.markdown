@@ -58,7 +58,7 @@ The following arguments are supported:
 - `index_id` - (Required) The *id* of the Partition or *index_id* of the Scheduled View the rule applies to.
 - `destination_id` - (Required) The data forwarding destination id.
 - `enabled` - (Optional) True when the data forwarding rule is enabled. Will be treated as _false_ if left blank.
-- `file_format` - (Optional) Specify the path prefix to a directory in the S3 bucket and how to format the file name.
+- `file_format` - (Optional) Specify the path prefix to a directory in the S3 bucket and how to format the file name. For possible values, kindly refer the point 6 in the [documentation](https://help.sumologic.com/docs/manage/data-forwarding/amazon-s3-bucket/#forward-datato-s3).
 - `payload_schema` - (Optional) Schema for the payload. Default value of the payload schema is _allFields_ for scheduled view, and _builtInFields_ for partition.
   _raw_ payloadSchema should be used in conjunction with _text_ format and vice versa.
 - `format` - (Optional) Format of the payload. Default format will be _csv_. 
