@@ -126,7 +126,7 @@ The following properties are common to ALL sources and can be used to configure 
 - `force_timezone` - (Optional) Type true to force the source to use a specific time zone, otherwise type false to use the time zone found in the logs. The default setting is false.
 - `default_date_formats` - (Optional) Define the format for the timestamps present in your log messages. You can specify a locator regex to identify where timestamps appear in log lines. Requires 'automatic_date_parsing' set to True. 
   + `format` - (Required) The timestamp format supplied as a Java SimpleDateFormat, or "epoch" if the timestamp is in epoch format.
-  + `locator` - (Optional) Regular expression to locate the timestamp within the messages.  
+  + `locator` - (Optional) Regular expression to locate the timestamp within the messages.
 
   Usage:
   ```hcl
@@ -155,6 +155,7 @@ The following properties are common to ALL sources and can be used to configure 
        mask = "MaskedID"
      }
   ```  
+- `hash_algorithm` - (Optional) Define the hash algorithm used for Hash type filters. Available values are "MD5" and "SHA-256". The default value will be "MD5".
 - `cutoff_timestamp` - (Optional) Only collect data more recent than this timestamp, specified as milliseconds since epoch (13 digit). This maps to the `Collection should begin` field on the UI. Example: using `1663786159000` will set the cutoff timestamp to `Wednesday, September 21, 2022 6:49:19 PM GMT`
 - `cutoff_relative_time` - (Optional) Can be specified instead of cutoffTimestamp to provide a relative offset with respect to the current time.This maps to the `Collection should begin` field on the UI. Example: use -1h, -1d, or -1w to collect data that's less than one hour, one day, or one week old, respectively.
 - `fields` - (Optional) Map containing key/value pairs.
