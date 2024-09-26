@@ -61,7 +61,6 @@ func resourceSumologicDataForwardingDestination() *schema.Resource {
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 			},
 			"s3_region": {
 				Type:     schema.TypeString,
