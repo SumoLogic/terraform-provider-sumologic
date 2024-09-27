@@ -2,7 +2,7 @@
 DEPRECATIONS:
 * resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 
-## 2.31.5
+## 2.31.5 (September 27, 2024)
 ENHANCEMENTS:
 * Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
 * Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
