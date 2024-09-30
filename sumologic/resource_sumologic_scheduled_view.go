@@ -37,6 +37,11 @@ func resourceSumologicScheduledView() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.IsRFC3339Time,
 			},
+			"index_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"retention_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -76,6 +81,7 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 		}
 
 		d.SetId(createdSview.ID)
+		d.Set("index_id", createdSview.IndexId)
 		d.Set("retention_period", createdSview.RetentionPeriod)
 	}
 
@@ -99,6 +105,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
+	d.Set("index_id", sview.IndexId)
 	d.Set("query", sview.Query)
 	d.Set("index_name", sview.IndexName)
 	d.Set("start_time", sview.StartTime.Format(time.RFC3339))
