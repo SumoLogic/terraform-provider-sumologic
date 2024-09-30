@@ -33,12 +33,10 @@ func resourceSumologicDataForwardingRule() *schema.Resource {
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
 			},
 			"file_format": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "{index}_{day}_{hour}_{minute}_{second}",
 			},
 			"payload_schema": {
 				Type:         schema.TypeString,
