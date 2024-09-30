@@ -2,9 +2,16 @@
 DEPRECATIONS:
 * resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 
+<<<<<<< HEAD
 ## 2.31.5 (Unreleased)
 BUG FIXES:
 * Remove regex match in resource_sumologic_log_search (GH-693) 
+=======
+## 2.31.5
+ENHANCEMENTS:
+* Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
+* Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
+>>>>>>> master
 
 ## 2.31.4 (September 19, 2024)
 * **New Resource:** sumologic_data_forwarding_destination (GH-678)

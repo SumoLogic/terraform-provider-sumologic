@@ -25,6 +25,7 @@ type Source struct {
 	ForceTimeZone              bool                   `json:"forceTimeZone"`
 	DefaultDateFormats         []DefaultDateFormat    `json:"defaultDateFormats,omitempty"`
 	Filters                    []Filter               `json:"filters,omitempty"`
+	HashAlgorithm              string                 `json:"hashAlgorithm,omitempty"`
 	CutoffTimestamp            int                    `json:"cutoffTimestamp,omitempty"`
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
@@ -142,6 +143,12 @@ func resourceSumologicSource() *schema.Resource {
 					},
 				},
 			},
+			"hash_algorithm": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      nil,
+				ValidateFunc: validation.StringInSlice([]string{"MD5", "SHA-256"}, false),
+			},
 			"cutoff_timestamp": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -234,6 +241,7 @@ func resourceToSource(d *schema.ResourceData) Source {
 	source.ForceTimeZone = d.Get("force_timezone").(bool)
 	source.DefaultDateFormats = getDefaultDateFormats(d)
 	source.Filters = getFilters(d)
+	source.HashAlgorithm = d.Get("hash_algorithm").(string)
 	source.CutoffTimestamp = d.Get("cutoff_timestamp").(int)
 	source.CutoffRelativeTime = d.Get("cutoff_relative_time").(string)
 	source.Fields = d.Get("fields").(map[string]interface{})
@@ -259,6 +267,7 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) error {
 	if err := d.Set("filters", flattenFilters(source.Filters)); err != nil {
 		return fmt.Errorf("error setting filters for resource %s: %s", d.Id(), err)
 	}
+	d.Set("hash_algorithm", source.HashAlgorithm)
 	d.Set("cutoff_timestamp", source.CutoffTimestamp)
 	d.Set("cutoff_relative_time", source.CutoffRelativeTime)
 	if err := d.Set("fields", source.Fields); err != nil {
