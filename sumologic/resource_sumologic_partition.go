@@ -50,6 +50,9 @@ func resourceSumologicPartition() *schema.Resource {
 			"total_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return true
+				},
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
