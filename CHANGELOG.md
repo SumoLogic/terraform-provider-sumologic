@@ -7,6 +7,7 @@ ENHANCEMENTS:
 * Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
 * Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
 BUG FIXES:
+* Fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
 * Remove regex match in resource_sumologic_log_search (GH-693) 
 
 ## 2.31.4 (September 19, 2024)
@@ -22,7 +23,7 @@ ENHANCEMENTS:
 * Add IsIncludedInDefaultSearch field to partition resource (GH-674)
 
 BUG FIXES:
-* Fix cse_log_mappings resource conversion affecting import  (GH-675)
+* Fix cse_log_mappings resource conversion affecting import (GH-675)
 
 ## 2.31.1 (July 2, 2024)
 BUG FIXES:
