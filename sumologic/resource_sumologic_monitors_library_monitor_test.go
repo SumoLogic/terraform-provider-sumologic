@@ -1434,6 +1434,16 @@ var exampleLogsAnomalyTriggerConditionBlock = `
         }
     }`
 
+var exampleMetricsAnomalyTriggerConditionBlock = `
+    metrics_anomaly_condition {
+      	anomaly_detector_type = "Cluster"
+       	critical {
+       		sensitivity = 0.5
+       		min_anomaly_count = 5
+         	time_range = "-1h"
+        }
+    }`
+
 func exampleLogsStaticMonitor(testName string) string {
 	query := "error | timeslice 1m | count as field by _timeslice"
 	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
@@ -1501,6 +1511,17 @@ func exampleLogsAnomalyMonitor(testName string) string {
 	)
 }
 
+func exampleMetricsAnomalyMonitor(testName string) string {
+	query := "service=auth api=login metric=HTTP_5XX_Count | avg"
+	return exampleMonitorWithTriggerCondition(
+		testName,
+		"Metrics",
+		query,
+		exampleMetricsAnomalyTriggerConditionBlock,
+		[]string{"Critical", "ResolvedCritical"},
+	)
+}
+
 var allExampleMonitors = []func(testName string) string{
 	exampleLogsStaticMonitor,
 	exampleLogsStaticMonitorWithResolutionWindow,
@@ -1513,6 +1534,7 @@ var allExampleMonitors = []func(testName string) string{
 	exampleSloSliMonitor,
 	exampleSloBurnRateMonitor,
 	exampleLogsAnomalyMonitor,
+	exampleMetricsAnomalyMonitor,
 }
 
 func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
