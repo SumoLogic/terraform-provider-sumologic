@@ -375,6 +375,46 @@ resource "sumologic_monitor" "tf_example_anomaly_monitor" {
 }
 ```
 
+## Example Metrics Anomaly Monitor
+```hcl
+resource "sumologic_monitor" "tf_example_metrics_anomaly_monitor" {
+  name = "Example Metrics Anomaly Monitor"
+  description = "example metrics anomaly monitor"
+  type = "MonitorsLibraryMonitor"
+  monitor_type = "Metrics"
+  is_disabled = false
+
+  queries {
+      row_id = "A"
+      query = "service=auth api=login metric=HTTP_5XX_Count | avg"
+  }
+
+  trigger_conditions {
+    metrics_anomaly_condition {
+      anomaly_detector_type = "Cluster"
+      critical {
+        sensitivity = 0.4
+        min_anomaly_count = 9
+        time_range = "-3h"
+      }
+    }
+  }
+
+  notifications {
+    notification {
+      connection_type = "Email"
+      recipients = [
+        "anomaly@example.com",
+      ]
+      subject      = "Monitor Alert: {{TriggerType}} on {{Name}}"
+      time_zone    = "PST"
+      message_body = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+    }
+    run_for_trigger_types = ["Critical", "ResolvedCritical"]
+  }
+}
+```
+
 ## Monitor Folders
 
 NOTE: Monitor folders are considered a different resource from Library content folders. See [sumologic_monitor_folder][2] for more details.
@@ -480,7 +520,8 @@ A `trigger_conditions` block contains one or more subblocks of the following typ
 - `metrics_missing_data_condition`
 - `slo_sli_condition`
 - `slo_burn_rate_condition`
-- `log_anomaly_condition`
+- `logs_anomaly_condition`
+- `metrics_anomaly_condition`
 
 Subblocks should be limited to at most 1 missing data condition and at most 1 static / outlier condition.
 
@@ -571,10 +612,17 @@ Here is a summary of arguments for each condition type (fields which are not mar
       - `burn_rate_threshold` (Required): The burn rate percentage threshold.
       - `time_range` (Required): The relative time range for the burn rate percentage evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 
-#### log_anomaly_condition
+#### logs_anomaly_condition
   - `field`: The name of the field that the trigger condition will alert on. The trigger could compare the value of specified field with the threshold. If field is not specified, monitor would default to result count instead.
   - `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
   - `critical`
+    - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
+    - `min_anomaly_count` (Required) : The minimum number of anomalies required to exist in the current time range for the condition to trigger.
+    - `time_range` (Required) : The relative time range for anomaly evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+
+#### metrics_anomaly_condition
+- `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
+- `critical`
     - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
     - `min_anomaly_count` (Required) : The minimum number of anomalies required to exist in the current time range for the condition to trigger.
     - `time_range` (Required) : The relative time range for anomaly evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.

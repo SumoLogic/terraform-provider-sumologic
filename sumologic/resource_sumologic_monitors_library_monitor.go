@@ -172,6 +172,14 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 							Schema: logsAnomalyTriggerConditionSchema,
 						},
 					},
+					metricsAnomalyConditionFieldName: {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: metricsAnomalyTriggerConditionSchema,
+						},
+					},
 				},
 			},
 		},
@@ -446,6 +454,7 @@ var (
 		"trigger_conditions.0.slo_sli_condition",
 		"trigger_conditions.0.slo_burn_rate_condition",
 		fmt.Sprintf("trigger_conditions.0.%s", logsAnomalyConditionFieldName),
+		fmt.Sprintf("trigger_conditions.0.%s", metricsAnomalyConditionFieldName),
 	}
 	logStaticConditionCriticalOrWarningAtleastOneKeys = []string{
 		"trigger_conditions.0.logs_static_condition.0.warning",
@@ -624,6 +633,34 @@ var logsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
 		Type:     schema.TypeString,
 		Required: true,
 	},
+	"direction": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Default:      "Both",
+		ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+	},
+	"anomaly_detector_type": {
+		Type:         schema.TypeString,
+		Required:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Cluster"}, false),
+	},
+	"critical": nested(false, schemaMap{
+		"sensitivity": {
+			Type:         schema.TypeFloat,
+			Optional:     true,
+			Default:      0.5,
+			ValidateFunc: validation.FloatBetween(0.1, 1.0),
+		},
+		"min_anomaly_count": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Default:  1,
+		},
+		"time_range": &timeRangeWithAllowedValuesSchema,
+	}),
+}
+
+var metricsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
 	"direction": {
 		Type:         schema.TypeString,
 		Optional:     true,
@@ -1142,6 +1179,9 @@ func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerConditi
 	if sc, ok := fromSingletonArray(block, logsAnomalyConditionFieldName); ok {
 		conditions = append(conditions, logsAnomalyConditionBlockToJson(sc)...)
 	}
+	if sc, ok := fromSingletonArray(block, metricsAnomalyConditionFieldName); ok {
+		conditions = append(conditions, metricsAnomalyConditionBlockToJson(sc)...)
+	}
 
 	return conditions
 }
@@ -1266,6 +1306,21 @@ func logsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCond
 	return base.cloneReadingFromNestedBlocks(block)
 }
 
+func metricsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Direction:           block["direction"].(string),
+		AnomalyDetectorType: block["anomaly_detector_type"].(string),
+		DetectionMethod:     metricsAnomalyConditionDetectionMethod,
+	}
+	// metric anomaly condition does not have 'alert' and 'resolution' objects. Here we generate empty blocks
+	// for reading to work
+	if subBlock, ok := fromSingletonArray(block, "critical"); ok {
+		subBlock["alert"] = toSingletonArray(map[string]interface{}{})
+		subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
 // TriggerCondition JSON model to 'trigger_conditions' block
 func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]interface{} {
 	missingDataConditions := make([]TriggerCondition, 0)
@@ -1294,6 +1349,9 @@ func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]inte
 			triggerConditionsBlock[sloBurnRateConditionFieldName] = toSingletonArray(jsonToSloBurnRateConditionBlock(dataConditions))
 		case logsAnomalyConditionDetectionMethod:
 			triggerConditionsBlock[logsAnomalyConditionFieldName] = toSingletonArray(jsonToLogsAnomalyConditionBlock(dataConditions))
+		case metricsAnomalyConditionDetectionMethod:
+			triggerConditionsBlock[metricsAnomalyConditionFieldName] = toSingletonArray(jsonToMetricsAnomalyConditionBlock(dataConditions))
+
 		}
 	}
 	if len(missingDataConditions) > 0 {
@@ -1580,6 +1638,36 @@ func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]i
 	return block
 }
 
+func jsonToMetricsAnomalyConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	block := map[string]interface{}{}
+
+	block["direction"] = conditions[0].Direction
+	block["anomaly_detector_type"] = conditions[0].AnomalyDetectorType
+
+	var criticalDict = dict{}
+	block["critical"] = toSingletonArray(criticalDict)
+
+	var hasCritical = false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	return block
+}
+
 func getAlertBlock(condition TriggerCondition) dict {
 	var alert = dict{}
 	burnRates := make([]interface{}, len(condition.BurnRates))
@@ -1622,6 +1710,7 @@ const metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
 const sloSLIConditionFieldName = "slo_sli_condition"
 const sloBurnRateConditionFieldName = "slo_burn_rate_condition"
 const logsAnomalyConditionFieldName = "logs_anomaly_condition"
+const metricsAnomalyConditionFieldName = "metrics_anomaly_condition"
 
 const logsStaticConditionDetectionMethod = "LogsStaticCondition"
 const metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
@@ -1632,6 +1721,7 @@ const metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
 const sloSLIConditionDetectionMethod = "SloSliCondition"
 const sloBurnRateConditionDetectionMethod = "SloBurnRateCondition"
 const logsAnomalyConditionDetectionMethod = "LogsAnomalyCondition"
+const metricsAnomalyConditionDetectionMethod = "MetricsAnomalyCondition"
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
@@ -1817,7 +1907,8 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 			resolvedCriticalCondition.OccurrenceType = ""
 		}
 
-		if criticalCondition.DetectionMethod == logsAnomalyConditionDetectionMethod {
+		if (criticalCondition.DetectionMethod == logsAnomalyConditionDetectionMethod) ||
+			(criticalCondition.DetectionMethod == metricsAnomalyConditionDetectionMethod) {
 			criticalCondition.MinAnomalyCount = critical["min_anomaly_count"].(int)
 			criticalCondition.Sensitivity = critical["sensitivity"].(float64)
 			resolvedCriticalCondition.MinAnomalyCount = criticalCondition.MinAnomalyCount

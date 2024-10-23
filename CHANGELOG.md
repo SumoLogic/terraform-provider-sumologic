@@ -2,6 +2,10 @@
 DEPRECATIONS:
 * resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
 
+## 2.31.6 (Unreleased)
+ENHANCEMENTS:
+* Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
+
 ## 2.31.5 (October 04, 2024)
 ENHANCEMENTS:
 * Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
