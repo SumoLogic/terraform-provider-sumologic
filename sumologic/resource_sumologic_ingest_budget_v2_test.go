@@ -45,6 +45,7 @@ func TestAccSumologicIngestBudgetV2_basic(t *testing.T) {
 				ResourceName:      "sumologic_ingest_budget_v2.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     testName,
 			},
 		},
 	})
