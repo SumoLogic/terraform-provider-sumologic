@@ -262,7 +262,7 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 			return fmt.Errorf("could not get match list items by match list id %s", rs.Primary.ID)
 		}
 
-		actualCount := len(matchListResp.CSEMatchListItemsGetObjects)
+		actualCount := matchListResp.Total
 		if actualCount != expectedCount {
 			return fmt.Errorf("expected %d match list items, but found %d instead", expectedCount, actualCount)
 		}
