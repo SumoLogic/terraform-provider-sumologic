@@ -1,6 +1,7 @@
-## 3.0.0 (Unreleased)
-DEPRECATIONS:
-* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
+## (Unreleased)
+REMOVALS:
+* resource_sumologic_ingest_budget : remove deprecated resource.
+* resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
 
 ## 2.31.6 (Unreleased)
 ENHANCEMENTS:
