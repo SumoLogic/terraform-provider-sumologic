@@ -3,7 +3,6 @@ REMOVALS:
 * resource_sumologic_ingest_budget : remove deprecated resource.
 * resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
 
-## 2.31.6 (Unreleased)
 ENHANCEMENTS:
 * Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
 
