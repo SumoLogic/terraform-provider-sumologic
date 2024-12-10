@@ -6,6 +6,9 @@
 **ENHANCEMENTS:**
 * Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
 
+**BUG FIXES:**
+* Fixed typo in connection.html.markdown documentation
+
 ## 2.31.5 (October 04, 2024)
 ENHANCEMENTS:
 * Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
