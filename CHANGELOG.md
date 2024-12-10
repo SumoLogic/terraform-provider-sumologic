@@ -1,10 +1,13 @@
-## (Unreleased)
-REMOVALS:
+## 3.0.0 (December 09, 2024)
+**REMOVALS:**
 * resource_sumologic_ingest_budget : remove deprecated resource.
 * resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
 
-ENHANCEMENTS:
+**ENHANCEMENTS:**
 * Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
+
+**BUG FIXES:**
+* Fixed typo in connection.html.markdown documentation
 
 ## 2.31.5 (October 04, 2024)
 ENHANCEMENTS:
