@@ -1,3 +1,6 @@
+## X.Y.Z (Unreleased)
+* Add new change notes here
+
 ## 3.0.0 (December 09, 2024)
 **REMOVALS:**
 * resource_sumologic_ingest_budget : remove deprecated resource.
