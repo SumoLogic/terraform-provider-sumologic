@@ -1,8 +1,8 @@
 package sumologic
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -40,7 +40,6 @@ func resourceSumologicField() *schema.Resource {
 			"state": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 		},
 	}
