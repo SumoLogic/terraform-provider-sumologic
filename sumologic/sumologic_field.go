@@ -95,28 +95,19 @@ func (s *Client) FindFieldId(name string) (string, error) {
 }
 
 func (s *Client) DisableField(id string) error {
-	urlWithoutParams := "v1/fields/%s/disable"
-	sprintfArgs := []interface{}{}
-	sprintfArgs = append(sprintfArgs, id)
-
-	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
+	urlWithParams := fmt.Sprintf("v1/fields/%s/disable", id)
 
 	_, err := s.Delete(urlWithParams)
-
 	return err
 }
 
 func (s *Client) EnableField(id string) error {
-	urlWithoutParams := "v1/fields/%s/enable"
-	sprintfArgs := []interface{}{}
-	sprintfArgs = append(sprintfArgs, id)
-
-	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
+	urlWithParams := fmt.Sprintf("v1/fields/%s/enable", id)
 
 	_, err := s.Put(urlWithParams, nil)
-
 	return err
 }
+
 
 type Field struct {
 	FieldId   string `json:"fieldId"`
