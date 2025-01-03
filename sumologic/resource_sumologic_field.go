@@ -10,9 +10,8 @@ func resourceSumologicField() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicFieldCreate,
 		Read:   resourceSumologicFieldRead,
-		Update: resourceSumologicFieldUpdate 
+		Update: resourceSumologicFieldUpdate,
 		Delete: resourceSumologicFieldDelete,
-		Update: 
 		Importer: &schema.ResourceImporter{
 			State: resourceSumologicFieldImport,
 		},
@@ -132,7 +131,7 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 		id = newId
 	}
-	f,err := c.GetField(id)
+	f, err := c.GetField(id)
 
 	if err != nil {
 		return err
@@ -140,11 +139,11 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if f.FieldName != name && f.DataType != tpe {
 		return errors.New("Only state field is updatable")
-	} 
+	}
 
-	if f.status === "Enabled" {
+	if f.status == "Enabled" {
 		return c.EnableField(id)
-	} else if  f.status === "Disabled" {
+	} else if f.status == "Disabled" {
 		return c.DisableField(id)
 	} else {
 		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")

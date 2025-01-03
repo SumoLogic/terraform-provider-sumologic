@@ -95,7 +95,7 @@ func (s *Client) FindFieldId(name string) (string, error) {
 }
 
 func (s *Client) DisableField(id string) error {
-	url:= "v1/fields/%s/disable"
+	url := "v1/fields/%s/disable"
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
@@ -107,7 +107,7 @@ func (s *Client) DisableField(id string) error {
 }
 
 func (s *Client) EnableField(id string) error {
-	url:= "v1/fields/%s/enable"
+	url := "v1/fields/%s/enable"
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
@@ -117,8 +117,6 @@ func (s *Client) EnableField(id string) error {
 
 	return err
 }
-
-
 
 type Field struct {
 	FieldId   string `json:"fieldId"`
