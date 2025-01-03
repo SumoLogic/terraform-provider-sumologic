@@ -95,7 +95,7 @@ func (s *Client) FindFieldId(name string) (string, error) {
 }
 
 func (s *Client) DisableField(id string) error {
-	url := "v1/fields/%s/disable"
+	urlWithoutParams := "v1/fields/%s/disable"
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
@@ -107,13 +107,13 @@ func (s *Client) DisableField(id string) error {
 }
 
 func (s *Client) EnableField(id string) error {
-	url := "v1/fields/%s/enable"
+	urlWithoutParams := "v1/fields/%s/enable"
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
-	_, err := s.Put(urlWithParams)
+	_, err := s.Put(urlWithParams, nil)
 
 	return err
 }

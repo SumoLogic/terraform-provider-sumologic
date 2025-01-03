@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -141,9 +142,9 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		return errors.New("Only state field is updatable")
 	}
 
-	if f.status == "Enabled" {
+	if status == "Enabled" {
 		return c.EnableField(id)
-	} else if f.status == "Disabled" {
+	} else if status == "Disabled" {
 		return c.DisableField(id)
 	} else {
 		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")
