@@ -56,7 +56,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account", "AzureEventHubAuthentication"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account", "AzureEventHubAuthentication", "AzureClientSecretAuthentication"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -118,6 +118,14 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"tenant_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"client_secret": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
@@ -133,7 +141,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath", "AzureEventHubPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath", "AzureEventHubPath", "AzureMetricsPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -243,10 +251,13 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"environment": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}
-
 	return pollingSource
 }
 
@@ -450,13 +461,25 @@ func getCustomServices(path map[string]interface{}) []string {
 	return customServices
 }
 
-func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
+func flattenPollingTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
-		filter := map[string]interface{}{
-			"type":      d.Type,
-			"namespace": d.Namespace,
-			"tags":      d.Tags,
+		filter := make(map[string]interface{})
+		switch t := d.(type) {
+		case TagFilter:
+			filter = map[string]interface{}{
+				"type":      t.Type,
+				"namespace": t.Namespace,
+				"Tags":      t.Tags,
+			}
+		case AzureTagFilter:
+			filter = map[string]interface{}{
+				"type":      t.Type,
+				"namespace": t.Namespace,
+				"Tags":      flattenAzureTagKeyValuePair(t.Tags),
+			}
+		default:
+			continue
 		}
 		filters = append(filters, filter)
 	}
@@ -464,27 +487,85 @@ func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
 	return filters
 }
 
-func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
+func flattenAzureTagKeyValuePair(v []AzureTagKeyValuePair) []map[string]interface{} {
+	var tags []map[string]interface{}
+	for _, d := range v {
+		tag := map[string]interface{}{
+			"name":   d.Name,
+			"values": d.Values,
+		}
+		tags = append(tags, tag)
+	}
+	return tags
+}
+
+func getTagFilter(config map[string]interface{}) TagFilter {
+	filter := TagFilter{}
+	filter.Type = "TagFilters"
+	filter.Namespace = config["namespace"].(string)
+	rawTags := config["tags"].([]interface{})
+	Tags := make([]string, len(rawTags))
+	for i, v := range rawTags {
+		Tags[i] = v.(string)
+	}
+	filter.Tags = Tags
+	return filter
+}
+
+func getAzureTagFilter(config map[string]interface{}) AzureTagFilter {
+	filter := AzureTagFilter{}
+	filter.Type = "AzureTagFilters"
+	filter.namespace = config["namespace"].(string)
+	RawTags := config["tags"].([]interface{})
+	Tags := make([]AzureTagKeyValuePair, len(rawTags))
+	for i, tagPair := range rawTags {
+		pair := AzureTagKeyValuePair{}
+		pair.Name = tagPair["name"]
+		// get the values from the azure key value pair 
+		rawValues = tagPair["values"].([]interface{})
+		valueList := make([]string, len(rawValues))
+		for j, v := range rawValues {
+			valueList[j] = v.(string)
+		}
+		pair.Values = valueList
+		Tags[i] = pair
+	}
+	return filter
+}
+
+
+func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	rawTagFilterConfig := path["tag_filters"].([]interface{})
-	var filters []TagFilter
+	var filters []interface{}
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
-		filter := TagFilter{}
-		filter.Type = config["type"].(string)
-		filter.Namespace = config["namespace"].(string)
+		filterType := config["type"].(string)
+		filterNamespace := config["namespace"].(string)
 
-		rawTags := config["tags"].([]interface{})
-		Tags := make([]string, len(rawTags))
-		for i, v := range rawTags {
-			Tags[i] = v.(string)
+		switch filterType := config["type"].(string); filterType {
+		case "TagFilters":
+			filter := getPollingTagFilters(config)
+			filters = append(filters, filter)
+		case "AzureTagFilters":
+			filter := getAzureTagFilter(config)
+			filters = append(filter, filter)
+		// type is optional
+		default:
+			if len(tags) > 0 {
+				switch tags[0].(type) {
+				case map[string]interface{}:
+					filter := getAzureTagFilter(config)
+					filters = append(filter, filter)
+				case string:
+					filter := getPollingTagFilters(config)
+					filters = append(filters, filter)
+				}			
+			}
 		}
-		filter.Tags = Tags
-		filters = append(filters, filter)
 	}
-
 	return filters
 }
 
@@ -577,7 +658,10 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			authSettings.Type = "AzureEventHubAuthentication"
 			authSettings.SharedAccessPolicyName = auth["shared_access_policy_name"].(string)
 			authSettings.SharedAccessPolicyKey = auth["shared_access_policy_key"].(string)
-
+		case "AzureClientSecretAuthentication":
+			authSettings.TenantId = auth["tenant_id"].(string)
+			authSettings.ClientId = auth["client_id"].(string)
+			authSettings.ClientSecret = auth["client_secret"].(string)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
@@ -671,6 +755,17 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			if path["region"] != nil {
 				pathSettings.Region = path["region"].(string)
 			}
+		case "AzureMetricsPath":
+			pathSettings.Type = "AzureMetricsPath"
+			pathSettings.Environment = path["environment"].(string)
+			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
+			LimitToNamespaces := make([]string, 0, len(rawLimitToNamespaces))
+			for _, v := range rawLimitToNamespaces {
+				if v != nil {
+					LimitToNamespaces = append(LimitToNamespaces, v.(string))
+				}
+			}
+			pathSettings.TagFilters = getPollingTagFilters(d)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)

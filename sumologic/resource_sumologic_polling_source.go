@@ -119,8 +119,9 @@ func resourceSumologicPollingSource() *schema.Resource {
 								Type:     schema.TypeList,
 								Optional: true,
 								Elem: &schema.Schema{
-									Type: schema.TypeString,
+									Type: schema.TypeMap, // Accept both maps (for objects) and strings
 								},
+								ValidateFunc: validateTags,
 							},
 						},
 					},
@@ -130,6 +131,43 @@ func resourceSumologicPollingSource() *schema.Resource {
 	}
 
 	return pollingSource
+}
+
+func validateTags(val interface{}, key string) ([]string, []error) {
+	v := val.(map[string]interface{})
+	var errs []error
+
+	if tags, ok := v.([]interface{}); ok {
+		for i, tag := range tags {
+			switch t := tag.(type) {
+			case map[string]interface{}:
+				// Validate object structure
+				// Validate "name" to be a string
+				if _, ok := t["name"]; !ok {
+					errors = append(errors, fmt.Errorf("%s[%d]: missing required field 'name'", key, i))
+				} else if _, ok := t["name"].(string); !ok {
+					errors = append(errors, fmt.Errorf("%s[%d]: 'name' must be a string", key, i))
+				}
+
+				// Validate "values" to be a list of strings
+				if _, ok := t["values"]; !ok {
+					errors = append(errors, fmt.Errorf("%s[%d]: missing required field 'values'", key, i))
+				} else if values, ok := t["values"].([]interface{}); !ok {
+					errors = append(errors, fmt.Errorf("%s[%d]: 'values' must be a list of strings", key, i))
+				} else {
+					for j, value := range values {
+						if _, ok := value.(string); !ok {
+							errors = append(errors, fmt.Errorf("%s[%d].values[%d]: must be a string", key, i, j))
+						}
+					}
+				}
+			case string:
+				continue
+			default:
+				errors = append(errors, fmt.Errorf("%s[%d]: must be either a string or an object with 'name' and 'values'", key, i))
+			}
+		}
+	}
 }
 
 func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
