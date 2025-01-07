@@ -123,7 +123,7 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 	id := d.Get("field_id").(string)
 	name := d.Get("field_name").(string)
 	tpe := d.Get("data_type").(string)
-	status := d.Get("state").(string)
+	state := d.Get("state").(string)
 	if id == "" {
 		newId, err := c.FindFieldId(name)
 		if err != nil {
@@ -141,13 +141,16 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		return errors.New("Only state field is updatable")
 	}
 
-	if status == "Enabled" {
+	if state == "Enabled" {
 		return c.EnableField(id)
-	} else if status == "Disabled" {
+	} else if state == "Disabled" {
 		return c.DisableField(id)
 	} else {
 		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")
 	}
+
+	resourceSumologicFieldRead(c, meta)
+
 }
 
 func resourceToField(d *schema.ResourceData) Field {
