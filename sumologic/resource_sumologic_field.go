@@ -149,7 +149,7 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")
 	}
 
-	resourceSumologicFieldRead(c, meta)
+	return resourceSumologicFieldRead(d, meta)
 
 }
 
