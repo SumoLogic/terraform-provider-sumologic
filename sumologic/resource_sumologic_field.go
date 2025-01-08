@@ -137,14 +137,20 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if f.FieldName != name && f.DataType != tpe {
+	if f.FieldName != name || f.DataType != tpe {
 		return errors.New("Only state field is updatable")
 	}
 
 	if state == "Enabled" {
-		return c.EnableField(id)
+		 err := c.EnableField(id)
+		 if(err != nil) {
+		 	return err
+		 }
 	} else if state == "Disabled" {
-		return c.DisableField(id)
+		 err := c.DisableField(id)
+		 if(err != nil) {
+		 	return err
+		 }
 	} else {
 		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")
 	}
