@@ -108,7 +108,6 @@ func (s *Client) EnableField(id string) error {
 	return err
 }
 
-
 type Field struct {
 	FieldId   string `json:"fieldId"`
 	DataType  string `json:"dataType"`

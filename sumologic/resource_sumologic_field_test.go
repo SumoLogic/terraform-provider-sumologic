@@ -56,7 +56,6 @@ func TestAccSumologicField_create(t *testing.T) {
 	})
 }
 
-
 func TestAccSumologicField_update(t *testing.T) {
 	var field Field
 	testFieldName := "fields_provider_test"
