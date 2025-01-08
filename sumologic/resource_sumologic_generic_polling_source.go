@@ -499,11 +499,10 @@ func flattenAzureTagKeyValuePair(v []AzureTagKeyValuePair) []map[string]interfac
 	return tags
 }
 
-func getTagFilter(config map[string]interface{}) TagFilter {
+func getTagFilter(rawTags []interface{}, filterType string, filterNamespace string) TagFilter {
 	filter := TagFilter{}
-	filter.Type = "TagFilters"
-	filter.Namespace = config["namespace"].(string)
-	rawTags := config["tags"].([]interface{})
+	filter.Type = filterType
+	filter.Namespace = filterNamespace
 	Tags := make([]string, len(rawTags))
 	for i, v := range rawTags {
 		Tags[i] = v.(string)
@@ -512,17 +511,17 @@ func getTagFilter(config map[string]interface{}) TagFilter {
 	return filter
 }
 
-func getAzureTagFilter(config map[string]interface{}) AzureTagFilter {
+func getAzureTagFilter(rawTags []interface{}, filterType string, filterNamespace string) AzureTagFilter {
 	filter := AzureTagFilter{}
-	filter.Type = "AzureTagFilters"
-	filter.namespace = config["namespace"].(string)
-	RawTags := config["tags"].([]interface{})
+	filter.Type = filterType
+	filter.Namespace = filterNamespace
 	Tags := make([]AzureTagKeyValuePair, len(rawTags))
-	for i, tagPair := range rawTags {
+	for i, rawTagPair := range rawTags {
+		tagPair := rawTagPair.(map[string]interface{})
 		pair := AzureTagKeyValuePair{}
-		pair.Name = tagPair["name"]
+		pair.Name = tagPair["name"].(string)
 		// get the values from the azure key value pair
-		rawValues = tagPair["values"].([]interface{})
+		rawValues := tagPair["values"].([]interface{})
 		valueList := make([]string, len(rawValues))
 		for j, v := range rawValues {
 			valueList[j] = v.(string)
@@ -543,23 +542,24 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 		config := rawConfig.(map[string]interface{})
 		filterType := config["type"].(string)
 		filterNamespace := config["namespace"].(string)
+		rawTags := config["tags"].([]interface{})
 
-		switch filterType := config["type"].(string); filterType {
+		switch filterType {
 		case "TagFilters":
-			filter := getPollingTagFilters(config)
+			filter := getTagFilter(rawTags, filterType, filterNamespace)
 			filters = append(filters, filter)
 		case "AzureTagFilters":
-			filter := getAzureTagFilter(config)
-			filters = append(filter, filter)
+			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
+			filters = append(filters, filter)
 		// type is optional
 		default:
-			if len(tags) > 0 {
-				switch tags[0].(type) {
+			if len(rawTags) > 0 {
+				switch rawTags[0].(type) {
 				case map[string]interface{}:
-					filter := getAzureTagFilter(config)
-					filters = append(filter, filter)
+					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
+					filters = append(filters, filter)
 				case string:
-					filter := getPollingTagFilters(config)
+					filter := getTagFilter(rawTags, filterType, filterNamespace)
 					filters = append(filters, filter)
 				}
 			}

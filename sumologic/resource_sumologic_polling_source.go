@@ -134,10 +134,9 @@ func resourceSumologicPollingSource() *schema.Resource {
 }
 
 func validateTags(val interface{}, key string) ([]string, []error) {
-	v := val.(map[string]interface{})
-	var errs []error
+	var errors []error
 
-	if tags, ok := v.([]interface{}); ok {
+	if tags, ok := val.([]interface{}); ok {
 		for i, tag := range tags {
 			switch t := tag.(type) {
 			case map[string]interface{}:
@@ -168,6 +167,7 @@ func validateTags(val interface{}, key string) ([]string, []error) {
 			}
 		}
 	}
+	return nil, errors
 }
 
 func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -280,41 +280,72 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 	return s
 }
 
-func flattenTagFilters(v []TagFilter) []map[string]interface{} {
+func flattenTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
-		filter := map[string]interface{}{
-			"type":      d.Type,
-			"namespace": d.Namespace,
-			"tags":      d.Tags,
-		}
-		filters = append(filters, filter)
-	}
+		log.Printf("[DEBUG] Entering myTerraformFunction" + d.(string))
+		switch t := d.(type) {
+		case TagFilter:
+			filter := map[string]interface{}{
+				"type":      t.Type,
+				"namespace": t.Namespace,
+				"tags":      t.Tags,
+			}
+			filters = append(filters, filter)
+		case AzureTagFilter:
+			var tags []map[string]interface{}
+			for _, rawTag := range t.Tags {
+				tag := map[string]interface{}{
+					"name":   rawTag.Name,
+					"values": rawTag.Values,
+				}
+				tags = append(tags, tag)
+			}
 
+			filter := map[string]interface{}{
+				"type":      t.Type,
+				"namespace": t.Namespace,
+				"tags":      tags,
+			}
+			filters = append(filters, filter)
+		}
+	}
 	return filters
 }
 
-func getTagFilters(d *schema.ResourceData) []TagFilter {
+func getTagFilters(d *schema.ResourceData) []interface{} {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	rawTagFilterConfig := path["tag_filters"].([]interface{})
-	var filters []TagFilter
+	var filters []interface{}
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
-		filter := TagFilter{}
-		filter.Type = config["type"].(string)
-		filter.Namespace = config["namespace"].(string)
-
+		filterType := config["type"].(string)
+		filterNamespace := config["namespace"].(string)
 		rawTags := config["tags"].([]interface{})
-		Tags := make([]string, len(rawTags))
-		for i, v := range rawTags {
-			Tags[i] = v.(string)
-		}
-		filter.Tags = Tags
-		filters = append(filters, filter)
-	}
 
+		switch filterType {
+		case "TagFilters":
+			filter := getTagFilter(rawTags, filterType, filterNamespace)
+			filters = append(filters, filter)
+		case "AzureTagFilters":
+			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
+			filters = append(filters, filter)
+		// type is optional
+		default:
+			if len(rawTags) > 0 {
+				switch rawTags[0].(type) {
+				case map[string]interface{}:
+					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
+					filters = append(filters, filter)
+				case string:
+					filter := getTagFilter(rawTags, filterType, filterNamespace)
+					filters = append(filters, filter)
+				}
+			}
+		}
+	}
 	return filters
 }
 

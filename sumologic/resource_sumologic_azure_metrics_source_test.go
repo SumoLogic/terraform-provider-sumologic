@@ -16,20 +16,22 @@ func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	azureMetricsResourceName := "sumologic_azure_metrics_source.azure"
-	testTenantId := os.GetEnv("SUMOLOGIC_TEST_AZURE_TENANT_ID")
-	testClientId := os.GetEnv("SUMOLOGIC_TEST_AZURE_CLIENT_ID")
-	testClientSecret := os.GETENV("SUMOLOGIC_TEST_AZURE_CLIENT_SECRET")
+	testTenantId := os.Getenv("SUMOLOGIC_TEST_AZURE_TENANT_ID")
+	testClientId := os.Getenv("SUMOLOGIC_TEST_AZURE_CLIENT_ID")
+	testClientSecret := os.Getenv("SUMOLOGIC_TEST_AZURE_CLIENT_SECRET")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: TestAccSumologicAzureMetricsSourceDestroy,
+		CheckDestroy: testAccCheckAzureMetricsSourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testTenantId, testClientId, testClientSecret),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAzureMetricsSourceExists(azureMetricsResourceName, &azureMetricsSource),
-					testAccCheckAzureMetricsSourceDestroy(&azureMetricsSource, sName, sDescription, sCategory),
+					testAccCheckAzureMetricsSourceValues(&azureMetricsSource, sName, sDescription, sCategory),
+					testAccCheckCollectorExists("sumologic_collector.test", &collector),
+					testAccCheckCollectorValues(&collector, cName, cDescription, cCategory, "Etc/UTC", ""),
 					resource.TestCheckResourceAttrSet(azureMetricsResourceName, "id"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "name", sName),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "description", sDescription),
@@ -44,27 +46,25 @@ func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
 }
 
 func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
-
 	var azureMetricsSource PollingSource
-	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
 	sNameUpdated, sDescriptionUpdated, sCategoryUpdated := getRandomizedParams()
 	azureMetricsResourceName := "sumologic_azure_metrics_source.azure"
-	testTenantId := os.GetEnv("SUMOLOGIC_TEST_AZURE_TENANT_ID")
-	testClientId := os.GetEnv("SUMOLOGIC_TEST_AZURE_CLIENT_ID")
-	testClientSecret := os.GETENV("SUMOLOGIC_TEST_AZURE_CLIENT_SECRET")
+	testTenantId := os.Getenv("SUMOLOGIC_TEST_AZURE_TENANT_ID")
+	testClientId := os.Getenv("SUMOLOGIC_TEST_AZURE_CLIENT_ID")
+	testClientSecret := os.Getenv("SUMOLOGIC_TEST_AZURE_CLIENT_SECRET")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: TestAccSumologicAzureMetricsSourceDestroy,
+		CheckDestroy: testAccCheckAzureMetricsSourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testSASKeyName, testSASKey, testNamespace, testEventHub, testConsumerGroup, testRegion),
+				Config: testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testTenantId, testClientId, testClientSecret),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAzureMetricsSourceExists(azureMetricsResourceName, &azureMetricsSource),
-					testAccCheckAzureMetricsSourceDestroy(&azureMetricsSource, sName, sDescription, sCategory),
+					testAccCheckAzureMetricsSourceValues(&azureMetricsSource, sName, sDescription, sCategory),
 					resource.TestCheckResourceAttrSet(azureMetricsResourceName, "id"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "name", sName),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "description", sDescription),
@@ -78,7 +78,7 @@ func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
 				Config: testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sNameUpdated, sDescriptionUpdated, sCategoryUpdated, testTenantId, testClientId, testClientSecret),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAzureMetricsSourceExists(azureMetricsResourceName, &azureMetricsSource),
-					testAccCheckAzureMetricsSourceDestroy(&azureMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
+					testAccCheckAzureMetricsSourceValues(&azureMetricsSource, sNameUpdated, sDescriptionUpdated, sCategoryUpdated),
 					resource.TestCheckResourceAttrSet(azureMetricsResourceName, "id"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "name", sNameUpdated),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "description", sDescriptionUpdated),
@@ -148,7 +148,22 @@ func testAccCheckAzureMetricsSourceExists(n string, pollingSource *PollingSource
 	}
 }
 
-func testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testTenantId, testClientId, testClientSecret) {
+func testAccCheckAzureMetricsSourceValues(pollingSource *PollingSource, name, description, category string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if pollingSource.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, pollingSource.Name)
+		}
+		if pollingSource.Description != description {
+			return fmt.Errorf("bad description, expected \"%s\", got: %#v", description, pollingSource.Description)
+		}
+		if pollingSource.Category != category {
+			return fmt.Errorf("bad category, expected \"%s\", got: %#v", category, pollingSource.Category)
+		}
+		return nil
+	}
+}
+
+func testAccSumologicAzureMetricsSourceConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testTenantId, testClientId, testClientSecret string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {
 	name = "%s"
