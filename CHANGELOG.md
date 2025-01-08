@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+FEATURES:
+* **New Resource:** sumologic_source_template (GH-708)
+* **New Resource:** sumologic_ot_collector (GH-708)
 
 ## 3.0.0 (December 09, 2024)
 **REMOVALS:**

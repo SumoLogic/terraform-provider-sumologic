@@ -129,7 +129,7 @@ func resourceSumologicSourceTemplate() *schema.Resource {
 
 			"config": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 
 			"input_json": {
@@ -291,7 +291,6 @@ func resourceToOtTag(data interface{}) []OtTag {
 		for i, v := range otTagSlice {
 			otTagObj := v.(map[string]interface{})
 			otTag[i].Key = otTagObj["key"].(string)
-			log.Println("ot tag key: ", otTag[i].Key)
 
 			valuesData := otTagObj["values"].([]interface{})
 			values := make([]string, len(valuesData))
