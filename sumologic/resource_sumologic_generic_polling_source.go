@@ -521,7 +521,7 @@ func getAzureTagFilter(config map[string]interface{}) AzureTagFilter {
 	for i, tagPair := range rawTags {
 		pair := AzureTagKeyValuePair{}
 		pair.Name = tagPair["name"]
-		// get the values from the azure key value pair 
+		// get the values from the azure key value pair
 		rawValues = tagPair["values"].([]interface{})
 		valueList := make([]string, len(rawValues))
 		for j, v := range rawValues {
@@ -532,7 +532,6 @@ func getAzureTagFilter(config map[string]interface{}) AzureTagFilter {
 	}
 	return filter
 }
-
 
 func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 	paths := d.Get("path").([]interface{})
@@ -562,7 +561,7 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 				case string:
 					filter := getPollingTagFilters(config)
 					filters = append(filters, filter)
-				}			
+				}
 			}
 		}
 	}
