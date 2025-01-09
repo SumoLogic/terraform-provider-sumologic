@@ -128,6 +128,12 @@ func TestAccSumologicFieldUpdate_OnlyStateFieldIsUpdatable(t *testing.T) {
 						field_name = "%s"
 						data_type  = "%s"
 						state      = "%s"
+
+						lifecycle {
+    						ignore_changes = [
+    							data_type 
+    						]
+  						}
 					}
 				`, testFieldName, updatedDataType, testState),
 				ExpectError: regexp.MustCompile("Only state field is updatable"),
