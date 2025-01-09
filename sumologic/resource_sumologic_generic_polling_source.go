@@ -219,6 +219,41 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						},
 					},
 				},
+				"azure_tag_filters": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"type": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"namespace": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"tags": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"name": {
+											Type:     schema.TypeString,
+											Required: true,
+										},
+										"values": {
+											Type:     schema.TypeList,
+											Optional: true,
+											Elem: &schema.Schema{
+												Type: schema.TypeString,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 				"sns_topic_or_subscription_arn": {
 					Type:     schema.TypeList,
 					Computed: true,
@@ -389,6 +424,7 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"use_versioned_api":             t.Path.UseVersionedApi,
 			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
+			"azure_tag_filters":             flattenPollingAzureTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
 			"namespace":                     t.Path.Namespace,
 			"event_hub_name":                t.Path.EventHubName,
@@ -464,26 +500,32 @@ func getCustomServices(path map[string]interface{}) []string {
 func flattenPollingTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
-		filter := make(map[string]interface{})
 		switch t := d.(type) {
 		case TagFilter:
-			filter = map[string]interface{}{
+			filter := map[string]interface{}{
 				"type":      t.Type,
 				"namespace": t.Namespace,
-				"Tags":      t.Tags,
+				"tags":      t.Tags,
 			}
-		case AzureTagFilter:
-			filter = map[string]interface{}{
-				"type":      t.Type,
-				"namespace": t.Namespace,
-				"Tags":      flattenAzureTagKeyValuePair(t.Tags),
-			}
-		default:
-			continue
+			filters = append(filters, filter)
 		}
-		filters = append(filters, filter)
 	}
+	return filters
+}
 
+func flattenPollingAzureTagFilters(v []interface{}) []map[string]interface{} {
+	var filters []map[string]interface{}
+	for _, d := range v {
+		switch t := d.(type) {
+		case AzureTagFilter:
+			filter := map[string]interface{}{
+				"type":      t.Type,
+				"namespace": t.Namespace,
+				"tags":      flattenAzureTagKeyValuePair(t.Tags),
+			}
+			filters = append(filters, filter)
+		}
+	}
 	return filters
 }
 
@@ -499,10 +541,11 @@ func flattenAzureTagKeyValuePair(v []AzureTagKeyValuePair) []map[string]interfac
 	return tags
 }
 
-func getTagFilter(rawTags []interface{}, filterType string, filterNamespace string) TagFilter {
+func getTagFilter(config map[string]interface{}) TagFilter {
 	filter := TagFilter{}
-	filter.Type = filterType
-	filter.Namespace = filterNamespace
+	filter.Type = config["type"].(string)
+	filter.Namespace = config["namespace"].(string)
+	rawTags := config["tags"].([]interface{})
 	Tags := make([]string, len(rawTags))
 	for i, v := range rawTags {
 		Tags[i] = v.(string)
@@ -546,7 +589,7 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 
 		switch filterType {
 		case "TagFilters":
-			filter := getTagFilter(rawTags, filterType, filterNamespace)
+			filter := getTagFilter(config)
 			filters = append(filters, filter)
 		case "AzureTagFilters":
 			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
@@ -559,7 +602,7 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
 					filters = append(filters, filter)
 				case string:
-					filter := getTagFilter(rawTags, filterType, filterNamespace)
+					filter := getTagFilter(config)
 					filters = append(filters, filter)
 				}
 			}

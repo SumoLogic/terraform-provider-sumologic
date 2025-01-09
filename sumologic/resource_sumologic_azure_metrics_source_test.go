@@ -96,7 +96,7 @@ func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
 func testAccCheckAzureMetricsSourceDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "sumologic_azure_event_hub_log_source" {
+		if rs.Type != "sumologic_azure_metrics_source" {
 			continue
 		}
 		if rs.Primary.ID == "" {
@@ -170,7 +170,7 @@ resource "sumologic_collector" "test" {
 	description = "%s"
 	category = "%s"
 }
-resource "sumologic_azure_event_metrics_source" "azure-metrics" {
+resource "sumologic_azure_metrics_source" "azure-metrics" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
@@ -188,7 +188,7 @@ resource "sumologic_azure_event_metrics_source" "azure-metrics" {
 		type = "AzureMetricsPath"
 		environment = "Azure"
 		limit_to_namespaces = ["Microsoft.ClassicStorage/storageAccounts"]
-		tag_filters {
+		azure_tag_filters {
 			type = "AzureTagFilters"
 			namespace = "Microsoft.ClassicStorage/storageAccounts"
 			tags {

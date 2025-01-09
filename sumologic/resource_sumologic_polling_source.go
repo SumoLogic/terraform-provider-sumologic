@@ -119,9 +119,43 @@ func resourceSumologicPollingSource() *schema.Resource {
 								Type:     schema.TypeList,
 								Optional: true,
 								Elem: &schema.Schema{
-									Type: schema.TypeMap, // Accept both maps (for objects) and strings
+									Type: schema.TypeString,
 								},
-								ValidateFunc: validateTags,
+							},
+						},
+					},
+				},
+				"azure_tag_filters": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"type": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"namespace": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"tags": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"name": {
+											Type:     schema.TypeString,
+											Required: true,
+										},
+										"values": {
+											Type:     schema.TypeList,
+											Optional: true,
+											Elem: &schema.Schema{
+												Type: schema.TypeString,
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -327,7 +361,7 @@ func getTagFilters(d *schema.ResourceData) []interface{} {
 
 		switch filterType {
 		case "TagFilters":
-			filter := getTagFilter(rawTags, filterType, filterNamespace)
+			filter := getTagFilter(config)
 			filters = append(filters, filter)
 		case "AzureTagFilters":
 			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
@@ -340,7 +374,7 @@ func getTagFilters(d *schema.ResourceData) []interface{} {
 					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
 					filters = append(filters, filter)
 				case string:
-					filter := getTagFilter(rawTags, filterType, filterNamespace)
+					filter := getTagFilter(config)
 					filters = append(filters, filter)
 				}
 			}
