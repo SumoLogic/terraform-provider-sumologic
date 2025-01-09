@@ -92,7 +92,7 @@ func TestAccSumologicField_update(t *testing.T) {
 	})
 }
 
-func TestAccSumologicFieldUpdate_OnlyStateFieldIsUpdatable(t *testing.T) {
+func TestAccSumologicField_OnlyStateFieldIsUpdatable(t *testing.T) {
 
 	var field Field
 
