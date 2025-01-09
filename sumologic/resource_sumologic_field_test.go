@@ -130,8 +130,10 @@ func TestAccSumologicFieldUpdate_OnlyStateFieldIsUpdatable(t *testing.T) {
 						state      = "%s"
 					}
 				`, testFieldName, updatedDataType, testState),
-				PlanOnly:    true,
 				ExpectError: regexp.MustCompile("Only state field is updatable"),
+				Check: resource.ComposeTestCheckFunc(
+                    resource.TestCheckResourceAttr(resourceName, "data_type", testDataType),
+                ),
 			},
 		},
 	})
