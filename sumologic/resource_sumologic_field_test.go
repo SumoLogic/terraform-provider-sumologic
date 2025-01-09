@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"regexp"
 )
 
 func TestAccSumologicField_basic(t *testing.T) {
@@ -86,6 +87,50 @@ func TestAccSumologicField_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_field.test", "data_type", testDataType),
 					resource.TestCheckResourceAttr("sumologic_field.test", "state", updatedState),
 				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicFieldUpdate_OnlyStateFieldIsUpdatable(t *testing.T) {
+
+	var field Field
+
+	resourceName := "sumologic_field.test"
+	testFieldName := "fields_provider_test"
+	testDataType := "String"
+	testState := "Enabled"
+	updatedDataType := "int"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFieldDestroy(field),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "sumologic_field" "test" {
+						field_name = "%s"
+						data_type  = "%s"
+						state      = "%s"
+					}
+				`, testFieldName, testDataType, testState),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "field_name", testFieldName),
+					resource.TestCheckResourceAttr(resourceName, "data_type", testDataType),
+					resource.TestCheckResourceAttr(resourceName, "state", testState),
+				),
+			},
+
+			{
+				Config: fmt.Sprintf(`
+					resource "sumologic_field" "test" {
+						field_name = "%s"
+						data_type  = "%s"
+						state      = "%s"
+					}
+				`, testFieldName, updatedDataType, testState),
+				ExpectError: regexp.MustCompile("Only state field is updatable"),
 			},
 		},
 	})
