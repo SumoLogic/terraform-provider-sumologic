@@ -122,7 +122,6 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Get("field_id").(string)
 	name := d.Get("field_name").(string)
-	tpe := d.Get("data_type").(string)
 	state := d.Get("state").(string)
 	if id == "" {
 		newId, err := c.FindFieldId(name)
@@ -131,7 +130,7 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 		id = newId
 	}
-	f, err := c.GetField(id)
+	_, err := c.GetField(id)
 
 	if err != nil {
 		return err
