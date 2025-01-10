@@ -71,6 +71,7 @@ func resourceSumologicSourceTemplate() *schema.Resource {
 						"version": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 
 						"latest_version": {

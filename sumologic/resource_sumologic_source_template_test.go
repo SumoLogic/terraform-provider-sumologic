@@ -22,7 +22,7 @@ import (
 
 func TestAccSumologicSourceTemplate_basic(t *testing.T) {
 	var sourceTemplate SourceTemplate
-	testSchemaRef := "type =     \"Mac2\" \n version = \"1.0.2\" "
+	testSchemaRef := "type =     \"Mac\""
 
 	testSelector :=
 		"tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n] \n names = [\"TestCollector1\"]"
@@ -49,7 +49,7 @@ func TestAccSumologicSourceTemplate_basic(t *testing.T) {
 
 func TestAccSumologicSourceTemplate_create(t *testing.T) {
 	var sourceTemplate SourceTemplate
-	testSchemaRef := "type =     \"Mac2\" \n version = \"1.0.2\" "
+	testSchemaRef := "type =     \"Mac\""
 	testSelector := "tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n]\n names = [\"TestCollector1\"]"
 
 	testInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/host\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
@@ -64,8 +64,7 @@ func TestAccSumologicSourceTemplate_create(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSourceTemplateExists("sumologic_source_template.test", &sourceTemplate, t),
 					testAccCheckSourceTemplateAttributes("sumologic_source_template.test"),
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac2"),
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.version", "1.0.2"),
+					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac"),
 					resource.TestCheckResourceAttr("sumologic_source_template.test", "selector.0.names.0", "TestCollector1"),
 				),
 			},
@@ -76,11 +75,11 @@ func TestAccSumologicSourceTemplate_create(t *testing.T) {
 func TestAccSumologicSourceTemplate_update(t *testing.T) {
 	var sourceTemplate SourceTemplate
 
-	testSchemaRef := "type =     \"Mac2\" \n version = \"1.0.2\" "
+	testSchemaRef := "type =     \"Mac\""
 	testSelector := "tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n]"
 	testInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/host\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
 
-	testUpdatedSchemaRef := "type =     \"Mac2\" \n version = \"1.0.2\" "
+	testUpdatedSchemaRef := "type =     \"Mac\""
 	testUpdatedSelector := "tags =  [\n[\n{\n key = \"updatedTag\"\n values= [\"Value\"]\n}\n]\n] \n names = [\"TestCollector1\"]"
 	testUpdatedInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/hostupdated\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
 
@@ -94,16 +93,14 @@ func TestAccSumologicSourceTemplate_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSourceTemplateExists("sumologic_source_template.test", &sourceTemplate, t),
 					testAccCheckSourceTemplateAttributes("sumologic_source_template.test"),
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac2"),
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.version", "1.0.2"),
+					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac"),
 					resource.TestCheckResourceAttr("sumologic_source_template.test", "selector.0.tags.0.0.key", "tag"),
 				),
 			},
 			{
 				Config: testAccSumologicSourceTemplateUpdate(testUpdatedSchemaRef, testUpdatedSelector, testUpdatedInputJson),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac2"),
-					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.version", "1.0.2"),
+					resource.TestCheckResourceAttr("sumologic_source_template.test", "schema_ref.0.type", "Mac"),
 					resource.TestCheckResourceAttr("sumologic_source_template.test", "selector.0.tags.0.0.key", "updatedTag"),
 				),
 			},
