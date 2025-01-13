@@ -98,6 +98,9 @@ jobs:
         SUMOLOGIC_TEST_ROLE_ARN:  ${{ secrets.SUMOLOGIC_TEST_ROLE_ARN }}
         SUMOLOGIC_TEST_SAS_KEY:  ${{ secrets.SUMOLOGIC_TEST_SAS_KEY }}
         SUMOLOGIC_TEST_SAS_KEY_NAME:  ${{ secrets.SUMOLOGIC_TEST_SAS_KEY_NAME }}
+        SUMOLOGIC_TEST_AZURE_TENANT_ID:  ${{ secrets.SUMOLOGIC_TEST_AZURE_TENANT_ID }}
+        SUMOLOGIC_TEST_AZURE_CLIENT_ID:  ${{ secrets.SUMOLOGIC_TEST_AZURE_CLIENT_ID }}
+        SUMOLOGIC_TEST_AZURE_CLIENT_SECRET:  ${{ secrets.SUMOLOGIC_TEST_AZURE_CLIENT_SECRET }}
 
       # disable go test timeout. We rely on GitHub action timeout.
       run: |

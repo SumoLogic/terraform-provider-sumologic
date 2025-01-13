@@ -125,83 +125,11 @@ func resourceSumologicPollingSource() *schema.Resource {
 						},
 					},
 				},
-				"azure_tag_filters": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"type": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"namespace": {
-								Type:     schema.TypeString,
-								Optional: true,
-							},
-							"tags": {
-								Type:     schema.TypeList,
-								Optional: true,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"name": {
-											Type:     schema.TypeString,
-											Required: true,
-										},
-										"values": {
-											Type:     schema.TypeList,
-											Optional: true,
-											Elem: &schema.Schema{
-												Type: schema.TypeString,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
 			},
 		},
 	}
 
 	return pollingSource
-}
-
-func validateTags(val interface{}, key string) ([]string, []error) {
-	var errors []error
-
-	if tags, ok := val.([]interface{}); ok {
-		for i, tag := range tags {
-			switch t := tag.(type) {
-			case map[string]interface{}:
-				// Validate object structure
-				// Validate "name" to be a string
-				if _, ok := t["name"]; !ok {
-					errors = append(errors, fmt.Errorf("%s[%d]: missing required field 'name'", key, i))
-				} else if _, ok := t["name"].(string); !ok {
-					errors = append(errors, fmt.Errorf("%s[%d]: 'name' must be a string", key, i))
-				}
-
-				// Validate "values" to be a list of strings
-				if _, ok := t["values"]; !ok {
-					errors = append(errors, fmt.Errorf("%s[%d]: missing required field 'values'", key, i))
-				} else if values, ok := t["values"].([]interface{}); !ok {
-					errors = append(errors, fmt.Errorf("%s[%d]: 'values' must be a list of strings", key, i))
-				} else {
-					for j, value := range values {
-						if _, ok := value.(string); !ok {
-							errors = append(errors, fmt.Errorf("%s[%d].values[%d]: must be a string", key, i, j))
-						}
-					}
-				}
-			case string:
-				continue
-			default:
-				errors = append(errors, fmt.Errorf("%s[%d]: must be either a string or an object with 'name' and 'values'", key, i))
-			}
-		}
-	}
-	return nil, errors
 }
 
 func resourceSumologicPollingSourceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -317,29 +245,12 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 func flattenTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
-		log.Printf("[DEBUG] Entering myTerraformFunction" + d.(string))
 		switch t := d.(type) {
 		case TagFilter:
 			filter := map[string]interface{}{
 				"type":      t.Type,
 				"namespace": t.Namespace,
 				"tags":      t.Tags,
-			}
-			filters = append(filters, filter)
-		case AzureTagFilter:
-			var tags []map[string]interface{}
-			for _, rawTag := range t.Tags {
-				tag := map[string]interface{}{
-					"name":   rawTag.Name,
-					"values": rawTag.Values,
-				}
-				tags = append(tags, tag)
-			}
-
-			filter := map[string]interface{}{
-				"type":      t.Type,
-				"namespace": t.Namespace,
-				"tags":      tags,
 			}
 			filters = append(filters, filter)
 		}
