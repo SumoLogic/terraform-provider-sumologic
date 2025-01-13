@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -10,6 +11,7 @@ func resourceSumologicField() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicFieldCreate,
 		Read:   resourceSumologicFieldRead,
+		Update: resourceSumologicFieldUpdate,
 		Delete: resourceSumologicFieldDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceSumologicFieldImport,
@@ -38,7 +40,6 @@ func resourceSumologicField() *schema.Resource {
 			"state": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -114,6 +115,43 @@ func resourceSumologicFieldImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+
+	id := d.Get("field_id").(string)
+	name := d.Get("field_name").(string)
+	state := d.Get("state").(string)
+	if id == "" {
+		newId, err := c.FindFieldId(name)
+		if err != nil {
+			return err
+		}
+		id = newId
+	}
+	_, err := c.GetField(id)
+
+	if err != nil {
+		return err
+	}
+
+	if state == "Enabled" {
+		err := c.EnableField(id)
+		if err != nil {
+			return err
+		}
+	} else if state == "Disabled" {
+		err := c.DisableField(id)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Invalid value of state field. Only Enabled or Disabled values are accepted")
+	}
+
+	return resourceSumologicFieldRead(d, meta)
+
 }
 
 func resourceToField(d *schema.ResourceData) Field {

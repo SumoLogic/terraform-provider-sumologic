@@ -41,7 +41,7 @@ type PollingAuthentication struct {
 	ClientX509CertUrl       string `json:"client_x509_cert_url"`
 	SharedAccessPolicyName  string `json:"sharedAccessPolicyName"`
 	SharedAccessPolicyKey   string `json:"sharedAccessPolicyKey"`
-	AzureClientId			string `json:"clientId"`
+	AzureClientId           string `json:"clientId"`
 	TenantId                string `json:"tenantId"`
 	ClientSecret            string `json:"clientSecret"`
 }
