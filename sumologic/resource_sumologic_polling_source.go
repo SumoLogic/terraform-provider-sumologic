@@ -132,7 +132,7 @@ func resourceSumologicPollingSource() *schema.Resource {
 						Schema: map[string]*schema.Schema{
 							"type": {
 								Type:     schema.TypeString,
-								Optional: true,
+								Required: true,
 							},
 							"namespace": {
 								Type:     schema.TypeString,
@@ -355,30 +355,17 @@ func getTagFilters(d *schema.ResourceData) []interface{} {
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
-		filterType := config["type"].(string)
-		filterNamespace := config["namespace"].(string)
-		rawTags := config["tags"].([]interface{})
+		filter := TagFilter{}
+		filter.Type = config["type"].(string)
+		filter.Namespace = config["namespace"].(string)
 
-		switch filterType {
-		case "TagFilters":
-			filter := getTagFilter(config)
-			filters = append(filters, filter)
-		case "AzureTagFilters":
-			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
-			filters = append(filters, filter)
-		// type is optional
-		default:
-			if len(rawTags) > 0 {
-				switch rawTags[0].(type) {
-				case map[string]interface{}:
-					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
-					filters = append(filters, filter)
-				case string:
-					filter := getTagFilter(config)
-					filters = append(filters, filter)
-				}
-			}
+		rawTags := config["tags"].([]interface{})
+		Tags := make([]string, len(rawTags))
+		for i, v := range rawTags {
+			Tags[i] = v.(string)
 		}
+		filter.Tags = Tags
+		filters = append(filters, filter)
 	}
 	return filters
 }

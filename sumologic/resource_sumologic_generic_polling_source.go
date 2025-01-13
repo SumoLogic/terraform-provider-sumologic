@@ -25,7 +25,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket", "AzureEventHubLog"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket", "AzureEventHubLog", "AzureMetrics"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -226,7 +226,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						Schema: map[string]*schema.Schema{
 							"type": {
 								Type:     schema.TypeString,
-								Optional: true,
+								Required: true,
 							},
 							"namespace": {
 								Type:     schema.TypeString,
@@ -499,15 +499,20 @@ func getCustomServices(path map[string]interface{}) []string {
 
 func flattenPollingTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
-	for _, d := range v {
-		switch t := d.(type) {
-		case TagFilter:
-			filter := map[string]interface{}{
-				"type":      t.Type,
-				"namespace": t.Namespace,
-				"tags":      t.Tags,
+	if len(v) > 0 {
+		filter := v[0].(map[string]interface{})
+		switch filterType, ok := filter["type"].(string); {
+		case !ok || filterType == "AzureTagFilters": // do nothing
+		default:
+			for _, d := range v {
+				rawFilter := d.(map[string]interface{})
+				filter := map[string]interface{}{
+					"type":      rawFilter["type"].(string),
+					"namespace": rawFilter["namespace"].(string),
+					"tags":      rawFilter["tags"].([]interface{}),
+				}
+				filters = append(filters, filter)
 			}
-			filters = append(filters, filter)
 		}
 	}
 	return filters
@@ -515,64 +520,36 @@ func flattenPollingTagFilters(v []interface{}) []map[string]interface{} {
 
 func flattenPollingAzureTagFilters(v []interface{}) []map[string]interface{} {
 	var filters []map[string]interface{}
-	for _, d := range v {
-		switch t := d.(type) {
-		case AzureTagFilter:
-			filter := map[string]interface{}{
-				"type":      t.Type,
-				"namespace": t.Namespace,
-				"tags":      flattenAzureTagKeyValuePair(t.Tags),
+	if len(v) > 0 {
+		filter := v[0].(map[string]interface{})
+		switch filterType, ok := filter["type"].(string); {
+		case !ok || filterType == "AzureTagFilters":
+			for _, d := range v {
+				rawFilter := d.(map[string]interface{})
+				filter := map[string]interface{}{
+					"type":      "AzureTagFilters",
+					"namespace": rawFilter["namespace"].(string),
+					"tags":      flattenAzureTagKeyValuePair(rawFilter["tags"].([]interface{})),
+				}
+				filters = append(filters, filter)
 			}
-			filters = append(filters, filter)
+		default: // do nothing
 		}
 	}
 	return filters
 }
 
-func flattenAzureTagKeyValuePair(v []AzureTagKeyValuePair) []map[string]interface{} {
+func flattenAzureTagKeyValuePair(v []interface{}) []map[string]interface{} {
 	var tags []map[string]interface{}
 	for _, d := range v {
+		rawTag := d.(map[string]interface{})
 		tag := map[string]interface{}{
-			"name":   d.Name,
-			"values": d.Values,
+			"name":   rawTag["name"].(string),
+			"values": rawTag["values"].([]interface{}),
 		}
 		tags = append(tags, tag)
 	}
 	return tags
-}
-
-func getTagFilter(config map[string]interface{}) TagFilter {
-	filter := TagFilter{}
-	filter.Type = config["type"].(string)
-	filter.Namespace = config["namespace"].(string)
-	rawTags := config["tags"].([]interface{})
-	Tags := make([]string, len(rawTags))
-	for i, v := range rawTags {
-		Tags[i] = v.(string)
-	}
-	filter.Tags = Tags
-	return filter
-}
-
-func getAzureTagFilter(rawTags []interface{}, filterType string, filterNamespace string) AzureTagFilter {
-	filter := AzureTagFilter{}
-	filter.Type = filterType
-	filter.Namespace = filterNamespace
-	Tags := make([]AzureTagKeyValuePair, len(rawTags))
-	for i, rawTagPair := range rawTags {
-		tagPair := rawTagPair.(map[string]interface{})
-		pair := AzureTagKeyValuePair{}
-		pair.Name = tagPair["name"].(string)
-		// get the values from the azure key value pair
-		rawValues := tagPair["values"].([]interface{})
-		valueList := make([]string, len(rawValues))
-		for j, v := range rawValues {
-			valueList[j] = v.(string)
-		}
-		pair.Values = valueList
-		Tags[i] = pair
-	}
-	return filter
 }
 
 func getPollingTagFilters(d *schema.ResourceData) []interface{} {
@@ -583,30 +560,50 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
-		filterType := config["type"].(string)
-		filterNamespace := config["namespace"].(string)
-		rawTags := config["tags"].([]interface{})
+		filter := TagFilter{}
+		filter.Type = config["type"].(string)
+		filter.Namespace = config["namespace"].(string)
 
-		switch filterType {
-		case "TagFilters":
-			filter := getTagFilter(config)
-			filters = append(filters, filter)
-		case "AzureTagFilters":
-			filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
-			filters = append(filters, filter)
-		// type is optional
-		default:
-			if len(rawTags) > 0 {
-				switch rawTags[0].(type) {
-				case map[string]interface{}:
-					filter := getAzureTagFilter(rawTags, filterType, filterNamespace)
-					filters = append(filters, filter)
-				case string:
-					filter := getTagFilter(config)
-					filters = append(filters, filter)
-				}
-			}
+		rawTags := config["tags"].([]interface{})
+		Tags := make([]string, len(rawTags))
+		for i, v := range rawTags {
+			Tags[i] = v.(string)
 		}
+		filter.Tags = Tags
+		filters = append(filters, filter)
+	}
+	return filters
+}
+
+func getPollingAzureTagFilters(d *schema.ResourceData) []interface{} {
+	paths := d.Get("path").([]interface{})
+	path := paths[0].(map[string]interface{})
+	rawTagFilterConfig := path["azure_tag_filters"].([]interface{})
+	var filters []interface{}
+
+	for _, rawConfig := range rawTagFilterConfig {
+		config := rawConfig.(map[string]interface{})
+		filter := AzureTagFilter{}
+		filter.Type = config["type"].(string)
+		filter.Namespace = config["namespace"].(string)
+
+		rawTags := config["tags"].([]interface{})
+		Tags := make([]AzureTagKeyValuePair, len(rawTags))
+		for i, rawTagPair := range rawTags {
+			tagPair := rawTagPair.(map[string]interface{})
+			pair := AzureTagKeyValuePair{}
+			pair.Name = tagPair["name"].(string)
+			// get the values from the azure key value pair
+			rawValues := tagPair["values"].([]interface{})
+			valueList := make([]string, len(rawValues))
+			for j, v := range rawValues {
+				valueList[j] = v.(string)
+			}
+			pair.Values = valueList
+			Tags[i] = pair
+		}
+		filter.Tags = Tags
+		filters = append(filters, filter)
 	}
 	return filters
 }
@@ -701,8 +698,9 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			authSettings.SharedAccessPolicyName = auth["shared_access_policy_name"].(string)
 			authSettings.SharedAccessPolicyKey = auth["shared_access_policy_key"].(string)
 		case "AzureClientSecretAuthentication":
+			authSettings.Type = "AzureClientSecretAuthentication"
 			authSettings.TenantId = auth["tenant_id"].(string)
-			authSettings.ClientId = auth["client_id"].(string)
+			authSettings.AzureClientId = auth["client_id"].(string)
 			authSettings.ClientSecret = auth["client_secret"].(string)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
@@ -807,7 +805,8 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 					LimitToNamespaces = append(LimitToNamespaces, v.(string))
 				}
 			}
-			pathSettings.TagFilters = getPollingTagFilters(d)
+			pathSettings.LimitToNamespaces = LimitToNamespaces
+			pathSettings.TagFilters = getPollingAzureTagFilters(d)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)

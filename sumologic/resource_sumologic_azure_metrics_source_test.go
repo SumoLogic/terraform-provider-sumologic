@@ -170,7 +170,7 @@ resource "sumologic_collector" "test" {
 	description = "%s"
 	category = "%s"
 }
-resource "sumologic_azure_metrics_source" "azure-metrics" {
+resource "sumologic_azure_metrics_source" "azure" {
 	name = "%s"
 	description = "%s"
 	category = "%s"
