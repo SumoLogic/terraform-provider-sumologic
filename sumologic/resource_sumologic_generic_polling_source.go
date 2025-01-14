@@ -459,6 +459,8 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 			"client_x509_cert_url":        t.Authentication.ClientX509CertUrl,
 			"shared_access_policy_name":   t.Authentication.SharedAccessPolicyName,
 			"shared_access_policy_key":    t.Authentication.SharedAccessPolicyKey,
+			"tenant_id":                   t.Authentication.TenantId,
+			"client_secret":               t.Authentication.ClientSecret,
 		}
 		s = append(s, mapping)
 	}
