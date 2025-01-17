@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+
+## 3.0.1 (January 17, 2025)
+**ENHANCEMENTS:**
 * Add support for update method to change state of the fields resource
 
 ## 3.0.0 (December 09, 2024)
