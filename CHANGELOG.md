@@ -1,4 +1,6 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+* Add support for update method to change state of the fields resource
 FEATURES:
 * **New Resource:** sumologic_azure_metrics_source (GH-710)
 
