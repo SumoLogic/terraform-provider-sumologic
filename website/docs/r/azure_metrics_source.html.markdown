@@ -12,6 +12,25 @@ __IMPORTANT:__ The Azure Event Hub credentials are stored in plain-text in the s
 
 ## Example Usage
 ```hcl
+
+locals {
+  	tagfilters = [{
+        "type" = "AzureTagFilters"
+		"namespace" = "Microsoft.ClassicStorage/storageAccounts"
+		"tags" {
+			"name" = "test-name-1"
+			"values" = ["value1", "value2"]
+		}
+    },{
+        "type" = "AzureTagFilters"
+		"namespace" = "Microsoft.ClassicStorage/storageAccounts"
+		"tags" {
+			"name" = "test-name-2"
+			"values" = ["value3"]
+		}
+    }]
+}
+
 resource "sumologic_azure_metrics_source" "terraform_azure_metrics_source" {
 	name = "Azure Metrics Source"
 	description = "My description"
@@ -26,19 +45,22 @@ resource "sumologic_azure_metrics_source" "terraform_azure_metrics_source" {
 		client_secret = "azure_client_secret"
 	}
 
-	path {
-		type = "AzureMetricsPath"
-		environment = "Azure"
-		limit_to_namespaces = ["Microsoft.ClassicStorage/storageAccounts"]
-		azure_tag_filters {
-			type = "AzureTagFilters"
-			namespace = "Microsoft.ClassicStorage/storageAccounts"
-			tags {
-				name = "test-name-1"
-				values = ["value1", "value2"]
-			}
+    path {
+        type = "AzureMetricsPath"
+        environment = "Azure"
+        limit_to_namespaces = ["Microsoft.ClassicStorage/storageAccounts"]
+        dynamic "azure_tag_filters" {
+            for_each = local.tagfilters
+            content {
+                type = azure_tag_filters.value.type
+                namespace = azure_tag_filters.value.namespace
+                tags {
+					name = azure_tag_filters.value.tags.name
+					values = azure_tag_filters.value.tags.values
+				}
 		}
-	}
+        }
+    }
 }
 
 resource "sumologic_collector" "collector" {
