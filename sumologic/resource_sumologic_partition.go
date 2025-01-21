@@ -152,6 +152,14 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 	analyticsTier := strings.ToLower(d.Get("analytics_tier").(string))
 	isIncludedInDefaultSearch := d.Get("is_included_in_default_search").(bool)
 
+	var analyticsTierPtr *string
+
+	if analyticsTier == "" {
+		analyticsTierPtr = nil
+	} else {
+		analyticsTierPtr = &analyticsTier
+	}
+
 	var isIncludedInDefaultSearchPtr *bool
 	if analyticsTier == "flex" || analyticsTier == "" {
 		isIncludedInDefaultSearchPtr = new(bool)
@@ -164,7 +172,7 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		ID:                               d.Id(),
 		Name:                             d.Get("name").(string),
 		RoutingExpression:                d.Get("routing_expression").(string),
-		AnalyticsTier:                    analyticsTier,
+		AnalyticsTier:                    analyticsTierPtr,
 		RetentionPeriod:                  d.Get("retention_period").(int),
 		IsCompliant:                      d.Get("is_compliant").(bool),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
