@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -32,6 +33,12 @@ func resourceSumologicPartition() *schema.Resource {
 			"analytics_tier": {
 				Type:     schema.TypeString,
 				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.ToLower(old) == strings.ToLower(new) {
+						return true
+					}
+					return false
+				},
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -142,7 +149,7 @@ func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceToPartition(d *schema.ResourceData) Partition {
 
-	analyticsTier := d.Get("analytics_tier").(string)
+	analyticsTier := strings.ToLower(d.Get("analytics_tier").(string))
 	isIncludedInDefaultSearch := d.Get("is_included_in_default_search").(bool)
 
 	var isIncludedInDefaultSearchPtr *bool

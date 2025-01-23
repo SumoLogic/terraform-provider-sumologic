@@ -62,7 +62,7 @@ func (s *Client) DeleteDataForwardingRule(indexId string) error {
 type DataForwardingRule struct {
 	IndexId       string `json:"indexId"`
 	DestinationId string `json:"destinationId"`
-	Enabled       bool   `json:"enabled,omitempty"`
+	Enabled       bool   `json:"enabled"`
 	FileFormat    string `json:"fileFormat,omitempty"`
 	PayloadSchema string `json:"payloadSchema,omitempty"`
 	Format        string `json:"format,omitempty"`

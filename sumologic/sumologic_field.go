@@ -94,6 +94,20 @@ func (s *Client) FindFieldId(name string) (string, error) {
 	return "", fmt.Errorf("Field \"%s\" not found", name)
 }
 
+func (s *Client) DisableField(id string) error {
+	urlWithParams := fmt.Sprintf("v1/fields/%s/disable", id)
+
+	_, err := s.Delete(urlWithParams)
+	return err
+}
+
+func (s *Client) EnableField(id string) error {
+	urlWithParams := fmt.Sprintf("v1/fields/%s/enable", id)
+
+	_, err := s.Put(urlWithParams, nil)
+	return err
+}
+
 type Field struct {
 	FieldId   string `json:"fieldId"`
 	DataType  string `json:"dataType"`

@@ -1,6 +1,28 @@
-## 3.0.0 (Unreleased)
-DEPRECATIONS:
-* resource_sumologic_ingest_budget : Deprecated in favour of `resource_sumologic_ingest_budget_v2`.
+## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.0.1 (January 17, 2025)
+**ENHANCEMENTS:**
+* Add support for update method to change state of the fields resource
+
+## 3.0.0 (December 09, 2024)
+**REMOVALS:**
+* resource_sumologic_ingest_budget : remove deprecated resource.
+* resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
+
+**ENHANCEMENTS:**
+* Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
+
+**BUG FIXES:**
+* Fixed typo in connection.html.markdown documentation
+
+## 2.31.5 (October 04, 2024)
+ENHANCEMENTS:
+* Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
+* Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
+BUG FIXES:
+* Fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
+* Remove regex match in resource_sumologic_log_search (GH-693) 
 
 ## 2.31.4 (September 19, 2024)
 * **New Resource:** sumologic_data_forwarding_destination (GH-678)
@@ -15,7 +37,7 @@ ENHANCEMENTS:
 * Add IsIncludedInDefaultSearch field to partition resource (GH-674)
 
 BUG FIXES:
-* Fix cse_log_mappings resource conversion affecting import  (GH-675)
+* Fix cse_log_mappings resource conversion affecting import (GH-675)
 
 ## 2.31.1 (July 2, 2024)
 BUG FIXES:
