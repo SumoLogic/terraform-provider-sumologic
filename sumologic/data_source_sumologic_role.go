@@ -25,11 +25,11 @@ func dataSourceSumologicRole() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"description": {
+			"filter_predicate": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"filter_predicate": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -47,8 +47,8 @@ func dataSourceSumologicRole() *schema.Resource {
 func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	var role *Role
 	var err error
+	var role *Role
 	if rid, ok := d.GetOk("id"); ok {
 		id := rid.(string)
 		role, err = c.GetRole(id)
