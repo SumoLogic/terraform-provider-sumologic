@@ -31,8 +31,7 @@ func TestAccSumologicScanBudget_basic(t *testing.T) {
 	testWindow := "Query"
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
-	testAction := "StopScan"
-	testScope := "j"
+	testAction := "StopForeGroundScan"
 	testStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -41,7 +40,7 @@ func TestAccSumologicScanBudget_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSumologicScanBudgetConfigImported(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
+				Config: testAccCheckSumologicScanBudgetConfigImported(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
 			},
 			{
 				ResourceName:      "sumologic_scan_budget.foo",
@@ -61,8 +60,7 @@ func TestAccSumologicScanBudget_create(t *testing.T) {
 	testWindow := "Query"
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
-	testAction := "StopScan"
-	testScope := "j"
+	testAction := "StopForeGroundScan"
 	testStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -71,19 +69,18 @@ func TestAccSumologicScanBudget_create(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
+				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScanBudgetExists("sumologic_scan_budget.test", &scanBudget, t),
 					testAccCheckScanBudgetAttributes("sumologic_scan_budget.test"),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "capacity", strconv.Itoa(testCapacity)),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "unit", testUnit),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budgetType", testBudgetType),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budget_type", testBudgetType),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "window", testWindow),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicableOn", testApplicableOn),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "groupBy", testGroupBy),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicable_on", testApplicableOn),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "group_by", testGroupBy),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "action", testAction),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "scope", testScope),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "status", testStatus),
 				),
 			},
@@ -101,8 +98,7 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 	testWindow := "Query"
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
-	testAction := "StopScan"
-	testScope := "j"
+	testAction := "StopForeGroundScan"
 	testStatus := "active"
 
 	testUpdatedName := "Test Budget"
@@ -112,8 +108,7 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 	testUpdatedWindow := "Daily"
 	testUpdatedApplicableOn := "PerEntity"
 	testUpdatedGroupBy := "User"
-	testUpdatedAction := "StopScan"
-	testUpdatedScope := "j"
+	testUpdatedAction := "Warn"
 	testUpdatedStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -122,34 +117,32 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
+				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScanBudgetExists("sumologic_scan_budget.test", &scanBudget, t),
 					testAccCheckScanBudgetAttributes("sumologic_scan_budget.test"),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "capacity", strconv.Itoa(testCapacity)),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "unit", testUnit),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budgetType", testBudgetType),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budget_type", testBudgetType),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "window", testWindow),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicableOn", testApplicableOn),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "groupBy", testGroupBy),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicable_on", testApplicableOn),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "group_by", testGroupBy),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "action", testAction),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "scope", testScope),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "status", testStatus),
 				),
 			},
 			{
-				Config: testAccSumologicScanBudgetUpdate(testUpdatedName, testUpdatedCapacity, testUpdatedUnit, testUpdatedBudgetType, testUpdatedWindow, testUpdatedApplicableOn, testUpdatedGroupBy, testUpdatedAction, testUpdatedScope, testUpdatedStatus),
+				Config: testAccSumologicScanBudgetUpdate(testUpdatedName, testUpdatedCapacity, testUpdatedUnit, testUpdatedBudgetType, testUpdatedWindow, testUpdatedApplicableOn, testUpdatedGroupBy, testUpdatedAction, testUpdatedStatus),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "capacity", strconv.Itoa(testUpdatedCapacity)),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "unit", testUpdatedUnit),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budgetType", testUpdatedBudgetType),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "budget_type", testUpdatedBudgetType),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "window", testUpdatedWindow),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicableOn", testUpdatedApplicableOn),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "groupBy", testUpdatedGroupBy),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "applicable_on", testUpdatedApplicableOn),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "group_by", testUpdatedGroupBy),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "action", testUpdatedAction),
-					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "scope", testUpdatedScope),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "status", testUpdatedStatus),
 				),
 			},
@@ -197,55 +190,70 @@ func testAccCheckScanBudgetExists(name string, scanBudget *ScanBudget, t *testin
 		return nil
 	}
 }
-func testAccCheckSumologicScanBudgetConfigImported(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope string, status string) string {
+func testAccCheckSumologicScanBudgetConfigImported(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "foo" {
       name = "%s"
       capacity = %d
       unit = "%s"
-      budgetType = "%s"
+      budget_type = "%s"
       window = "%s"
-      applicableOn = "%s"
-	  groupBy = "%s"
+      applicable_on = "%s"
+	  group_by = "%s"
       action = "%s"
-      scope = "%s"
+      scope {
+	  	included_users = ["000000000000011C"]
+	  	excluded_users = []
+	  	included_roles = []
+	  	excluded_roles = ["0000000000000196"]
+	  }
 	  status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
 }
 
-func testAccSumologicScanBudget(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope string, status string) string {
+func testAccSumologicScanBudget(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "test" {
     name = "%s"
     capacity = %d
     unit = "%s"
-    budgetType = "%s"
+    budget_type = "%s"
     window = "%s"
-    applicableOn = "%s"
-	groupBy = "%s"
+    applicable_on = "%s"
+	group_by = "%s"
     action = "%s"
-    scope = "%s"
+    scope {
+		included_users = ["000000000000011C"]
+	  	excluded_users = []
+	  	included_roles = []
+	  	excluded_roles = ["0000000000000196"]
+	}
 	status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
 }
 
-func testAccSumologicScanBudgetUpdate(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope string, status string) string {
+func testAccSumologicScanBudgetUpdate(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "test" {
       name = "%s"
       capacity = %d
       unit = "%s"
-      budgetType = "%s"
+      budget_type = "%s"
       window = "%s"
-      applicableOn = "%s"
-      groupBy = "%s"
+      applicable_on = "%s"
+      group_by = "%s"
       action = "%s"
-      scope = "%s"
+      scope {
+	  	included_users = ["000000000000011C"]
+	  	excluded_users = []
+	  	included_roles = []
+	  	excluded_roles = ["0000000000000196"]
+	  }
       status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
 }
 
 func testAccCheckScanBudgetAttributes(name string) resource.TestCheckFunc {
@@ -254,12 +262,11 @@ func testAccCheckScanBudgetAttributes(name string) resource.TestCheckFunc {
 			resource.TestCheckResourceAttrSet(name, "name"),
 			resource.TestCheckResourceAttrSet(name, "capacity"),
 			resource.TestCheckResourceAttrSet(name, "unit"),
-			resource.TestCheckResourceAttrSet(name, "budgetType"),
+			resource.TestCheckResourceAttrSet(name, "budget_type"),
 			resource.TestCheckResourceAttrSet(name, "window"),
-			resource.TestCheckResourceAttrSet(name, "applicableOn"),
-			resource.TestCheckResourceAttrSet(name, "groupBy"),
+			resource.TestCheckResourceAttrSet(name, "applicable_on"),
+			resource.TestCheckResourceAttrSet(name, "group_by"),
 			resource.TestCheckResourceAttrSet(name, "action"),
-			resource.TestCheckResourceAttrSet(name, "scope"),
 			resource.TestCheckResourceAttrSet(name, "status"),
 		)
 		return f(s)

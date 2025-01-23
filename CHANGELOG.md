@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* **New Resource:** sumologic_scan_budget
 
 ## 3.0.1 (January 17, 2025)
 **ENHANCEMENTS:**
