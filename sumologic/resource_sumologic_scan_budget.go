@@ -164,7 +164,7 @@ func resourceSumologicScanBudgetRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("applicable_on", scanBudget.ApplicableOn)
 	d.Set("group_by", scanBudget.GroupBy)
 	d.Set("action", scanBudget.Action)
-	d.Set("scope", scanBudget.Scope)
+	d.Set("scope", scanBudgetScopeToResource(scanBudget.Scope))
 	d.Set("status", scanBudget.Status)
 
 	return nil
@@ -218,6 +218,17 @@ func resourceToScanBudgetScope(data interface{}) ScanBudgetScope {
 	}
 
 	return scanBudgetScope
+}
+
+func scanBudgetScopeToResource(scanBudgetScope ScanBudgetScope) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"included_users": scanBudgetScope.IncludedUsers,
+			"excluded_users": scanBudgetScope.ExcludedUsers,
+			"included_roles": scanBudgetScope.IncludedRoles,
+			"excluded_roles": scanBudgetScope.ExcludedRoles,
+		},
+	}
 }
 
 func convertToStringSlice(data interface{}) []string {
