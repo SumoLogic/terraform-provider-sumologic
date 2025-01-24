@@ -116,6 +116,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_local_file_source":                        resourceSumologicLocalFileSource(),
 			"sumologic_log_search":                               resourceSumologicLogSearch(),
 			"sumologic_metrics_search":                           resourceSumologicMetricsSearch(),
+			"sumologic_metrics_search_v2":                        resourceSumologicMetricsSearchV2(),
 			"sumologic_rum_source":                               resourceSumologicRumSource(),
 			"sumologic_role_v2":                                  resourceSumologicRoleV2(),
 			"sumologic_azure_event_hub_log_source":               resourceSumologicGenericPollingSource(),
