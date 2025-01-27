@@ -41,6 +41,9 @@ type PollingAuthentication struct {
 	ClientX509CertUrl       string `json:"client_x509_cert_url"`
 	SharedAccessPolicyName  string `json:"sharedAccessPolicyName"`
 	SharedAccessPolicyKey   string `json:"sharedAccessPolicyKey"`
+	AzureClientId           string `json:"clientId"`
+	TenantId                string `json:"tenantId"`
+	ClientSecret            string `json:"clientSecret"`
 }
 
 type PollingPath struct {
@@ -51,19 +54,31 @@ type PollingPath struct {
 	LimitToNamespaces         []string                         `json:"limitToNamespaces,omitempty"`
 	LimitToServices           []string                         `json:"limitToServices,omitempty"`
 	CustomServices            []string                         `json:"customServices,omitempty"`
-	TagFilters                []TagFilter                      `json:"tagFilters,omitempty"`
+	TagFilters                []interface{}                    `json:"tagFilters,omitempty"`
 	SnsTopicOrSubscriptionArn PollingSnsTopicOrSubscriptionArn `json:"snsTopicOrSubscriptionArn,omitempty"`
 	UseVersionedApi           *bool                            `json:"useVersionedApi,omitempty"`
 	Namespace                 string                           `json:"namespace,omitempty"`
 	EventHubName              string                           `json:"eventHubName,omitempty"`
 	ConsumerGroup             string                           `json:"consumerGroup,omitempty"`
 	Region                    string                           `json:"region,omitempty"`
+	Environment               string                           `json:"environment,omitempty"`
 }
 
 type TagFilter struct {
 	Type      string   `json:"type"`
 	Namespace string   `json:"namespace"`
 	Tags      []string `json:"tags"`
+}
+
+type AzureTagFilter struct {
+	Type      string                 `json:"type"`
+	Namespace string                 `json:"namespace"`
+	Tags      []AzureTagKeyValuePair `json:"tags"`
+}
+
+type AzureTagKeyValuePair struct {
+	Name   string   `json:"name"`
+	Values []string `json:"values"`
 }
 
 type PollingSnsTopicOrSubscriptionArn struct {
