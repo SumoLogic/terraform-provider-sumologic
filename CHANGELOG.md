@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+FEATURES:
+* **New Resource:** sumologic_azure_metrics_source (GH-710)
 
 ## 3.0.1 (January 17, 2025)
 **ENHANCEMENTS:**
