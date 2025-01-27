@@ -32,6 +32,12 @@ func TestAccSumologicScanBudget_basic(t *testing.T) {
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
 	testAction := "StopForeGroundScan"
+	testScope := ScanBudgetScope{
+		IncludedUsers: []string{"000000000000011C"},
+		ExcludedUsers: []string{},
+		IncludedRoles: []string{},
+		ExcludedRoles: []string{"0000000000000196"},
+	}
 	testStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -40,7 +46,7 @@ func TestAccSumologicScanBudget_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSumologicScanBudgetConfigImported(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
+				Config: testAccCheckSumologicScanBudgetConfigImported(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
 			},
 			{
 				ResourceName:      "sumologic_scan_budget.foo",
@@ -61,6 +67,12 @@ func TestAccSumologicScanBudget_create(t *testing.T) {
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
 	testAction := "StopForeGroundScan"
+	testScope := ScanBudgetScope{
+		IncludedUsers: []string{"000000000000011C"},
+		ExcludedUsers: []string{},
+		IncludedRoles: []string{},
+		ExcludedRoles: []string{"0000000000000196"},
+	}
 	testStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +81,7 @@ func TestAccSumologicScanBudget_create(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
+				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScanBudgetExists("sumologic_scan_budget.test", &scanBudget, t),
 					testAccCheckScanBudgetAttributes("sumologic_scan_budget.test"),
@@ -99,6 +111,12 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 	testApplicableOn := "PerEntity"
 	testGroupBy := "User"
 	testAction := "StopForeGroundScan"
+	testScope := ScanBudgetScope{
+		IncludedUsers: []string{"000000000000011C"},
+		ExcludedUsers: []string{},
+		IncludedRoles: []string{},
+		ExcludedRoles: []string{"0000000000000196"},
+	}
 	testStatus := "active"
 
 	testUpdatedName := "Test Budget"
@@ -109,6 +127,12 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 	testUpdatedApplicableOn := "PerEntity"
 	testUpdatedGroupBy := "User"
 	testUpdatedAction := "Warn"
+	testUpdatedScope := ScanBudgetScope{
+		IncludedUsers: []string{"000000000000011C"},
+		ExcludedUsers: []string{},
+		IncludedRoles: []string{},
+		ExcludedRoles: []string{"0000000000000196"},
+	}
 	testUpdatedStatus := "active"
 
 	resource.Test(t, resource.TestCase{
@@ -117,7 +141,7 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testStatus),
+				Config: testAccSumologicScanBudget(testName, testCapacity, testUnit, testBudgetType, testWindow, testApplicableOn, testGroupBy, testAction, testScope, testStatus),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScanBudgetExists("sumologic_scan_budget.test", &scanBudget, t),
 					testAccCheckScanBudgetAttributes("sumologic_scan_budget.test"),
@@ -133,7 +157,7 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicScanBudgetUpdate(testUpdatedName, testUpdatedCapacity, testUpdatedUnit, testUpdatedBudgetType, testUpdatedWindow, testUpdatedApplicableOn, testUpdatedGroupBy, testUpdatedAction, testUpdatedStatus),
+				Config: testAccSumologicScanBudgetUpdate(testUpdatedName, testUpdatedCapacity, testUpdatedUnit, testUpdatedBudgetType, testUpdatedWindow, testUpdatedApplicableOn, testUpdatedGroupBy, testUpdatedAction, testUpdatedScope, testUpdatedStatus),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "name", testUpdatedName),
 					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "capacity", strconv.Itoa(testUpdatedCapacity)),
@@ -155,11 +179,8 @@ func testAccCheckScanBudgetDestroy(scanBudget ScanBudget) resource.TestCheckFunc
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
-			u, err := client.GetScanBudget(id)
-			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
-			}
-			if u != nil {
+			_, err := client.GetScanBudget(id)
+			if err == nil {
 				return fmt.Errorf("ScanBudget %s still exists", id)
 			}
 		}
@@ -190,7 +211,7 @@ func testAccCheckScanBudgetExists(name string, scanBudget *ScanBudget, t *testin
 		return nil
 	}
 }
-func testAccCheckSumologicScanBudgetConfigImported(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
+func testAccCheckSumologicScanBudgetConfigImported(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope ScanBudgetScope, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "foo" {
       name = "%s"
@@ -202,17 +223,17 @@ resource "sumologic_scan_budget" "foo" {
 	  group_by = "%s"
       action = "%s"
       scope {
-	  	included_users = ["000000000000011C"]
+	  	included_users = ["%s"]
 	  	excluded_users = []
 	  	included_roles = []
-	  	excluded_roles = ["0000000000000196"]
+	  	excluded_roles = ["%s"]
 	  }
 	  status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope.IncludedUsers[0], scope.ExcludedRoles[0], status)
 }
 
-func testAccSumologicScanBudget(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
+func testAccSumologicScanBudget(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope ScanBudgetScope, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "test" {
     name = "%s"
@@ -224,17 +245,17 @@ resource "sumologic_scan_budget" "test" {
 	group_by = "%s"
     action = "%s"
     scope {
-		included_users = ["000000000000011C"]
+		included_users = ["%s"]
 	  	excluded_users = []
 	  	included_roles = []
-	  	excluded_roles = ["0000000000000196"]
+	  	excluded_roles = ["%s"]
 	}
 	status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope.IncludedUsers[0], scope.ExcludedRoles[0], status)
 }
 
-func testAccSumologicScanBudgetUpdate(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, status string) string {
+func testAccSumologicScanBudgetUpdate(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope ScanBudgetScope, status string) string {
 	return fmt.Sprintf(`
 resource "sumologic_scan_budget" "test" {
       name = "%s"
@@ -246,14 +267,14 @@ resource "sumologic_scan_budget" "test" {
       group_by = "%s"
       action = "%s"
       scope {
-	  	included_users = ["000000000000011C"]
+	  	included_users = ["%s"]
 	  	excluded_users = []
 	  	included_roles = []
-	  	excluded_roles = ["0000000000000196"]
+	  	excluded_roles = ["%s"]
 	  }
       status = "%s"
 }
-`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, status)
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope.IncludedUsers[0], scope.ExcludedRoles[0], status)
 }
 
 func testAccCheckScanBudgetAttributes(name string) resource.TestCheckFunc {
