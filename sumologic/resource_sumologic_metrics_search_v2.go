@@ -166,7 +166,6 @@ func resourceToMetricsSearchMetricsQueryV2(data interface{}) MetricsSearchQueryV
 		metricsSearchQuery.QueryString = metricsSearchQueryObj["query_string"].(string)
 		metricsSearchQuery.QueryType = metricsSearchQueryObj["query_type"].(string)
 		metricsSearchQuery.MetricsQueryMode = metricsSearchQueryObj["metrics_query_mode"].(string)
-		// metricsSearchQuery.MetricsQueryData = nil
 	}
 
 	return metricsSearchQuery
