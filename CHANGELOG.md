@@ -1,28 +1,31 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+
+## 3.0.2 (January 29, 2025)
 FEATURES:
 * **New Resource:** sumologic_azure_metrics_source (GH-710)
 * **New Resource:** sumologic_scan_budget
 
 ## 3.0.1 (January 17, 2025)
-**ENHANCEMENTS:**
+ENHANCEMENTS:
 * Add support for update method to change state of the fields resource
 
 ## 3.0.0 (December 09, 2024)
-**REMOVALS:**
+REMOVALS:
 * resource_sumologic_ingest_budget : remove deprecated resource.
 * resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
 
-**ENHANCEMENTS:**
+ENHANCEMENTS:
 * Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
 
-**BUG FIXES:**
+BUG FIXES:
 * Fixed typo in connection.html.markdown documentation
 
 ## 2.31.5 (October 04, 2024)
 ENHANCEMENTS:
 * Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
 * Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
+
 BUG FIXES:
 * Fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
 * Remove regex match in resource_sumologic_log_search (GH-693) 
