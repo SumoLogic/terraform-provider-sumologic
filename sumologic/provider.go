@@ -120,6 +120,7 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_role_v2":                                  resourceSumologicRoleV2(),
 			"sumologic_azure_event_hub_log_source":               resourceSumologicGenericPollingSource(),
 			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
+			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
