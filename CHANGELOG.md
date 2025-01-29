@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.2 (January 29, 2025)
 FEATURES:
 * **New Resource:** sumologic_azure_metrics_source (GH-710)
 * **New Resource:** sumologic_scan_budget
