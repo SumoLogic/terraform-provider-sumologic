@@ -1,28 +1,27 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_metrics_search"
+page_title: "SumoLogic: sumologic_metrics_search_v2"
 description: |-
-  Provides a Sumologic Metrics Search
+  Provides a Sumologic Metrics Search V2
 ---
 
-# sumologic_metrics_search
-(Deprecated) Please use [Metrics Search V2](./metrics_search_v2.html.markdown) instead. 
-Provides a [Sumologic Metrics Search][1].
+# sumologic_metrics_search_v2
+Provides a [Sumologic Metrics Search V2][1].
 
 ## Example Usage
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}
 
-resource "sumologic_metrics_search" "example_metrics_search" {
+resource "sumologic_metrics_search_v2" "example_metrics_search" {
     title = "Demo Metrics Search"
     description = "Demo search description"
-    parent_id = data.sumologic_personal_folder.personalFolder.id
-    metrics_queries {
-	    row_id = "A"
-		query = "metric=cpu_idle | avg"
-	}
-    desired_quantization_in_secs = 0
-
+    folder_id = data.sumologic_personal_folder.personalFolder.id
+    queries {
+        query_key = "A"
+        query_string = "metric=cpu_idle | avg"
+        query_type = "Metrics"
+        metrics_query_mode = "Advanced"
+    }
     time_range {
         begin_bounded_time_range {
             from {
@@ -41,19 +40,15 @@ The following arguments are supported:
 
 - `title` - (Required) Title of the search.
 - `description` - (Required) Description of the search.
-- `parent_id` - (Required) The identifier of the folder to create the log search in.
-- `log_query` - Log query used to add an overlay to the chart.
-- `metrics_queries` - (Required) Array of objects [MetricsSearchQuery](#schema-for-metrics_search_query). Metrics queries, up to the maximum of six.
-- `time_range` - (Block List, Max: 1, Required) Time range of the log search. See [time range schema](#schema-for-time_range)
-- `desired_quantization_in_secs` - (Optional) Desired quantization in seconds. Default value is `0`.
+- `folder_id` - (Required) The identifier of the folder to create the metrics search in.
+- `queries` - (Required) Array of objects [MetricsSearchQueryV2](#schema-for-metrics_search_query). Metrics queries, up to the maximum of six.
+- `time_range` - (Block List, Max: 1, Required) Time range of the metrics search. See [time range schema](#schema-for-time_range)
 
-### Schema for `metrics_search_query`
-- `row_id` - Row id for the query row, A to Z letter.
-- `query` - A metric query consists of a metric, one or more filters and optionally, one or more [Metrics Operators](https://help.sumologic.com/?cid=10144).
-Strictly speaking, both filters and operators are optional.
-Most of the [Metrics Operators](https://help.sumologic.com/?cid=10144) are allowed in the query string except `fillmissing`, `outlier`, `quantize` and `timeshift`.
-In practice, your metric queries will almost always contain filters that narrow the scope of your query.
-For more information about the query language see [Metrics Queries](https://help.sumologic.com/?cid=1079).
+### Schema for `queries`
+- `query_key` - (Required) Key for the query row, A to Z letter.
+- `query_string` - (Required) A metric query consists of a metric, one or more filters and optionally, one or more [Metrics Operators](https://help.sumologic.com/?cid=10144).
+- `query_type` - (Required) The type of the query, either `Metrics` or `Logs`.
+- `metrics_query_mode` - (Optional) Will ONLY be specified for metrics queries. The provider only supports `Advanced` as metrics query mode.
 
 ### Schema for `time_range`
 - `complete_literal_time_range` - (Block List, Max: 1, Optional) Literal time range. See
@@ -93,13 +88,13 @@ For more information about the query language see [Metrics Queries](https://help
 ## Attributes reference
 In addition to all arguments above, the following attributes are exported:
 
-- `id` - The ID of the log search.
+- `id` - The ID of the metrics search.
 
 
 ## Import
 A metrics search can be imported using it's identifier, e.g.:
 ```hcl
-terraform import sumologic_metrics_search.example_search 0000000007FFD79D
+terraform import sumologic_metrics_search_v2.example_search 0000000007FFD79D
 ```
 
 [1]: https://help.sumologic.com/docs/metrics/metrics-queries/metrics-explorer/
