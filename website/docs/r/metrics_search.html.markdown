@@ -6,6 +6,7 @@ description: |-
 ---
 
 # sumologic_metrics_search
+(Deprecated) Please use [Metrics Search V2](./metrics_search_v2.html.markdown) instead. 
 Provides a [Sumologic Metrics Search][1].
 
 ## Example Usage

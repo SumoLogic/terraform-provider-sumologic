@@ -42,7 +42,7 @@ The following arguments are supported:
 - `description` - (Required) Description of the search.
 - `folder_id` - (Required) The identifier of the folder to create the metrics search in.
 - `queries` - (Required) Array of objects [MetricsSearchQueryV2](#schema-for-metrics_search_query). Metrics queries, up to the maximum of six.
-- `time_range` - (Block List, Max: 1, Required) Time range of the log search. See [time range schema](#schema-for-time_range)
+- `time_range` - (Block List, Max: 1, Required) Time range of the metrics search. See [time range schema](#schema-for-time_range)
 
 ### Schema for `queries`
 - `query_key` - (Required) Key for the query row, A to Z letter.
