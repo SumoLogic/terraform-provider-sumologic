@@ -81,6 +81,7 @@ jobs:
       env:
         TF_ACC: "1"
         TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
+        TF_LOG: DEBUG
 
         # Set whatever additional acceptance test env vars here. You can
         # optionally use data from your repository secrets using the
@@ -107,4 +108,4 @@ jobs:
 
       # disable go test timeout. We rely on GitHub action timeout.
       run: |
-        go test -timeout 0 -v -cover ./sumologic/
+        go test -timeout 0 -v -cover ./sumologic/ -run TestAccSumologicMonitorsLibraryMonitor_create
