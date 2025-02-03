@@ -25,7 +25,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 		Required: true,
 		ForceNew: true,
 		ValidateFunc: validation.StringInSlice([]string{"AwsS3Bucket", "AwsElbBucket", "AwsCloudFrontBucket",
-			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket", "AzureEventHubLog", "AzureMetrics"}, false),
+			"AwsCloudTrailBucket", "AwsS3AuditBucket", "AwsCloudWatch", "AwsInventory", "AwsXRay", "GcpMetrics", "AwsS3ArchiveBucket", "AzureEventHubLog"}, false),
 	}
 	pollingSource.Schema["scan_interval"] = &schema.Schema{
 		Type:     schema.TypeInt,
@@ -56,7 +56,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"type": {
 					Type:         schema.TypeString,
 					Required:     true,
-					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account", "AzureEventHubAuthentication", "AzureClientSecretAuthentication"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"S3BucketAuthentication", "AWSRoleBasedAuthentication", "service_account", "AzureEventHubAuthentication"}, false),
 				},
 				"access_key": {
 					Type:     schema.TypeString,
@@ -118,14 +118,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"tenant_id": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-				"client_secret": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
 			},
 		},
 	}
@@ -141,7 +133,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Required: true,
 					ValidateFunc: validation.StringInSlice([]string{"S3BucketPathExpression", "CloudWatchPath",
-						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath", "AzureEventHubPath", "AzureMetricsPath"}, false),
+						"AwsInventoryPath", "AwsXRayPath", "GcpMetricsPath", "AzureEventHubPath"}, false),
 				},
 				"bucket_name": {
 					Type:     schema.TypeString,
@@ -219,41 +211,6 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 						},
 					},
 				},
-				"azure_tag_filters": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"type": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"namespace": {
-								Type:     schema.TypeString,
-								Optional: true,
-							},
-							"tags": {
-								Type:     schema.TypeList,
-								Optional: true,
-								Elem: &schema.Resource{
-									Schema: map[string]*schema.Schema{
-										"name": {
-											Type:     schema.TypeString,
-											Required: true,
-										},
-										"values": {
-											Type:     schema.TypeList,
-											Optional: true,
-											Elem: &schema.Schema{
-												Type: schema.TypeString,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
 				"sns_topic_or_subscription_arn": {
 					Type:     schema.TypeList,
 					Computed: true,
@@ -286,13 +243,10 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"environment": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
 			},
 		},
 	}
+
 	return pollingSource
 }
 
@@ -424,7 +378,6 @@ func getPollingThirdPartyPathAttributes(pollingResource []PollingResource) []map
 			"use_versioned_api":             t.Path.UseVersionedApi,
 			"custom_services":               flattenCustomServices(t.Path.CustomServices),
 			"tag_filters":                   flattenPollingTagFilters(t.Path.TagFilters),
-			"azure_tag_filters":             flattenPollingAzureTagFilters(t.Path.TagFilters),
 			"sns_topic_or_subscription_arn": flattenPollingSnsTopicOrSubscriptionArn(t.Path.SnsTopicOrSubscriptionArn),
 			"namespace":                     t.Path.Namespace,
 			"event_hub_name":                t.Path.EventHubName,
@@ -459,8 +412,6 @@ func getPollingThirdPartyAuthenticationAttributes(pollingResource []PollingResou
 			"client_x509_cert_url":        t.Authentication.ClientX509CertUrl,
 			"shared_access_policy_name":   t.Authentication.SharedAccessPolicyName,
 			"shared_access_policy_key":    t.Authentication.SharedAccessPolicyKey,
-			"tenant_id":                   t.Authentication.TenantId,
-			"client_secret":               t.Authentication.ClientSecret,
 		}
 		s = append(s, mapping)
 	}
@@ -499,66 +450,25 @@ func getCustomServices(path map[string]interface{}) []string {
 	return customServices
 }
 
-func flattenPollingTagFilters(v []interface{}) []map[string]interface{} {
+func flattenPollingTagFilters(v []TagFilter) []map[string]interface{} {
 	var filters []map[string]interface{}
-	if len(v) > 0 {
-		filter := v[0].(map[string]interface{})
-		switch filterType, ok := filter["type"].(string); {
-		case !ok || filterType == "AzureTagFilters": // do nothing
-		default:
-			for _, d := range v {
-				rawFilter := d.(map[string]interface{})
-				filter := map[string]interface{}{
-					"type":      rawFilter["type"].(string),
-					"namespace": rawFilter["namespace"].(string),
-					"tags":      rawFilter["tags"].([]interface{}),
-				}
-				filters = append(filters, filter)
-			}
-		}
-	}
-	return filters
-}
-
-func flattenPollingAzureTagFilters(v []interface{}) []map[string]interface{} {
-	var filters []map[string]interface{}
-	if len(v) > 0 {
-		filter := v[0].(map[string]interface{})
-		switch filterType, ok := filter["type"].(string); {
-		case !ok || filterType == "AzureTagFilters":
-			for _, d := range v {
-				rawFilter := d.(map[string]interface{})
-				filter := map[string]interface{}{
-					"type":      "AzureTagFilters",
-					"namespace": rawFilter["namespace"].(string),
-					"tags":      flattenAzureTagKeyValuePair(rawFilter["tags"].([]interface{})),
-				}
-				filters = append(filters, filter)
-			}
-		default: // do nothing
-		}
-	}
-	return filters
-}
-
-func flattenAzureTagKeyValuePair(v []interface{}) []map[string]interface{} {
-	var tags []map[string]interface{}
 	for _, d := range v {
-		rawTag := d.(map[string]interface{})
-		tag := map[string]interface{}{
-			"name":   rawTag["name"].(string),
-			"values": rawTag["values"].([]interface{}),
+		filter := map[string]interface{}{
+			"type":      d.Type,
+			"namespace": d.Namespace,
+			"tags":      d.Tags,
 		}
-		tags = append(tags, tag)
+		filters = append(filters, filter)
 	}
-	return tags
+
+	return filters
 }
 
-func getPollingTagFilters(d *schema.ResourceData) []interface{} {
+func getPollingTagFilters(d *schema.ResourceData) []TagFilter {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	rawTagFilterConfig := path["tag_filters"].([]interface{})
-	var filters []interface{}
+	var filters []TagFilter
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
@@ -574,39 +484,7 @@ func getPollingTagFilters(d *schema.ResourceData) []interface{} {
 		filter.Tags = Tags
 		filters = append(filters, filter)
 	}
-	return filters
-}
 
-func getPollingAzureTagFilters(d *schema.ResourceData) []interface{} {
-	paths := d.Get("path").([]interface{})
-	path := paths[0].(map[string]interface{})
-	rawTagFilterConfig := path["azure_tag_filters"].([]interface{})
-	var filters []interface{}
-
-	for _, rawConfig := range rawTagFilterConfig {
-		config := rawConfig.(map[string]interface{})
-		filter := AzureTagFilter{}
-		filter.Type = config["type"].(string)
-		filter.Namespace = config["namespace"].(string)
-
-		rawTags := config["tags"].([]interface{})
-		Tags := make([]AzureTagKeyValuePair, len(rawTags))
-		for i, rawTagPair := range rawTags {
-			tagPair := rawTagPair.(map[string]interface{})
-			pair := AzureTagKeyValuePair{}
-			pair.Name = tagPair["name"].(string)
-			// get the values from the azure key value pair
-			rawValues := tagPair["values"].([]interface{})
-			valueList := make([]string, len(rawValues))
-			for j, v := range rawValues {
-				valueList[j] = v.(string)
-			}
-			pair.Values = valueList
-			Tags[i] = pair
-		}
-		filter.Tags = Tags
-		filters = append(filters, filter)
-	}
 	return filters
 }
 
@@ -699,11 +577,7 @@ func getPollingAuthentication(d *schema.ResourceData) (PollingAuthentication, er
 			authSettings.Type = "AzureEventHubAuthentication"
 			authSettings.SharedAccessPolicyName = auth["shared_access_policy_name"].(string)
 			authSettings.SharedAccessPolicyKey = auth["shared_access_policy_key"].(string)
-		case "AzureClientSecretAuthentication":
-			authSettings.Type = "AzureClientSecretAuthentication"
-			authSettings.TenantId = auth["tenant_id"].(string)
-			authSettings.AzureClientId = auth["client_id"].(string)
-			authSettings.ClientSecret = auth["client_secret"].(string)
+
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown authType: %v", authType)
 			log.Print(errorMessage)
@@ -797,18 +671,6 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			if path["region"] != nil {
 				pathSettings.Region = path["region"].(string)
 			}
-		case "AzureMetricsPath":
-			pathSettings.Type = "AzureMetricsPath"
-			pathSettings.Environment = path["environment"].(string)
-			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
-			LimitToNamespaces := make([]string, 0, len(rawLimitToNamespaces))
-			for _, v := range rawLimitToNamespaces {
-				if v != nil {
-					LimitToNamespaces = append(LimitToNamespaces, v.(string))
-				}
-			}
-			pathSettings.LimitToNamespaces = LimitToNamespaces
-			pathSettings.TagFilters = getPollingAzureTagFilters(d)
 		default:
 			errorMessage := fmt.Sprintf("[ERROR] Unknown resourceType in path: %v", pathType)
 			log.Print(errorMessage)

@@ -242,27 +242,25 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 	return s
 }
 
-func flattenTagFilters(v []interface{}) []map[string]interface{} {
+func flattenTagFilters(v []TagFilter) []map[string]interface{} {
 	var filters []map[string]interface{}
 	for _, d := range v {
-		switch t := d.(type) {
-		case TagFilter:
-			filter := map[string]interface{}{
-				"type":      t.Type,
-				"namespace": t.Namespace,
-				"tags":      t.Tags,
-			}
-			filters = append(filters, filter)
+		filter := map[string]interface{}{
+			"type":      d.Type,
+			"namespace": d.Namespace,
+			"tags":      d.Tags,
 		}
+		filters = append(filters, filter)
 	}
+
 	return filters
 }
 
-func getTagFilters(d *schema.ResourceData) []interface{} {
+func getTagFilters(d *schema.ResourceData) []TagFilter {
 	paths := d.Get("path").([]interface{})
 	path := paths[0].(map[string]interface{})
 	rawTagFilterConfig := path["tag_filters"].([]interface{})
-	var filters []interface{}
+	var filters []TagFilter
 
 	for _, rawConfig := range rawTagFilterConfig {
 		config := rawConfig.(map[string]interface{})
@@ -278,6 +276,7 @@ func getTagFilters(d *schema.ResourceData) []interface{} {
 		filter.Tags = Tags
 		filters = append(filters, filter)
 	}
+
 	return filters
 }
 

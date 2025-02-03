@@ -1,13 +1,15 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+REMOVED:
+* sumologic_azure_metrics_source
+
 ## 3.0.3 (January 31, 2025)
 FEATURES:
 * **New Resource:** sumologic_metrics_search_v2
 
 ## 3.0.2 (January 29, 2025)
 FEATURES:
-* **New Resource:** sumologic_azure_metrics_source (GH-710)
 * **New Resource:** sumologic_scan_budget
 
 ## 3.0.1 (January 17, 2025)
