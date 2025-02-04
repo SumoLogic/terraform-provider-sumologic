@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.4 (February 4, 2025)
+BUG FIXES:
+* Fixed issue with release artifacts
+
 ## 3.0.3 (January 31, 2025)
 FEATURES:
 * **New Resource:** sumologic_metrics_search_v2
