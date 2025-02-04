@@ -7,7 +7,6 @@ FEATURES:
 
 ## 3.0.2 (January 29, 2025)
 FEATURES:
-* **New Resource:** sumologic_azure_metrics_source (GH-710)
 * **New Resource:** sumologic_scan_budget
 
 ## 3.0.1 (January 17, 2025)
