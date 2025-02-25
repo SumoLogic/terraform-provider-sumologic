@@ -907,6 +907,7 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				threshold_type = "GreaterThan"
 				threshold = 40.0
 				time_range = "15m"
+				frequency = "5m"
 				occurrence_type = "ResultCount"
 				trigger_source = "AllResults"
 				trigger_type = "Critical"
@@ -916,6 +917,7 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				threshold_type = "LessThanOrEqual"
 				threshold = 40.0
 				time_range = "15m"
+				frequency = "5m"
 				occurrence_type = "ResultCount"
 				trigger_source = "AllResults"
 				trigger_type = "ResolvedCritical"
