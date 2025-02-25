@@ -494,6 +494,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
 		}),
+		"frequency": &frequencySchema,
 		"resolution": nested(false, schemaMap{
 			"threshold":         &thresholdSchema,
 			"threshold_type":    &thresholdTypeSchema,
@@ -506,6 +507,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
 		}),
+		"frequency": &frequencySchema,
 		"resolution": nested(false, schemaMap{
 			"threshold":         &thresholdSchema,
 			"threshold_type":    &thresholdTypeSchema,
@@ -587,6 +589,7 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 	"time_range": &timeRangeWithAllowedValuesSchema,
+	"frequency":  &frequencySchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
@@ -811,6 +814,13 @@ var thresholdTypeSchema = schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
+}
+
+var frequencySchema = schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`),
+		"Frequency time must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
 }
 
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
