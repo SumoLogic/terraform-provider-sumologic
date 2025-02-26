@@ -299,7 +299,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_resolution_window(t *
 			ThresholdType:   "GreaterThan",
 			Threshold:       40.0,
 			TimeRange:       "15m",
-			Frequency:       "5m",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "Critical",
@@ -309,7 +308,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_resolution_window(t *
 			ThresholdType:   "LessThanOrEqual",
 			Threshold:       40.0,
 			TimeRange:       "15m",
-			Frequency:       "5m",
 			OccurrenceType:  "ResultCount",
 			TriggerSource:   "AllResults",
 			TriggerType:     "ResolvedCritical",
@@ -329,7 +327,6 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_resolution_window(t *
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
-					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.frequency", testTriggers[0].Frequency),
 				),
 			},
 		},
@@ -907,7 +904,6 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				threshold_type = "GreaterThan"
 				threshold = 40.0
 				time_range = "15m"
-				frequency = "5m"
 				occurrence_type = "ResultCount"
 				trigger_source = "AllResults"
 				trigger_type = "Critical"
@@ -917,7 +913,6 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				threshold_type = "LessThanOrEqual"
 				threshold = 40.0
 				time_range = "15m"
-				frequency = "5m"
 				occurrence_type = "ResultCount"
 				trigger_source = "AllResults"
 				trigger_type = "ResolvedCritical"
@@ -1311,6 +1306,7 @@ var exampleLogsStaticTriggerConditionBlock = `
    logs_static_condition {
      critical {
        time_range = "60m"
+	   frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1327,6 +1323,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
    logs_static_condition {
      critical {
        time_range = "1h"
+	   frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"

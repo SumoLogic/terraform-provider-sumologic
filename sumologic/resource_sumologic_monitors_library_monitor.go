@@ -1205,7 +1205,6 @@ func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerConditi
 
 func logsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
 	base := TriggerCondition{
-		Frequency:       block["frequency"].(string),
 		Field:           block["field"].(string),
 		DetectionMethod: logsStaticConditionDetectionMethod,
 	}
@@ -1722,7 +1721,6 @@ func jsonToMetricsMissingDataConditionBlock(conditions []TriggerCondition) map[s
 	block := map[string]interface{}{}
 	firstCondition := conditions[0]
 	block["time_range"] = firstCondition.PositiveTimeRange()
-	block["frequency"] = firstCondition.Frequency
 	block["trigger_source"] = firstCondition.TriggerSource
 	return block
 }
