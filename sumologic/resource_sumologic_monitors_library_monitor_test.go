@@ -1306,7 +1306,7 @@ var exampleLogsStaticTriggerConditionBlock = `
    logs_static_condition {
      critical {
        time_range = "60m"
-	   frequency = "5m"
+       frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1323,7 +1323,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
    logs_static_condition {
      critical {
        time_range = "1h"
-	   frequency = "5m"
+       frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"

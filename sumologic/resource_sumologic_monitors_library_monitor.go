@@ -251,26 +251,10 @@ func getMonitorSchema() map[string]*schema.Schema {
 						Optional:     true,
 						ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
 					},
-					"threshold": {
-						Type:     schema.TypeFloat,
-						Optional: true,
-					},
-					"threshold_type": {
-						Type:         schema.TypeString,
-						Optional:     true,
-						ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
-					},
-					"time_range": {
-						Type:             schema.TypeString,
-						Optional:         true,
-						ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-						DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
-					},
-					"frequency": {
-						Type:         schema.TypeString,
-						Optional:     true,
-						ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Frequency time must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
-					},
+					"threshold":      &thresholdSchema,
+					"threshold_type": &thresholdTypeSchema,
+					"time_range":     &timeRangeWithFormatSchema,
+					"frequency":      &frequencySchema,
 					"trigger_source": {
 						Type:         schema.TypeString,
 						Optional:     true,
@@ -822,10 +806,9 @@ var thresholdTypeSchema = schema.Schema{
 }
 
 var frequencySchema = schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`),
-		"Frequency time must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Frequency time must be in the format '\\d+[smhd]'. Examples: 1m, 2m, 10m, 20m, 1h"),
 }
 
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
