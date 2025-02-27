@@ -251,21 +251,10 @@ func getMonitorSchema() map[string]*schema.Schema {
 						Optional:     true,
 						ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
 					},
-					"threshold": {
-						Type:     schema.TypeFloat,
-						Optional: true,
-					},
-					"threshold_type": {
-						Type:         schema.TypeString,
-						Optional:     true,
-						ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
-					},
-					"time_range": {
-						Type:             schema.TypeString,
-						Optional:         true,
-						ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-						DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
-					},
+					"threshold":      &thresholdSchema,
+					"threshold_type": &thresholdTypeSchema,
+					"time_range":     &timeRangeWithFormatSchema,
+					"frequency":      &frequencySchema,
 					"trigger_source": {
 						Type:         schema.TypeString,
 						Optional:     true,
@@ -490,6 +479,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	},
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeWithAllowedValuesSchema,
+		"frequency":  &frequencySchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -502,6 +492,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeWithAllowedValuesSchema,
+		"frequency":  &frequencySchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -587,6 +578,7 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 	"time_range": &timeRangeWithAllowedValuesSchema,
+	"frequency":  &frequencySchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
@@ -813,6 +805,12 @@ var thresholdTypeSchema = schema.Schema{
 	ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 }
 
+var frequencySchema = schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Frequency time must be in the format '\\d+[smhd]'. Examples: 1m, 2m, 10m, 20m, 1h"),
+}
+
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
@@ -975,6 +973,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		for i, t := range monitor.Triggers {
 			triggers[i] = map[string]interface{}{
 				"time_range":        t.PositiveTimeRange(),
+				"frequency":         t.Frequency,
 				"trigger_type":      t.TriggerType,
 				"threshold":         t.Threshold,
 				"threshold_type":    t.ThresholdType,
@@ -1138,6 +1137,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 				Threshold:        triggerDict["threshold"].(float64),
 				ThresholdType:    triggerDict["threshold_type"].(string),
 				TimeRange:        triggerDict["time_range"].(string),
+				Frequency:        triggerDict["frequency"].(string),
 				OccurrenceType:   triggerDict["occurrence_type"].(string),
 				TriggerSource:    triggerDict["trigger_source"].(string),
 				MinDataPoints:    triggerDict["min_data_points"].(int),
@@ -1244,11 +1244,13 @@ func metricsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerC
 func logsMissingDataConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
 	alert := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
+		Frequency:       block["frequency"].(string),
 		DetectionMethod: logsMissingDataConditionDetectionMethod,
 		TriggerType:     "MissingData",
 	}
 	resolution := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
+		Frequency:       block["frequency"].(string),
 		DetectionMethod: logsMissingDataConditionDetectionMethod,
 		TriggerType:     "ResolvedMissingData",
 	}
@@ -1382,22 +1384,26 @@ func jsonToLogsStaticConditionBlock(conditions []TriggerCondition) map[string]in
 		case "Critical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["frequency"] = condition.Frequency
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["frequency"] = condition.Frequency
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			criticalRslv["resolution_window"] = condition.PositiveResolutionWindow()
 		case "Warning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["frequency"] = condition.Frequency
 			warningAlrt["threshold"] = condition.Threshold
 			warningAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["frequency"] = condition.Frequency
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			warningRslv["resolution_window"] = condition.PositiveResolutionWindow()
@@ -1690,6 +1696,7 @@ func jsonToLogsMissingDataConditionBlock(conditions []TriggerCondition) map[stri
 	block := map[string]interface{}{}
 	firstCondition := conditions[0]
 	block["time_range"] = firstCondition.PositiveTimeRange()
+	block["frequency"] = firstCondition.Frequency
 	return block
 }
 
@@ -1842,6 +1849,8 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 		switch k {
 		case "time_range":
 			condition.TimeRange = v.(string)
+		case "frequency":
+			condition.Frequency = v.(string)
 		case "trigger_type":
 			condition.TriggerType = v.(string)
 		case "threshold":
