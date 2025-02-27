@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+BUG FIXES:
+* Polling source paths without `use_versioned_api` will not show an incorrect diff in the `terraform plan`
+
 ## 3.0.4 (February 4, 2025)
 BUG FIXES:
 * Fixed issue with release artifacts
