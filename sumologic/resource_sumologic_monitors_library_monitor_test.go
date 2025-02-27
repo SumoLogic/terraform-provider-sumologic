@@ -114,6 +114,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
          type = "MonitorsLibraryMonitor"
          monitor_type = "Logs"
          triggers {
+           time_range = "1h"
            threshold_type = "foo"
          }
        }`
