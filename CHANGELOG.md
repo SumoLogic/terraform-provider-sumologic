@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Add support for monitor frequency configurability
 BUG FIXES:
 * Polling source paths without `use_versioned_api` will not show an incorrect diff in the `terraform plan`
 
