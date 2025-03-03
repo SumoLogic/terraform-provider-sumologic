@@ -595,6 +595,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `threshold`
 #### logs_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+  - `frequency` Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
 #### metrics_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 #### slo_sli_condition
