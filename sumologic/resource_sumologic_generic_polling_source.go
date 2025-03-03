@@ -150,7 +150,7 @@ func resourceSumologicGenericPollingSource() *schema.Resource {
 				"use_versioned_api": {
 					Type:     schema.TypeBool,
 					Optional: true,
-					Default:  true,
+					Default:  nil,
 				},
 				"path_expression": {
 					Type:     schema.TypeString,
@@ -749,10 +749,14 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 			pathSettings.Type = "S3BucketPathExpression"
 			pathSettings.BucketName = path["bucket_name"].(string)
 			pathSettings.PathExpression = path["path_expression"].(string)
-			if path["use_versioned_api"] != nil {
+
+			if isFieldSet(d, "path.0.use_versioned_api") {
 				val := path["use_versioned_api"].(bool)
 				pathSettings.UseVersionedApi = &val
+			} else {
+				pathSettings.UseVersionedApi = nil
 			}
+
 			pathSettings.SnsTopicOrSubscriptionArn = getPollingSnsTopicOrSubscriptionArn(d)
 		case "CloudWatchPath", "AwsInventoryPath":
 			pathSettings.Type = pathType
@@ -817,4 +821,9 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 	}
 
 	return pathSettings, nil
+}
+
+func isFieldSet(d *schema.ResourceData, key string) bool {
+	_, ok := d.GetOkExists(key)
+	return ok
 }
