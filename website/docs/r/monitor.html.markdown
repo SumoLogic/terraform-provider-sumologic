@@ -56,6 +56,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
     logs_static_condition {
       critical {
         time_range = "15m"
+        frequency = "5m"
         alert {
           threshold      = 40.0
           threshold_type = "GreaterThan"
@@ -281,6 +282,7 @@ resource "sumologic_monitor" "tf_logs_monitor_2" {
     logs_static_condition {
       critical {
         time_range = "15m"
+        frequency = "5m"
         alert {
           threshold      = 40.0
           threshold_type = "GreaterThan"
@@ -482,6 +484,7 @@ trigger_conditions {
     field = "_count"
     critical {
       time_range = "15m"
+      frequency = "5m"
       alert {
         threshold = 100
         threshold_type = "GreaterThan"
@@ -507,6 +510,7 @@ trigger_conditions {
   }
   logs_missing_data_condition {
     time_range = "30m"
+    frequency = "5m"
   }
 }
 ```
@@ -530,13 +534,14 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `field`
   - `critical`
     - `time_range` (Required) : Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+    - `frequency` Accepted format: Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
+      - `resolution_window` pted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
   - `warning`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `alert` (Required)
@@ -553,7 +558,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
-      - `min_data_points` (Optional)
+      - `min_data_points` (OptionalAcce)
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
@@ -590,6 +595,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `threshold`
 #### logs_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+  - `frequency` Accepted format: Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
 #### metrics_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 #### slo_sli_condition
