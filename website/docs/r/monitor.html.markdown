@@ -534,14 +534,14 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `field`
   - `critical`
     - `time_range` (Required) : Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-    - `frequency` Accepted format: Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
+    - `frequency` Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
-      - `resolution_window` pted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
+      - `resolution_window` Accepted format: `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `0s, 30m`.
   - `warning`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
     - `alert` (Required)
@@ -558,7 +558,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `alert` (Required)
       - `threshold`
       - `threshold_type`
-      - `min_data_points` (OptionalAcce)
+      - `min_data_points` (Optional)
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
@@ -595,7 +595,6 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `threshold`
 #### logs_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
-  - `frequency` Accepted format: Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
 #### metrics_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 #### slo_sli_condition

@@ -1,7 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-## 3.0.5 (February 28, 2025)
 ENHANCEMENTS:
 * Add support for monitor frequency configurability
 
