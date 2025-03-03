@@ -1,8 +1,11 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.5 (March 3, 2025)
+
 ENHANCEMENTS:
 * Add support for monitor frequency configurability
+
 BUG FIXES:
 * Polling source paths without `use_versioned_api` will not show an incorrect diff in the `terraform plan`
 
