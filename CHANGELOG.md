@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* Add support for CSE strict custom insights
+
 ## 3.0.5 (March 3, 2025)
 
 ENHANCEMENTS:
