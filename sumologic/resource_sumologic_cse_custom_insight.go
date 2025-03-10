@@ -45,6 +45,12 @@ func resourceSumologicCSECustomInsight() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"HIGH", "MEDIUM", "LOW", "CRITICAL"}, false),
 			},
+			"signal_match_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "ENTITY",
+				ValidateFunc: validation.StringInSlice([]string{"ENTITY", "STRICT"}, false),
+			},
 			"dynamic_severity": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -103,6 +109,7 @@ func resourceSumologicCSECustomInsightRead(d *schema.ResourceData, meta interfac
 	d.Set("ordered", CSECustomInsightGet.Ordered)
 	d.Set("rule_ids", CSECustomInsightGet.RuleIds)
 	d.Set("severity", CSECustomInsightGet.Severity)
+	d.Set("signal_match_strategy", CSECustomInsightGet.SignalMatchStrategy)
 	d.Set("dynamic_severity", dynamicSeverityArrayToResource(CSECustomInsightGet.DynamicSeverity))
 	d.Set("signal_names", CSECustomInsightGet.SignalNames)
 	d.Set("tags", CSECustomInsightGet.Tags)
@@ -121,15 +128,16 @@ func resourceSumologicCSECustomInsightCreate(d *schema.ResourceData, meta interf
 
 	if d.Id() == "" {
 		id, err := c.CreateCSECustomInsight(CSECustomInsight{
-			Description:     d.Get("description").(string),
-			Enabled:         d.Get("enabled").(bool),
-			RuleIds:         resourceToStringArray(d.Get("rule_ids").([]interface{})),
-			Name:            d.Get("name").(string),
-			Ordered:         d.Get("ordered").(bool),
-			Severity:        d.Get("severity").(string),
-			DynamicSeverity: resourceToDynamicSeverityArray(d.Get("dynamic_severity").([]interface{})),
-			SignalNames:     resourceToStringArray(d.Get("signal_names").([]interface{})),
-			Tags:            resourceToStringArray(d.Get("tags").([]interface{})),
+			Description:         d.Get("description").(string),
+			Enabled:             d.Get("enabled").(bool),
+			RuleIds:             resourceToStringArray(d.Get("rule_ids").([]interface{})),
+			Name:                d.Get("name").(string),
+			Ordered:             d.Get("ordered").(bool),
+			Severity:            d.Get("severity").(string),
+			SignalMatchStrategy: resourceToSignalMatchStrategy(d.Get("signal_match_strategy")),
+			DynamicSeverity:     resourceToDynamicSeverityArray(d.Get("dynamic_severity").([]interface{})),
+			SignalNames:         resourceToStringArray(d.Get("signal_names").([]interface{})),
+			Tags:                resourceToStringArray(d.Get("tags").([]interface{})),
 		})
 
 		if err != nil {
@@ -162,16 +170,17 @@ func resourceToCSECustomInsight(d *schema.ResourceData) (CSECustomInsight, error
 	}
 
 	return CSECustomInsight{
-		ID:              id,
-		Description:     d.Get("description").(string),
-		Enabled:         d.Get("enabled").(bool),
-		RuleIds:         resourceToStringArray(d.Get("rule_ids").([]interface{})),
-		Name:            d.Get("name").(string),
-		Ordered:         d.Get("ordered").(bool),
-		Severity:        d.Get("severity").(string),
-		DynamicSeverity: resourceToDynamicSeverityArray(d.Get("dynamic_severity").([]interface{})),
-		SignalNames:     resourceToStringArray(d.Get("signal_names").([]interface{})),
-		Tags:            resourceToStringArray(d.Get("tags").([]interface{})),
+		ID:                  id,
+		Description:         d.Get("description").(string),
+		Enabled:             d.Get("enabled").(bool),
+		RuleIds:             resourceToStringArray(d.Get("rule_ids").([]interface{})),
+		Name:                d.Get("name").(string),
+		Ordered:             d.Get("ordered").(bool),
+		Severity:            d.Get("severity").(string),
+		SignalMatchStrategy: resourceToSignalMatchStrategy(d.Get("signal_match_strategy")),
+		DynamicSeverity:     resourceToDynamicSeverityArray(d.Get("dynamic_severity").([]interface{})),
+		SignalNames:         resourceToStringArray(d.Get("signal_names").([]interface{})),
+		Tags:                resourceToStringArray(d.Get("tags").([]interface{})),
 	}, nil
 }
 
@@ -199,4 +208,11 @@ func dynamicSeverityArrayToResource(dynamicSeverities []DynamicSeverity) []map[s
 	}
 
 	return result
+}
+
+func resourceToSignalMatchStrategy(value any) string {
+	if v, ok := value.(string); ok {
+		return v
+	}
+	return ""
 }
