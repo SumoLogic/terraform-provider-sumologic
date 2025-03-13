@@ -1,0 +1,23 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  changelog-check:
+    name: Check CHANGELOG.md
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Check for CHANGELOG.md edits and comment if missing
+        run: |
+          if ! git diff --name-only HEAD^1 HEAD | grep -q 'CHANGELOG.md'; then
+            gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ Warning: Please update CHANGELOG.md with your changes."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
