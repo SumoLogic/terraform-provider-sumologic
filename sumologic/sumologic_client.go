@@ -153,6 +153,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	sumoURL := s.BaseURL.ResolveReference(relativeURL)
 
 	body, _ := json.Marshal(payload)
+
 	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
 	if err != nil {
 		return nil, err
@@ -171,7 +172,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
-	d, err := ioutil.ReadAll(resp.Body)
+	d, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +240,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
-	d, err := ioutil.ReadAll(resp.Body)
+	d, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +278,7 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 
 	defer resp.Body.Close()
 
-	d, err := ioutil.ReadAll(resp.Body)
+	d, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, "", err
 	}

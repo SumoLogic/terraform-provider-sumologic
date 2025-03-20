@@ -120,6 +120,8 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_rum_source":                               resourceSumologicRumSource(),
 			"sumologic_role_v2":                                  resourceSumologicRoleV2(),
 			"sumologic_azure_event_hub_log_source":               resourceSumologicGenericPollingSource(),
+			"sumologic_ot_collector":                             resourceSumologicOTCollector(),
+			"sumologic_source_template":                          resourceSumologicSourceTemplate(),
 			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
 			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 		},

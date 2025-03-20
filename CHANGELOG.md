@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+FEATURES:
+* **New Resource:** sumologic_source_template (GH-708)
+* **New Resource:** sumologic_ot_collector (GH-708)
 
 MAINTENANCE:
 * If a PR author forgets to update this change log, then a comment will be automatically added to the PR to remind them
