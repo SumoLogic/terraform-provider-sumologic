@@ -1,6 +1,11 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+MAINTENANCE:
+* Update golang dependencies to the latest versions:
+  * golang.org/x/net
+  * golang.org/x/crypto
+
 ## 3.0.7 (Mar 20, 2025)
 
 FEATURES:
