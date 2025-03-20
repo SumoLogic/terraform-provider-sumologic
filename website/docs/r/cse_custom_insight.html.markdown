@@ -17,6 +17,7 @@ resource "sumologic_cse_custom_insight" "custom_insight" {
   name = "Custom Insight Example"
   rule_ids = ["MATCH-S00001", "THRESHOLD-U00005"]
   severity = "HIGH"
+  signal_match_strategy = "ENTITY"
   dynamic_severity {
     minimum_signal_severity = 8
     insight_severity = "CRITICAL"
@@ -36,6 +37,7 @@ The following arguments are supported:
 - `name` - (Required) The name of the Custom Insight and the generated Insights
 - `rule_ids` - (Optional) The Rule IDs to match to generate an Insight (exactly one of rule_ids or signal_names must be specified)
 - `severity` - (Required) The severity of the generated Insights (CRITICAL, HIGH, MEDIUM, or LOW)
+- `signal_match_strategy` - (Optional) The signal match strategy to use when generating insights (ENTITY, STRICT)
 - `dynamic_severity` - (Optional) The severity of the generated Insight that is based on the severity of the Signals that trigger the Insight.
   + `minimum_signal_severity` - (Required) minimum Signal severity as the threshold for an Insight severity level
   + `insight_severity` - (Required) The severity of the generated Insight (CRITICAL, HIGH, MEDIUM, or LOW)

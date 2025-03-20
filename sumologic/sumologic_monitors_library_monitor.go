@@ -160,6 +160,7 @@ type MonitorQuery struct {
 
 type TriggerCondition struct {
 	TimeRange           string     `json:"timeRange,omitempty"`
+	Frequency           string     `json:"frequency,omitempty"`
 	TriggerType         string     `json:"triggerType"`
 	Threshold           float64    `json:"threshold,omitempty"`
 	ThresholdType       string     `json:"thresholdType,omitempty"`

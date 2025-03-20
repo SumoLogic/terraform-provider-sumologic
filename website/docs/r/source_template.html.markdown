@@ -13,7 +13,6 @@ Provides a Sumologic Source Template
 resource "sumologic_source_template" "example_source_template" {
     schema_ref {
         type = "Mac"
-        version = "1.0.2"
     }
     selector {
         tags =  [
@@ -39,7 +38,7 @@ resource "sumologic_source_template" "example_source_template" {
                 "filesystem_scraper_enabled": true,
                 "memory_scraper_enabled": true,
                 "network_scraper_enabled": true,
-                "process_scraper_enabled": true,
+                "processes_scraper_enabled": true,
                 "paging_scraper_enabled": true
             }
         },

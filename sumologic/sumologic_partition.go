@@ -64,16 +64,16 @@ func (s *Client) UpdatePartition(spartition Partition) error {
 }
 
 type Partition struct {
-	ID                               string `json:"id,omitempty"`
-	Name                             string `json:"name"`
-	RoutingExpression                string `json:"routingExpression,omitempty"`
-	AnalyticsTier                    string `json:"analyticsTier"`
-	RetentionPeriod                  int    `json:"retentionPeriod"`
-	IsCompliant                      bool   `json:"isCompliant"`
-	DataForwardingId                 string `json:"dataForwardingId"`
-	IsActive                         bool   `json:"isActive"`
-	TotalBytes                       int    `json:"totalBytes"`
-	IndexType                        string `json:"indexType"`
-	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately,omitempty"`
-	IsIncludedInDefaultSearch        *bool  `json:"isIncludedInDefaultSearch,omitempty"`
+	ID                               string  `json:"id,omitempty"`
+	Name                             string  `json:"name"`
+	RoutingExpression                string  `json:"routingExpression,omitempty"`
+	AnalyticsTier                    *string `json:"analyticsTier"`
+	RetentionPeriod                  int     `json:"retentionPeriod"`
+	IsCompliant                      bool    `json:"isCompliant"`
+	DataForwardingId                 string  `json:"dataForwardingId"`
+	IsActive                         bool    `json:"isActive"`
+	TotalBytes                       int     `json:"totalBytes"`
+	IndexType                        string  `json:"indexType"`
+	ReduceRetentionPeriodImmediately bool    `json:"reduceRetentionPeriodImmediately,omitempty"`
+	IsIncludedInDefaultSearch        *bool   `json:"isIncludedInDefaultSearch,omitempty"`
 }
