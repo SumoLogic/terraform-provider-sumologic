@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+MAINTENANCE:
+* Bump version of golang.org/x/net to v0.35.0
+
 ## 3.0.7 (Mar 20, 2025)
 
 FEATURES:
