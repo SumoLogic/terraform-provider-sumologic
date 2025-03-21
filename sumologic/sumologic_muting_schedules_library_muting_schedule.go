@@ -8,7 +8,7 @@ import (
 // ---------- ENDPOINTS ----------
 
 func (s *Client) CreateMutingSchedulesLibraryMutingSchedule(mutingSchedulesLibraryMutingSchedule MutingSchedulesLibraryMutingSchedule, paramMap map[string]string) (string, error) {
-	urlWithoutParams := "v1/mutingSchedules"
+	urlWithoutParams := "v1/mutingSchedulesa"
 	paramString := ""
 	sprintfArgs := []interface{}{}
 
