@@ -31,6 +31,12 @@ func resourceSumologicField() *schema.Resource {
 				ForceNew: false,
 			},
 
+			"data_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"state": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -65,6 +71,7 @@ func resourceSumologicFieldRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("field_name", field.FieldName)
 	d.Set("field_id", field.FieldId)
+	d.Set("data_type", field.DataType)
 	d.Set("state", field.State)
 
 	return nil
@@ -149,6 +156,7 @@ func resourceSumologicFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceToField(d *schema.ResourceData) Field {
 	return Field{
+		DataType:  d.Get("data_type").(string),
 		FieldId:   d.Get("field_id").(string),
 		State:     d.Get("state").(string),
 		FieldName: d.Get("field_name").(string),
