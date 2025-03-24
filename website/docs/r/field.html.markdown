@@ -11,12 +11,11 @@ Provides a [Sumologic Field][1].
 ## Example Usage
 ```hcl
 resource "sumologic_field" "field" {
-  field_name = "mystring"
+  field_name = "string_field_1"
 }
 
 resource "sumologic_field" "field" {
-  field_name = "my_other_string"
-  state      = "Disabled"
+  field_name = "int_field_1"
 }
 ```
 
@@ -25,7 +24,8 @@ resource "sumologic_field" "field" {
 The following arguments are supported:
 
 - `field_name` - (Required)  Name of the field.
-- `state` - (Optional) State of the field. Possible values are `Enabled` or `Disabled` (default: `Enabled`).
+- `field_id` - (Required) Field identifier.
+- `state` - (Optional) State of the field (either `Enabled` or `Disabled`).
 
 ## Import
 Fields can be imported using the field id, e.g.:
