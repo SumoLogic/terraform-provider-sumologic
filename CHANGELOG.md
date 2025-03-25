@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+BUG FIXES:
+* Properly send optional webhook notification payload value
+
 MAINTENANCE:
 * Bump version of golang.org/x/net to v0.35.0
 * Bump version of google.golang.org/grpc to v1.67.0
