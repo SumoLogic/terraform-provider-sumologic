@@ -775,9 +775,9 @@ func getServiceNowSearchNotification(tfServiceNowSearchNotification map[string]i
 }
 
 func getWebhookSearchNotification(tfWebhookSearchNotification map[string]interface{}) interface{} {
-	var payload interface{}
+	var payload *string
 	if p, ok := tfWebhookSearchNotification["payload"].(string); ok && p != "" {
-		payload = p
+		payload = &p
 	} else {
 		payload = nil
 	}

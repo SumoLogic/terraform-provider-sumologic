@@ -157,11 +157,11 @@ type ServiceNowSearchNotification struct {
 }
 
 type WebhookSearchNotification struct {
-	TaskType          string      `json:"taskType"`
-	WebhookId         string      `json:"webhookId"`
-	Payload           interface{} `json:"payload"`
-	ItemizeAlerts     bool        `json:"itemizeAlerts"`
-	MaxItemizedAlerts int         `json:"maxItemizedAlerts"`
+	TaskType          string  `json:"taskType"`
+	WebhookId         string  `json:"webhookId"`
+	Payload           *string `json:"payload"`
+	ItemizeAlerts     bool    `json:"itemizeAlerts"`
+	MaxItemizedAlerts int     `json:"maxItemizedAlerts"`
 }
 
 type ServiceNowFields struct {
