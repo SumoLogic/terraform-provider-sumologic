@@ -775,10 +775,16 @@ func getServiceNowSearchNotification(tfServiceNowSearchNotification map[string]i
 }
 
 func getWebhookSearchNotification(tfWebhookSearchNotification map[string]interface{}) interface{} {
+	var payload *string
+	if p, ok := tfWebhookSearchNotification["payload"].(string); ok && p != "" {
+		payload = &p
+	} else {
+		payload = nil
+	}
 	return WebhookSearchNotification{
 		TaskType:          "WebhookSearchNotificationSyncDefinition",
 		WebhookId:         tfWebhookSearchNotification["webhook_id"].(string),
-		Payload:           tfWebhookSearchNotification["payload"].(string),
+		Payload:           payload,
 		ItemizeAlerts:     tfWebhookSearchNotification["itemize_alerts"].(bool),
 		MaxItemizedAlerts: tfWebhookSearchNotification["max_itemized_alerts"].(int),
 	}
