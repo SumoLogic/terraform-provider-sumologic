@@ -3,6 +3,7 @@
 
 BUG FIXES:
 * Properly send optional webhook notification payload value
+* RoleV2 creation will no longer time out when selection_type is not specified
 
 MAINTENANCE:
 * Bump version of golang.org/x/net to v0.35.0
