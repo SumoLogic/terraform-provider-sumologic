@@ -90,6 +90,7 @@ type RoleV2 struct {
 	SelectionType      string                 `json:"selectionType,omitempty"`
 	SelectedViews      []ViewFilterDefinition `json:"selectedViews,omitempty"`
 	Description        string                 `json:"description"`
+	Users              []string               `json:"users"`
 }
 
 type ViewFilterDefinition struct {

@@ -4,6 +4,7 @@
 BUG FIXES:
 * Properly send optional webhook notification payload value
 * RoleV2 creation will no longer time out when selection_type is not specified
+* RoleV2 update will not remove all assigned users
 * Removed reference of Realtime in scheduled search documentation page
 
 MAINTENANCE:
