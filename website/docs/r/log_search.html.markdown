@@ -130,7 +130,7 @@ The following arguments are supported:
 - `cron_expression` - (Optional) Cron-like expression specifying the search's schedule. `schedule_type` must be set
     to "Custom", otherwise, `schedule_type` takes precedence over `cron_expression`.
 - `schedule_type` - (Required) Run schedule of the scheduled search. Set to "Custom" to specify the schedule with
-    a CRON expression. Possible schedule types are: `RealTime`, `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
+    a CRON expression. Possible schedule types are: `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
     `8Hours`, `12Hours`, `1Day`, `1Week`, `Custom`.
 
     -> With `Custom`, `1Day` and `1Week` schedule types you need to provide the corresponding cron expression
