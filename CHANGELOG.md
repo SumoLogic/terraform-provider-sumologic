@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.8 (April 1, 2025)
+
 BUG FIXES:
 * Properly send optional webhook notification payload value
 * RoleV2 creation will no longer time out when selection_type is not specified
@@ -11,7 +13,7 @@ MAINTENANCE:
 * Bump version of golang.org/x/net to v0.35.0
 * Bump version of google.golang.org/grpc to v1.67.0
 
-## 3.0.7 (Mar 20, 2025)
+## 3.0.7 (March 20, 2025)
 
 FEATURES:
 * **New Resource:** sumologic_source_template (GH-708)
