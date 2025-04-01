@@ -4,6 +4,7 @@
 BUG FIXES:
 * Properly send optional webhook notification payload value
 * RoleV2 creation will no longer time out when selection_type is not specified
+* Removed reference of Realtime in scheduled search documentation page
 
 MAINTENANCE:
 * Bump version of golang.org/x/net to v0.35.0
