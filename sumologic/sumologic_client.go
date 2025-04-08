@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -132,7 +131,7 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	}
 	logRequestAndResponse(req, resp)
 
-	d, err := ioutil.ReadAll(resp.Body)
+	d, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +230,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	logRequestAndResponse(req, resp)
 	defer resp.Body.Close()
 
-	d, err := ioutil.ReadAll(resp.Body)
+	d, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
