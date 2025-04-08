@@ -46,6 +46,16 @@ var endpoints = map[string]string{
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
 
+func (s *Client) createSumoRequest(method, relativeURL string, body io.Reader) (*http.Request, error) {
+	parsedRelativeURL, err := url.Parse(relativeURL)
+	if err != nil {
+		return nil, err
+	}
+
+	fullURL := s.BaseURL.ResolveReference(parsedRelativeURL).String()
+	return createNewRequest(method, fullURL, body, s.AccessID, s.AccessKey, s.AuthJwt)
+}
+
 func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string, authJwt string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
@@ -68,15 +78,12 @@ func logRequestAndResponse(req *http.Request, resp *http.Response) {
 }
 
 func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -107,9 +114,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 }
 
 func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)), s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer([]byte(payload)))
 	if err != nil {
 		return nil, err
 	}
@@ -139,17 +144,14 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 }
 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	_, etag, _ := s.Get(sumoURL.String())
+	_, etag, _ := s.Get(urlPath)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodPut, urlPath, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -185,10 +187,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 }
 
 func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, string, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
 		return nil, "", err
 	}
@@ -225,10 +224,7 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 }
 
 func (s *Client) Delete(urlPath string) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodDelete, urlPath, nil)
 	if err != nil {
 		return nil, err
 	}
