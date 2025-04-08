@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEAutomation(id string) (*CSEAutomation, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/automations/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/automations/%s", id))
 	if err != nil {
 		return nil, err
 	}

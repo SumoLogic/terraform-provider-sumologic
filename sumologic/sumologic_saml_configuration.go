@@ -9,7 +9,7 @@ func (s *Client) GetSamlConfiguration(id string) (*SamlConfiguration, error) {
 	// We don't have a get SAML configuration by id endpoint, only a list endpoint
 	url := "v1/saml/identityProviders"
 
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil || data == nil {
 		return nil, err
 	}

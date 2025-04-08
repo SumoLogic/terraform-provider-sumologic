@@ -39,7 +39,7 @@ func (s *Client) GetContent(id string, timeout time.Duration) (*Content, error) 
 	// Request the results of the job
 	var content Content
 	url = fmt.Sprintf("v2/content/%s/export/%s/result", id, jid.ID)
-	rawContent, _, err := s.Get(url)
+	rawContent, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}

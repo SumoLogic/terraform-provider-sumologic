@@ -44,7 +44,7 @@ func (s *Client) MutingSchedulesRead(id string) (*MutingSchedulesLibraryMutingSc
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (s *Client) GetMutingSchedulesLibraryFolder(id string) (*MutingSchedulesLib
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSERuleTuningExpression(id string) (*CSERuleTuningExpression, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rule-tuning-expressions/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rule-tuning-expressions/%s", id))
 	if err != nil {
 		return nil, err
 	}

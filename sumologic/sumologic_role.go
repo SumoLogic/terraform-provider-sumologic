@@ -37,7 +37,7 @@ func (s *Client) DeleteRole(id string) error {
 }
 
 func (s *Client) GetRole(id string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/roles/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/roles/%s", id))
 	if err != nil {
 		return nil, err
 	}

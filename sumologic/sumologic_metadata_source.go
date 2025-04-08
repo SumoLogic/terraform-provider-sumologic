@@ -68,7 +68,7 @@ func (s *Client) CreateMetadataSource(source MetadataSource, collectorID int) (i
 
 func (s *Client) GetMetadataSource(collectorID, sourceID int) (*MetadataSource, error) {
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath)
+	body, err := s.Get(urlPath)
 
 	if err != nil {
 		return nil, err

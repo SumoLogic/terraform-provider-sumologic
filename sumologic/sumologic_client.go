@@ -169,38 +169,38 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	return s.handleSumoResponse(resp)
 }
 
-func (s *Client) Get(urlPath string) ([]byte, string, error) {
+func (s *Client) Get(urlPath string) ([]byte, error) {
 	return s.GetWithErrOpt(urlPath, false)
 }
 
-func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, string, error) {
+func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, error) {
 	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	resp, err := s.doSumoRequest(req)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	d, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	if resp.StatusCode == 404 {
 		if return404Err {
-			return nil, "", errors.New(string(d))
+			return nil, errors.New(string(d))
 		} else {
-			return nil, "", nil
+			return nil, nil
 		}
 	} else if resp.StatusCode >= 400 {
-		return nil, "", errors.New(string(d))
+		return nil, errors.New(string(d))
 	}
 
-	return d, resp.Header.Get("ETag"), nil
+	return d, nil
 }
 
 func (s *Client) GetETag(urlPath string) (string, error) {

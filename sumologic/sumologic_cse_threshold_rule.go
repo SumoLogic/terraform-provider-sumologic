@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEThresholdRule(id string) (*CSEThresholdRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
 	if err != nil {
 		return nil, err
 	}

@@ -116,7 +116,7 @@ func (s *Client) CreatePollingSource(source PollingSource, collectorID int) (int
 
 func (s *Client) GetPollingSource(collectorID, sourceID int) (*PollingSource, error) {
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath)
+	body, err := s.Get(urlPath)
 
 	if err != nil {
 		return nil, err

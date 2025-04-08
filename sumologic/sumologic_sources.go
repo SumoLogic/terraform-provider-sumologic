@@ -346,7 +346,7 @@ func (s *Client) DestroySource(sourceID int, collectorID int) error {
 
 func (s *Client) GetSourceName(collectorID int64, sourceName string) (*Source, error) {
 
-	data, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources", collectorID))
+	data, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources", collectorID))
 
 	if err != nil {
 		return nil, err

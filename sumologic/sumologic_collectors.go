@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCollector(id int) (*Collector, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/collectors/%d", id))
+	data, err := s.Get(fmt.Sprintf("v1/collectors/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (s *Client) GetCollector(id int) (*Collector, error) {
 }
 
 func (s *Client) GetCollectorName(name string) (*Collector, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/collectors/name/%s", name))
+	data, err := s.Get(fmt.Sprintf("v1/collectors/name/%s", name))
 	if err != nil {
 		return nil, err
 	}

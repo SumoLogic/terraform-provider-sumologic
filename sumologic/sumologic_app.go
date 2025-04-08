@@ -9,7 +9,7 @@ import (
 
 func (s *Client) GetAppInstance(id string) (*AppInstance, error) {
 	url := fmt.Sprintf("v2/apps/instances/%s", id)
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *Client) CreateAppInstance(uuid string, appInstallPayload AppInstallPayl
 	}
 
 	var appInstallResponse AppInstallResponse
-	b, _, _ := s.Get(url)
+	b, _ := s.Get(url)
 	err = json.Unmarshal(b, &appInstallResponse)
 	if err != nil {
 		return "", err
@@ -96,7 +96,7 @@ func (s *Client) UpdateAppInstance(uuid string, appInstallPayload AppInstallPayl
 	}
 
 	var appInstallResponse AppInstallResponse
-	b, _, _ := s.Get(url)
+	b, _ := s.Get(url)
 	err = json.Unmarshal(b, &appInstallResponse)
 	if err != nil {
 		return "", err

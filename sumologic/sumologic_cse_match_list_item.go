@@ -8,7 +8,7 @@ import (
 var limit = 1000
 
 func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/match-list-items/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 }
 
 func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int) (*CSEMatchListItemsInMatchListGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", MatchListId, limit, offset))
+	data, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", MatchListId, limit, offset))
 	if err != nil {
 		return nil, err
 	}

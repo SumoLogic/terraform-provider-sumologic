@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEMatchList(id string, getCustomTargetColumnName bool) (*CSEMatchListGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/match-lists/%s?getTargetCustomColumnName=%t", id, getCustomTargetColumnName))
+	data, err := s.Get(fmt.Sprintf("sec/v1/match-lists/%s?getTargetCustomColumnName=%t", id, getCustomTargetColumnName))
 	if err != nil {
 		return nil, err
 	}
