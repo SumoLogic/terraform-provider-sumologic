@@ -100,6 +100,20 @@ func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [Status=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
+func (s *Client) handleSumoResponse(resp *http.Response) ([]byte, error) {
+	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 400 {
+		return nil, errors.New(string(d))
+	}
+
+	return d, nil
+}
+
 func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -116,17 +130,7 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	d, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
@@ -140,17 +144,7 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 		return nil, err
 	}
 
-	d, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
@@ -172,17 +166,7 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	d, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func (s *Client) Get(urlPath string) ([]byte, string, error) {
@@ -244,17 +228,7 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
-	d, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {
