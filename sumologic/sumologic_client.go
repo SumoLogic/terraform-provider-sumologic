@@ -79,6 +79,17 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 	return req, nil
 }
 
+func (s *Client) doSumoRequest(req *http.Request) (*http.Response, error) {
+	<-rateLimiter.C
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	logRequestAndResponse(req, resp)
+	return resp, nil
+}
+
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
@@ -96,16 +107,13 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
 
 	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -123,15 +131,13 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 		return nil, err
 	}
 
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
-	logRequestAndResponse(req, resp)
 
 	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -157,16 +163,13 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	}
 	req.Header.Add("If-Match", etag)
 
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
 
 	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -188,16 +191,13 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 		return nil, "", err
 	}
 
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, "", err
 	}
-	logRequestAndResponse(req, resp)
-
-	defer resp.Body.Close()
 
 	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, "", err
 	}
@@ -221,16 +221,13 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 		return nil, err
 	}
 
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
 
 	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
