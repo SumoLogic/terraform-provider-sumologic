@@ -53,7 +53,16 @@ func (s *Client) createSumoRequest(method, relativeURL string, body io.Reader) (
 	}
 
 	fullURL := s.BaseURL.ResolveReference(parsedRelativeURL).String()
-	return createNewRequest(method, fullURL, body, s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := createNewRequest(method, fullURL, body, s.AccessID, s.AccessKey, s.AuthJwt)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
+	return req, nil
 }
 
 func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string, authJwt string) (*http.Request, error) {
@@ -88,10 +97,6 @@ func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 
@@ -117,10 +122,6 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer([]byte(payload)))
 	if err != nil {
 		return nil, err
-	}
-
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
 	}
 
 	<-rateLimiter.C
@@ -157,10 +158,6 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	}
 	req.Header.Add("If-Match", etag)
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
 	<-rateLimiter.C
 	resp, err := s.httpClient.Do(req)
 
@@ -190,10 +187,6 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
 		return nil, "", err
-	}
-
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
 	}
 
 	<-rateLimiter.C
@@ -227,10 +220,6 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	req, err := s.createSumoRequest(http.MethodDelete, urlPath, nil)
 	if err != nil {
 		return nil, err
-	}
-
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
 	}
 
 	<-rateLimiter.C
