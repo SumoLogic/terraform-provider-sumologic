@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -49,6 +50,9 @@ func (s *Client) createSumoRequest(method, relativeURL string, body io.Reader) (
 	parsedRelativeURL, err := url.Parse(relativeURL)
 	if err != nil {
 		return nil, err
+	}
+	if strings.Contains(relativeURL, "//") {
+		return nil, fmt.Errorf("malformed URL contains '//' in the path: %s", relativeURL)
 	}
 
 	fullURL := s.BaseURL.ResolveReference(parsedRelativeURL).String()

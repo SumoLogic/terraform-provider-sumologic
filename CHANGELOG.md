@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Improve error message when an API URL is constructed with missing parameters
+
 ## 3.0.8 (April 1, 2025)
 
 BUG FIXES:
