@@ -1504,7 +1504,7 @@ func exampleSloBurnRateMonitor(testName string) string {
 }
 
 func exampleLogsAnomalyMonitor(testName string) string {
-	query := "_sourceCategory=api error | timeslice 5m | count by _sourceHost"
+	query := "_sourceCategory=api error | timeslice 5m | count by _timeslice"
 	return exampleMonitorWithTriggerCondition(
 		testName,
 		"Logs",
