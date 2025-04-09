@@ -154,7 +154,7 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 }
 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
-	_, etag, _ := s.Get(urlPath)
+	etag, _ := s.GetETag(urlPath)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -217,6 +217,20 @@ func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, strin
 	}
 
 	return d, resp.Header.Get("ETag"), nil
+}
+
+func (s *Client) GetETag(urlPath string) (string, error) {
+	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Header.Get("ETag"), nil
 }
 
 func (s *Client) Delete(urlPath string) ([]byte, error) {
