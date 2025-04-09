@@ -207,7 +207,10 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	}
 	logRequestAndResponse(req, resp)
 
-	d, _ := ioutil.ReadAll(resp.Body)
+	d, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
