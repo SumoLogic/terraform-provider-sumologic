@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSECustomInsight(id string) (*CSECustomInsight, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/custom-insights/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/custom-insights/%s", id))
 	if err != nil {
 		return nil, err
 	}

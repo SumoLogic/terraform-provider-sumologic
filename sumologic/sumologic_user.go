@@ -41,7 +41,7 @@ func (s *Client) DeleteUser(id string, transferTo string) error {
 }
 
 func (s *Client) GetUser(id string) (*User, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/users/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/users/%s", id))
 	if err != nil {
 		return nil, err
 	}

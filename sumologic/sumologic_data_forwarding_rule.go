@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) getDataForwardingRule(indexId string) (*DataForwardingRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/rules/%s", indexId))
+	data, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/rules/%s", indexId))
 	if err != nil {
 		return nil, err
 	}

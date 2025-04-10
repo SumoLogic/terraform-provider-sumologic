@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSELogMapping(id string) (*CSELogMapping, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/log-mappings/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/log-mappings/%s", id))
 	if err != nil {
 		return nil, err
 	}

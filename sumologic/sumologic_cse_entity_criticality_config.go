@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEEntityCriticalityConfig(id string) (*CSEEntityCriticalityConfig, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/entity-criticality-configs/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/entity-criticality-configs/%s", id))
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEntityGroupConfiguration(id string) (*CSEEntityGroupConfiguration, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/entity-group-configurations/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/entity-group-configurations/%s", id))
 	if err != nil {
 		return nil, err
 	}

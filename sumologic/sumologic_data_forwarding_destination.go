@@ -7,7 +7,7 @@ import (
 
 func (s *Client) getDataForwardingDestination(id string) (*DataForwardingDestination, error) {
 
-	data, _, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/destinations/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/logsDataForwarding/destinations/%s", id))
 	if err != nil {
 		return nil, err
 	}

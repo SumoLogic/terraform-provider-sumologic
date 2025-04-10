@@ -48,7 +48,7 @@ func (s *Client) GetSLOLibraryFolder(id string) (*SLOLibraryFolder, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}

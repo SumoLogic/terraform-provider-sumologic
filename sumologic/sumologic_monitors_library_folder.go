@@ -46,7 +46,7 @@ func (s *Client) GetMonitorsLibraryFolder(id string) (*MonitorsLibraryFolder, er
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}

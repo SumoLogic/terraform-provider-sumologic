@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id))
 	if err != nil {
 		return nil, err
 	}

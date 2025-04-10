@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Client) GetCSEInsightsConfiguration() (*CSEInsightsConfiguration, error) {
-	data, _, err := s.Get("sec/v1/insights-configuration")
+	data, err := s.Get("sec/v1/insights-configuration")
 	if err != nil {
 		return nil, err
 	}

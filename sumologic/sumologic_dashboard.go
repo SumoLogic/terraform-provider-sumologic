@@ -8,7 +8,7 @@ import (
 
 func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 	url := fmt.Sprintf("v2/dashboards/%s", id)
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}

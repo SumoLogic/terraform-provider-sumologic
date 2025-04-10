@@ -44,7 +44,7 @@ func dataSourceSumologicFolderRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func (s *Client) GetFolderByPath(path string) (*Folder, error) {
-	data, _, err := s.Get(fmt.Sprintf("v2/content/path?path=%s", url.QueryEscape(path)))
+	data, err := s.Get(fmt.Sprintf("v2/content/path?path=%s", url.QueryEscape(path)))
 	if err != nil {
 		return nil, err
 	}

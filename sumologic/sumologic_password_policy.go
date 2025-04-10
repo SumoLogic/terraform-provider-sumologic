@@ -7,7 +7,7 @@ import (
 func (s *Client) GetPasswordPolicy() (*PasswordPolicy, error) {
 	url := "v1/passwordPolicy"
 
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}

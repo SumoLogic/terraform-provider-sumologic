@@ -449,7 +449,7 @@ func waitForJob(url string, timeout time.Duration, s *Client) (*Status, error) {
 		},
 		Refresh: func() (interface{}, string, error) {
 			var status Status
-			b, _, err := s.Get(url)
+			b, err := s.Get(url)
 			if err != nil {
 				return nil, "", err
 			}

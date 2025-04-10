@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
 	if err != nil {
 		if strings.Contains(err.Error(), "Partition Not Found") {
 			if data == nil {

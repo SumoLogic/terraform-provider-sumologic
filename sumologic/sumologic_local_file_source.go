@@ -41,7 +41,7 @@ func (s *Client) CreateLocalFileSource(source LocalFileSource, collectorID int) 
 
 func (s *Client) GetLocalFileSource(collectorID, sourceID int) (*LocalFileSource, error) {
 
-	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
+	body, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 	if err != nil {
 		return nil, err
 	}

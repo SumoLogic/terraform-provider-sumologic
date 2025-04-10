@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSECustomEntityType(id string) (*CSECustomEntityType, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/custom-entity-types/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/custom-entity-types/%s", id))
 	if err != nil {
 		return nil, err
 	}

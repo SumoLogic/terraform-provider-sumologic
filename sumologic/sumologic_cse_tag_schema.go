@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSETagSchema(key string) (*CSETagSchema, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/tag-schemas/%s", key))
+	data, err := s.Get(fmt.Sprintf("sec/v1/tag-schemas/%s", key))
 	if err != nil {
 		return nil, err
 	}
