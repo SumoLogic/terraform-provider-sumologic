@@ -3,6 +3,7 @@
 
 ENHANCEMENTS:
 * Improve error message when an API URL is constructed with missing parameters
+* Reduce unnecessary noise when a partition's total_bytes changes
 
 ## 3.0.8 (April 1, 2025)
 

@@ -54,9 +54,13 @@ func resourceSumologicPartition() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			//lintignore:S011
 			"total_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return true
+				},
 			},
 			"data_forwarding_id": {
 				Type:     schema.TypeString,
