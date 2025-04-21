@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* **New Data Source:** sumologic_apps
+
 ENHANCEMENTS:
 * Improve error message when an API URL is constructed with missing parameters
 

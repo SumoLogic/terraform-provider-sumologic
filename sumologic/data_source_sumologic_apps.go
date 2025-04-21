@@ -124,7 +124,7 @@ func (s *Client) getApps(name string, author string) (string, []App, error) {
 		fullURL += "?" + params.Encode()
 	}
 
-	data, _, err := s.Get(fullURL)
+	data, err := s.Get(fullURL)
 	if err != nil {
 		return "", nil, err
 	}
