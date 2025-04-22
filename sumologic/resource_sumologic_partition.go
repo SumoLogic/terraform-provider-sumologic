@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -135,11 +136,23 @@ func resourceSumologicPartitionDelete(d *schema.ResourceData, meta interface{}) 
 	return c.DecommissionPartition(d.Id())
 }
 func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
-	spartition := resourceToPartition(d)
-
 	c := meta.(*Client)
-	err := c.UpdatePartition(spartition)
 
+	partitionId := d.Id()
+
+	spartition := resourceToPartition(d)
+	if d.HasChange("analytics_tier") {
+		currPartitionState, err := c.GetPartition(partitionId)
+		if err != nil {
+			return fmt.Errorf("error loading partition with id %s for analytics_tier update validation", partitionId)
+		}
+
+		if !areAnalyticsTierEqual(currPartitionState.AnalyticsTier, spartition.AnalyticsTier) {
+			return fmt.Errorf("analytics_tier of a partition can only be updated post creation if partition has been moved to flex tier")
+		}
+	}
+
+	err := c.UpdatePartition(spartition)
 	if err != nil {
 		return err
 	}
@@ -182,4 +195,16 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
 		IsIncludedInDefaultSearch:        isIncludedInDefaultSearchPtr,
 	}
+}
+
+func areAnalyticsTierEqual(a, b *string) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	return strings.EqualFold(*a, *b)
 }
