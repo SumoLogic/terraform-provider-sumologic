@@ -198,13 +198,13 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 }
 
 func areAnalyticsTierEqual(a, b *string) bool {
-	if a == nil && b == nil {
-		return true
+	coerceToStr := func(s *string) string {
+		if s == nil {
+			return ""
+		}
+		return *s
 	}
 
-	if a == nil || b == nil {
-		return false
-	}
-
-	return strings.EqualFold(*a, *b)
+	return strings.EqualFold(coerceToStr(a), coerceToStr(b))
 }
+
