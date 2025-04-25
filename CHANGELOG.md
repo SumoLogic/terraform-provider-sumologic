@@ -10,6 +10,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * Improve error message when an API URL is constructed with missing parameters
+* sumologic_ingest_budget_v2 can be imported by ID or by name
 
 ## 3.0.8 (April 1, 2025)
 
