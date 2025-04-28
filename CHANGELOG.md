@@ -1,12 +1,13 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.9 (April 28, 2025)
+
 FEATURES:
 * **New Data Source:** sumologic_apps
 
 BUG FIXES:
 * Prevent user-initiated updates to the analytics_tier field in the partition resource, while allowing Terraform to reconcile state changes resulting from backend-driven updates (e.g., Flex migrations).
-
 
 ENHANCEMENTS:
 * Improve error message when an API URL is constructed with missing parameters
