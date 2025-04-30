@@ -207,4 +207,3 @@ func areAnalyticsTierEqual(a, b *string) bool {
 
 	return strings.EqualFold(coerceToStr(a), coerceToStr(b))
 }
-
