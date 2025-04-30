@@ -5,6 +5,7 @@
 
 FEATURES:
 * **New Data Source:** sumologic_partition
+* **New Data Source:** sumologic_partitions
 
 ## 3.0.9 (April 28, 2025)
 
