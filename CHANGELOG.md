@@ -3,6 +3,9 @@
 * Fix the log mapping resource to no longer error out when empty strings are included in skipped_values
 * Fix the log mapping resource to no longer default to a skipped_index of 0 when no skipped_index is specified
 
+FEATURES:
+* **New Data Source:** sumologic_partition
+
 ## 3.0.9 (April 28, 2025)
 
 FEATURES:
