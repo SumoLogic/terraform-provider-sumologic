@@ -49,9 +49,9 @@ The following arguments are supported:
   + `default` - (Optional) The severity to use in the "constant" case or to fall back to if the field used by "fieldValue"/"fieldValueMapping" is not populated.
   + `field` - (Optional) The field to use in the "fieldValue"/"fieldValueMapping" cases.
   + `mapping` - (Optional) The map of record values to severities to use in the "fieldValueMapping" case
-    - `type` - (Required) Must be set to "eq" currently
-    - `from` - (Required) The record value to map from
-    - `to` - (Required) The severity value to map to
+      - `type` - (Required) Must be set to "eq" currently
+      - `from` - (Required) The record value to map from
+      - `to` - (Required) The severity value to map to
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Required) The tags of the generated Signals
 - `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than 0 and less than the global limit of 7 days.
