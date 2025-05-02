@@ -112,6 +112,10 @@ func resourceSumologicUserCreate(d *schema.ResourceData, meta interface{}) error
 func resourceSumologicUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
+	if d.HasChange("email") {
+		return fmt.Errorf("a user's email may not be changed")
+	}
+
 	user := resourceToUser(d)
 
 	err := c.UpdateUser(user)
