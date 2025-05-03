@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+BUG FIXES:
+* When the email of a sumologic_user is changed, instead of silently doing nothing, an error will be raised to the user.
+
 ## 3.0.9 (April 28, 2025)
 
 FEATURES:

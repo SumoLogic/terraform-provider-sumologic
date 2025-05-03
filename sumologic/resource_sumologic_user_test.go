@@ -13,6 +13,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -149,16 +150,20 @@ func TestAccSumologicUser_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSumologicUserUpdate(testUpdatedFirstName, testUpdatedLastName, testUpdatedEmail, testUpdatedIsActive, testTransferTo),
+				Config: testAccSumologicUserUpdate(testUpdatedFirstName, testUpdatedLastName, testEmail, testUpdatedIsActive, testTransferTo),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("sumologic_user.test", &user, t),
 					testAccCheckUserAttributes("sumologic_user.test"),
 					resource.TestCheckResourceAttr("sumologic_user.test", "first_name", testUpdatedFirstName),
 					resource.TestCheckResourceAttr("sumologic_user.test", "last_name", testUpdatedLastName),
-					resource.TestCheckResourceAttr("sumologic_user.test", "email", testUpdatedEmail),
+					resource.TestCheckResourceAttr("sumologic_user.test", "email", testEmail),
 					resource.TestCheckResourceAttr("sumologic_user.test", "is_active", strconv.FormatBool(testUpdatedIsActive)),
 					resource.TestCheckResourceAttr("sumologic_user.test", "transfer_to", testTransferTo),
 				),
+			},
+			{
+				Config:      testAccSumologicUserUpdate(testUpdatedFirstName, testUpdatedLastName, testUpdatedEmail, testUpdatedIsActive, testTransferTo),
+				ExpectError: regexp.MustCompile(`a user's email may not be changed`),
 			},
 		},
 	})
