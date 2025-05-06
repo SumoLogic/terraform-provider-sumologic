@@ -1,10 +1,10 @@
 package sumologic
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceSumologicCSELogMapping() *schema.Resource {
@@ -102,7 +102,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 							Optional: true,
 						},
 						"split_index": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"field_join": {
@@ -263,9 +263,10 @@ func resourceToCSELogMapping(d *schema.ResourceData) CSELogMapping {
 
 	skippedValuesData := d.Get("skipped_values").([]interface{})
 	skippedValues := make([]string, len(skippedValuesData))
-
 	for i, v := range skippedValuesData {
-		skippedValues[i] = v.(string)
+		if v != nil {
+			skippedValues[i] = v.(string)
+		}
 	}
 
 	fieldsData := d.Get("fields").([]interface{})
@@ -359,10 +360,7 @@ func resourceToCSELogMappingField(data interface{}) CSELogMappingField {
 		field.AlternateValues = resourceStringArrayToStringArray(fieldObj["alternate_values"].([]interface{}))
 		field.TimeZone = fieldObj["time_zone"].(string)
 		field.SplitDelimiter = fieldObj["split_delimiter"].(string)
-		splitIndex := fieldObj["split_index"]
-		if splitIndex != nil {
-			field.SplitIndex = fmt.Sprint(splitIndex.(int))
-		}
+		field.SplitIndex = fieldObj["split_index"].(string)
 		field.FieldJoin = resourceStringArrayToStringArray(fieldObj["field_join"].([]interface{}))
 		field.JoinDelimiter = fieldObj["join_delimiter"].(string)
 		field.FormatParameters = resourceStringArrayToStringArray(fieldObj["format_parameters"].([]interface{}))
