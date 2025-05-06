@@ -17,7 +17,7 @@ func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
 	var ruleTuningExpression CSERuleTuningExpression
 	nName := acctest.RandomWithPrefix("New Rule Tuning Name")
 	nDescription := "New Rule Tuning Description"
-	nExpression := "expression"
+	nExpression := "accountId = 1234"
 	nEnabled := true
 	nExclude := true
 	nIsGlobal := false
