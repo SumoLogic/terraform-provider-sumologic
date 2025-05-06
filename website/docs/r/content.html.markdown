@@ -277,8 +277,6 @@ resource "sumologic_content" "test" {
 ```
 ## Argument reference
 
-
-
 The following arguments are supported:
 
 - `parent_id` - (Required) The identifier of the folder to import into. Identifiers from the Library in the Sumo user interface are provided in decimal format which is incompatible with Terraform. The identifier needs to be in hexadecimal format.
