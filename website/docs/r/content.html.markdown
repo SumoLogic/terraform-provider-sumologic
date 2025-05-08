@@ -139,7 +139,7 @@ resource "sumologic_content" "test" {
             "muteErrorEmails": false,
             "parameters": []
         },
-        "description": "Runs every hour with timerange of 15m and sends email notifications"
+        "description": "Runs every hour with timerange of 15m and sends a webhook notification"
     })
 }
 ```
@@ -148,22 +148,6 @@ resource "sumologic_content" "test" {
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}
 
-resource "sumologic_scheduled_view" "test_view" {
-  index_name = "test_view"
-  query = <<QUERY
-_view=connections connectionStats
-| parse "connectionStats.CS *" as body
-| json field=body "exitCode", "isHttp2"
-| lookup org_name from shared/partners on partner_id=partnerid
-| timeslice 10m
-QUERY
-  start_time = "2019-09-01T00:00:00Z"
-  retention_period = 365
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes = [index_id]
-  }
-}
 
 resource "sumologic_content" "test" {
     parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
@@ -175,7 +159,7 @@ resource "sumologic_content" "test" {
             "defaultTimeRange": "-15m",
             "byReceiptTime": false,
             "viewName": "",
-            "viewStartTime": "1970-01-01T00:00:00Z",
+            "viewStartTime": "2025-01-01T00:00:00Z",
             "queryParameters": [],
             "parsingMode": "Manual"
         },
@@ -203,19 +187,19 @@ resource "sumologic_content" "test" {
             "muteErrorEmails": false,
             "parameters": []
         },
-        "description": "Runs every hour with timerange of 15m and sends email notifications"
+        "description": "Runs every hour with timerange of 15m and saves to a view"
     })
 }
 ```
 
-## Example Scheduled Search with Save To Lookup  Notification
+## Example Scheduled Search with Save To Lookup Notification
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}
 
 variable "email" {
   description = "Email to be used in the library path"
   type = string
-  default = "shahzaib.ali@sumologic.com"
+  default = "user@company.com"
 }
 
 resource "sumologic_lookup_table" "lookupTable" {
@@ -230,7 +214,6 @@ resource "sumologic_lookup_table" "lookupTable" {
   size_limit_action = "DeleteOldData"
   description       = "some description"
 }
-
 
 resource "sumologic_content" "test" {
     parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
@@ -271,7 +254,7 @@ resource "sumologic_content" "test" {
             "muteErrorEmails": false,
             "parameters": []
         },
-        "description": "Runs every hour with timerange of 15m and sends email notifications"
+        "description": "Runs every hour with timerange of 15m and saves to a lookup table."
     })
 }
 ```
