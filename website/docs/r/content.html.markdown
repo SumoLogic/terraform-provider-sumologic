@@ -24,7 +24,7 @@ resource "sumologic_content" "test" {
             "defaultTimeRange": "-15m",
             "byReceiptTime": false,
             "viewName": "",
-            "viewStartTime": "1970-01-01T00:00:00Z",
+            "viewStartTime": "2025-01-01T00:00:00Z",
             "queryParameters": [],
             "parsingMode": "Manual"
         },
@@ -108,7 +108,7 @@ resource "sumologic_content" "test" {
             "defaultTimeRange": "-15m",
             "byReceiptTime": false,
             "viewName": "",
-            "viewStartTime": "1970-01-01T00:00:00Z",
+            "viewStartTime": "2025-01-01T00:00:00Z",
             "queryParameters": [],
             "parsingMode": "Manual"
         },
@@ -225,7 +225,7 @@ resource "sumologic_content" "test" {
             "defaultTimeRange": "-15m",
             "byReceiptTime": false,
             "viewName": "",
-            "viewStartTime": "1970-01-01T00:00:00Z",
+            "viewStartTime": "2025-01-01T00:00:00Z",
             "queryParameters": [],
             "parsingMode": "Manual"
         },
