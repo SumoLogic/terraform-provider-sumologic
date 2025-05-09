@@ -2,6 +2,8 @@
 # you can turn it on using a cron schedule for regular testing.
 #
 name: Tests
+permissions:
+  contents: read
 on:
   pull_request:
     branches: [ master ]
@@ -127,7 +129,7 @@ jobs:
       run: |
         go test -timeout 0 -v -cover ./sumologic/
   # skip acceptance tests
-  noop:
+  skip:
     if: needs.should_test.outputs.run_tests != 'true'
     needs: should_test
     runs-on: ubuntu-latest
