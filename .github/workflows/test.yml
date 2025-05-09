@@ -2,6 +2,8 @@
 # you can turn it on using a cron schedule for regular testing.
 #
 name: Tests
+permissions:
+  contents: read
 on:
   pull_request:
     branches: [ master ]
@@ -29,8 +31,23 @@ on:
 concurrency: "TfAccTests"
 
 jobs:
+  should_test:
+    runs-on: ubuntu-latest
+    outputs:
+      run_tests: ${{ steps.filter.outputs.run_tests }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            run_tests:
+              - '!CHANGELOG.md'
+              - '!README.md'
+              - '!website/**'
   # ensure the code builds...
   build:
+    if: needs.should_test.outputs.run_tests == 'true'
+    needs: should_test
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -53,8 +70,9 @@ jobs:
         go build -v .
   # run acceptance tests in a matrix with Terraform core versions
   test:
-    name: Matrix Test
+    if: needs.should_test.outputs.run_tests == 'true'
     needs: build
+    name: Matrix Test
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
@@ -110,3 +128,10 @@ jobs:
       # disable go test timeout. We rely on GitHub action timeout.
       run: |
         go test -timeout 0 -v -cover ./sumologic/
+  # skip acceptance tests
+  skip:
+    if: needs.should_test.outputs.run_tests != 'true'
+    needs: should_test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipping tests because only docs or website files changed."
