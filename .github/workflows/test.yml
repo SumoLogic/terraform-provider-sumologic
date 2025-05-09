@@ -45,7 +45,6 @@ jobs:
                 - '.github/**'
   # ensure the code builds...
   build:
-    if: needs.should_test.outputs.run_tests == 'true'
     needs: should_test
     name: Build
     runs-on: ubuntu-latest
@@ -89,7 +88,6 @@ jobs:
           fi
           
           echo "Running tests for Terraform ${{ matrix.terraform }}"
-          go mod download
           go test -timeout 0 -v -cover ./sumologic/
         env:
           TF_ACC: "1"
