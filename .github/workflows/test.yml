@@ -36,8 +36,9 @@ jobs:
         with:
           filters: |
             run_tests:
-              - '!CHANGELOG.md'
+              - '**'                  # match all files
               - '!README.md'
+              - '!CHANGELOG.md'
               - '!website/**'
               - '!.github/**'
   # ensure the code builds...
