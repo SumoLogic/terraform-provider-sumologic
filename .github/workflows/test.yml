@@ -28,6 +28,9 @@ jobs:
     outputs:
       run_tests: ${{ steps.filter.outputs.run_tests }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # so we can diff against base
       - uses: dorny/paths-filter@v2
         id: filter
         with:
