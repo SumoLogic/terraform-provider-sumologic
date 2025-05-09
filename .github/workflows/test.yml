@@ -36,11 +36,13 @@ jobs:
         with:
           filters: |
             run_tests:
-              - '**'                  # match all files
-              - '!README.md'
-              - '!CHANGELOG.md'
-              - '!website/**'
-              - '!.github/**'
+              include:
+                - '**'
+              exclude:
+                - 'README.md'
+                - 'CHANGELOG.md'
+                - 'website/**'
+                - '.github/**'
   # ensure the code builds...
   build:
     if: needs.should_test.outputs.run_tests == 'true'
