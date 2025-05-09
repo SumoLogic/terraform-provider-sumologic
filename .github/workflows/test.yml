@@ -42,7 +42,6 @@ jobs:
                 - 'README.md'
                 - 'CHANGELOG.md'
                 - 'website/**'
-                - '.github/**'
   # ensure the code builds...
   build:
     needs: should_test
