@@ -71,16 +71,7 @@ jobs:
   test:
     name: Matrix Test
     runs-on: ubuntu-latest
-    needs: [ should_test ]
-    if: needs.should_test.outputs.run_tests == 'false'
-    steps:
-      - run: echo "Skipping tests because only docs or website files changed."
-
-  matrix_test:
-    name: Matrix Test
-    runs-on: ubuntu-latest
-    needs: build
-    if: needs.should_test.outputs.run_tests == 'true'
+    needs: [ should_test, build ]
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -89,22 +80,29 @@ jobs:
         terraform:
           - '1.0.3'
     steps:
+      - name: Check if tests should be skipped
+        if: needs.should_test.outputs.run_tests == 'false'
+        run: echo "Skipping tests because only docs or workflow files changed."
 
       - name: Set up Go
+        if: needs.should_test.outputs.run_tests == 'true'
         uses: actions/setup-go@v2.1.3
         with:
           go-version: '1.22'
         id: go
 
       - name: Check out code into the Go module directory
+        if: needs.should_test.outputs.run_tests == 'true'
         uses: actions/checkout@v2.3.3
 
       - name: Get dependencies
+        if: needs.should_test.outputs.run_tests == 'true'
         run: |
           go mod download
 
       - name: TF acceptance tests
         timeout-minutes: 90
+        if: needs.should_test.outputs.run_tests == 'true'
         env:
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
