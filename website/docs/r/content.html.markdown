@@ -10,7 +10,7 @@ Provides a way to interact with Sumologic Content.
 
 ~> **NOTE:** If working with many content items it is recommended to reduce [Terraform Parallelism](https://www.terraform.io/docs/cli/commands/apply.html#parallelism-n) to 2 in order to not be rate limited.
 
-## Example Usage
+## Example Scheduled Search with Email Notification
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}
 
@@ -18,13 +18,13 @@ resource "sumologic_content" "test" {
     parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
     config = jsonencode({
         "type": "SavedSearchWithScheduleSyncDefinition",
-        "name": "test-333",
+        "name": "Scheduled Search with Email Notificiation Test",
         "search": {
             "queryText": "\"warn\"",
             "defaultTimeRange": "-15m",
             "byReceiptTime": false,
             "viewName": "",
-            "viewStartTime": "1970-01-01T00:00:00Z",
+            "viewStartTime": "2025-01-01T00:00:00Z",
             "queryParameters": [],
             "parsingMode": "Manual"
         },
@@ -58,6 +58,196 @@ resource "sumologic_content" "test" {
             "parameters": []
         },
         "description": "Runs every hour with timerange of 15m and sends email notifications"
+    })
+}
+```
+
+## Example Scheduled Search with Webhook Notification
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+resource "sumologic_connection" "connection" { 
+  type        = "WebhookConnection"
+  name        = "test-connection"
+  description = "My description"
+  url         = "https://connection-endpoint.com"
+  headers = {
+    "X-Header" : "my-header"
+  }
+  custom_headers = {
+    "X-custom" : "my-custom-header"
+  }
+  default_payload = <<JSON
+{
+  "client" : "Sumo Logic",
+  "eventType" : "{{Name}}",
+  "description" : "{{Description}}",
+  "search_url" : "{{QueryUrl}}",
+  "num_records" : "{{NumRawResults}}",
+  "search_results" : "{{AggregateResultsJson}}"
+}
+JSON
+  resolution_payload = <<JSON
+{
+  "client" : "Sumo Logic",
+  "eventType" : "{{Name}}",
+  "description" : "{{Description}}",
+  "search_url" : "{{QueryUrl}}"
+}
+JSON
+  webhook_type    = "Webhook"
+}
+resource "sumologic_content" "test" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "SavedSearchWithScheduleSyncDefinition",
+        "name": "Scheduled Search with Webhook Notification Test",
+        "search": {
+            "queryText": "\"warn\"",
+            "defaultTimeRange": "-15m",
+            "byReceiptTime": false,
+            "viewName": "",
+            "viewStartTime": "2025-01-01T00:00:00Z",
+            "queryParameters": [],
+            "parsingMode": "Manual"
+        },
+        "searchSchedule": {
+            "cronExpression": "0 0 * * * ? *",
+            "displayableTimeRange": "-10m",
+            "parseableTimeRange": {
+                "type": "BeginBoundedTimeRange",
+                "from": {
+                    "type": "RelativeTimeRangeBoundary",
+                    "relativeTime": "-50m"
+                },
+                "to": null
+            },
+            "timeZone": "America/Los_Angeles",
+            "threshold": {
+                "operator": "gt",
+                "count": 0
+            },
+            "notification": {
+              "taskType": "WebhookSearchNotificationSyncDefinition",
+              "webhookId": "${sumologic_connection.connection.id}",
+              "payload": "{}",
+              "itemizeAlerts": false,
+              "maxItemizedAlerts": 50
+            },
+            "scheduleType": "1Hour",
+            "muteErrorEmails": false,
+            "parameters": []
+        },
+        "description": "Runs every hour with timerange of 15m and sends a webhook notification"
+    })
+}
+```
+
+## Example Scheduled Search with Save To View/Index Notification
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+resource "sumologic_content" "test" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "SavedSearchWithScheduleSyncDefinition",
+        "name": "Scheduled Search with Save To View Notification Test",
+        "search": {
+            "queryText": "\"warn\"",
+            "defaultTimeRange": "-15m",
+            "byReceiptTime": false,
+            "viewName": "",
+            "viewStartTime": "2025-01-01T00:00:00Z",
+            "queryParameters": [],
+            "parsingMode": "Manual"
+        },
+        "searchSchedule": {
+            "cronExpression": "0 0 * * * ? *",
+            "displayableTimeRange": "-10m",
+            "parseableTimeRange": {
+                "type": "BeginBoundedTimeRange",
+                "from": {
+                    "type": "RelativeTimeRangeBoundary",
+                    "relativeTime": "-50m"
+                },
+                "to": null
+            },
+            "timeZone": "America/Los_Angeles",
+            "threshold": {
+                "operator": "gt",
+                "count": 0
+            },
+            "notification": {
+              "taskType": "SaveToViewNotificationSyncDefinition",
+              "viewName": "test_view",
+            },
+            "scheduleType": "1Hour",
+            "muteErrorEmails": false,
+            "parameters": []
+        },
+        "description": "Runs every hour with timerange of 15m and saves to a view"
+    })
+}
+```
+
+## Example Scheduled Search with Save To Lookup Notification
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+variable "email" {
+  description = "Email to be used in the library path"
+  type = string
+  default = "user@company.com"
+}
+resource "sumologic_lookup_table" "lookupTable" {
+  name = "test_lookup_table"
+  fields {
+    field_name = "host"
+    field_type = "string"
+  }
+  ttl               = 100
+  primary_keys      = ["host"]
+  parent_folder_id  = "${data.sumologic_personal_folder.personalFolder.id}"
+  size_limit_action = "DeleteOldData"
+  description       = "some description"
+}
+resource "sumologic_content" "test" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "SavedSearchWithScheduleSyncDefinition",
+        "name": "Scheduled Search with Save To Lookup Notification Test",
+        "search": {
+            "queryText": "\"warn\" fields host",
+            "defaultTimeRange": "-15m",
+            "byReceiptTime": false,
+            "viewName": "",
+            "viewStartTime": "2025-01-01T00:00:00Z",
+            "queryParameters": [],
+            "parsingMode": "Manual"
+        },
+        "searchSchedule": {
+            "cronExpression": "0 0 * * * ? *",
+            "displayableTimeRange": "-10m",
+            "parseableTimeRange": {
+                "type": "BeginBoundedTimeRange",
+                "from": {
+                    "type": "RelativeTimeRangeBoundary",
+                    "relativeTime": "-50m"
+                },
+                "to": null
+            },
+            "timeZone": "America/Los_Angeles",
+            "threshold": {
+                "operator": "gt",
+                "count": 0
+            },
+            "notification": {
+              "taskType": "SaveToLookupNotificationSyncDefinition",
+              "lookupFilePath": "/Library/Users/${var.email}/test_lookup_table",
+              "isLookupMergeOperation": false,
+            },
+            "scheduleType": "1Hour",
+            "muteErrorEmails": false,
+            "parameters": []
+        },
+        "description": "Runs every hour with timerange of 15m and saves to a lookup table."
     })
 }
 ```
