@@ -38,10 +38,12 @@ jobs:
             run_tests:
               include:
                 - '**'
-#              exclude:
-#                - 'README.md'
-#                - 'CHANGELOG.md'
-#                - 'website/**'
+              exclude:
+                - 'README.md'
+                - 'CHANGELOG.md'
+                - 'website/**'
+          list-files: shell
+          verbose: true
   # ensure the code builds...
   build:
     needs: should_test
