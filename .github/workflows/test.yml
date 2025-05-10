@@ -34,15 +34,14 @@ jobs:
       - uses: dorny/paths-filter@v2.10.1
         id: filter
         with:
-          list-files: shell
+          predicate-quantifier: 'every'
           filters: |
             run_tests:
-              include:
-                - '**'
-              exclude:
-                - 'README.md'
-                - 'CHANGELOG.md'
-                - 'website/**'
+              - '**'
+              - '!README.md'
+              - '!CHANGELOG.md'
+              - '!website/**'
+              - '!.github/**'
   # ensure the code builds...
   build:
     needs: should_test
