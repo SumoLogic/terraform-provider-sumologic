@@ -38,10 +38,10 @@ jobs:
             run_tests:
               include:
                 - '**'
-              exclude:
-                - 'README.md'
-                - 'CHANGELOG.md'
-                - 'website/**'
+#              exclude:
+#                - 'README.md'
+#                - 'CHANGELOG.md'
+#                - 'website/**'
   # ensure the code builds...
   build:
     needs: should_test
