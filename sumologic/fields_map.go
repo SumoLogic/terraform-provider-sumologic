@@ -9,7 +9,7 @@ var FieldsMap = map[string]map[string]string{
 		"transferTo":          "",
 		"updatedFirstName":    "TestUpdated",
 		"updatedLastName":     "UserUpdated",
-		"updatedEmail":        "testterraform@demo.com",
+		"updatedEmail":        "testterraformupdated@demo.com",
 		"updatedIsActive":     "false",
 		"preUpdateTransferTo": "nonExistentTestId",
 	},
