@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+
+ENHANCEMENTS:
 * Add support for searchable time for dashboard field time_source
 
 BUG FIXES:
