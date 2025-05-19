@@ -371,7 +371,7 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 			Type:         schema.TypeString,
 			Optional:     true,
 			Default:      "Message",
-			ValidateFunc: validation.StringInSlice([]string{"Message", "Receipt"}, false),
+			ValidateFunc: validation.StringInSlice([]string{"Message", "Receipt", "Searchable"}, false),
 		},
 		"transient": {
 			Type:     schema.TypeBool,

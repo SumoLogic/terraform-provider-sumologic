@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Add support for searchable time for dashboard field time_source
+
 BUG FIXES:
 * When the email of a sumologic_user is changed, instead of silently doing nothing, an error will be raised to the user
 
