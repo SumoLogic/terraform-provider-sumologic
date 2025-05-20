@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.11 (May 20, 2025)
+
 FEATURES:
 * **New Data Source:** sumologic_partition
 * **New Data Source:** sumologic_partitions
