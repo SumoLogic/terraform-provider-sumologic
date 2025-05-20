@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* **New Data Source:** sumologic_partition
+* **New Data Source:** sumologic_partitions
+
 ENHANCEMENTS:
 * Add support for searchable time for dashboard field time_source
 
