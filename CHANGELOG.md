@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.0.12 (May 21, 2025)
+
 ## 3.0.11 (May 20, 2025)
 
 FEATURES:
