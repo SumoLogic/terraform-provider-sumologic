@@ -378,9 +378,8 @@ One of `Basic` or `Advanced`.
             While in the Manual mode, no fields are parsed out automatically.
             For more information see [Dynamic Parsing](https://help.sumologic.com/?cid=0011).
 - `time_source` - This field only applies for queryType of `Logs` but other query types may be supported in the future.
-            Define the time source of this query. Possible values are `Message`,`Receipt` and `Searchable`.
-            `Message` will use the timeStamp on the message, `Receipt` will use the timestamp it was received by Sumo,
-             and `Searchable` will use the timeStamp the message becomes searchable by Sumo (this will be later than it was received).
+            Define the time source of this query. Possible values are `Message`, and `Receipt`.
+            `Message` will use the timeStamp on the message, `Receipt` will use the timestamp it was received by Sumo.
 - `transient` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Determines if the row should be returned in the response. Can be used in conjunction with a join, if only the result of the join is needed, and not the intermediate rows. Setting `transient` to `true` wherever the intermediate results aren't required speeds up the computation and reduces the amount of data transferred over the network.
 - `output_cardinality_limit` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Specifies the output cardinality limitations for the query, which is the maximum number of timeseries returned in the result.
 
