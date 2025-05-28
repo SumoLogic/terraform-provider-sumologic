@@ -8,11 +8,10 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	log.Printf("Sumo Logic Terraform Provider Version=%s\n", ProviderVersion)
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{

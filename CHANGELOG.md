@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Upgrade to [v2 of the Terraform Plugin SDK Go module](https://developer.hashicorp.com/terraform/plugin/sdkv2/guides/v2-upgrade-guide#version-2-of-the-module)
+
 ## 3.0.12 (May 21, 2025)
 
 ## 3.0.11 (May 20, 2025)
