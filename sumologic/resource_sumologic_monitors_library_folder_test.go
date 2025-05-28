@@ -23,7 +23,7 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 	obj_permission {
 		subject_type = "foo_invalid_subject_type"
 		subject_id = "dummyID_01"
-		permissions = ["Create","Read","Update","Delete"] 
+		permissions = ["Create","Read","Update","Delete"]
 	}
 	obj_permission {
 		subject_type = "role"
@@ -32,7 +32,7 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 	}
 }`
 	expectedError01 := regexp.MustCompile(
-		".*expected obj_permission.0.subject_type to be one of \\[role org], got foo_invalid_subject_type.*")
+		`.*expected obj_permission.0.subject_type to be one of \["role" "org"\], got foo_invalid_subject_type.*`)
 
 	config02 := `
 		resource "sumologic_monitor_folder" "test_monitorfolder" {
@@ -41,7 +41,7 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 				obj_permission {
 					subject_type = "role"
 					subject_id = "dummyID_01"
-					permissions = ["Create","Read","Update","Delete"] 
+					permissions = ["Create","Read","Update","Delete"]
 				}
 				obj_permission {
 					subject_type = "role"
@@ -50,7 +50,7 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 				}
 		}`
 	expectedError02 := regexp.MustCompile(
-		".*expected obj_permission.1.permissions.1 to be one of \\[Create Read Update Delete Manage], got Invalid_Perm.*")
+		`.*expected obj_permission.1.permissions.1 to be one of \["Create" "Read" "Update" "Delete" "Manage"\], got Invalid_Perm.*`)
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
@@ -387,7 +387,7 @@ resource "sumologic_role" "tf_test_role_01" {
 		"viewMonitorsV2",
 		"manageMonitorsV2"
 	]
-}	
+}
 resource "sumologic_role" "tf_test_role_02" {
 	name        = "tf_test_role_02_%s"
 	description = "Testing resource sumologic_role"
@@ -412,8 +412,8 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 		description = "terraform_test_monitorfolder_desc"
 		obj_permission {
 		  subject_type = "role"
-		  subject_id = sumologic_role.tf_test_role_01.id 
-		  permissions = ["Create","Read","Update","Delete"] 
+		  subject_id = sumologic_role.tf_test_role_01.id
+		  permissions = ["Create","Read","Update","Delete"]
 		}
 		obj_permission {
 		  subject_type = "role"
@@ -434,7 +434,7 @@ resource "sumologic_role" "tf_test_role_01" {
 		"viewMonitorsV2",
 		"manageMonitorsV2"
 	]
-}	
+}
 resource "sumologic_role" "tf_test_role_02" {
 	name        = "tf_test_role_02_%s"
 	description = "Testing resource sumologic_role"
@@ -459,11 +459,11 @@ resource "sumologic_monitor_folder" "test_monitorfolder" {
 		description = "terraform_test_monitorfolder_desc update test"
 		obj_permission {
 		  subject_type = "role"
-		  subject_id = sumologic_role.tf_test_role_01.id 
-		  permissions = ["Create","Read","Update"] 
-		  // "Delete" permission is removed here. 
+		  subject_id = sumologic_role.tf_test_role_01.id
+		  permissions = ["Create","Read","Update"]
+		  // "Delete" permission is removed here.
 		}
-		// permission for tf_test_role_02 is removed here. 
+		// permission for tf_test_role_02 is removed here.
 }
 `, testNameSuffix, testNameSuffix, testNameSuffix, testNameSuffix)
 }
