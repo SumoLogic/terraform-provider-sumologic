@@ -1,9 +1,10 @@
 package sumologic
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
 )
 
 func resourceSumologicCSEEntityNormalizationConfiguration() *schema.Resource {
@@ -85,8 +86,8 @@ func resourceSumologicCSEEntityNormalizationConfigurationRead(d *schema.Resource
 	d.Set("fqdn_normalization_enabled", CSEEntityNormalizationConfiguration.FqdnNormalizationEnabled)
 	d.Set("aws_normalization_enabled", CSEEntityNormalizationConfiguration.AwsNormalizationEnabled)
 	d.Set("default_normalized_domain", CSEEntityNormalizationConfiguration.DefaultNormalizedDomain)
-	d.Set("normalized_hostnames", CSEEntityNormalizationConfiguration.NormalizeHostnames)
-	d.Set("normalized_usernames", CSEEntityNormalizationConfiguration.NormalizeUsernames)
+	d.Set("normalize_hostnames", CSEEntityNormalizationConfiguration.NormalizeHostnames)
+	d.Set("normalize_usernames", CSEEntityNormalizationConfiguration.NormalizeUsernames)
 	d.Set("domain_mappings", domainMappingsToResource(CSEEntityNormalizationConfiguration.DomainMappings))
 
 	return nil
