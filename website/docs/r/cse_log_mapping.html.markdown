@@ -28,7 +28,7 @@ resource "sumologic_cse_log_mapping" "log_mapping" {
     alternate_values = ["altValue"]
     time_zone = "UTC"
     split_delimiter = ","
-    split_index = 0
+    split_index = "0"
     field_join = ["and"]
     join_delimiter = ""
     format_parameters = ["param"]

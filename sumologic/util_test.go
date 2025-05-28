@@ -1,7 +1,7 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"reflect"
 	"testing"
 )

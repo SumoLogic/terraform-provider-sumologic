@@ -12,9 +12,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShouldBeInverses(t *testing.T) {
@@ -118,7 +118,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
            threshold_type = "foo"
          }
        }`
-	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
+	expectedError := regexp.MustCompile(`.*expected triggers.0.threshold_type to be one of \["LessThan" "LessThanOrEqual" "GreaterThan" "GreaterThanOrEqual"\], got foo.*`)
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
@@ -145,7 +145,7 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 			Steps: []resource.TestStep{
 				{
 					Config:      monitorConfig(testName),
-					ExpectError: regexp.MustCompile("config is invalid"),
+					ExpectError: regexp.MustCompile("Missing required argument"),
 				},
 			},
 		})
@@ -1540,26 +1540,6 @@ var allExampleMonitors = []func(testName string) string{
 	exampleMetricsAnomalyMonitor,
 }
 
-func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
-	return fmt.Sprintf(`
-resource "sumologic_monitor" "test" {
-	name = "terraform_test_monitor_%s"
-	description = "terraform_test_monitor_description"
-	type = "MonitorsLibraryMonitor"
-	is_disabled = false
-	content_type = "Monitor"
-	monitor_type = "Logs"
-	evaluation_delay = "60m"
-	queries {
-		row_id = "A"
-		query = "_sourceCategory=monitor-manager error"
-	  }
-	trigger_conditions  {
-		%s
-	}
-}`, testName, triggerCondition)
-}
-
 func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
 	return TriggerCondition{
 		TimeRange:       "30m",
@@ -1705,7 +1685,7 @@ func genExpectedPermStmtsForMonitorUpdate(s *terraform.State, targetId string) (
 
 func testAccCheckMonitorsLibraryMonitorFGPBackend(
 	name string,
-	t *testing.T,
+	_ *testing.T,
 	expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
 ) resource.TestCheckFunc {
 
