@@ -6,6 +6,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix a typo when reading a sumologic_cse_entity_normalization_configuration
+* Fix a type conversion error in the log mapping resource
 
 ## 3.0.12 (May 21, 2025)
 
