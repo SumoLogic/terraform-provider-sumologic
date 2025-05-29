@@ -70,7 +70,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Time zone for ingesting data in scheduled view. Follow the format in the IANA Time Zone Database.",
+				Description: "Time zone for ingesting data in scheduled view. Follow the format in the [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).",
 			},
 		},
 	}
