@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+MAINTENANCE:
+* Bump the `github.com/cloudflare/circl` dependency from v1.3.7 to v1.6.1
+
 ## 3.1.0 (May 28, 2025)
 
 ENHANCEMENTS:
