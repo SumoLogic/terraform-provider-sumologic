@@ -659,5 +659,49 @@ func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
 	})
 }
 
+func TestAccSumologicLogSearch_withSearchableTime(t *testing.T) {
+	name := "TF IntervalTimeType Valid Searchable"
+	description := "Testing interval_time_type with 'searchableTime'"
+	queryString := "_sourceCategory=prod error | count by _sourceHost"
+	parsingMode := "AutoParse"
+	intervalTimeType := "searchableTime"
+	literalRangeName := "yesterday"
+	tfResourceName := "tf_valid_interval_searchable"
+	resourceName := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(LogSearch{}),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "sumologic_personal_folder" "personalFolder" {}
+					resource "sumologic_log_search" "%s" {
+						name = "%s"
+						description = "%s"
+						query_string = "%s"
+						parsing_mode = "%s"
+						parent_id = data.sumologic_personal_folder.personalFolder.id
+						interval_time_type = "%s"
+						time_range {
+							begin_bounded_time_range {
+								from {
+									literal_time_range {
+										range_name = "%s"
+									}
+								}
+							}
+						}
+					}
+				`, tfResourceName, name, description, queryString, parsingMode, intervalTimeType, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "interval_time_type", intervalTimeType),
+				),
+			},
+		},
+	})
+}
+
 
 
