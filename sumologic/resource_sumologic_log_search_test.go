@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -688,9 +689,7 @@ func TestAccSumologicLogSearch_withInvalidIntervalTimeType(t *testing.T) {
 						}
 					}
 				`, tfResourceName, name, queryString, intervalTimeType),
-				ExpectError: func(err error) bool {
-					return err != nil && strings.Contains(err.Error(), "expected interval_time_type to be one of [messageTime receiptTime searchableTime]")
-				},
+				ExpectError: regexp.MustCompile("expected interval_time_type to be one of \[messageTime receiptTime searchableTime\]"),
 			},
 		},
 	})
