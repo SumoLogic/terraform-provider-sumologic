@@ -613,3 +613,85 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 		queryParameters[1].Name, queryParameters[1].Description, queryParameters[1].DataType, queryParameters[1].Value,
 		literalRangeName, tfSchedule)
 }
+
+func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
+	name := "TF IntervalTimeType Valid"
+	description := "Testing interval_time_type with valid value"
+	queryString := "error | count"
+	parsingMode := "Manual"
+	intervalTimeType := "receiptTime"
+	literalRangeName := "today"
+	tfResourceName := "tf_valid_interval_time_type"
+	resourceName := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(LogSearch{}),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "sumologic_personal_folder" "personalFolder" {}
+					resource "sumologic_log_search" "%s" {
+						name = "%s"
+						description = "%s"
+						query_string = "%s"
+						parsing_mode = "%s"
+						parent_id = data.sumologic_personal_folder.personalFolder.id
+						interval_time_type = "%s"
+						time_range {
+							begin_bounded_time_range {
+								from {
+									literal_time_range {
+										range_name = "%s"
+									}
+								}
+							}
+						}
+					}
+				`, tfResourceName, name, description, queryString, parsingMode, intervalTimeType, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "interval_time_type", intervalTimeType),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicLogSearch_withInvalidIntervalTimeType(t *testing.T) {
+	t := &testing.T{}
+	name := "TF IntervalTimeType Invalid"
+	queryString := "error | count"
+	intervalTimeType := "invalidTime"
+	tfResourceName := "tf_invalid_interval_time_type"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "sumologic_personal_folder" "personalFolder" {}
+					resource "sumologic_log_search" "%s" {
+						name = "%s"
+						description = "Invalid test"
+						query_string = "%s"
+						parent_id = data.sumologic_personal_folder.personalFolder.id
+						interval_time_type = "%s"
+						time_range {
+							begin_bounded_time_range {
+								from {
+									literal_time_range {
+										range_name = "today"
+									}
+								}
+							}
+						}
+					}
+				`, tfResourceName, name, queryString, intervalTimeType),
+				ExpectError: regexp.MustCompile("should be either 'messageTime' or 'receiptTime' or 'searchableTime'"),
+			},
+		},
+	})
+}
+
