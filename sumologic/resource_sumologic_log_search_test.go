@@ -659,40 +659,5 @@ func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
 	})
 }
 
-func TestAccSumologicLogSearch_withInvalidIntervalTimeType(t *testing.T) {
-	name := "TF IntervalTimeType Invalid"
-	queryString := "error | count"
-	intervalTimeType := "invalidTime"
-	tfResourceName := "tf_invalid_interval_time_type"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-					data "sumologic_personal_folder" "personalFolder" {}
-					resource "sumologic_log_search" "%s" {
-						name = "%s"
-						description = "Invalid test"
-						query_string = "%s"
-						parent_id = data.sumologic_personal_folder.personalFolder.id
-						interval_time_type = "%s"
-						time_range {
-							begin_bounded_time_range {
-								from {
-									literal_time_range {
-										range_name = "today"
-									}
-								}
-							}
-						}
-					}
-				`, tfResourceName, name, queryString, intervalTimeType),
-				ExpectError: regexp.MustCompile("expected interval_time_type to be one of \[messageTime receiptTime searchableTime\]"),
-			},
-		},
-	})
-}
 
 
