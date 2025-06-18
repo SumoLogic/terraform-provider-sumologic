@@ -114,6 +114,9 @@ The following arguments are supported:
 - `schedule` - (Block List, Max: 1, Optional) Schedule of the log search. See [schedule schema](#schema-for-schedule)
 - `run_by_receipt_time` - (Optional) This has the value `true` if the search is to be run by receipt time and
     `false` if it is to be run by message time. Default value is `false`.
+- `interval_time_type` - (Optional) This field defines whether the search should run by message time or receipt time .  
+  Allowed values are: `messageTime`, `receiptTime`.  
+  If not set, the system uses the run_by_receipt_time field.
 
 ### Schema for `query_parameter`
 - `name` - (Required) The name of the parameter.
