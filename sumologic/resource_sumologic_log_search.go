@@ -45,13 +45,13 @@ func resourceSumologicLogSearch() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
-            "interval_time_type": {
-               Type:     schema.TypeString,
-               Optional: true,
-               ValidateFunc: validation.StringInSlice(
-                   []string{"messageTime", "receiptTime", "searchableTime"}, false,
-               ),
-            },
+			"interval_time_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{"messageTime", "receiptTime", "searchableTime"}, false,
+				),
+			},
 			"time_range": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -435,9 +435,9 @@ func setLogSearch(d *schema.ResourceData, logSearch *LogSearch) error {
 	if err := d.Set("run_by_receipt_time", logSearch.RunByReceiptTime); err != nil {
 		return err
 	}
-    if err := d.Set("interval_time_type", logSearch.IntervalTimeType); err != nil {
-    	return err
-    }
+	if err := d.Set("interval_time_type", logSearch.IntervalTimeType); err != nil {
+		return err
+	}
 	if err := d.Set("parsing_mode", logSearch.ParsingMode); err != nil {
 		return err
 	}
