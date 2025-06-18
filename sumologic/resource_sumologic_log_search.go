@@ -2,7 +2,7 @@ package sumologic
 
 import (
 	"log"
-    "regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -46,12 +46,11 @@ func resourceSumologicLogSearch() *schema.Resource {
 				Default:  false,
 			},
             "interval_time_type": {
-                Type:     schema.TypeString,
-                Optional: true,
-                ValidateFunc: validation.StringMatch(
-                    regexp.MustCompile("^(messageTime|receiptTime|searchableTime)$"),
-                    "should be either 'messageTime' or 'receiptTime' or 'searchableTime'",
-                ),
+               Type:     schema.TypeString,
+               Optional: true,
+               ValidateFunc: validation.StringInSlice(
+                   []string{"messageTime", "receiptTime", "searchableTime"}, false,
+               ),
             },
 			"time_range": {
 				Type:     schema.TypeList,
