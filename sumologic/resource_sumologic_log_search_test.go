@@ -659,7 +659,6 @@ func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
 }
 
 func TestAccSumologicLogSearch_withInvalidIntervalTimeType(t *testing.T) {
-	t := &testing.T{}
 	name := "TF IntervalTimeType Invalid"
 	queryString := "error | count"
 	intervalTimeType := "invalidTime"
@@ -689,9 +688,12 @@ func TestAccSumologicLogSearch_withInvalidIntervalTimeType(t *testing.T) {
 						}
 					}
 				`, tfResourceName, name, queryString, intervalTimeType),
-				ExpectError: regexp.MustCompile("should be either 'messageTime' or 'receiptTime' or 'searchableTime'"),
+				ExpectError: func(err error) bool {
+					return err != nil && strings.Contains(err.Error(), "expected interval_time_type to be one of [messageTime receiptTime searchableTime]")
+				},
 			},
 		},
 	})
 }
+
 
