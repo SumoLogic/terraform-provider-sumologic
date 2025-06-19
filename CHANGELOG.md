@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+ENHANCEMENTS:
+* Added IntervalTimeType Field to configure time types for Log_Search resource
 
 ## 3.1.0 (May 28, 2025)
 

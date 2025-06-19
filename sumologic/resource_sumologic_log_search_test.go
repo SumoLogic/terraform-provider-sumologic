@@ -613,3 +613,73 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 		queryParameters[1].Name, queryParameters[1].Description, queryParameters[1].DataType, queryParameters[1].Value,
 		literalRangeName, tfSchedule)
 }
+
+func TestAccSumologicLogSearch_intervalTimeType(t *testing.T) {
+	var logSearch LogSearch
+	name := "TF IntervalTimeType Test"
+	description := "Verifies interval_time_type is correctly persisted"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+	intervalTimeType := "messageTime"
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "Time slicing param",
+		DataType:    "ANY",
+		Value:       "1h",
+	}
+
+	tfResourceName := "tf_interval_time_type_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "sumologic_personal_folder" "personalFolder" {}
+
+					resource "sumologic_log_search" "%s" {
+						name                = "%s"
+						description         = "%s"
+						query_string        = "%s"
+						parsing_mode        = "%s"
+						parent_id           = data.sumologic_personal_folder.personalFolder.id
+						run_by_receipt_time = %t
+						interval_time_type  = "%s"
+
+						query_parameter {
+							name        = "%s"
+							description = "%s"
+							data_type   = "%s"
+							value       = "%s"
+						}
+
+						time_range {
+							begin_bounded_time_range {
+								from {
+									literal_time_range {
+										range_name = "%s"
+									}
+								}
+							}
+						}
+					}
+				`,
+					tfResourceName, name, description, queryString, parsingMode,
+					runByReceiptTime, intervalTimeType,
+					queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+					literalRangeName,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "interval_time_type", intervalTimeType),
+				),
+			},
+		},
+	})
+}
