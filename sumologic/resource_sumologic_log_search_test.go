@@ -614,31 +614,51 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 		literalRangeName, tfSchedule)
 }
 
-func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
-	name := "TF IntervalTimeType Valid"
-	description := "Testing interval_time_type with valid value"
-	queryString := "error | count"
+func TestAccSumologicLogSearch_intervalTimeType(t *testing.T) {
+	var logSearch LogSearch
+	name := "TF IntervalTimeType Test"
+	description := "Verifies interval_time_type is correctly persisted"
+	queryString := "error"
 	parsingMode := "Manual"
-	intervalTimeType := "receiptTime"
 	literalRangeName := "today"
-	tfResourceName := "tf_valid_interval_time_type"
-	resourceName := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+	runByReceiptTime := false
+	intervalTimeType := "messageTime"
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "dummy",
+		Description: "dummy param",
+		DataType:    "STRING",
+		Value:       "foo",
+	}
+
+	tfResourceName := "tf_interval_time_type_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLogSearchDestroy(LogSearch{}),
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
 					data "sumologic_personal_folder" "personalFolder" {}
+
 					resource "sumologic_log_search" "%s" {
-						name = "%s"
-						description = "%s"
-						query_string = "%s"
-						parsing_mode = "%s"
-						parent_id = data.sumologic_personal_folder.personalFolder.id
-						interval_time_type = "%s"
+						name                = "%s"
+						description         = "%s"
+						query_string        = "%s"
+						parsing_mode        = "%s"
+						parent_id           = data.sumologic_personal_folder.personalFolder.id
+						run_by_receipt_time = %t
+						interval_time_type  = "%s"
+
+						query_parameter {
+							name        = "%s"
+							description = "%s"
+							data_type   = "%s"
+							value       = "%s"
+						}
+
 						time_range {
 							begin_bounded_time_range {
 								from {
@@ -649,53 +669,15 @@ func TestAccSumologicLogSearch_withValidIntervalTimeType(t *testing.T) {
 							}
 						}
 					}
-				`, tfResourceName, name, description, queryString, parsingMode, intervalTimeType, literalRangeName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "interval_time_type", intervalTimeType),
+				`,
+					tfResourceName, name, description, queryString, parsingMode,
+					runByReceiptTime, intervalTimeType,
+					queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+					literalRangeName,
 				),
-			},
-		},
-	})
-}
-
-func TestAccSumologicLogSearch_withSearchableTime(t *testing.T) {
-	name := "TF IntervalTimeType Valid Searchable"
-	description := "Testing interval_time_type with 'searchableTime'"
-	queryString := "_sourceCategory=prod error | count by _sourceHost"
-	parsingMode := "AutoParse"
-	intervalTimeType := "searchableTime"
-	literalRangeName := "today"
-	tfResourceName := "tf_valid_interval_searchable"
-	resourceName := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLogSearchDestroy(LogSearch{}),
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-					data "sumologic_personal_folder" "personalFolder" {}
-					resource "sumologic_log_search" "%s" {
-						name = "%s"
-						description = "%s"
-						query_string = "%s"
-						parsing_mode = "%s"
-						parent_id = data.sumologic_personal_folder.personalFolder.id
-						interval_time_type = "%s"
-						time_range {
-							begin_bounded_time_range {
-								from {
-									literal_time_range {
-										range_name = "%s"
-									}
-								}
-							}
-						}
-					}
-				`, tfResourceName, name, description, queryString, parsingMode, intervalTimeType, literalRangeName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "interval_time_type", intervalTimeType),
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "interval_time_type", intervalTimeType),
 				),
 			},
 		},
