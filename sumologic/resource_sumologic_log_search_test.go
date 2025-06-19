@@ -664,7 +664,7 @@ func TestAccSumologicLogSearch_withSearchableTime(t *testing.T) {
 	queryString := "_sourceCategory=prod error | count by _sourceHost"
 	parsingMode := "AutoParse"
 	intervalTimeType := "searchableTime"
-	literalRangeName := "yesterday"
+	literalRangeName := "today"
 	tfResourceName := "tf_valid_interval_searchable"
 	resourceName := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
 
