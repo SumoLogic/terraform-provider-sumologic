@@ -618,17 +618,17 @@ func TestAccSumologicLogSearch_intervalTimeType(t *testing.T) {
 	var logSearch LogSearch
 	name := "TF IntervalTimeType Test"
 	description := "Verifies interval_time_type is correctly persisted"
-	queryString := "error"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
 	parsingMode := "Manual"
 	literalRangeName := "today"
 	runByReceiptTime := false
 	intervalTimeType := "messageTime"
 
 	queryParameter := LogSearchQueryParameter{
-		Name:        "dummy",
-		Description: "dummy param",
-		DataType:    "STRING",
-		Value:       "foo",
+		Name:        "timeslice",
+		Description: "Time slicing param",
+		DataType:    "ANY",
+		Value:       "1h",
 	}
 
 	tfResourceName := "tf_interval_time_type_test"
