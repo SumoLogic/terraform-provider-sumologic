@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+BUG FIXES:
+* Corrected capabilities documentation for role_v2
+
 ## 3.1.0 (May 28, 2025)
 
 ENHANCEMENTS:
