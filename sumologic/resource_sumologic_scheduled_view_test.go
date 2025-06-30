@@ -13,8 +13,8 @@ import (
 // TestAccSumologicScheduledView_basic tests the creation and basic reading of a scheduled view.
 func TestAccSumologicScheduledView_basic(t *testing.T) {
 	resourceName := "sumologic_scheduled_view.test_scheduled_view"
-	name := acctest.RandomWithPrefix("tf_test_scheduled_view_")
-	nameNoTimeZone := acctest.RandomWithPrefix("tf_test_scheduled_view_no_tz")
+	name := "tf_test_scheduled_view_" + acctest.RandString(4)
+	nameNoTimeZone := "tf_test_scheduled_view_no_tz" + acctest.RandString(4)
 	initialQuery := "_sourceCategory=terraform/test/scheduledview/basic | count by _source"
 	initialTimeZone := "America/Los_Angeles"
 	initialRetention := 30 // days
