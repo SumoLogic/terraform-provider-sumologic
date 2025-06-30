@@ -25,6 +25,7 @@ QUERY
     prevent_destroy = true
     ignore_changes = [index_id]
   }
+  time_zone = "America/Los_Angeles"
 }
 ```
 
@@ -41,6 +42,7 @@ The following arguments are supported:
 - `data_forwarding_id` - (Optional) An optional ID of a data forwarding configuration to be used by the scheduled view.
 - `parsing_mode` - (Optional, Forces new resource) Default to `Manual`. Define the parsing mode to scan the JSON format log messages. Possible values are: `AutoParse` - In AutoParse mode, the system automatically figures out fields to parse based on the search query. `Manual` - While in the Manual mode, no fields are parsed out automatically. For more information see Dynamic Parsing.
 - `reduce_retention_period_immediately` - (Optional) This is required on update if the newly specified retention period is less than the existing retention period. In such a situation, a value of true says that data between the existing retention period and the new retention period should be deleted immediately; if false, such data will be deleted after seven days. This property is optional and ignored if the specified retentionPeriod is greater than or equal to the current retention period.
+- `time_zone` - (Optional) Time zone for ingesting data in scheduled view. Follow the format in the [IANA Time Zone Database][3].
 
 The following attributes are exported:
 
@@ -56,3 +58,4 @@ terraform import sumologic_scheduled_view.failed_connections 1234567890
 
 [1]: https://help.sumologic.com/Manage/Scheduled-Views
 [2]: https://api.sumologic.com/docs/#operation/listScheduledViews
+[3]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List

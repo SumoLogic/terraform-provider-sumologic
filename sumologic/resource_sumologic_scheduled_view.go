@@ -66,6 +66,12 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"time_zone": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Time zone for ingesting data in scheduled view. Follow the format in the [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).",
+			},
 		},
 	}
 }
@@ -74,6 +80,12 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 	c := meta.(*Client)
 	if d.Id() == "" {
 		sview := resourceToScheduledView(d)
+
+		// add timeZone if specified
+		if v, ok := d.GetOk("time_zone"); ok {
+			sview.TimeZone = v.(string)
+		}
+
 		createdSview, err := c.CreateScheduledView(sview)
 
 		if err != nil {
@@ -112,6 +124,7 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
 	d.Set("parsing_mode", sview.ParsingMode)
+	d.Set("time_zone", sview.TimeZone)
 
 	return nil
 }
@@ -121,6 +134,10 @@ func resourceSumologicScheduledViewDelete(d *schema.ResourceData, meta interface
 }
 func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	sview := resourceToScheduledView(d)
+
+	if d.HasChange("time_zone") {
+		sview.TimeZone = d.Get("time_zone").(string)
+	}
 
 	c := meta.(*Client)
 	err := c.UpdateScheduledView(sview)
