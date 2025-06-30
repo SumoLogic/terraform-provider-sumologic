@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Add timezone support for scheduled_view
+
 BUG FIXES:
 * Corrected capabilities documentation for role_v2
 
