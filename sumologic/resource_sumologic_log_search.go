@@ -48,6 +48,7 @@ func resourceSumologicLogSearch() *schema.Resource {
 			"interval_time_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{"messageTime", "receiptTime", "searchableTime"}, false,
 				),
