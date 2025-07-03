@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+ENHANCEMENTS:
+* Added IntervalTimeType Field to configure time types for Log_Search resource
 
 BUG FIXES:
 * Corrected capabilities documentation for role_v2

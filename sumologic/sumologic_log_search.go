@@ -84,6 +84,7 @@ type LogSearch struct {
 	ParentId         string                    `json:"parentId"`
 	QueryString      string                    `json:"queryString"`
 	RunByReceiptTime bool                      `json:"runByReceiptTime"`
+	IntervalTimeType string                    `json:"intervalTimeType,omitempty"`
 	TimeRange        interface{}               `json:"timeRange"`
 	ParsingMode      string                    `json:"parsingMode"`
 	QueryParameters  []LogSearchQueryParameter `json:"queryParameters,omitempty"`
