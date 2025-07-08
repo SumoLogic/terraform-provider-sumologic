@@ -66,4 +66,5 @@ type ScheduledView struct {
 	DataForwardingId                 string    `json:"dataForwardingId"`
 	ParsingMode                      string    `json:"parsingMode"`
 	ReduceRetentionPeriodImmediately bool      `json:"reduceRetentionPeriodImmediately"`
+	TimeZone                         string    `json:"timeZone,omitempty"`
 }
