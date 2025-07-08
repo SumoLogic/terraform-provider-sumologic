@@ -1,9 +1,10 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.1.1 (July 8, 2025)
 
 ENHANCEMENTS:
 * Added IntervalTimeType Field to configure time types for Log_Search resource
-
-ENHANCEMENTS:
 * Add timezone support for scheduled_view
 
 BUG FIXES:
