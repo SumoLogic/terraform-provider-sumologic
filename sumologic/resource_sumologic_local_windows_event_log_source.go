@@ -52,7 +52,6 @@ func resourceSumologicLocalWindowsEventLogSource() *schema.Resource {
 	LocalWindowsEventLogSource.Schema["deny_list"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Optional:    true,
-		Elem:        &schema.Schema{Type: schema.TypeString},
 		Description: "Comma-separated list of event IDs to deny",
 	}
 
