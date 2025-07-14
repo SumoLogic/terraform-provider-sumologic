@@ -11,8 +11,8 @@ type LocalWindowsEventLogSource struct {
 	RenderMessages bool          `json:"renderMessages"`
 	EventFormat    int           `json:"eventFormat"`
 	EventMessage   *int          `json:"eventMessage,omitempty"`
-	// Allowlist      []string      `json:"allowlist,omitempty"`
-	DenyList string `json:"denylist,omitempty"`
+	DenyList       string        `json:"denylist,omitempty"`
+	AllowList      string        `json:"allowlist,omitempty"`
 }
 
 func (s *Client) CreateLocalWindowsEventLogSource(source LocalWindowsEventLogSource, collectorID int) (int, error) {

@@ -14,7 +14,6 @@ func resourceSumologicLocalWindowsEventLogSource() *schema.Resource {
 	LocalWindowsEventLogSource.Create = resourceSumologicLocalWindowsEventLogSourceCreate
 	LocalWindowsEventLogSource.Read = resourceSumologicLocalWindowsEventLogSourceRead
 	LocalWindowsEventLogSource.Update = resourceSumologicLocalWindowsEventLogSourceUpdate
-	// LocalWindowsEventLogSource.Delete: resourceSumologicSourceDelete
 	LocalWindowsEventLogSource.Importer = &schema.ResourceImporter{
 		State: resourceSumologicSourceImport,
 	}
@@ -55,7 +54,11 @@ func resourceSumologicLocalWindowsEventLogSource() *schema.Resource {
 		Description: "Comma-separated list of event IDs to deny",
 	}
 
-	// "allowlist":  is not implmemented yet
+	LocalWindowsEventLogSource.Schema["allow_list"] = &schema.Schema{
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "Comma-separated list of event IDs to allow",
+	}
 
 	return LocalWindowsEventLogSource
 }
@@ -102,12 +105,16 @@ func resourceToLocalWindowsEventLogSource(d *schema.ResourceData) LocalWindowsEv
 		LogNames:       d.Get("log_names").([]interface{}),
 		RenderMessages: d.Get("render_messages").(bool),
 		EventFormat:    d.Get("event_format").(int),
-		DenyList:       d.Get("deny_list").(string),
 	}
 
 	// Handle optional deny_list
 	if DenyList, ok := d.GetOk("deny_list"); ok {
 		LocalWindowsEventLogSource.DenyList = DenyList.(string)
+	}
+
+	// Handle optional allow_list
+	if AllowList, ok := d.GetOk("allow_list"); ok {
+		LocalWindowsEventLogSource.AllowList = AllowList.(string)
 	}
 
 	// Handle optional event_message field
@@ -143,6 +150,7 @@ func resourceSumologicLocalWindowsEventLogSourceRead(d *schema.ResourceData, met
 	d.Set("render_messages", source.RenderMessages)
 	d.Set("event_format", source.EventFormat)
 	d.Set("deny_list", source.DenyList)
+	d.Set("allow_list", source.AllowList)
 	d.Set("event_format", source.EventFormat)
 	d.Set("event_message", source.EventMessage)
 
