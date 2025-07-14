@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+* Add support for local windows event log source for installed collectors
 
 ## 3.1.1 (July 8, 2025)
 
