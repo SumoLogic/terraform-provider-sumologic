@@ -132,6 +132,7 @@ func Provider() *schema.Provider {
 			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
 			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
 			"sumologic_folder":                         dataSourceSumologicFolder(),
+			"sumologic_monitor_folder":                 dataSourceSumologicMonitorFolder(),
 			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
 			"sumologic_partition":                      dataSourceSumologicPartition(),
 			"sumologic_partitions":                     dataSourceSumologicPartitions(),

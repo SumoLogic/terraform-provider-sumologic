@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 // ---------- ENDPOINTS ----------
@@ -64,6 +65,25 @@ func (s *Client) GetMonitorsLibraryFolder(id string) (*MonitorsLibraryFolder, er
 
 	return &monitorsLibraryFolder, nil
 
+}
+
+func (s *Client) GetMonitorsLibraryFolderByPath(path string) (*MonitorsLibraryFolder, error) {
+	escapedPath := url.QueryEscape(path)
+	urlWithParams := fmt.Sprintf("v1/monitors/path?path=%s", escapedPath)
+
+	data, err := s.Get(urlWithParams)
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, nil
+	}
+
+	var folder MonitorsLibraryFolder
+	if err := json.Unmarshal(data, &folder); err != nil {
+		return nil, err
+	}
+	return &folder, nil
 }
 
 func (s *Client) DeleteMonitorsLibraryFolder(id string) error {
