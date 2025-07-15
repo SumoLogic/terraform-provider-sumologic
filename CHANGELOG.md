@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+FEATURES:
+* **New Data Source:** sumologic_monitor_folder
 
 ## 3.1.1 (July 8, 2025)
 
