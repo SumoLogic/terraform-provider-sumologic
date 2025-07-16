@@ -59,7 +59,7 @@ The following arguments are supported:
   * `deny_list` - Comma-separated list of event IDs to deny
   * `category` - (Optional) The default source category for the source.
   * `fields` - (Optional) Map containing [key/value pairs][2].
-  * `denylist` - (Optional) Comma-separated list of valid path expressions from which logs will not be collected.
+  * `denylist` - (Optional) Comma-separated list of event IDs to deny. This is used to exclude specific events from being collected.
 
 ### See also
   * [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
