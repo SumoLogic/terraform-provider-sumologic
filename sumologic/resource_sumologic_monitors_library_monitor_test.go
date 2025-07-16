@@ -190,6 +190,36 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 		},
 	})
 }
+
+func TestAccSumologicMonitors_with_linked_playbook(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	testName := "terraform_test_monitor_" + testNameSuffix
+
+	// NOTE: This playbook ID refers to a static playbook `[Do Not Delete] Playbook Used in Terraform Tests`. Replace with a valid playbook ID in your environment.
+	playbook_id := "6877cae1fb301f15fca89f67"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorWithLinkedPlaybook(testName, playbook_id),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "automated_playbook_ids.0", playbook_id)),
+			},
+			{
+				ResourceName:      "sumologic_monitor.test",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
@@ -794,6 +824,56 @@ func testAccCheckMonitorsLibraryMonitorAttributes(name string) resource.TestChec
 		)
 		return f(s)
 	}
+}
+
+func testAccSumologicMonitorWithLinkedPlaybook(testName, playbookId string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	evaluation_delay = "60m"
+	time_zone = "America/New_York"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	  }
+	triggers  {
+		threshold_type = "GreaterThan"
+		threshold = 40.0
+		time_range = "-60m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "Critical"
+		detection_method = "StaticCondition"
+	  }
+	triggers  {
+		threshold_type = "LessThanOrEqual"
+		threshold = 40.0
+		time_range = "-60m"
+		occurrence_type = "ResultCount"
+		trigger_source = "AllResults"
+		trigger_type = "ResolvedCritical"
+		detection_method = "StaticCondition"
+		resolution_window = "5m"
+	  }
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		  }
+		run_for_trigger_types = ["Critical", "ResolvedCritical"]
+	  }
+	playbook = "This is a test playbook"
+	automated_playbook_ids = ["%s"]
+	alert_name =  "Alert from {{Name}}"
+}`, testName, playbookId)
 }
 
 func testAccSumologicMonitorsLibraryMonitor(testName string) string {
