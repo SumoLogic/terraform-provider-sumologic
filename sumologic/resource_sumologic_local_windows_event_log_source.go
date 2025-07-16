@@ -151,7 +151,6 @@ func resourceSumologicLocalWindowsEventLogSourceRead(d *schema.ResourceData, met
 	d.Set("event_format", source.EventFormat)
 	d.Set("deny_list", source.DenyList)
 	d.Set("allow_list", source.AllowList)
-	d.Set("event_format", source.EventFormat)
 	d.Set("event_message", source.EventMessage)
 
 	return nil
