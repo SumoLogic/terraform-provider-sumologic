@@ -70,13 +70,10 @@ The following attributes are exported:
   * `id` - The internal ID of the local file source.
 
 ## Import
-Local file sources can be imported using the collector and source IDs, e.g.:
+Local Windows Event Log Sources can be imported using the collector and source IDs, e.g.:
 
 ```hcl
 terraform import sumologic_local_windows_event_source.test 123/456
-```
-
-Local file sources can also be imported using the collector name and source name, e.g.:
 
 ```hcl
 terraform import sumologic_local_windows_event_source.test my-test-collector/my-test-source
