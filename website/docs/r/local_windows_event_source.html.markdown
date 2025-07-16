@@ -14,7 +14,7 @@ Use the installed collector data source to map to installed collector instances 
 
 ## Example Usage
 
-Example: 1 This will configure JSON format with "concise" setting and pickup System and Application logs with /os/windows/events as the sourcecateogry.
+Example: 1 This will configure JSON format with "concise" setting and pick up System and Application logs with /os/windows/events as the source category.
 
 ```hcl
 data "sumologic_collector" "installed_collector" {
