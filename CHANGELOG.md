@@ -1,4 +1,6 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+
 FEATURES:
 * **New Data Source:** sumologic_monitor_folder
 
