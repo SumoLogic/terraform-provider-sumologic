@@ -465,7 +465,7 @@ resource "sumologic_monitor" "tf_monitor_with_playbook" {
     run_for_trigger_types = ["Critical", "ResolvedCritical"]
   }
   playbook = "test playbook"
-  automated_playbook_ids = ["000000000000000000000foo"]
+  automated_playbook_ids = ["683a60a123ad6099e4d1333e"]
   notification_group_fields = ["metric"]
 }
 ```

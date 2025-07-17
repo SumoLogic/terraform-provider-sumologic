@@ -191,7 +191,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	})
 }
 
-func TestAccSumologicMonitorsLibraryMonitor_with_linked_playbook(t *testing.T) {
+func TestAccSumologicMonitorsLibraryMonitor_create_monitor_with_linked_playbook(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
