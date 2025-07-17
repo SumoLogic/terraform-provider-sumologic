@@ -37,7 +37,7 @@ func (s *Client) DeleteFieldExtractionRule(id string) error {
 }
 
 func (s *Client) GetFieldExtractionRule(id string) (*FieldExtractionRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/extractionRules/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/extractionRules/%s", id))
 	if err != nil {
 		return nil, err
 	}

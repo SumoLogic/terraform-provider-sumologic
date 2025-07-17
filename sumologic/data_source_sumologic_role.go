@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceSumologicRole() *schema.Resource {
@@ -86,7 +86,7 @@ func dataSourceSumologicRoleRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func (s *Client) GetRoleName(name string) (*Role, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)))
+	data, err := s.Get(fmt.Sprintf("v1/roles?name=%s", url.QueryEscape(name)))
 	if err != nil {
 		return nil, err
 	}

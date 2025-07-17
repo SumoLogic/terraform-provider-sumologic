@@ -8,8 +8,8 @@ import (
 	"text/template"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,21 +24,24 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 		EntitySelectors: []EntitySelector{
 			{EntityType: "_username", Expression: "user_username"},
 		},
-		FloorValue:          0,
-		DeviationThreshold:  3,
-		GroupByFields:       []string{"user_username"},
-		IsPrototype:         false,
-		MatchExpression:     `objectType="Network"`,
-		Name:                fmt.Sprintf("OutlierRuleTerraformTest %s", uuid.New()),
-		NameExpression:      "OutlierRuleTerraformTest - {{ user_username }}",
-		RetentionWindowSize: "1209600000",
-		Severity:            1,
-		SummaryExpression:   "OutlierRuleTerraformTest - {{ user_username }}",
-		Tags:                []string{"OutlierRuleTerraformTest"},
-		WindowSize:          "T24H",
+		FloorValue:            0,
+		DeviationThreshold:    3,
+		GroupByFields:         []string{"user_username"},
+		IsPrototype:           false,
+		MatchExpression:       `objectType="Network"`,
+		Name:                  fmt.Sprintf("OutlierRuleTerraformTest %s", uuid.New()),
+		NameExpression:        "OutlierRuleTerraformTest - {{ user_username }}",
+		RetentionWindowSize:   "1209600000",
+		Severity:              1,
+		SummaryExpression:     "OutlierRuleTerraformTest - {{ user_username }}",
+		Tags:                  []string{"OutlierRuleTerraformTest"},
+		WindowSize:            "T24H",
+		SuppressionWindowSize: nil,
 	}
 	updatedPayload := payload
 	updatedPayload.Enabled = false
+	suppressionWindow := 25 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &suppressionWindow
 
 	var result CSEOutlierRule
 
@@ -129,6 +132,9 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
   summary_expression	= "{{ .SummaryExpression }}"
   tags                  = {{ quoteStringArray .Tags }}
   window_size 		 	= "{{ .WindowSize }}"
+	{{ if .SuppressionWindowSize }}
+	suppression_window_size = {{ .SuppressionWindowSize }}
+	{{ end }}
 }
 `))
 	var buffer bytes.Buffer
@@ -181,6 +187,7 @@ func testCheckOutlierRuleValues(t *testing.T, expected *CSEOutlierRule, actual *
 		assert.Equal(t, expected.SummaryExpression, actual.SummaryExpression)
 		assert.Equal(t, expected.Tags, actual.Tags)
 		assert.Equal(t, expected.WindowSize, windowSizeField(actual.WindowSizeName))
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 
 		return nil
 	}

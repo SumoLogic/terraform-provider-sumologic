@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSENetworkBlock(id string) (*CSENetworkBlock, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/network-blocks/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/network-blocks/%s", id))
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,194 @@
-## 2.28.2 (Unreleased)
+## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.1.1 (July 8, 2025)
+
+ENHANCEMENTS:
+* Added IntervalTimeType Field to configure time types for Log_Search resource
+* Add timezone support for scheduled_view
+
+BUG FIXES:
+* Corrected capabilities documentation for role_v2
+
+## 3.1.0 (May 28, 2025)
+
+ENHANCEMENTS:
+* Upgrade to [v2 of the Terraform Plugin SDK Go module](https://developer.hashicorp.com/terraform/plugin/sdkv2/guides/v2-upgrade-guide#version-2-of-the-module)
+
+BUG FIXES:
+* Fix a typo when reading a sumologic_cse_entity_normalization_configuration
+* Fix a type conversion error in the log mapping resource
+
+## 3.0.12 (May 21, 2025)
+
+## 3.0.11 (May 20, 2025)
+
+FEATURES:
+* **New Data Source:** sumologic_partition
+* **New Data Source:** sumologic_partitions
+
+ENHANCEMENTS:
+* Add support for searchable time for dashboard field time_source
+
+BUG FIXES:
+* When the email of a sumologic_user is changed, instead of silently doing nothing, an error will be raised to the user
+
+DOCS:
+* Updated content docs to include examples of different alerts
+
+## 3.0.10 (May 6, 2025)
+
+BUG FIXES:
+* Fix the log mapping resource to no longer error out when empty strings are included in skipped_values
+* Fix the log mapping resource to no longer default to a skipped_index of 0 when no skipped_index is specified
+
+## 3.0.9 (April 28, 2025)
+
+FEATURES:
+* **New Data Source:** sumologic_apps
+
+BUG FIXES:
+* Prevent user-initiated updates to the analytics_tier field in the partition resource, while allowing Terraform to reconcile state changes resulting from backend-driven updates (e.g., Flex migrations).
+
+ENHANCEMENTS:
+* Improve error message when an API URL is constructed with missing parameters
+* sumologic_ingest_budget_v2 can be imported by ID or by name
+
+## 3.0.8 (April 1, 2025)
+
+BUG FIXES:
+* Properly send optional webhook notification payload value
+* RoleV2 creation will no longer time out when selection_type is not specified
+* RoleV2 update will not remove all assigned users
+* Removed reference of Realtime in scheduled search documentation page
+
+MAINTENANCE:
+* Bump version of golang.org/x/net to v0.35.0
+* Bump version of google.golang.org/grpc to v1.67.0
+
+## 3.0.7 (March 20, 2025)
+
+FEATURES:
+* **New Resource:** sumologic_source_template (GH-708)
+* **New Resource:** sumologic_ot_collector (GH-708)
+
+MAINTENANCE:
+* If a PR author forgets to update this change log, then a comment will be automatically added to the PR to remind them
+
+## 3.0.6 (March 10, 2025)
+
+FEATURES:
+* Add support for CSE strict custom insights
+
+## 3.0.5 (March 3, 2025)
+
+ENHANCEMENTS:
+* Add support for monitor frequency configurability
+
+BUG FIXES:
+* Polling source paths without `use_versioned_api` will not show an incorrect diff in the `terraform plan`
+
+## 3.0.4 (February 4, 2025)
+BUG FIXES:
+* Fixed issue with release artifacts
+
+## 3.0.3 (January 31, 2025)
+FEATURES:
+* **New Resource:** sumologic_metrics_search_v2
+
+## 3.0.2 (January 29, 2025)
+FEATURES:
+* **New Resource:** sumologic_scan_budget
+
+## 3.0.1 (January 17, 2025)
+ENHANCEMENTS:
+* Add support for update method to change state of the fields resource
+
+## 3.0.0 (December 09, 2024)
+REMOVALS:
+* resource_sumologic_ingest_budget : remove deprecated resource.
+* resource_sumologic_collector_ingest_budget_assignment: remove deprecated resource. 
+
+ENHANCEMENTS:
+* Add support for MetricsAnomalyCondition to Monitor resource (GH-698)
+
+BUG FIXES:
+* Fixed typo in connection.html.markdown documentation
+
+## 2.31.5 (October 04, 2024)
+ENHANCEMENTS:
+* Added *index_id* attribute to sumologic_scheduled_view. (GH-691)
+* Added support for configuring sumologic_data_forwarding_rule for sumologic_scheduled_view. (GH-691)
+
+BUG FIXES:
+* Fix analytics_tier case sensitivity in resource_sumologic_partition (GH-692)
+* Remove regex match in resource_sumologic_log_search (GH-693) 
+
+## 2.31.4 (September 19, 2024)
+* **New Resource:** sumologic_data_forwarding_destination (GH-678)
+* **New Resource:** sumologic_data_forwarding_rule (GH-688)
+
+## 2.31.3 (August 28, 2024)
+ENHANCEMENTS:
+* Add time source and parse mode to dashboard search panel query (GH-679)
+
+## 2.31.2 (August 2, 2024)
+ENHANCEMENTS:
+* Add IsIncludedInDefaultSearch field to partition resource (GH-674)
+
+BUG FIXES:
+* Fix cse_log_mappings resource conversion affecting import (GH-675)
+
+## 2.31.1 (July 2, 2024)
+BUG FIXES:
+* Fix use_versioned_api default value discrepancy (GH-650)
+
+## 2.31.0 (June 28, 2024)
+ENHANCEMENTS:
+* Add support for AnomalyLogCondition to Monitor resource (GH-653)
+
+BUG FIXES:
+* Upgrade GoLang to handle new module versions and prevent future CVE (GH-666)
+* Upgrade GoLang modules (x/net, protobuf, go-retryablehttp, go-getter) to address CVE (GH-667)
+
+## 2.30.1 (June 6, 2024)
+BUG FIXES:
+* Corrected examples and removed dataType in the Fields terraform documentation (GH-648)
+
+## 2.30.0 (May 21, 2024)
+FEATURES:
+* resource/sumologic_muting_schedule: Added support for Muting Schedule for an alert group (GH-601)
+* **New Resource:** sumologic_role_v2 (GH-651)
+* **New Data Source:** sumologic_role_v2 (GH-651)
+* **New Resource:** sumologic_azure_event_hub_log_source (GH-626)
+
+BUG FIXES:
+* Speed up match list updates. (GH-645)
+
+## 2.29.0 (April 9, 2024)
+
+FEATURES:
+* Added support for signal suppression window size in CSE Rules. (GH-641)
+
+ENHANCEMENTS:
+* Added support for custom window sizes for the CSE Rules (Aggregation, Chain, Threshold). (GH-623)
+
+BUG FIXES:
+* Fix error while importing monitor having timeZone as `null` in the Email notification object. (GH-637)
+* Fix perpetual diff in Extraction Rules by normalizing the parse expression.
+* Fix `resource_sumologic_cse_match_list` timing out when updating match list items (GH-640)
+
+## 2.28.3 (March 5, 2024)
+
+BUG FIXES:
+* Update module dependencies to pick up security fixes. (GH-602)
+
+## 2.28.2 (February 1, 2024)
 
 BUG FIXES:
 * Uses the recently added API support for `rule_ids` for CSE Rule Tuning Expressions to fix the resource import functionality. (GH-612)
+* Updated logging of Response to print Status instead of Status code. (GH-610)
+* Added error handler to log failed request with correct Error code in response. (GH-610)
 
 ## 2.28.1 (January 19, 2024)
 
@@ -15,13 +202,13 @@ BUG FIXES:
 FEATURES:
 * resource/sumologic_monitor: Added support for setting `time_zone` at Monitor level for notifications content (GH-586)
 
-BUG FIXES: 
+BUG FIXES:
 * Fixes `resource_sumologic_cse_match_list` constant change when defining a match list containing a custom column using the custom columns name instead of ID (GH-591)
 
 ## 2.27.0 (September 28, 2023)
 FEATURES:
 * **New Resource:** sumologic_cse_tag_schema (GH-575)
-* **New Resource:** sumologic_cse_context_action (GH-573) 
+* **New Resource:** sumologic_cse_context_action (GH-573)
 
 ENHANCEMENTS:
 * resource/sumologic_cse_inventory_entity_group_configuration: Add new fields to support enhanced functionality. (GH-495)

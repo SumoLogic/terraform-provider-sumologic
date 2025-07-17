@@ -15,7 +15,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSumologicFieldExtractionRule() *schema.Resource {
@@ -41,10 +41,12 @@ func resourceSumologicFieldExtractionRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					if strings.Trim(old, "\n ") == strings.Trim(new, "\n ") {
-						return true
+					// Ignores leading spaces, leading newlines and single leading |
+					// Ignores trailing spaces and trailing newlines.
+					normalize := func(s string) string {
+						return strings.TrimSpace(strings.TrimPrefix(strings.Trim(s, "\n "), "|"))
 					}
-					return false
+					return normalize(old) == normalize(new)
 				},
 			},
 			"enabled": {

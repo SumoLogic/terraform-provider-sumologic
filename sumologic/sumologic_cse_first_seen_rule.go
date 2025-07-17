@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEFirstSeenRule(id string) (*CSEFirstSeenRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -91,4 +91,5 @@ type CSEFirstSeenRule struct {
 	Tags                  []string         `json:"tags"`
 	ValueFields           []string         `json:"valueFields"`
 	Version               int              `json:"version"`
+	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
 }

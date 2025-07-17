@@ -1,9 +1,10 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicCSEMatchRule() *schema.Resource {
@@ -55,6 +56,12 @@ func resourceSumologicCSEMatchRule() *schema.Resource {
 					ValidateFunc: validation.StringIsNotEmpty,
 				},
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -87,6 +94,9 @@ func resourceSumologicCSEMatchRuleRead(d *schema.ResourceData, meta interface{})
 	d.Set("severity_mapping", severityMappingToResource(CSEMatchRuleGet.SeverityMapping))
 	d.Set("summary_expression", CSEMatchRuleGet.SummaryExpression)
 	d.Set("tags", CSEMatchRuleGet.Tags)
+	if CSEMatchRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEMatchRuleGet.SuppressionWindowSize)
+	}
 
 	return nil
 }
@@ -102,6 +112,12 @@ func resourceSumologicCSEMatchRuleCreate(d *schema.ResourceData, meta interface{
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEMatchRule(CSEMatchRule{
 			DescriptionExpression: d.Get("description_expression").(string),
 			Enabled:               d.Get("enabled").(bool),
@@ -114,6 +130,7 @@ func resourceSumologicCSEMatchRuleCreate(d *schema.ResourceData, meta interface{
 			Stream:                "record",
 			SummaryExpression:     d.Get("summary_expression").(string),
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
+			SuppressionWindowSize: suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -145,6 +162,12 @@ func resourceToCSEMatchRule(d *schema.ResourceData) (CSEMatchRule, error) {
 		return CSEMatchRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEMatchRule{
 		ID:                    id,
 		DescriptionExpression: d.Get("description_expression").(string),
@@ -158,5 +181,6 @@ func resourceToCSEMatchRule(d *schema.ResourceData) (CSEMatchRule, error) {
 		Stream:                "record",
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
+		SuppressionWindowSize: suppressionWindowSize,
 	}, nil
 }

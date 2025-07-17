@@ -8,7 +8,7 @@ import (
 
 func (s *Client) GetDashboard(id string) (*Dashboard, error) {
 	url := fmt.Sprintf("v2/dashboards/%s", id)
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +99,42 @@ type SumoSearchPanel struct {
 	LinkedDashboards []LinkedDashboard  `json:"linkedDashboards"`
 }
 
+type TracesListPanel struct {
+	Id                                     string `json:"id,omitempty"`
+	Key                                    string `json:"key"`
+	Title                                  string `json:"title"`
+	PanelType                              string `json:"panelType"`
+	VisualSettings                         string `json:"visualSettings"`
+	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
+	// Trace panel related properties
+	Queries   []SearchPanelQuery `json:"queries"`
+	TimeRange interface{}        `json:"timeRange"`
+}
+
+type ServiceMapPanel struct {
+	Id                                     string `json:"id,omitempty"`
+	Key                                    string `json:"key"`
+	Title                                  string `json:"title"`
+	VisualSettings                         string `json:"visualSettings"`
+	PanelType                              string `json:"panelType"`
+	KeepVisualSettingsConsistentWithParent bool   `json:"keepVisualSettingsConsistentWithParent"`
+	// Service map panel related properties
+	Application        string `json:"application,omitempty"`
+	Service            string `json:"service,omitempty"`
+	ShowRemoteServices bool   `json:"showRemoteServices,omitempty"`
+	Environment        string `json:"environment,omitempty"`
+}
+
 type SearchPanelQuery struct {
-	QueryString      string            `json:"queryString"`
-	QueryType        string            `json:"queryType"`
-	QueryKey         string            `json:"queryKey"`
-	MetricsQueryMode string            `json:"metricsQueryMode,omitempty"`
-	MetricsQueryData *MetricsQueryData `json:"metricsQueryData,omitempty"`
+	QueryString            string            `json:"queryString"`
+	QueryType              string            `json:"queryType"`
+	QueryKey               string            `json:"queryKey"`
+	MetricsQueryMode       string            `json:"metricsQueryMode,omitempty"`
+	MetricsQueryData       *MetricsQueryData `json:"metricsQueryData,omitempty"`
+	ParseMode              string            `json:"parseMode,omitempty"`
+	TimeSource             string            `json:"timeSource,omitempty"`
+	Transient              bool              `json:"transient,omitempty"`
+	OutputCardinalityLimit int               `json:"outputCardinalityLimit,omitempty"`
 }
 
 type MetricsQueryData struct {

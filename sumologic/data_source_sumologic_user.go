@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceSumologicUser() *schema.Resource {
@@ -91,7 +91,7 @@ func dataSourceSumologicUserRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func (s *Client) GetUserByEmail(email string) (*User, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/users?email=%s", url.QueryEscape(email)))
+	data, err := s.Get(fmt.Sprintf("v1/users?email=%s", url.QueryEscape(email)))
 	if err != nil {
 		return nil, err
 	}

@@ -114,6 +114,10 @@ The following arguments are supported:
 - `schedule` - (Block List, Max: 1, Optional) Schedule of the log search. See [schedule schema](#schema-for-schedule)
 - `run_by_receipt_time` - (Optional) This has the value `true` if the search is to be run by receipt time and
     `false` if it is to be run by message time. Default value is `false`.
+- `interval_time_type` - (Optional) This field defines whether the search should run by message time or receipt time .  
+  Allowed values are: `messageTime`, `receiptTime`.  
+  If not set, the system uses the run_by_receipt_time field. 
+  If both fields are set, interval_time_type will take precedence
 
 ### Schema for `query_parameter`
 - `name` - (Required) The name of the parameter.
@@ -130,7 +134,7 @@ The following arguments are supported:
 - `cron_expression` - (Optional) Cron-like expression specifying the search's schedule. `schedule_type` must be set
     to "Custom", otherwise, `schedule_type` takes precedence over `cron_expression`.
 - `schedule_type` - (Required) Run schedule of the scheduled search. Set to "Custom" to specify the schedule with
-    a CRON expression. Possible schedule types are: `RealTime`, `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
+    a CRON expression. Possible schedule types are: `15Minutes`, `1Hour`, `2Hours`, `4Hours`, `6Hours`,
     `8Hours`, `12Hours`, `1Day`, `1Week`, `Custom`.
 
     -> With `Custom`, `1Day` and `1Week` schedule types you need to provide the corresponding cron expression

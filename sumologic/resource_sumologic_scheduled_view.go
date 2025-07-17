@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicScheduledView() *schema.Resource {
@@ -37,6 +37,11 @@ func resourceSumologicScheduledView() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.IsRFC3339Time,
 			},
+			"index_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"retention_period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -61,6 +66,12 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"time_zone": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Time zone for ingesting data in scheduled view. Follow the format in the [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).",
+			},
 		},
 	}
 }
@@ -69,6 +80,12 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 	c := meta.(*Client)
 	if d.Id() == "" {
 		sview := resourceToScheduledView(d)
+
+		// add timeZone if specified
+		if v, ok := d.GetOk("time_zone"); ok {
+			sview.TimeZone = v.(string)
+		}
+
 		createdSview, err := c.CreateScheduledView(sview)
 
 		if err != nil {
@@ -76,6 +93,7 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 		}
 
 		d.SetId(createdSview.ID)
+		d.Set("index_id", createdSview.IndexId)
 		d.Set("retention_period", createdSview.RetentionPeriod)
 	}
 
@@ -99,12 +117,14 @@ func resourceSumologicScheduledViewRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
+	d.Set("index_id", sview.IndexId)
 	d.Set("query", sview.Query)
 	d.Set("index_name", sview.IndexName)
 	d.Set("start_time", sview.StartTime.Format(time.RFC3339))
 	d.Set("retention_period", sview.RetentionPeriod)
 	d.Set("data_forwarding_id", sview.DataForwardingId)
 	d.Set("parsing_mode", sview.ParsingMode)
+	d.Set("time_zone", sview.TimeZone)
 
 	return nil
 }
@@ -114,6 +134,10 @@ func resourceSumologicScheduledViewDelete(d *schema.ResourceData, meta interface
 }
 func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface{}) error {
 	sview := resourceToScheduledView(d)
+
+	if d.HasChange("time_zone") {
+		sview.TimeZone = d.Get("time_zone").(string)
+	}
 
 	c := meta.(*Client)
 	err := c.UpdateScheduledView(sview)

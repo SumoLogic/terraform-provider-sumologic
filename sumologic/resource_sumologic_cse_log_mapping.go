@@ -1,9 +1,9 @@
 package sumologic
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSumologicCSELogMapping() *schema.Resource {
@@ -101,7 +101,7 @@ func resourceSumologicCSELogMapping() *schema.Resource {
 							Optional: true,
 						},
 						"split_index": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"field_join": {
@@ -262,9 +262,10 @@ func resourceToCSELogMapping(d *schema.ResourceData) CSELogMapping {
 
 	skippedValuesData := d.Get("skipped_values").([]interface{})
 	skippedValues := make([]string, len(skippedValuesData))
-
 	for i, v := range skippedValuesData {
-		skippedValues[i] = v.(string)
+		if v != nil {
+			skippedValues[i] = v.(string)
+		}
 	}
 
 	fieldsData := d.Get("fields").([]interface{})
@@ -351,11 +352,14 @@ func resourceToCSELogMappingField(data interface{}) CSELogMappingField {
 		field.SkippedValues = resourceStringArrayToStringArray(fieldObj["skipped_values"].([]interface{}))
 		field.DefaultValue = fieldObj["default_value"].(string)
 		field.Format = fieldObj["format"].(string)
-		field.CaseInsensitive = fieldObj["case_insensitive"].(bool)
+		caseInsensitive := fieldObj["case_insensitive"]
+		if caseInsensitive != nil {
+			field.CaseInsensitive = fieldObj["case_insensitive"].(bool)
+		}
 		field.AlternateValues = resourceStringArrayToStringArray(fieldObj["alternate_values"].([]interface{}))
 		field.TimeZone = fieldObj["time_zone"].(string)
 		field.SplitDelimiter = fieldObj["split_delimiter"].(string)
-		field.SplitIndex = fmt.Sprint(fieldObj["split_index"].(int))
+		field.SplitIndex = fieldObj["split_index"].(string)
 		field.FieldJoin = resourceStringArrayToStringArray(fieldObj["field_join"].([]interface{}))
 		field.JoinDelimiter = fieldObj["join_delimiter"].(string)
 		field.FormatParameters = resourceStringArrayToStringArray(fieldObj["format_parameters"].([]interface{}))
@@ -366,7 +370,7 @@ func resourceToCSELogMappingField(data interface{}) CSELogMappingField {
 			lookup = append(lookup, resourceToCSELogMappingLookUp([]interface{}{data}))
 		}
 
-		field.LookUp = lookup
+		field.LookUp = &lookup
 
 	}
 	return field
@@ -424,6 +428,7 @@ func setFields(d *schema.ResourceData, fields []CSELogMappingField) {
 	var f []map[string]interface{}
 
 	for _, t := range fields {
+
 		mapping := map[string]interface{}{
 			"name":              t.Name,
 			"value":             t.Value,
@@ -441,22 +446,25 @@ func setFields(d *schema.ResourceData, fields []CSELogMappingField) {
 			"format_parameters": t.FormatParameters,
 			"lookup":            getLookUpResource(t.LookUp),
 		}
+
 		f = append(f, mapping)
+
 	}
 
 	d.Set("fields", f)
 
 }
 
-func getLookUpResource(lookUp []CSELogMappingLookUp) []map[string]interface{} {
+func getLookUpResource(lookUp *[]CSELogMappingLookUp) []map[string]interface{} {
 	var s []map[string]interface{}
-
-	for _, l := range lookUp {
-		mapping := map[string]interface{}{
-			"key":   l.Key,
-			"value": l.Value,
+	if lookUp != nil {
+		for _, l := range *lookUp {
+			mapping := map[string]interface{}{
+				"key":   l.Key,
+				"value": l.Value,
+			}
+			s = append(s, mapping)
 		}
-		s = append(s, mapping)
 	}
 
 	return s

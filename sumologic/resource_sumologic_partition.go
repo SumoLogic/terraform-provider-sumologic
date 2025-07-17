@@ -1,10 +1,12 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicPartition() *schema.Resource {
@@ -32,6 +34,12 @@ func resourceSumologicPartition() *schema.Resource {
 			"analytics_tier": {
 				Type:     schema.TypeString,
 				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.ToLower(old) == strings.ToLower(new) {
+						return true
+					}
+					return false
+				},
 			},
 			"retention_period": {
 				Type:         schema.TypeInt,
@@ -67,6 +75,12 @@ func resourceSumologicPartition() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"is_included_in_default_search": {
+				Type:        schema.TypeBool,
+				Description: "Indicates whether the partition is included in the default search scope. Configuring this property is exclusively permitted for flex partitions.",
+				Optional:    true,
+				Default:     true,
+			},
 		},
 	}
 }
@@ -84,7 +98,7 @@ func resourceSumologicPartitionCreate(d *schema.ResourceData, meta interface{}) 
 		d.SetId(createdSpartition.ID)
 	}
 
-	return resourceSumologicPartitionUpdate(d, meta)
+	return resourceSumologicPartitionRead(d, meta)
 }
 
 func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) error {
@@ -113,6 +127,7 @@ func resourceSumologicPartitionRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("is_active", spartition.IsActive)
 	d.Set("total_bytes", spartition.TotalBytes)
 	d.Set("index_type", spartition.IndexType)
+	d.Set("is_included_in_default_search", spartition.IsIncludedInDefaultSearch)
 
 	return nil
 }
@@ -121,11 +136,23 @@ func resourceSumologicPartitionDelete(d *schema.ResourceData, meta interface{}) 
 	return c.DecommissionPartition(d.Id())
 }
 func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) error {
-	spartition := resourceToPartition(d)
-
 	c := meta.(*Client)
-	err := c.UpdatePartition(spartition)
 
+	partitionId := d.Id()
+
+	spartition := resourceToPartition(d)
+	if d.HasChange("analytics_tier") {
+		currPartitionState, err := c.GetPartition(partitionId)
+		if err != nil {
+			return fmt.Errorf("error loading partition with id %s for analytics_tier update validation", partitionId)
+		}
+
+		if !areAnalyticsTierEqual(currPartitionState.AnalyticsTier, spartition.AnalyticsTier) {
+			return fmt.Errorf("analytics_tier of a partition can only be updated post creation if partition has been moved to flex tier")
+		}
+	}
+
+	err := c.UpdatePartition(spartition)
 	if err != nil {
 		return err
 	}
@@ -134,11 +161,31 @@ func resourceSumologicPartitionUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceToPartition(d *schema.ResourceData) Partition {
+
+	analyticsTier := strings.ToLower(d.Get("analytics_tier").(string))
+	isIncludedInDefaultSearch := d.Get("is_included_in_default_search").(bool)
+
+	var analyticsTierPtr *string
+
+	if analyticsTier == "" {
+		analyticsTierPtr = nil
+	} else {
+		analyticsTierPtr = &analyticsTier
+	}
+
+	var isIncludedInDefaultSearchPtr *bool
+	if analyticsTier == "flex" || analyticsTier == "" {
+		isIncludedInDefaultSearchPtr = new(bool)
+		*isIncludedInDefaultSearchPtr = isIncludedInDefaultSearch
+	} else {
+		isIncludedInDefaultSearchPtr = nil
+	}
+
 	return Partition{
 		ID:                               d.Id(),
 		Name:                             d.Get("name").(string),
 		RoutingExpression:                d.Get("routing_expression").(string),
-		AnalyticsTier:                    d.Get("analytics_tier").(string),
+		AnalyticsTier:                    analyticsTierPtr,
 		RetentionPeriod:                  d.Get("retention_period").(int),
 		IsCompliant:                      d.Get("is_compliant").(bool),
 		DataForwardingId:                 d.Get("data_forwarding_id").(string),
@@ -146,5 +193,17 @@ func resourceToPartition(d *schema.ResourceData) Partition {
 		TotalBytes:                       d.Get("total_bytes").(int),
 		IndexType:                        d.Get("index_type").(string),
 		ReduceRetentionPeriodImmediately: d.Get("reduce_retention_period_immediately").(bool),
+		IsIncludedInDefaultSearch:        isIncludedInDefaultSearchPtr,
 	}
+}
+
+func areAnalyticsTierEqual(a, b *string) bool {
+	coerceToStr := func(s *string) string {
+		if s == nil {
+			return ""
+		}
+		return *s
+	}
+
+	return strings.EqualFold(coerceToStr(a), coerceToStr(b))
 }

@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,9 +15,9 @@ func TestAccSumologicSCERuleTuningExpression_create(t *testing.T) {
 	SkipCseTest(t)
 
 	var ruleTuningExpression CSERuleTuningExpression
-	nName := "New Rule Tuning Name"
+	nName := acctest.RandomWithPrefix("New Rule Tuning Name")
 	nDescription := "New Rule Tuning Description"
-	nExpression := "expression"
+	nExpression := "accountId = 1234"
 	nEnabled := true
 	nExclude := true
 	nIsGlobal := false

@@ -2,8 +2,6 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"log"
 	"regexp"
 	"sort"
@@ -11,9 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShouldBeInverses(t *testing.T) {
@@ -107,20 +108,20 @@ func TestSumologicMonitorsLibraryMonitor_conversionsToFromTriggerConditionsShoul
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	config := `
-       resource "sumologic_monitor" "test" { 
+       resource "sumologic_monitor" "test" {
          name = "test"
          type = "MonitorsLibraryMonitor"
          monitor_type = "Logs"
          triggers {
+           time_range = "1h"
            threshold_type = "foo"
          }
        }`
-	expectedError := regexp.MustCompile(".*expected triggers.0.threshold_type to be one of \\[LessThan LessThanOrEqual GreaterThan GreaterThanOrEqual\\], got foo.*")
+	expectedError := regexp.MustCompile(`.*expected triggers.0.threshold_type to be one of \["LessThan" "LessThanOrEqual" "GreaterThan" "GreaterThanOrEqual"\], got foo.*`)
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config:      config,
@@ -132,7 +133,6 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerValidations(t *testing.
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	for _, monitorConfig := range allInvalidTriggerConditionMonitorResources {
 		testNameSuffix := acctest.RandString(16)
 
@@ -141,11 +141,11 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 			Steps: []resource.TestStep{
 				{
 					Config:      monitorConfig(testName),
-					ExpectError: regexp.MustCompile("config is invalid"),
+					ExpectError: regexp.MustCompile("Missing required argument"),
 				},
 			},
 		})
@@ -153,12 +153,11 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	canonicalTimeRange := "1h"
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor("triggers_negative_expanded_hour"),
@@ -171,7 +170,6 @@ func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *
 }
 
 func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
-	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
 
 	testName := "terraform_test_monitor_" + testNameSuffix
@@ -179,7 +177,7 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testName),
@@ -260,12 +258,12 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
@@ -321,12 +319,12 @@ func TestAccSumologicMonitorsLibraryMonitor_create_with_no_resolution_window(t *
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.time_range", testTriggers[0].TimeRange),
@@ -346,12 +344,12 @@ func TestAccSumologicMonitorsLibraryMonitor_create_all_monitor_types(t *testing.
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
-			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+			CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 			Steps: []resource.TestStep{
 				{
 					Config: monitorConfig(testName),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+						testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 						testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 						resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(false)),
 						resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
@@ -494,12 +492,12 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "is_disabled", strconv.FormatBool(testIsDisabled)),
@@ -562,12 +560,12 @@ func TestAccSumologicMonitorsLibraryMonitor_driftingCorrectionFGP(t *testing.T) 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes(tfResourceKey),
 
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
@@ -589,7 +587,7 @@ func TestAccSumologicMonitorsLibraryMonitor_driftingCorrectionFGP(t *testing.T) 
 			{
 				Config: testAccSumologicMonitorsLibraryMonitor(testNameSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists(tfResourceKey, &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes(tfResourceKey),
 
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
@@ -619,28 +617,28 @@ func TestAccSumologicMonitorsLibraryMonitor_folder_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder1tfResourceKey),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
-					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder1tfResourceKey, t),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder1tfResourceKey),
 				),
 			},
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorFolderUpdate(testNameSuffix, folder2tfResourceKey),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "name", testName),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "type", testType),
-					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder2tfResourceKey, t),
+					testAccCheckMonitorsLibraryMonitorFolderMatch("sumologic_monitor.test", folder2tfResourceKey),
 				),
 			},
 		},
@@ -663,14 +661,14 @@ func TestAccSumologicMonitorsLibraryMonitor_override_payload(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor),
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
 		//destroy conection too
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSumologicMonitorsLibraryMonitorUpdateConection(testNameSuffix, defaultPayload, resolutionPayload,
 					overrideDefaultPayload, overrideResolutionPayload),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test_monitor_connection", &monitorsLibraryMonitor, t),
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test_monitor_connection", &monitorsLibraryMonitor),
 					testAccCheckMonitorsLibraryMonitorAttributes("sumologic_monitor.test_monitor_connection"),
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "monitor_type", testMonitorType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test_monitor_connection", "name", testName),
@@ -683,7 +681,7 @@ func TestAccSumologicMonitorsLibraryMonitor_override_payload(t *testing.T) {
 	})
 }
 
-func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string, t *testing.T) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		//fetching monitor information
 		monitorResource, ok := s.RootModule().Resources[monitorName]
@@ -733,7 +731,7 @@ func testAccCheckMonitorsLibraryMonitorFolderMatch(monitorName string, folderNam
 	}
 }
 
-func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLibraryMonitor) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
@@ -750,7 +748,7 @@ func testAccCheckMonitorsLibraryMonitorDestroy(monitorsLibraryMonitor MonitorsLi
 	}
 }
 
-func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonitor *MonitorsLibraryMonitor, t *testing.T) resource.TestCheckFunc {
+func testAccCheckMonitorsLibraryMonitorExists(name string, monitorsLibraryMonitor *MonitorsLibraryMonitor) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -842,7 +840,7 @@ resource "sumologic_monitor" "test" {
 		  }
 		run_for_trigger_types = ["Critical", "ResolvedCritical"]
 	  }
-	playbook = "This is a test playbook"  
+	playbook = "This is a test playbook"
 	alert_name =  "Alert from {{Name}}"
 	tags = {
         team = "metrics"
@@ -921,7 +919,7 @@ func testAccSumologicMonitorsLibraryMonitorWithNoResolutionWindow(testName strin
 				trigger_type = "ResolvedCritical"
 				detection_method = "StaticCondition"
 			}
-			playbook = "This is a test playbook"  
+			playbook = "This is a test playbook"
 			alert_name =  "Alert from {{Name}}"
 		}`, testName)
 }
@@ -1045,7 +1043,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	  }
 	notifications {
 		notification {
-			connection_type = "Webhook"			
+			connection_type = "Webhook"
 			connection_id = sumologic_connection.connection_01.id
 			payload_override = <<JSON
 %s
@@ -1058,7 +1056,7 @@ resource "sumologic_monitor" "test_monitor_connection" {
 	}
 	playbook = "This is an updated test playbook"
 	alert_name = "Updated Alert from {{Name}}"
-	
+
 	obj_permission {
 		subject_type = "role"
 		subject_id = sumologic_role.tf_test_role_01.id
@@ -1152,7 +1150,7 @@ func testAccSumologicMonitorsLibraryMonitorFolderUpdate(testName string, parentI
 resource "sumologic_monitor_folder" "tf_folder_01" {
 	name = "tf_test_folder_01_%s"
 	description = "1st folder"
-}	
+}
 resource "sumologic_monitor_folder" "tf_folder_02" {
 	name = "tf_test_folder_02_%s"
 	description = "1st folder"
@@ -1309,6 +1307,7 @@ var exampleLogsStaticTriggerConditionBlock = `
    logs_static_condition {
      critical {
        time_range = "60m"
+       frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1325,6 +1324,7 @@ var exampleLogsStaticTriggerConditionBlockWithResolutionWindow = `
    logs_static_condition {
      critical {
        time_range = "1h"
+       frequency = "5m"
        alert {
          threshold = 100.0
          threshold_type = "GreaterThan"
@@ -1426,6 +1426,27 @@ var exampleSloBurnRateTriggerConditionBlock = `
       }
     }`
 
+var exampleLogsAnomalyTriggerConditionBlock = `
+    logs_anomaly_condition {
+    	field = "_count"
+      	anomaly_detector_type = "Cluster"
+       	critical {
+       		sensitivity = 0.5
+       		min_anomaly_count = 5
+         	time_range = "-1h"
+        }
+    }`
+
+var exampleMetricsAnomalyTriggerConditionBlock = `
+    metrics_anomaly_condition {
+      	anomaly_detector_type = "Cluster"
+       	critical {
+       		sensitivity = 0.5
+       		min_anomaly_count = 5
+         	time_range = "-1h"
+        }
+    }`
+
 func exampleLogsStaticMonitor(testName string) string {
 	query := "error | timeslice 1m | count as field by _timeslice"
 	return exampleMonitorWithTriggerCondition(testName, "Logs", query,
@@ -1482,6 +1503,28 @@ func exampleSloBurnRateMonitor(testName string) string {
 	return exampleSloMonitorWithTriggerCondition(testName, exampleSloBurnRateTriggerConditionBlock)
 }
 
+func exampleLogsAnomalyMonitor(testName string) string {
+	query := "_sourceCategory=api error | timeslice 5m | count by _timeslice"
+	return exampleMonitorWithTriggerCondition(
+		testName,
+		"Logs",
+		query,
+		exampleLogsAnomalyTriggerConditionBlock,
+		[]string{"Critical", "ResolvedCritical"},
+	)
+}
+
+func exampleMetricsAnomalyMonitor(testName string) string {
+	query := "service=auth api=login metric=HTTP_5XX_Count | avg"
+	return exampleMonitorWithTriggerCondition(
+		testName,
+		"Metrics",
+		query,
+		exampleMetricsAnomalyTriggerConditionBlock,
+		[]string{"Critical", "ResolvedCritical"},
+	)
+}
+
 var allExampleMonitors = []func(testName string) string{
 	exampleLogsStaticMonitor,
 	exampleLogsStaticMonitorWithResolutionWindow,
@@ -1493,26 +1536,8 @@ var allExampleMonitors = []func(testName string) string{
 	exampleMetricsMissingDataMonitor,
 	exampleSloSliMonitor,
 	exampleSloBurnRateMonitor,
-}
-
-func testAccSumologicMonitorsLibraryMonitorWithInvalidTriggerCondition(testName string, triggerCondition string) string {
-	return fmt.Sprintf(`
-resource "sumologic_monitor" "test" {
-	name = "terraform_test_monitor_%s"
-	description = "terraform_test_monitor_description"
-	type = "MonitorsLibraryMonitor"
-	is_disabled = false
-	content_type = "Monitor"
-	monitor_type = "Logs"
-	evaluation_delay = "60m"
-	queries {
-		row_id = "A"
-		query = "_sourceCategory=monitor-manager error"
-	  }
-	trigger_conditions  {
-		%s
-	}
-}`, testName, triggerCondition)
+	exampleLogsAnomalyMonitor,
+	exampleMetricsAnomalyMonitor,
 }
 
 func exampleLogsStaticTriggerCondition(triggerType string, threshold float64, thresholdType string) TriggerCondition {
@@ -1660,7 +1685,7 @@ func genExpectedPermStmtsForMonitorUpdate(s *terraform.State, targetId string) (
 
 func testAccCheckMonitorsLibraryMonitorFGPBackend(
 	name string,
-	t *testing.T,
+	_ *testing.T,
 	expectedFGPFunc func(*terraform.State, string) ([]CmfFgpPermStatement, error),
 ) resource.TestCheckFunc {
 

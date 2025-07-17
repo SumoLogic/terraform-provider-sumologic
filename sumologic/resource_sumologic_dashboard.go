@@ -3,8 +3,8 @@ package sumologic
 import (
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var (
@@ -147,6 +147,22 @@ func getPanelSchema() map[string]*schema.Schema {
 				Schema: getTextPanelSchema(),
 			},
 		},
+		"traces_list_panel": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: getTracesListPanelSchema(),
+			},
+		},
+		"service_map_panel": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: getServiceMapPanelSchema(),
+			},
+		},
 	}
 }
 
@@ -259,6 +275,64 @@ func getSumoSearchPanelSchema() map[string]*schema.Schema {
 	return panelSchema
 }
 
+func getTracesListPanelSchema() map[string]*schema.Schema {
+	panelSchema := getPanelBaseSchema()
+
+	traceListPanelSchema := map[string]*schema.Schema{
+		"queries": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: getSumoSearchPanelQuerySchema(),
+			},
+			MaxItems: 6,
+		},
+		"time_range": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: GetTimeRangeSchema(),
+			},
+		},
+	}
+
+	for k, v := range traceListPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
+}
+
+func getServiceMapPanelSchema() map[string]*schema.Schema {
+	panelSchema := getPanelBaseSchema()
+
+	serviceMapPanelSchema := map[string]*schema.Schema{
+		"application": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"service": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"show_remote_services": {
+			Type:     schema.TypeBool,
+			Optional: true,
+		},
+		"environment": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+	}
+
+	for k, v := range serviceMapPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
+}
+
 func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"query_string": {
@@ -286,6 +360,28 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: getMetricsQueryDataSchema(),
 			},
+		},
+		"parse_mode": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "Auto",
+			ValidateFunc: validation.StringInSlice([]string{"Auto", "Manual"}, false),
+		},
+		"time_source": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			Default:      "Message",
+			ValidateFunc: validation.StringInSlice([]string{"Message", "Receipt", "Searchable"}, false),
+		},
+		"transient": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  false,
+		},
+		"output_cardinality_limit": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Default:  1000,
 		},
 	}
 }
@@ -599,6 +695,14 @@ func getPanel(tfPanel map[string]interface{}) interface{} {
 		if tfSearchPanel, ok := val[0].(map[string]interface{}); ok {
 			return getSumoSearchPanel(tfSearchPanel)
 		}
+	} else if val := tfPanel["traces_list_panel"].([]interface{}); len(val) == 1 {
+		if tfTracesListPanel, ok := val[0].(map[string]interface{}); ok {
+			return getTracesListPanel(tfTracesListPanel)
+		}
+	} else if val := tfPanel["service_map_panel"].([]interface{}); len(val) == 1 {
+		if tfServiceMapPanel, ok := val[0].(map[string]interface{}); ok {
+			return getServiceMapPanel(tfServiceMapPanel)
+		}
 	}
 	return nil
 }
@@ -674,6 +778,64 @@ func getSumoSearchPanel(tfSearchPanel map[string]interface{}) interface{} {
 	return searchPanel
 }
 
+func getTracesListPanel(tfPanel map[string]interface{}) interface{} {
+	var panel TracesListPanel
+	panel.PanelType = "TracesListPanel"
+
+	panel.Key = tfPanel["key"].(string)
+	if title, ok := tfPanel["title"].(string); ok {
+		panel.Title = title
+	}
+	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
+		panel.VisualSettings = visualSettings
+	}
+	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+		panel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
+	}
+	tfQueries := tfPanel["query"].([]interface{})
+	var queries []SearchPanelQuery
+	for _, tfQuery := range tfQueries {
+		query := getSearchPanelQuery(tfQuery.(map[string]interface{}))
+		queries = append(queries, query)
+	}
+	panel.Queries = queries
+	if timeRangeData, ok := tfPanel["time_range"].([]interface{}); ok && len(timeRangeData) > 0 {
+		panel.TimeRange = GetTimeRange(timeRangeData[0].(map[string]interface{}))
+	}
+
+	return panel
+}
+
+func getServiceMapPanel(tfPanel map[string]interface{}) interface{} {
+	var panel ServiceMapPanel
+	panel.PanelType = "ServiceMapPanel"
+
+	panel.Key = tfPanel["key"].(string)
+	if title, ok := tfPanel["title"].(string); ok {
+		panel.Title = title
+	}
+	if visualSettings, ok := tfPanel["visual_settings"].(string); ok {
+		panel.VisualSettings = visualSettings
+	}
+	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+		panel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
+	}
+	if application, ok := tfPanel["application"].(string); ok {
+		panel.Application = application
+	}
+	if service, ok := tfPanel["service"].(string); ok {
+		panel.Service = service
+	}
+	if showRemoteServices, ok := tfPanel["show_remote_services"].(bool); ok {
+		panel.ShowRemoteServices = showRemoteServices
+	}
+	if environment, ok := tfPanel["environment"].(string); ok {
+		panel.Environment = environment
+	}
+
+	return panel
+}
+
 func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 	var query SearchPanelQuery
 
@@ -688,6 +850,18 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 		if tfQueryData := val.([]interface{}); len(tfQueryData) == 1 {
 			query.MetricsQueryData = getMetricsQueryData(tfQueryData[0].(map[string]interface{}))
 		}
+	}
+	if val, ok := tfQuery["parse_mode"]; ok {
+		query.ParseMode = val.(string)
+	}
+	if val, ok := tfQuery["time_source"]; ok {
+		query.TimeSource = val.(string)
+	}
+	if val, ok := tfQuery["transient"]; ok {
+		query.Transient = val.(bool)
+	}
+	if val, ok := tfQuery["output_cardinality_limit"]; ok {
+		query.OutputCardinalityLimit = val.(int)
 	}
 
 	return query
@@ -1004,6 +1178,10 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 			tfPanel["text_panel"] = getTerraformTextPanel(panel)
 		} else if panel["panelType"] == "SumoSearchPanel" {
 			tfPanel["sumo_search_panel"] = getTerraformSearchPanel(panel)
+		} else if panel["panelType"] == "TracesListPanel" {
+			tfPanel["traces_list_panel"] = getTerraformTracesListPanel(panel)
+		} else if panel["panelType"] == "ServiceMapPanel" {
+			tfPanel["service_map_panel"] = getTerraformServiceMapPanel(panel)
 		}
 
 		tfPanels[i] = tfPanel
@@ -1060,6 +1238,60 @@ func getTerraformSearchPanel(searchPanel map[string]interface{}) TerraformObject
 	return tfSearchPanel
 }
 
+func getTerraformTracesListPanel(panel map[string]interface{}) TerraformObject {
+	tfTracesListPanel := MakeTerraformObject()
+
+	tfTracesListPanel[0]["key"] = panel["key"]
+
+	if title, ok := panel["title"].(string); ok {
+		tfTracesListPanel[0]["title"] = title
+	}
+	if visualSettings, ok := panel["visual_settings"].(string); ok {
+		tfTracesListPanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfTracesListPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
+
+	tfTracesListPanel[0]["queries"] = getTerraformSearchPanelQuery(panel["queries"].([]interface{}))
+
+	if timeRange := panel["timeRange"]; timeRange != nil {
+		tfTracesListPanel[0]["time_range"] = GetTerraformTimeRange(timeRange.(map[string]interface{}))
+	}
+
+	return tfTracesListPanel
+}
+
+func getTerraformServiceMapPanel(panel map[string]interface{}) TerraformObject {
+	tfServiceMapPanel := MakeTerraformObject()
+
+	tfServiceMapPanel[0]["key"] = panel["key"]
+
+	if title, ok := panel["title"].(string); ok {
+		tfServiceMapPanel[0]["title"] = title
+	}
+	if visualSettings, ok := panel["visual_settings"].(string); ok {
+		tfServiceMapPanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfServiceMapPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
+	if application, ok := panel["application"].(string); ok {
+		tfServiceMapPanel[0]["application"] = application
+	}
+	if service, ok := panel["service"].(string); ok {
+		tfServiceMapPanel[0]["service"] = service
+	}
+	if showRemoteServices, ok := panel["show_remote_services"].(bool); ok {
+		tfServiceMapPanel[0]["show_remote_services"] = showRemoteServices
+	}
+	if environment, ok := panel["environment"].(string); ok {
+		tfServiceMapPanel[0]["environment"] = environment
+	}
+
+	return tfServiceMapPanel
+}
+
 func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{} {
 	tfPanelQueries := make([]map[string]interface{}, len(queries))
 
@@ -1075,6 +1307,18 @@ func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{
 		if metricsQueryData, ok := query["metricsQueryData"]; ok && metricsQueryData != nil {
 			tfPanelQueries[i]["metrics_query_data"] =
 				getTerraformMetricsQueryDataScheme(metricsQueryData.(map[string]interface{}))
+		}
+		if parseMode, ok := query["parseMode"]; ok {
+			tfPanelQueries[i]["parse_mode"] = parseMode
+		}
+		if timeSource, ok := query["timeSource"]; ok {
+			tfPanelQueries[i]["time_source"] = timeSource
+		}
+		if transient, ok := query["transient"]; ok {
+			tfPanelQueries[i]["transient"] = transient
+		}
+		if outputCardinalityLimit, ok := query["outputCardinalityLimit"]; ok {
+			tfPanelQueries[i]["output_cardinality_limit"] = outputCardinalityLimit
 		}
 	}
 	return tfPanelQueries

@@ -1,9 +1,11 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicCSEChainRule() *schema.Resource {
@@ -83,6 +85,16 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"window_size_millis": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -116,6 +128,12 @@ func resourceSumologicCSEChainRuleRead(d *schema.ResourceData, meta interface{})
 	d.Set("summary_expression", CSEChainRuleGet.SummaryExpression)
 	d.Set("tags", CSEChainRuleGet.Tags)
 	d.Set("window_size", CSEChainRuleGet.WindowSizeName)
+	if strings.EqualFold(CSEChainRuleGet.WindowSizeName, "CUSTOM") {
+		d.Set("window_size_millis", CSEChainRuleGet.WindowSize)
+	}
+	if CSEChainRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEChainRuleGet.SuppressionWindowSize)
+	}
 
 	return nil
 }
@@ -131,20 +149,29 @@ func resourceSumologicCSEChainRuleCreate(d *schema.ResourceData, meta interface{
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEChainRule(CSEChainRule{
-			Description:          d.Get("description").(string),
-			Enabled:              d.Get("enabled").(bool),
-			EntitySelectors:      resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-			ExpressionsAndLimits: resourceToExpressionsAndLimitsArray(d.Get("expressions_and_limits").([]interface{})),
-			GroupByFields:        resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-			IsPrototype:          d.Get("is_prototype").(bool),
-			Ordered:              d.Get("ordered").(bool),
-			Name:                 d.Get("name").(string),
-			Severity:             d.Get("severity").(int),
-			Stream:               "record",
-			SummaryExpression:    d.Get("summary_expression").(string),
-			Tags:                 resourceToStringArray(d.Get("tags").([]interface{})),
-			WindowSize:           windowSizeField(d.Get("window_size").(string)),
+			Description:            d.Get("description").(string),
+			Enabled:                d.Get("enabled").(bool),
+			EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+			ExpressionsAndLimits:   resourceToExpressionsAndLimitsArray(d.Get("expressions_and_limits").([]interface{})),
+			GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+			IsPrototype:            d.Get("is_prototype").(bool),
+			Ordered:                d.Get("ordered").(bool),
+			Name:                   d.Get("name").(string),
+			Severity:               d.Get("severity").(int),
+			Stream:                 "record",
+			SummaryExpression:      d.Get("summary_expression").(string),
+			Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+			WindowSize:             windowSizeField(d.Get("window_size").(string)),
+			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -202,20 +229,28 @@ func resourceToCSEChainRule(d *schema.ResourceData) (CSEChainRule, error) {
 		return CSEChainRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEChainRule{
-		ID:                   id,
-		Description:          d.Get("description").(string),
-		Enabled:              d.Get("enabled").(bool),
-		EntitySelectors:      resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-		ExpressionsAndLimits: resourceToExpressionsAndLimitsArray(d.Get("expressions_and_limits").([]interface{})),
-		GroupByFields:        resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-		IsPrototype:          d.Get("is_prototype").(bool),
-		Ordered:              d.Get("ordered").(bool),
-		Name:                 d.Get("name").(string),
-		Severity:             d.Get("severity").(int),
-		Stream:               "record",
-		SummaryExpression:    d.Get("summary_expression").(string),
-		Tags:                 resourceToStringArray(d.Get("tags").([]interface{})),
-		WindowSize:           windowSizeField(d.Get("window_size").(string)),
+		ID:                     id,
+		Description:            d.Get("description").(string),
+		Enabled:                d.Get("enabled").(bool),
+		EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+		ExpressionsAndLimits:   resourceToExpressionsAndLimitsArray(d.Get("expressions_and_limits").([]interface{})),
+		GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+		IsPrototype:            d.Get("is_prototype").(bool),
+		Ordered:                d.Get("ordered").(bool),
+		Name:                   d.Get("name").(string),
+		Severity:               d.Get("severity").(int),
+		Stream:                 "record",
+		SummaryExpression:      d.Get("summary_expression").(string),
+		Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+		WindowSize:             windowSizeField(d.Get("window_size").(string)),
+		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }

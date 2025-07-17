@@ -1,17 +1,13 @@
 package sumologic
 
 import (
-	"fmt"
 	"log"
-	"regexp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicLogSearch() *schema.Resource {
-
-	nameRegex := `^[a-zA-Z0-9 +%\-@.,_()]+$`
 
 	return &schema.Resource{
 		Create: resourceSumologicLogSearchCreate,
@@ -28,7 +24,6 @@ func resourceSumologicLogSearch() *schema.Resource {
 				Required: true,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(1, 255),
-					validation.StringMatch(regexp.MustCompile(nameRegex), fmt.Sprintf("Must match regex %s", nameRegex)),
 				),
 			},
 			"description": {
@@ -49,6 +44,14 @@ func resourceSumologicLogSearch() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"interval_time_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{"messageTime", "receiptTime", "searchableTime"}, false,
+				),
 			},
 			"time_range": {
 				Type:     schema.TypeList,
@@ -433,6 +436,9 @@ func setLogSearch(d *schema.ResourceData, logSearch *LogSearch) error {
 	if err := d.Set("run_by_receipt_time", logSearch.RunByReceiptTime); err != nil {
 		return err
 	}
+	if err := d.Set("interval_time_type", logSearch.IntervalTimeType); err != nil {
+		return err
+	}
 	if err := d.Set("parsing_mode", logSearch.ParsingMode); err != nil {
 		return err
 	}
@@ -606,6 +612,7 @@ func resourceToLogSearch(d *schema.ResourceData) LogSearch {
 		ParentId:         d.Get("parent_id").(string),
 		QueryString:      d.Get("query_string").(string),
 		RunByReceiptTime: d.Get("run_by_receipt_time").(bool),
+		IntervalTimeType: d.Get("interval_time_type").(string),
 		TimeRange:        timeRange,
 		ParsingMode:      d.Get("parsing_mode").(string),
 		QueryParameters:  queryParameters,
@@ -780,10 +787,16 @@ func getServiceNowSearchNotification(tfServiceNowSearchNotification map[string]i
 }
 
 func getWebhookSearchNotification(tfWebhookSearchNotification map[string]interface{}) interface{} {
+	var payload *string
+	if p, ok := tfWebhookSearchNotification["payload"].(string); ok && p != "" {
+		payload = &p
+	} else {
+		payload = nil
+	}
 	return WebhookSearchNotification{
 		TaskType:          "WebhookSearchNotificationSyncDefinition",
 		WebhookId:         tfWebhookSearchNotification["webhook_id"].(string),
-		Payload:           tfWebhookSearchNotification["payload"].(string),
+		Payload:           payload,
 		ItemizeAlerts:     tfWebhookSearchNotification["itemize_alerts"].(bool),
 		MaxItemizedAlerts: tfWebhookSearchNotification["max_itemized_alerts"].(int),
 	}

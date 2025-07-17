@@ -58,7 +58,7 @@ func (s *Client) CreateKinesisLogSource(kinesisLogSource KinesisLogSource, colle
 
 func (s *Client) GetKinesisLogSource(collectorID, sourceID int) (*KinesisLogSource, error) {
 
-	body, _, err := s.Get(
+	body, err := s.Get(
 		fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID),
 	)
 	if err != nil {

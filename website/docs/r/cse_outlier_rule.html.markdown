@@ -40,7 +40,20 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
     expression = "user_username"
   }
 
+  floor_value            = 0
+  deviation_threshold    = 3
+  group_by_fields        = ["user_username"]
+  is_prototype           = false
+  match_expression       = "objectType=\"Authentication\" AND success=false"
+  name                   = "Spike in Login Failures"
+  name_expression        = "Spike in Login Failures - {{ user_username }}"
+  retention_window_size  = "7776000000" // 90 days
+  severity               = 1
+  summary_expression     = "Spike in Login Failures - {{ user_username }}"
+  window_size            = "T24H"
+  suppression_window_size = 90000000
   tags = ["_mitreAttackTactic:TA0006", "_mitreAttackTechnique:T1110"]
+
 }
 ```
 ## Argument Reference
@@ -69,6 +82,7 @@ The following arguments are supported:
 - `summary_expression` - (Optional) The summary of the generated Signals
 - `tags` - (Optional) The tags of the generated Signals
 - `window_size` - (Required) The window size. Current acceptable values are T60M (1 hr) or  T24H (1 day)
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than `window_size` and less than the global limit of 7 days.
 
 The following attributes are exported:
 

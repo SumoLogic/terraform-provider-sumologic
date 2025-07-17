@@ -46,7 +46,7 @@ func (s *Client) CreateCloudToCloudSource(source CloudToCloudSource, collectorID
 
 func (s *Client) GetCloudToCloudSource(collectorID, sourceID int) (*CloudToCloudSource, error) {
 	urlPath := fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID)
-	body, _, err := s.Get(urlPath)
+	body, err := s.Get(urlPath)
 
 	if err != nil {
 		return nil, err

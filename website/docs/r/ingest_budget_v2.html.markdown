@@ -42,10 +42,11 @@ The following attributes are exported:
   * `id` - The internal ID of the ingest budget. 
 
 ## Import
-Ingest budgets can be imported using the budget ID, e.g.:
+Ingest budgets can be imported using the budget ID or name, e.g.:
 
 ```hcl
 terraform import sumologic_ingest_budget_v2.budget 00000000000123AB
+terraform import sumologic_ingest_budget_v2.dev_budget "DevelopersBudget"
 ```
 
 [1]: https://help.sumologic.com/Beta/Metadata_Ingest_Budgets

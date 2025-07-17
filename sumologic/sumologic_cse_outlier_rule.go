@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEOutlierRule(id string) (*CSEOutlierRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -93,4 +93,5 @@ type CSEOutlierRule struct {
 	Tags                  []string              `json:"tags"`
 	WindowSize            windowSizeField       `json:"windowSize,omitempty"`
 	WindowSizeName        string                `json:"windowSizeName,omitempty"`
+	SuppressionWindowSize *int                  `json:"suppressionWindowSize,omitempty"`
 }

@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Client) GetCSEEntityNormalizationConfiguration() (*CSEEntityNormalizationConfiguration, error) {
-	data, _, err := s.Get("sec/v1/entity-normalization/domain-configuration")
+	data, err := s.Get("sec/v1/entity-normalization/domain-configuration")
 	if err != nil {
 		return nil, err
 	}

@@ -45,7 +45,7 @@ func (s *Client) MonitorsRead(id string) (*MonitorsLibraryMonitor, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -159,23 +159,27 @@ type MonitorQuery struct {
 }
 
 type TriggerCondition struct {
-	TimeRange         string     `json:"timeRange,omitempty"`
-	TriggerType       string     `json:"triggerType"`
-	Threshold         float64    `json:"threshold,omitempty"`
-	ThresholdType     string     `json:"thresholdType,omitempty"`
-	OccurrenceType    string     `json:"occurrenceType"`
-	MinDataPoints     int        `json:"minDataPoints,omitempty"`
-	TriggerSource     string     `json:"triggerSource"`
-	DetectionMethod   string     `json:"detectionMethod"`
-	ResolutionWindow  string     `json:"resolutionWindow,omitempty"`
-	Field             string     `json:"field,omitempty"`
-	Window            int        `json:"window,omitempty"`
-	BaselineWindow    string     `json:"baselineWindow,omitempty"`
-	Consecutive       int        `json:"consecutive,omitempty"`
-	Direction         string     `json:"direction,omitempty"`
-	SLIThreshold      float64    `json:"sliThreshold,omitempty"`
-	BurnRateThreshold float64    `json:"burnRateThreshold,omitempty"`
-	BurnRates         []BurnRate `json:"burnRates,omitempty"`
+	TimeRange           string     `json:"timeRange,omitempty"`
+	Frequency           string     `json:"frequency,omitempty"`
+	TriggerType         string     `json:"triggerType"`
+	Threshold           float64    `json:"threshold,omitempty"`
+	ThresholdType       string     `json:"thresholdType,omitempty"`
+	OccurrenceType      string     `json:"occurrenceType"`
+	MinDataPoints       int        `json:"minDataPoints,omitempty"`
+	TriggerSource       string     `json:"triggerSource"`
+	DetectionMethod     string     `json:"detectionMethod"`
+	ResolutionWindow    string     `json:"resolutionWindow,omitempty"`
+	Field               string     `json:"field,omitempty"`
+	Window              int        `json:"window,omitempty"`
+	BaselineWindow      string     `json:"baselineWindow,omitempty"`
+	Consecutive         int        `json:"consecutive,omitempty"`
+	Direction           string     `json:"direction,omitempty"`
+	SLIThreshold        float64    `json:"sliThreshold,omitempty"`
+	BurnRateThreshold   float64    `json:"burnRateThreshold,omitempty"`
+	BurnRates           []BurnRate `json:"burnRates,omitempty"`
+	AnomalyDetectorType string     `json:"anomalyDetectorType,omitempty"`
+	Sensitivity         float64    `json:"sensitivity,omitempty"`
+	MinAnomalyCount     int        `json:"minAnomalyCount,omitempty"`
 }
 
 type MonitorNotification struct {

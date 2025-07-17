@@ -8,7 +8,7 @@ import (
 
 func (s *Client) GetPermissions(id string) (*PermissionsResponse, error) {
 	url := fmt.Sprintf("v2/content/%s/permissions", id)
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (s *Client) DeletePermissions(contentPermissionsRequest PermissionsRequest,
 
 func (s *Client) GetContentPath(id string) (string, error) {
 	url := fmt.Sprintf("v2/content/%s/path", id)
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return "", err
 	}
@@ -57,7 +57,7 @@ func (s *Client) GetContentPath(id string) (string, error) {
 
 func (s *Client) GetCreatorId(path string) (string, error) {
 	url := fmt.Sprintf("v2/content/path?path=%s", url.QueryEscape(path))
-	data, _, err := s.Get(url)
+	data, err := s.Get(url)
 	if err != nil {
 		return "", err
 	}

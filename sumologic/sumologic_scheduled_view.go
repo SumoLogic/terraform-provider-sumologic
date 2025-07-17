@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetScheduledView(id string) (*ScheduledView, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/scheduledViews/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +58,7 @@ func (s *Client) UpdateScheduledView(sview ScheduledView) error {
 
 type ScheduledView struct {
 	ID                               string    `json:"id,omitempty"`
+	IndexId                          string    `json:"indexId,omitempty"`
 	Query                            string    `json:"query"`
 	IndexName                        string    `json:"indexName"`
 	StartTime                        time.Time `json:"startTime"`
@@ -65,4 +66,5 @@ type ScheduledView struct {
 	DataForwardingId                 string    `json:"dataForwardingId"`
 	ParsingMode                      string    `json:"parsingMode"`
 	ReduceRetentionPeriodImmediately bool      `json:"reduceRetentionPeriodImmediately"`
+	TimeZone                         string    `json:"timeZone,omitempty"`
 }

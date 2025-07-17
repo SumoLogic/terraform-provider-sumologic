@@ -18,7 +18,7 @@ import (
 func (s *Client) GetSubdomain() (*Subdomain, error) {
 	urlWithoutParams := "v1/account/subdomain"
 
-	data, _, err := s.Get(urlWithoutParams)
+	data, err := s.Get(urlWithoutParams)
 	if err != nil {
 		return nil, err
 	}

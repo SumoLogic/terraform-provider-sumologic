@@ -2,11 +2,12 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSumoLogicPartition_basic(t *testing.T) {
@@ -49,6 +50,28 @@ func TestAccSumoLogicPartition_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sumologic_partition.foo", "is_compliant", "false"),
 				),
+			},
+			// allow change in casing of analytics_tier
+			{
+				Config: updatePartitionAnalyticsTierCase(testName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPartitionExists("sumologic_partition.foo"),
+					resource.TestCheckResourceAttr(
+						"sumologic_partition.foo", "name", "terraform_acctest_"+testName),
+					resource.TestCheckResourceAttr(
+						"sumologic_partition.foo", "routing_expression", "_sourcecategory=*/Terraform"),
+					resource.TestCheckResourceAttr(
+						"sumologic_partition.foo", "analytics_tier", "continuous"),
+					resource.TestCheckResourceAttr(
+						"sumologic_partition.foo", "retention_period", "366"),
+					resource.TestCheckResourceAttr(
+						"sumologic_partition.foo", "is_compliant", "false"),
+				),
+			},
+			// Update analytics tier to a different value and assert error
+			{
+				Config:      updatePartitionAnalyticsTierConfig(testName),
+				ExpectError: regexp.MustCompile(`(?i)analytics_tier of a partition can only be updated post creation if partition has been moved to flex tier`),
 			},
 		},
 	})
@@ -106,4 +129,28 @@ resource "sumologic_partition" "foo" {
 	analytics_tier = "continuous"
 }
 `, testName)
+}
+
+func updatePartitionAnalyticsTierConfig(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_partition" "foo" {
+    name = "terraform_acctest_%s"
+    routing_expression = "_sourcecategory=*/Terraform"
+	retention_period = 365
+	is_compliant = false
+	analytics_tier = "infrequent" // Changed from "continuous" to trigger error
+}
+`, testName)
+}
+
+func updatePartitionAnalyticsTierCase(testName string) string {
+	return fmt.Sprintf(`
+	resource "sumologic_partition" "foo" {
+		name = "terraform_acctest_%s"
+		routing_expression = "_sourcecategory=*/Terraform"
+		retention_period = 366
+		is_compliant = false
+		analytics_tier = "ContinuouS" // Changed case for "continuous"
+	}
+	`, testName)
 }

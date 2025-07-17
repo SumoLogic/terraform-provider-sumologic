@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
@@ -164,6 +164,22 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 							Schema: sloBurnRateTriggerConditionSchema,
 						},
 					},
+					logsAnomalyConditionFieldName: {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: logsAnomalyTriggerConditionSchema,
+						},
+					},
+					metricsAnomalyConditionFieldName: {
+						Type:     schema.TypeList,
+						MaxItems: 1,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: metricsAnomalyTriggerConditionSchema,
+						},
+					},
 				},
 			},
 		},
@@ -235,21 +251,10 @@ func getMonitorSchema() map[string]*schema.Schema {
 						Optional:     true,
 						ValidateFunc: validation.StringInSlice([]string{"Critical", "Warning", "MissingData", "ResolvedCritical", "ResolvedWarning", "ResolvedMissingData"}, false),
 					},
-					"threshold": {
-						Type:     schema.TypeFloat,
-						Optional: true,
-					},
-					"threshold_type": {
-						Type:         schema.TypeString,
-						Optional:     true,
-						ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
-					},
-					"time_range": {
-						Type:             schema.TypeString,
-						Optional:         true,
-						ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc."),
-						DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
-					},
+					"threshold":      &thresholdSchema,
+					"threshold_type": &thresholdTypeSchema,
+					"time_range":     &timeRangeWithFormatSchema,
+					"frequency":      &frequencySchema,
 					"trigger_source": {
 						Type:         schema.TypeString,
 						Optional:     true,
@@ -353,7 +358,6 @@ func getMonitorSchema() map[string]*schema.Schema {
 
 		"status": {
 			Type:     schema.TypeList,
-			Optional: true,
 			Computed: true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
@@ -438,6 +442,8 @@ var (
 		"trigger_conditions.0.metrics_missing_data_condition",
 		"trigger_conditions.0.slo_sli_condition",
 		"trigger_conditions.0.slo_burn_rate_condition",
+		fmt.Sprintf("trigger_conditions.0.%s", logsAnomalyConditionFieldName),
+		fmt.Sprintf("trigger_conditions.0.%s", metricsAnomalyConditionFieldName),
 	}
 	logStaticConditionCriticalOrWarningAtleastOneKeys = []string{
 		"trigger_conditions.0.logs_static_condition.0.warning",
@@ -473,6 +479,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	},
 	"critical": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeWithAllowedValuesSchema,
+		"frequency":  &frequencySchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -485,6 +492,7 @@ var logsStaticTriggerConditionSchema = map[string]*schema.Schema{
 	}, logStaticConditionCriticalOrWarningAtleastOneKeys),
 	"warning": nestedWithAtleastOneOfKeys(true, schemaMap{
 		"time_range": &timeRangeWithAllowedValuesSchema,
+		"frequency":  &frequencySchema,
 		"alert": nested(false, schemaMap{
 			"threshold":      &thresholdSchema,
 			"threshold_type": &thresholdTypeSchema,
@@ -570,6 +578,7 @@ var metricsOutlierTriggerConditionSchema = map[string]*schema.Schema{
 
 var logsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
 	"time_range": &timeRangeWithAllowedValuesSchema,
+	"frequency":  &frequencySchema,
 }
 
 var metricsMissingDataTriggerConditionSchema = map[string]*schema.Schema{
@@ -609,6 +618,66 @@ var sloBurnRateTriggerConditionSchema = map[string]*schema.Schema{
 		"burn_rate_threshold": getSloBurnRateThresholdSchema("warning"),
 		"burn_rate":           getBurnRateSchema("warning"),
 	}, sloBurnRateConditionCriticalOrWarningAtleastOneKeys),
+}
+
+var logsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
+	"field": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"direction": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Default:      "Both",
+		ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+	},
+	"anomaly_detector_type": {
+		Type:         schema.TypeString,
+		Required:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Cluster"}, false),
+	},
+	"critical": nested(false, schemaMap{
+		"sensitivity": {
+			Type:         schema.TypeFloat,
+			Optional:     true,
+			Default:      0.5,
+			ValidateFunc: validation.FloatBetween(0.1, 1.0),
+		},
+		"min_anomaly_count": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Default:  1,
+		},
+		"time_range": &timeRangeWithAllowedValuesSchema,
+	}),
+}
+
+var metricsAnomalyTriggerConditionSchema = map[string]*schema.Schema{
+	"direction": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Default:      "Both",
+		ValidateFunc: validation.StringInSlice([]string{"Both", "Up", "Down"}, false),
+	},
+	"anomaly_detector_type": {
+		Type:         schema.TypeString,
+		Required:     true,
+		ValidateFunc: validation.StringInSlice([]string{"Cluster"}, false),
+	},
+	"critical": nested(false, schemaMap{
+		"sensitivity": {
+			Type:         schema.TypeFloat,
+			Optional:     true,
+			Default:      0.5,
+			ValidateFunc: validation.FloatBetween(0.1, 1.0),
+		},
+		"min_anomaly_count": {
+			Type:     schema.TypeInt,
+			Optional: true,
+			Default:  1,
+		},
+		"time_range": &timeRangeWithAllowedValuesSchema,
+	}),
 }
 
 func getBurnRateSchema(triggerType string) *schema.Schema {
@@ -714,12 +783,14 @@ var allowedTimeRanges = []string{
 	"-1d", "1d",
 }
 var timeRangeAllowedValuesValidation = validation.StringInSlice(allowedTimeRanges, false)
-var timeRangeFormatValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`), "Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
+var timeRangeFormatValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`),
+	"Time range must be in the format '-?\\d+[smhd]'. Examples: -15m, 1d, etc.")
 
 var resolutionWindowSchema = schema.Schema{
-	Type:             schema.TypeString,
-	Optional:         true,
-	ValidateFunc:     validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
+	Type:     schema.TypeString,
+	Optional: true,
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`),
+		"Resolution window must be in the format '\\d+[smhd]'. Examples: 0m, 15m, 1d, etc."),
 	DiffSuppressFunc: SuppressEquivalentTimeDiff(false),
 }
 
@@ -734,11 +805,18 @@ var thresholdTypeSchema = schema.Schema{
 	ValidateFunc: validation.StringInSlice([]string{"LessThan", "LessThanOrEqual", "GreaterThan", "GreaterThanOrEqual"}, false),
 }
 
+var frequencySchema = schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(\d)+[smhd]`), "Frequency time must be in the format '\\d+[smhd]'. Examples: 1m, 2m, 10m, 20m, 1h"),
+}
+
 func resourceSumologicMonitorsLibraryMonitorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	if d.Id() == "" {
 		monitor := resourceToMonitorsLibraryMonitor(d)
+		log.Printf("creating monitor: %+v\n", monitor)
 		if monitor.ParentID == "" {
 			rootFolder, err := c.GetMonitorsLibraryFolder("root")
 			if err != nil {
@@ -774,6 +852,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	c := meta.(*Client)
 
 	monitor, err := c.MonitorsRead(d.Id())
+	log.Printf("read monitor: %+v\n", monitor)
 	if err != nil {
 		return err
 	}
@@ -796,6 +875,10 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		CmfFgpPermStmtsSetToResource(d, fgpResponse.PermissionStatements)
 	}
 
+	// Always use "Normal" as status; otherwise it can cause state to drift from backend.
+	// For e.g., with anomaly monitor status is initially "GeneratingModel" and then switches to
+	// "Normal" after training is complete. This will cause backend to drift from tf state.
+	monitor.Status = []string{"Normal"}
 	d.Set("created_by", monitor.CreatedBy)
 	d.Set("created_at", monitor.CreatedAt)
 	d.Set("monitor_type", monitor.MonitorType)
@@ -846,7 +929,9 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 			internalNotification["subject"] = internalNotificationDict["subject"].(string)
 			internalNotification["recipients"] = internalNotificationDict["recipients"].([]interface{})
 			internalNotification["message_body"] = internalNotificationDict["messageBody"].(string)
-			internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+			if internalNotificationDict["timeZone"] != nil {
+				internalNotification["time_zone"] = internalNotificationDict["timeZone"].(string)
+			}
 		} else {
 			internalNotification["action_type"] = "NamedConnectionAction"
 			internalNotification["connection_id"] = internalNotificationDict["connectionId"].(string)
@@ -888,6 +973,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 		for i, t := range monitor.Triggers {
 			triggers[i] = map[string]interface{}{
 				"time_range":        t.PositiveTimeRange(),
+				"frequency":         t.Frequency,
 				"trigger_type":      t.TriggerType,
 				"threshold":         t.Threshold,
 				"threshold_type":    t.ThresholdType,
@@ -929,6 +1015,7 @@ func resourceSumologicMonitorsLibraryMonitorUpdate(d *schema.ResourceData, meta 
 		monitor = *updatedMonitor
 	}
 	monitor.Type = "MonitorsLibraryMonitorUpdate"
+	log.Printf("updating monitor: %+v\n", monitor)
 	err := c.UpdateMonitorsLibraryMonitor(monitor)
 	if err != nil {
 		return err
@@ -1050,6 +1137,7 @@ func getTriggers(d *schema.ResourceData) []TriggerCondition {
 				Threshold:        triggerDict["threshold"].(float64),
 				ThresholdType:    triggerDict["threshold_type"].(string),
 				TimeRange:        triggerDict["time_range"].(string),
+				Frequency:        triggerDict["frequency"].(string),
 				OccurrenceType:   triggerDict["occurrence_type"].(string),
 				TriggerSource:    triggerDict["trigger_source"].(string),
 				MinDataPoints:    triggerDict["min_data_points"].(int),
@@ -1088,6 +1176,12 @@ func triggerConditionsBlockToJson(block map[string]interface{}) []TriggerConditi
 	if sc, ok := fromSingletonArray(block, sloBurnRateConditionFieldName); ok {
 		conditions = append(conditions, sloBurnConditionBlockToJson(sc)...)
 	}
+	if sc, ok := fromSingletonArray(block, logsAnomalyConditionFieldName); ok {
+		conditions = append(conditions, logsAnomalyConditionBlockToJson(sc)...)
+	}
+	if sc, ok := fromSingletonArray(block, metricsAnomalyConditionFieldName); ok {
+		conditions = append(conditions, metricsAnomalyConditionBlockToJson(sc)...)
+	}
 
 	return conditions
 }
@@ -1105,7 +1199,7 @@ func metricsStaticConditionBlockToJson(block map[string]interface{}) []TriggerCo
 		DetectionMethod: metricsStaticConditionDetectionMethod,
 	}
 	triggerConditions := base.cloneReadingFromNestedBlocks(block)
-	for i, _ := range triggerConditions {
+	for i := range triggerConditions {
 		if (triggerConditions[i].TriggerType == "ResolvedCritical" && triggerConditions[i].OccurrenceType == "") ||
 			(triggerConditions[i].TriggerType == "ResolvedWarning" && triggerConditions[i].OccurrenceType == "") {
 			triggerConditions[i].OccurrenceType = "Always"
@@ -1150,11 +1244,13 @@ func metricsOutlierConditionBlockToJson(block map[string]interface{}) []TriggerC
 func logsMissingDataConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
 	alert := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
+		Frequency:       block["frequency"].(string),
 		DetectionMethod: logsMissingDataConditionDetectionMethod,
 		TriggerType:     "MissingData",
 	}
 	resolution := TriggerCondition{
 		TimeRange:       block["time_range"].(string),
+		Frequency:       block["frequency"].(string),
 		DetectionMethod: logsMissingDataConditionDetectionMethod,
 		TriggerType:     "ResolvedMissingData",
 	}
@@ -1196,6 +1292,37 @@ func sloBurnConditionBlockToJson(block map[string]interface{}) []TriggerConditio
 	return base.sloCloneReadingFromNestedBlocks(block)
 }
 
+func logsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Field:               block["field"].(string),
+		Direction:           block["direction"].(string),
+		AnomalyDetectorType: block["anomaly_detector_type"].(string),
+		DetectionMethod:     logsAnomalyConditionDetectionMethod,
+	}
+	// log anomaly condition does not have 'alert' and 'resolution' objects. Here we generate empty blocks
+	// for reading to work
+	if subBlock, ok := fromSingletonArray(block, "critical"); ok {
+		subBlock["alert"] = toSingletonArray(map[string]interface{}{})
+		subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
+func metricsAnomalyConditionBlockToJson(block map[string]interface{}) []TriggerCondition {
+	base := TriggerCondition{
+		Direction:           block["direction"].(string),
+		AnomalyDetectorType: block["anomaly_detector_type"].(string),
+		DetectionMethod:     metricsAnomalyConditionDetectionMethod,
+	}
+	// metric anomaly condition does not have 'alert' and 'resolution' objects. Here we generate empty blocks
+	// for reading to work
+	if subBlock, ok := fromSingletonArray(block, "critical"); ok {
+		subBlock["alert"] = toSingletonArray(map[string]interface{}{})
+		subBlock["resolution"] = toSingletonArray(map[string]interface{}{})
+	}
+	return base.cloneReadingFromNestedBlocks(block)
+}
+
 // TriggerCondition JSON model to 'trigger_conditions' block
 func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]interface{} {
 	missingDataConditions := make([]TriggerCondition, 0)
@@ -1222,6 +1349,11 @@ func jsonToTriggerConditionsBlock(conditions []TriggerCondition) map[string]inte
 			triggerConditionsBlock[sloSLIConditionFieldName] = toSingletonArray(jsonToSloSliConditionBlock(dataConditions))
 		case sloBurnRateConditionDetectionMethod:
 			triggerConditionsBlock[sloBurnRateConditionFieldName] = toSingletonArray(jsonToSloBurnRateConditionBlock(dataConditions))
+		case logsAnomalyConditionDetectionMethod:
+			triggerConditionsBlock[logsAnomalyConditionFieldName] = toSingletonArray(jsonToLogsAnomalyConditionBlock(dataConditions))
+		case metricsAnomalyConditionDetectionMethod:
+			triggerConditionsBlock[metricsAnomalyConditionFieldName] = toSingletonArray(jsonToMetricsAnomalyConditionBlock(dataConditions))
+
 		}
 	}
 	if len(missingDataConditions) > 0 {
@@ -1252,22 +1384,26 @@ func jsonToLogsStaticConditionBlock(conditions []TriggerCondition) map[string]in
 		case "Critical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["frequency"] = condition.Frequency
 			criticalAlrt["threshold"] = condition.Threshold
 			criticalAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedCritical":
 			hasCritical = true
 			criticalDict["time_range"] = condition.PositiveTimeRange()
+			criticalDict["frequency"] = condition.Frequency
 			criticalRslv["threshold"] = condition.Threshold
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			criticalRslv["resolution_window"] = condition.PositiveResolutionWindow()
 		case "Warning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["frequency"] = condition.Frequency
 			warningAlrt["threshold"] = condition.Threshold
 			warningAlrt["threshold_type"] = condition.ThresholdType
 		case "ResolvedWarning":
 			hasWarning = true
 			warningDict["time_range"] = condition.PositiveTimeRange()
+			warningDict["frequency"] = condition.Frequency
 			warningRslv["threshold"] = condition.Threshold
 			warningRslv["threshold_type"] = condition.ThresholdType
 			warningRslv["resolution_window"] = condition.PositiveResolutionWindow()
@@ -1310,8 +1446,7 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			criticalRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
 				criticalRslv["occurrence_type"] = condition.OccurrenceType
-			} else {
-				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
+				// for other cases, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
 		case "Warning":
 			hasWarning = true
@@ -1328,8 +1463,7 @@ func jsonToMetricsStaticConditionBlock(conditions []TriggerCondition) map[string
 			warningRslv["threshold_type"] = condition.ThresholdType
 			if condition.OccurrenceType == "AtLeastOnce" {
 				warningRslv["occurrence_type"] = condition.OccurrenceType
-			} else {
-				// otherwise, the canonical translation is to leave out occurrenceType in the Resolved block
+				// for other cases, the canonical translation is to leave out occurrenceType in the Resolved block
 			}
 		}
 	}
@@ -1479,6 +1613,67 @@ func jsonToSloBurnRateConditionBlock(conditions []TriggerCondition) map[string]i
 	return block
 }
 
+func jsonToLogsAnomalyConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	block := map[string]interface{}{}
+
+	block["field"] = conditions[0].Field
+	block["direction"] = conditions[0].Direction
+	block["anomaly_detector_type"] = conditions[0].AnomalyDetectorType
+
+	var criticalDict = dict{}
+	block["critical"] = toSingletonArray(criticalDict)
+
+	var hasCritical = false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	return block
+}
+
+func jsonToMetricsAnomalyConditionBlock(conditions []TriggerCondition) map[string]interface{} {
+	block := map[string]interface{}{}
+
+	block["direction"] = conditions[0].Direction
+	block["anomaly_detector_type"] = conditions[0].AnomalyDetectorType
+
+	var criticalDict = dict{}
+	block["critical"] = toSingletonArray(criticalDict)
+
+	var hasCritical = false
+	for _, condition := range conditions {
+		switch condition.TriggerType {
+		case "Critical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		case "ResolvedCritical":
+			hasCritical = true
+			criticalDict["sensitivity"] = condition.Sensitivity
+			criticalDict["min_anomaly_count"] = condition.MinAnomalyCount
+			criticalDict["time_range"] = condition.PositiveTimeRange()
+		}
+	}
+	if !hasCritical {
+		delete(block, "critical")
+	}
+	return block
+}
+
 func getAlertBlock(condition TriggerCondition) dict {
 	var alert = dict{}
 	burnRates := make([]interface{}, len(condition.BurnRates))
@@ -1501,6 +1696,7 @@ func jsonToLogsMissingDataConditionBlock(conditions []TriggerCondition) map[stri
 	block := map[string]interface{}{}
 	firstCondition := conditions[0]
 	block["time_range"] = firstCondition.PositiveTimeRange()
+	block["frequency"] = firstCondition.Frequency
 	return block
 }
 
@@ -1520,6 +1716,8 @@ const logsMissingDataConditionFieldName = "logs_missing_data_condition"
 const metricsMissingDataConditionFieldName = "metrics_missing_data_condition"
 const sloSLIConditionFieldName = "slo_sli_condition"
 const sloBurnRateConditionFieldName = "slo_burn_rate_condition"
+const logsAnomalyConditionFieldName = "logs_anomaly_condition"
+const metricsAnomalyConditionFieldName = "metrics_anomaly_condition"
 
 const logsStaticConditionDetectionMethod = "LogsStaticCondition"
 const metricsStaticConditionDetectionMethod = "MetricsStaticCondition"
@@ -1529,6 +1727,8 @@ const logsMissingDataConditionDetectionMethod = "LogsMissingDataCondition"
 const metricsMissingDataConditionDetectionMethod = "MetricsMissingDataCondition"
 const sloSLIConditionDetectionMethod = "SloSliCondition"
 const sloBurnRateConditionDetectionMethod = "SloBurnRateCondition"
+const logsAnomalyConditionDetectionMethod = "LogsAnomalyCondition"
+const metricsAnomalyConditionDetectionMethod = "MetricsAnomalyCondition"
 
 func getQueries(d *schema.ResourceData) []MonitorQuery {
 	rawQueries := d.Get("queries").([]interface{})
@@ -1547,11 +1747,12 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 	notifications := getNotifications(d)
 	triggers := getTriggers(d)
 	queries := getQueries(d)
-	rawStatus := d.Get("status").([]interface{})
-	status := make([]string, len(rawStatus))
-	for i := range rawStatus {
-		status[i] = rawStatus[i].(string)
-	}
+
+	// Always use "Normal" as status; otherwise it can cause state to drift from backend.
+	// For e.g., with anomaly monitor status is initially "GeneratingModel" and then switches to
+	// "Normal" after training is complete. This will cause backend to drift from tf state.
+	status := []string{"Normal"}
+
 	rawGroupFields := d.Get("notification_group_fields").([]interface{})
 	notificationGroupFields := make([]string, len(rawGroupFields))
 	for i := range rawGroupFields {
@@ -1648,6 +1849,8 @@ func (condition *TriggerCondition) readFrom(block map[string]interface{}) {
 		switch k {
 		case "time_range":
 			condition.TimeRange = v.(string)
+		case "frequency":
+			condition.Frequency = v.(string)
 		case "trigger_type":
 			condition.TriggerType = v.(string)
 		case "threshold":
@@ -1712,6 +1915,15 @@ func (base TriggerCondition) cloneReadingFromNestedBlocks(block map[string]inter
 			// we want the caller to be able to tell whether the resolution block had set its own occurrence type
 			resolvedCriticalCondition.OccurrenceType = ""
 		}
+
+		if (criticalCondition.DetectionMethod == logsAnomalyConditionDetectionMethod) ||
+			(criticalCondition.DetectionMethod == metricsAnomalyConditionDetectionMethod) {
+			criticalCondition.MinAnomalyCount = critical["min_anomaly_count"].(int)
+			criticalCondition.Sensitivity = critical["sensitivity"].(float64)
+			resolvedCriticalCondition.MinAnomalyCount = criticalCondition.MinAnomalyCount
+			resolvedCriticalCondition.Sensitivity = criticalCondition.Sensitivity
+		}
+
 		if alert, ok := fromSingletonArray(critical, "alert"); ok {
 			criticalCondition.readFrom(alert)
 		}

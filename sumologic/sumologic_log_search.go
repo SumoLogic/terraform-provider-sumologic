@@ -13,7 +13,7 @@ func (s *Client) GetLogSearch(id string) (*LogSearch, error) {
 
 	urlWithParams := fmt.Sprintf(urlWithoutParams+paramString, sprintfArgs...)
 
-	data, _, err := s.Get(urlWithParams)
+	data, err := s.Get(urlWithParams)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +84,7 @@ type LogSearch struct {
 	ParentId         string                    `json:"parentId"`
 	QueryString      string                    `json:"queryString"`
 	RunByReceiptTime bool                      `json:"runByReceiptTime"`
+	IntervalTimeType string                    `json:"intervalTimeType,omitempty"`
 	TimeRange        interface{}               `json:"timeRange"`
 	ParsingMode      string                    `json:"parsingMode"`
 	QueryParameters  []LogSearchQueryParameter `json:"queryParameters,omitempty"`
@@ -157,11 +158,11 @@ type ServiceNowSearchNotification struct {
 }
 
 type WebhookSearchNotification struct {
-	TaskType          string `json:"taskType"`
-	WebhookId         string `json:"webhookId"`
-	Payload           string `json:"payload"`
-	ItemizeAlerts     bool   `json:"itemizeAlerts"`
-	MaxItemizedAlerts int    `json:"maxItemizedAlerts"`
+	TaskType          string  `json:"taskType"`
+	WebhookId         string  `json:"webhookId"`
+	Payload           *string `json:"payload"`
+	ItemizeAlerts     bool    `json:"itemizeAlerts"`
+	MaxItemizedAlerts int     `json:"maxItemizedAlerts"`
 }
 
 type ServiceNowFields struct {

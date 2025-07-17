@@ -1,9 +1,11 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicCSEAggregationRule() *schema.Resource {
@@ -99,6 +101,16 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"window_size_millis": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -136,7 +148,12 @@ func resourceSumologicCSEAggregationRuleRead(d *schema.ResourceData, meta interf
 	d.Set("tags", CSEAggregationRuleGet.Tags)
 	d.Set("trigger_expression", CSEAggregationRuleGet.TriggerExpression)
 	d.Set("window_size", CSEAggregationRuleGet.WindowSizeName)
-
+	if strings.EqualFold(CSEAggregationRuleGet.WindowSizeName, "CUSTOM") {
+		d.Set("window_size_millis", CSEAggregationRuleGet.WindowSize)
+	}
+	if CSEAggregationRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEAggregationRuleGet.SuppressionWindowSize)
+	}
 	return nil
 }
 
@@ -151,23 +168,32 @@ func resourceSumologicCSEAggregationRuleCreate(d *schema.ResourceData, meta inte
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEAggregationRule(CSEAggregationRule{
-			AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
-			DescriptionExpression: d.Get("description_expression").(string),
-			Enabled:               d.Get("enabled").(bool),
-			EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-			GroupByEntity:         d.Get("group_by_entity").(bool),
-			GroupByFields:         resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-			IsPrototype:           d.Get("is_prototype").(bool),
-			MatchExpression:       d.Get("match_expression").(string),
-			Name:                  d.Get("name").(string),
-			NameExpression:        d.Get("name_expression").(string),
-			SeverityMapping:       resourceToSeverityMapping(d.Get("severity_mapping").([]interface{})[0]),
-			Stream:                "record",
-			SummaryExpression:     d.Get("summary_expression").(string),
-			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
-			TriggerExpression:     d.Get("trigger_expression").(string),
-			WindowSize:            windowSizeField(d.Get("window_size").(string)),
+			AggregationFunctions:   resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
+			DescriptionExpression:  d.Get("description_expression").(string),
+			Enabled:                d.Get("enabled").(bool),
+			EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+			GroupByEntity:          d.Get("group_by_entity").(bool),
+			GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+			IsPrototype:            d.Get("is_prototype").(bool),
+			MatchExpression:        d.Get("match_expression").(string),
+			Name:                   d.Get("name").(string),
+			NameExpression:         d.Get("name_expression").(string),
+			SeverityMapping:        resourceToSeverityMapping(d.Get("severity_mapping").([]interface{})[0]),
+			Stream:                 "record",
+			SummaryExpression:      d.Get("summary_expression").(string),
+			Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+			TriggerExpression:      d.Get("trigger_expression").(string),
+			WindowSize:             windowSizeField(d.Get("window_size").(string)),
+			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+			SuppressionWindowSize:  suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -228,23 +254,31 @@ func resourceToCSEAggregationRule(d *schema.ResourceData) (CSEAggregationRule, e
 		return CSEAggregationRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEAggregationRule{
-		ID:                    id,
-		AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
-		DescriptionExpression: d.Get("description_expression").(string),
-		Enabled:               d.Get("enabled").(bool),
-		EntitySelectors:       resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
-		GroupByEntity:         d.Get("group_by_entity").(bool),
-		GroupByFields:         resourceToStringArray(d.Get("group_by_fields").([]interface{})),
-		IsPrototype:           d.Get("is_prototype").(bool),
-		MatchExpression:       d.Get("match_expression").(string),
-		Name:                  d.Get("name").(string),
-		NameExpression:        d.Get("name_expression").(string),
-		SeverityMapping:       resourceToSeverityMapping(d.Get("severity_mapping").([]interface{})[0]),
-		Stream:                "record",
-		SummaryExpression:     d.Get("summary_expression").(string),
-		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
-		TriggerExpression:     d.Get("trigger_expression").(string),
-		WindowSize:            windowSizeField(d.Get("window_size").(string)),
+		ID:                     id,
+		AggregationFunctions:   resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
+		DescriptionExpression:  d.Get("description_expression").(string),
+		Enabled:                d.Get("enabled").(bool),
+		EntitySelectors:        resourceToEntitySelectorArray(d.Get("entity_selectors").([]interface{})),
+		GroupByEntity:          d.Get("group_by_entity").(bool),
+		GroupByFields:          resourceToStringArray(d.Get("group_by_fields").([]interface{})),
+		IsPrototype:            d.Get("is_prototype").(bool),
+		MatchExpression:        d.Get("match_expression").(string),
+		Name:                   d.Get("name").(string),
+		NameExpression:         d.Get("name_expression").(string),
+		SeverityMapping:        resourceToSeverityMapping(d.Get("severity_mapping").([]interface{})[0]),
+		Stream:                 "record",
+		SummaryExpression:      d.Get("summary_expression").(string),
+		Tags:                   resourceToStringArray(d.Get("tags").([]interface{})),
+		TriggerExpression:      d.Get("trigger_expression").(string),
+		WindowSize:             windowSizeField(d.Get("window_size").(string)),
+		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
+		SuppressionWindowSize:  suppressionWindowSize,
 	}, nil
 }

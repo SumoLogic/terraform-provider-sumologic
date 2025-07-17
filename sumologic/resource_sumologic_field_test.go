@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSumologicField_basic(t *testing.T) {
@@ -50,6 +50,41 @@ func TestAccSumologicField_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_field.test", "field_name", testFieldName),
 					resource.TestCheckResourceAttr("sumologic_field.test", "data_type", testDataType),
 					resource.TestCheckResourceAttr("sumologic_field.test", "state", testState),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicField_update(t *testing.T) {
+	var field Field
+	testFieldName := "fields_provider_test"
+	testDataType := "String"
+	testState := "Enabled"
+	updatedState := "Disabled"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFieldDestroy(field),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicField(testFieldName, testDataType, testState),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFieldExists("sumologic_field.test", &field, t),
+					testAccCheckFieldAttributes("sumologic_field.test"),
+					resource.TestCheckResourceAttr("sumologic_field.test", "field_name", testFieldName),
+					resource.TestCheckResourceAttr("sumologic_field.test", "data_type", testDataType),
+					resource.TestCheckResourceAttr("sumologic_field.test", "state", testState),
+				),
+			},
+			{
+				Config: testAccSumologicFieldUpdate(testFieldName, testDataType, updatedState),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFieldExists("sumologic_field.test", &field, t),
+					testAccCheckFieldAttributes("sumologic_field.test"),
+					resource.TestCheckResourceAttr("sumologic_field.test", "field_name", testFieldName),
+					resource.TestCheckResourceAttr("sumologic_field.test", "data_type", testDataType),
+					resource.TestCheckResourceAttr("sumologic_field.test", "state", updatedState),
 				),
 			},
 		},
@@ -107,6 +142,16 @@ resource "sumologic_field" "foo" {
 }
 
 func testAccSumologicField(fieldName string, dataType string, state string) string {
+	return fmt.Sprintf(`
+resource "sumologic_field" "test" {
+    field_name = "%s"
+    data_type = "%s"
+    state = "%s"
+}
+`, fieldName, dataType, state)
+}
+
+func testAccSumologicFieldUpdate(fieldName string, dataType string, state string) string {
 	return fmt.Sprintf(`
 resource "sumologic_field" "test" {
     field_name = "%s"

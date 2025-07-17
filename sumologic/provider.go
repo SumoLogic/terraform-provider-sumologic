@@ -8,11 +8,10 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	log.Printf("Sumo Logic Terraform Provider Version=%s\n", ProviderVersion)
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -43,6 +42,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"sumologic_app":                                      resourceSumologicApp(),
 			"sumologic_cse_tag_schema":                           resourceSumologicCSETagSchema(),
 			"sumologic_cse_context_action":                       resourceSumologicCSEContextAction(),
 			"sumologic_cse_automation":                           resourceSumologicCSEAutomation(),
@@ -86,11 +86,11 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_cloudsyslog_source":                       resourceSumologicCloudsyslogSource(),
 			"sumologic_role":                                     resourceSumologicRole(),
 			"sumologic_user":                                     resourceSumologicUser(),
-			"sumologic_ingest_budget":                            resourceSumologicIngestBudget(),
-			"sumologic_collector_ingest_budget_assignment":       resourceSumologicCollectorIngestBudgetAssignment(),
 			"sumologic_folder":                                   resourceSumologicFolder(),
 			"sumologic_content":                                  resourceSumologicContent(),
 			"sumologic_scheduled_view":                           resourceSumologicScheduledView(),
+			"sumologic_data_forwarding_destination":              resourceSumologicDataForwardingDestination(),
+			"sumologic_data_forwarding_rule":                     resourceSumologicDataForwardingRule(),
 			"sumologic_partition":                                resourceSumologicPartition(),
 			"sumologic_field_extraction_rule":                    resourceSumologicFieldExtractionRule(),
 			"sumologic_connection":                               resourceSumologicConnection(),
@@ -115,7 +115,14 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_local_file_source":                        resourceSumologicLocalFileSource(),
 			"sumologic_log_search":                               resourceSumologicLogSearch(),
 			"sumologic_metrics_search":                           resourceSumologicMetricsSearch(),
+			"sumologic_metrics_search_v2":                        resourceSumologicMetricsSearchV2(),
 			"sumologic_rum_source":                               resourceSumologicRumSource(),
+			"sumologic_role_v2":                                  resourceSumologicRoleV2(),
+			"sumologic_azure_event_hub_log_source":               resourceSumologicGenericPollingSource(),
+			"sumologic_ot_collector":                             resourceSumologicOTCollector(),
+			"sumologic_source_template":                          resourceSumologicSourceTemplate(),
+			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
+			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
@@ -126,8 +133,12 @@ func Provider() terraform.ResourceProvider {
 			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
 			"sumologic_folder":                         dataSourceSumologicFolder(),
 			"sumologic_my_user_id":                     dataSourceSumologicMyUserId(),
+			"sumologic_partition":                      dataSourceSumologicPartition(),
+			"sumologic_partitions":                     dataSourceSumologicPartitions(),
 			"sumologic_role":                           dataSourceSumologicRole(),
+			"sumologic_role_v2":                        dataSourceSumologicRoleV2(),
 			"sumologic_user":                           dataSourceSumologicUser(),
+			"sumologic_apps":                           dataSourceSumoLogicApps(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

@@ -59,7 +59,7 @@ func (s *Client) CreateGCPSource(gcpSource GCPSource, collectorID int) (int, err
 
 func (s *Client) GetGCPSource(collectorID, sourceID int) (*GCPSource, error) {
 
-	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
+	body, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 	if err != nil {
 		return nil, err
 	}

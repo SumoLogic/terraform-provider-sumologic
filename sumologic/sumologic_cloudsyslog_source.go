@@ -39,7 +39,7 @@ func (s *Client) CreateCloudsyslogSource(cloudSyslogSource CloudSyslogSource, co
 
 func (s *Client) GetCloudSyslogSource(collectorID, sourceID int) (*CloudSyslogSource, error) {
 
-	body, _, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
+	body, err := s.Get(fmt.Sprintf("v1/collectors/%d/sources/%d", collectorID, sourceID))
 	if err != nil {
 		return nil, err
 	}

@@ -1,72 +1,145 @@
 package sumologic
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 	"testing"
+	"text/template"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestAccSumologicCSEChainRule_createAndUpdate(t *testing.T) {
+func TestAccSumologicCSEChainRule_createAndUpdateWithCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
-	var ChainRule CSEChainRule
-	description := "Test description"
-	enabled := true
-	entitySelectorEntityType := "_ip"
-	entitySelectorExpression := "srcDevice_ip"
-	expression1 := "foo = bar"
-	limit1 := 5
-	expression2 := "baz = qux"
-	limit2 := 1
-	groupByField := "destPort"
-	isPrototype := false
-	ordered := true
-	name := "Test Chain Rule"
-	severity := 5
-	summaryExpression := "Signal Summary"
-	tag := "foo"
-	windowSize := "T30M"
+	payload := getCSEChainRuleTestPayload()
+	payload.WindowSize = "CUSTOM"
+	payload.WindowSizeMilliseconds = "10800000" // 3h
 
-	nameUpdated := "Updated Chain Rule"
-	windowSizeUpdated := "T12H"
+	updatedPayload := payload
+	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 15000000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
 
+	var chainRule CSEChainRule
 	resourceName := "sumologic_cse_chain_rule.chain_rule"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEChainRuleDestroy,
 		Steps: []resource.TestStep{
-			{
-				Config: testCreateCSEChainRuleConfig(description, enabled,
-					entitySelectorEntityType, entitySelectorExpression, expression1,
-					limit1, expression2, limit2, groupByField, isPrototype, ordered,
-					name, severity, summaryExpression, tag, windowSize),
+			{ // create
+				Config: testCreateCSEChainRuleConfig(t, &payload),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEChainRuleExists(resourceName, &ChainRule),
-					testCheckChainRuleValues(&ChainRule, description, enabled,
-						entitySelectorEntityType, entitySelectorExpression, expression1,
-						limit1, expression2, limit2, groupByField, isPrototype, ordered,
-						name, severity, summaryExpression, tag, windowSize),
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &payload, &chainRule),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			{
-				Config: testCreateCSEChainRuleConfig(description, enabled,
-					entitySelectorEntityType, entitySelectorExpression, expression1,
-					limit1, expression2, limit2, groupByField, isPrototype, ordered,
-					nameUpdated, severity, summaryExpression, tag, windowSizeUpdated),
+			{ // update
+				Config: testCreateCSEChainRuleConfig(t, &updatedPayload),
 				Check: resource.ComposeTestCheckFunc(
-					testCheckCSEChainRuleExists(resourceName, &ChainRule),
-					testCheckChainRuleValues(&ChainRule, description, enabled,
-						entitySelectorEntityType, entitySelectorExpression, expression1,
-						limit1, expression2, limit2, groupByField, isPrototype, ordered,
-						nameUpdated, severity, summaryExpression, tag, windowSizeUpdated),
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &updatedPayload, &chainRule),
+				),
+			},
+			{ // import
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize(t *testing.T) {
+	SkipCseTest(t)
+
+	payload := getCSEChainRuleTestPayload()
+	payload.WindowSize = "T30M"
+	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 2000000
+	payload.SuppressionWindowSize = &suppressionWindow
+
+	updatedPayload := payload
+	updatedPayload.WindowSize = "CUSTOM"
+	updatedPayload.WindowSizeMilliseconds = "14400000" // 4h
+	updatedSuppressionWindow := 20000000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
+
+	var chainRule CSEChainRule
+	resourceName := "sumologic_cse_chain_rule.chain_rule"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEChainRuleDestroy,
+		Steps: []resource.TestStep{
+			{ // create
+				Config: testCreateCSEChainRuleConfig(t, &payload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &payload, &chainRule),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
-			{
+			{ // update
+				Config: testCreateCSEChainRuleConfig(t, &updatedPayload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &updatedPayload, &chainRule),
+				),
+			},
+			{ // import
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSEChainRule_createAndUpdate(t *testing.T) {
+	SkipCseTest(t)
+
+	payload := getCSEChainRuleTestPayload()
+	payload.WindowSize = "T30M"
+	payload.WindowSizeMilliseconds = "irrelevant"
+	suppressionWindow := 35 * 60 * 1000
+	payload.SuppressionWindowSize = &suppressionWindow
+
+	updatedPayload := payload
+	updatedPayload.Name = fmt.Sprintf("Updated Chain Rule %s", uuid.New())
+	updatedPayload.WindowSize = "T12H"
+	updatedSuppressionWindow := 13 * 60 * 60 * 1000
+	updatedPayload.SuppressionWindowSize = &updatedSuppressionWindow
+
+	var chainRule CSEChainRule
+	resourceName := "sumologic_cse_chain_rule.chain_rule"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEChainRuleDestroy,
+		Steps: []resource.TestStep{
+			{ // create
+				Config: testCreateCSEChainRuleConfig(t, &payload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &payload, &chainRule),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{ // update
+				Config: testCreateCSEChainRuleConfig(t, &updatedPayload),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &chainRule),
+					testCheckCSEChainRuleValues(t, &updatedPayload, &chainRule),
+				),
+			},
+			{ // import
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -98,40 +171,71 @@ func testAccCSEChainRuleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testCreateCSEChainRuleConfig(
-	description string, enabled bool, entitySelectorEntityType string,
-	entitySelectorExpression string, expression1 string, limit1 int,
-	expression2 string, limit2 int, groupByField string, isPrototype bool,
-	ordered bool, name string, severity int, summaryExpression string, tag string,
-	windowSize string) string {
-	return fmt.Sprintf(`
-resource "sumologic_cse_chain_rule" "chain_rule" {
-	description = "%s"
-    enabled = %t
-    entity_selectors {
-    	entity_type = "%s"
-    	expression = "%s"
-    }
-    expressions_and_limits {
-    	expression = "%s"
-    	limit = %d
-    }
-    expressions_and_limits {
-    	expression = "%s"
-    	limit = %d
-    }
-    group_by_fields = ["%s"]
-    is_prototype = %t
-    ordered = %t
-    name = "%s"
-    severity = %d
-    summary_expression = "%s"
-    tags = ["%s"]
-    window_size = "%s"
+func testCreateCSEChainRuleConfig(t *testing.T, payload *CSEChainRule) string {
+	resourceTemplate := `
+		resource "sumologic_cse_chain_rule" "chain_rule" {
+			description = "{{ .Description }}"
+			enabled = {{ .Enabled }}
+			{{ range .EntitySelectors }}
+			entity_selectors {
+				entity_type = "{{ .EntityType }}"
+				expression = "{{ .Expression }}"
+			}
+			{{ end }}
+			{{ range .ExpressionsAndLimits }}
+			expressions_and_limits {
+				expression = "{{ .Expression }}"
+				limit = {{ .Limit }}
+			}
+			{{ end }}
+			group_by_fields = {{ quoteStringArray .GroupByFields }}
+			is_prototype = {{ .IsPrototype }}
+			ordered = {{ .Ordered }}
+			name = "{{ .Name }}"
+			severity = {{ .Severity }}
+			summary_expression = "{{ .SummaryExpression }}"
+			tags = {{ quoteStringArray .Tags }}
+			window_size = "{{ .WindowSize }}"
+			{{ if eq .WindowSize "CUSTOM" }}
+			window_size_millis = "{{ .WindowSizeMilliseconds }}"
+			{{ end }}
+			{{ if .SuppressionWindowSize }}
+			suppression_window_size = {{ .SuppressionWindowSize }}
+			{{ end }}
+		}
+		`
+
+	configTemplate := template.Must(template.New("chain_rule").Funcs(template.FuncMap{
+		"quoteStringArray": func(arr []string) string {
+			return `["` + strings.Join(arr, `","`) + `"]`
+		},
+	}).Parse(resourceTemplate))
+
+	var buffer bytes.Buffer
+	if err := configTemplate.Execute(&buffer, payload); err != nil {
+		t.Error(err)
+	}
+
+	return buffer.String()
 }
-`, description, enabled, entitySelectorEntityType, entitySelectorExpression,
-		expression1, limit1, expression2, limit2, groupByField, isPrototype, ordered,
-		name, severity, summaryExpression, tag, windowSize)
+
+func getCSEChainRuleTestPayload() CSEChainRule {
+	return CSEChainRule{
+		Description:            "Test description",
+		Enabled:                true,
+		EntitySelectors:        []EntitySelector{{EntityType: "_ip", Expression: "srcDevice_ip"}},
+		ExpressionsAndLimits:   []ExpressionAndLimit{{Expression: "foo = bar", Limit: 5}, {Expression: "baz = qux", Limit: 1}},
+		GroupByFields:          []string{"destPort"},
+		IsPrototype:            false,
+		Ordered:                true,
+		Name:                   fmt.Sprintf("Test Chain Rule %s", uuid.New()),
+		Severity:               5,
+		SummaryExpression:      "Signal Summary",
+		Tags:                   []string{"foo"},
+		WindowSize:             windowSizeField("CUSTOM"),
+		WindowSizeMilliseconds: "10800000",
+		SuppressionWindowSize:  nil,
+	}
 }
 
 func testCheckCSEChainRuleExists(n string, ChainRule *CSEChainRule) resource.TestCheckFunc {
@@ -157,61 +261,24 @@ func testCheckCSEChainRuleExists(n string, ChainRule *CSEChainRule) resource.Tes
 	}
 }
 
-func testCheckChainRuleValues(ChainRule *CSEChainRule, description string,
-	enabled bool, entitySelectorEntityType string, entitySelectorExpression string,
-	expression1 string, limit1 int, expression2 string, limit2 int, groupByField string,
-	isPrototype bool, ordered bool, name string, severity int, summaryExpression string,
-	tag string, windowSize string) resource.TestCheckFunc {
+func testCheckCSEChainRuleValues(t *testing.T, expected *CSEChainRule, actual *CSEChainRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if ChainRule.Description != description {
-			return fmt.Errorf("bad description, expected \"%s\", got %#v", description, ChainRule.Description)
+		assert.Equal(t, expected.Description, actual.Description)
+		assert.Equal(t, expected.Enabled, actual.Enabled)
+		assert.Equal(t, expected.EntitySelectors, actual.EntitySelectors)
+		assert.Equal(t, expected.ExpressionsAndLimits, actual.ExpressionsAndLimits)
+		assert.Equal(t, expected.GroupByFields, actual.GroupByFields)
+		assert.Equal(t, expected.IsPrototype, actual.IsPrototype)
+		assert.Equal(t, expected.Ordered, actual.Ordered)
+		assert.Equal(t, expected.Name, actual.Name)
+		assert.Equal(t, expected.Severity, actual.Severity)
+		assert.Equal(t, expected.SummaryExpression, actual.SummaryExpression)
+		assert.Equal(t, expected.Tags, actual.Tags)
+		assert.Equal(t, string(expected.WindowSize), actual.WindowSizeName)
+		if strings.EqualFold(actual.WindowSizeName, "CUSTOM") {
+			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
-		if ChainRule.Enabled != enabled {
-			return fmt.Errorf("bad enabled, expected \"%t\", got %#v", enabled, ChainRule.Enabled)
-		}
-		if ChainRule.EntitySelectors[0].EntityType != entitySelectorEntityType {
-			return fmt.Errorf("bad entitySelectorEntityType, expected \"%s\", got %#v", entitySelectorEntityType, ChainRule.EntitySelectors[0].EntityType)
-		}
-		if ChainRule.EntitySelectors[0].Expression != entitySelectorExpression {
-			return fmt.Errorf("bad entitySelectorExpression, expected \"%s\", got %#v", entitySelectorExpression, ChainRule.EntitySelectors[0].Expression)
-		}
-		if ChainRule.ExpressionsAndLimits[0].Expression != expression1 {
-			return fmt.Errorf("bad expression1, expected \"%s\", got %#v", expression1, ChainRule.ExpressionsAndLimits[0].Expression)
-		}
-		if ChainRule.ExpressionsAndLimits[0].Limit != limit1 {
-			return fmt.Errorf("bad limit1, expected \"%d\", got %#v", limit1, ChainRule.ExpressionsAndLimits[0].Limit)
-		}
-		if ChainRule.ExpressionsAndLimits[1].Expression != expression2 {
-			return fmt.Errorf("bad expression2, expected \"%s\", got %#v", expression2, ChainRule.ExpressionsAndLimits[1].Expression)
-		}
-		if ChainRule.ExpressionsAndLimits[1].Limit != limit2 {
-			return fmt.Errorf("bad limit2, expected \"%d\", got %#v", limit2, ChainRule.ExpressionsAndLimits[1].Limit)
-		}
-		if ChainRule.GroupByFields[0] != groupByField {
-			return fmt.Errorf("bad groupByField, expected \"%s\", got %#v", groupByField, ChainRule.GroupByFields[0])
-		}
-		if ChainRule.IsPrototype != isPrototype {
-			return fmt.Errorf("bad isPrototype, expected \"%t\", got %#v", isPrototype, ChainRule.IsPrototype)
-		}
-		if ChainRule.Ordered != ordered {
-			return fmt.Errorf("bad ordered, expected \"%t\", got %#v", ordered, ChainRule.Ordered)
-		}
-		if ChainRule.Name != name {
-			return fmt.Errorf("bad name, expected \"%s\", got %#v", name, ChainRule.Name)
-		}
-		if ChainRule.Severity != severity {
-			return fmt.Errorf("bad severity, expected \"%d\", got %#v", severity, ChainRule.Severity)
-		}
-		if ChainRule.SummaryExpression != summaryExpression {
-			return fmt.Errorf("bad summaryExpression, expected \"%s\", got %#v", summaryExpression, ChainRule.SummaryExpression)
-		}
-		if ChainRule.Tags[0] != tag {
-			return fmt.Errorf("bad tag, expected \"%s\", got %#v", tag, ChainRule.Tags[0])
-		}
-		if ChainRule.WindowSizeName != windowSize {
-			return fmt.Errorf("bad windowSize, expected \"%s\", got %#v", windowSize, ChainRule.WindowSizeName)
-		}
-
+		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 		return nil
 	}
 }

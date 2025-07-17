@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSumologicSCELogMapping_create(t *testing.T) {
@@ -34,7 +34,7 @@ func TestAccSumologicSCELogMapping_create(t *testing.T) {
 		AlternateValues:  []string{"altValue"},
 		TimeZone:         "UTC",
 		SplitDelimiter:   ",",
-		SplitIndex:       "0",
+		SplitIndex:       "1",
 		FieldJoin:        []string{"and"},
 		JoinDelimiter:    "",
 		FormatParameters: []string{"param"},
@@ -245,6 +245,9 @@ func testCheckLogMappingValues(logMapping *CSELogMapping, lmName string, lmRecor
 		if logMapping.SkippedValues[0] != lmSkippedValues {
 			return fmt.Errorf("bad skippedValues, expected \"%s\", got: %#v", lmSkippedValues, logMapping.SkippedValues[0])
 		}
+
+		lookup := logMapping.Fields[0].LookUp
+
 		if logMapping.Fields[0].Name != lmField.Name ||
 			logMapping.Fields[0].Value != lmField.Value ||
 			logMapping.Fields[0].ValueType != lmField.ValueType ||
@@ -258,7 +261,7 @@ func testCheckLogMappingValues(logMapping *CSELogMapping, lmName string, lmRecor
 			logMapping.Fields[0].SplitIndex != lmField.SplitIndex ||
 			logMapping.Fields[0].FieldJoin[0] != lmField.FieldJoin[0] ||
 			logMapping.Fields[0].JoinDelimiter != lmField.JoinDelimiter ||
-			logMapping.Fields[0].LookUp[0].Key != lmLookUp.Key || logMapping.Fields[0].LookUp[0].Value != lmLookUp.Value {
+			(*lookup)[0].Key != lmLookUp.Key || (*lookup)[0].Value != lmLookUp.Value {
 
 			return fmt.Errorf("bad field, expected \"%#v\", got: %#v", lmField, logMapping.Fields[0])
 		}

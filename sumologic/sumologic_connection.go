@@ -14,7 +14,7 @@ func (s *Client) GetConnection(id string) (*Connection, error) {
 	url := fmt.Sprintf("v1/connections/%s", id)
 	log.Printf("connection read url: %s", url)
 
-	rawConnection, _, err := s.Get(url)
+	rawConnection, err := s.Get(url)
 	if err != nil {
 		log.Printf("SSAIN: The err: %s", err.Error())
 		if strings.Contains(err.Error(), "Connection with given ID does not exist.") {

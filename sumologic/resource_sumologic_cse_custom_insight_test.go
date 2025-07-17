@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -96,6 +96,39 @@ func TestAccSumologicCSECustomInsight_createAndUpdateWithDynamicSeverity(t *test
 					testCheckCustomInsightDynamicSeverity(t, &CustomInsight,
 						minimumSignalSeverity1, dynamicSeverity1, updatedMinimumSignalSeverity2, updatedDynamicSeverity2),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSumologicCSECustomInsight_createAndUpdateWithSignalMatchStrategy(t *testing.T) {
+	SkipCseTest(t)
+
+	var CustomInsight CSECustomInsight
+	resourceName := "sumologic_cse_custom_insight.custom_insight_signal_match_strategy"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSECustomInsightDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateCSECustomInsightConfigWithSignalMatchStrategy("STRICT"),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
+					testCheckCustomInsightSignalMatchStrategy(t, &CustomInsight, "STRICT"),
+				),
+			},
+			{
+				Config: testCreateCSECustomInsightConfigWithSignalMatchStrategy("ENTITY"),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSECustomInsightExists(resourceName, &CustomInsight),
+					testCheckCustomInsightSignalMatchStrategy(t, &CustomInsight, "ENTITY"),
 				),
 			},
 			{
@@ -216,6 +249,28 @@ func testCheckCustomInsightDynamicSeverity(t *testing.T, CustomInsight *CSECusto
 		assert.Equal(t, dynamicSeverity1, CustomInsight.DynamicSeverity[0].InsightSeverity)
 		assert.Equal(t, minimumSignalSeverity2, CustomInsight.DynamicSeverity[1].MinimumSignalSeverity)
 		assert.Equal(t, dynamicSeverity2, CustomInsight.DynamicSeverity[1].InsightSeverity)
+		return nil
+	}
+}
+
+func testCreateCSECustomInsightConfigWithSignalMatchStrategy(signalMatchStrategy string) string {
+	const config = `
+resource "sumologic_cse_custom_insight" "custom_insight_signal_match_strategy" {
+	description = "Signal match strategy insight"
+    enabled = true
+    ordered = true
+    name = "Signal match strategy insight"
+    severity = "LOW"
+	signal_match_strategy = "%s"
+	tags = ["test tag"]
+}
+`
+	return fmt.Sprintf(config, signalMatchStrategy)
+}
+
+func testCheckCustomInsightSignalMatchStrategy(t *testing.T, customInsight *CSECustomInsight, expectedSignalMatchStrategy string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		assert.Equal(t, expectedSignalMatchStrategy, customInsight.SignalMatchStrategy)
 		return nil
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEChainRule(id string) (*CSEChainRule, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -78,19 +78,21 @@ type ExpressionAndLimit struct {
 }
 
 type CSEChainRule struct {
-	ID                   string               `json:"id,omitempty"`
-	Description          string               `json:"description"`
-	Enabled              bool                 `json:"enabled"`
-	EntitySelectors      []EntitySelector     `json:"entitySelectors"`
-	ExpressionsAndLimits []ExpressionAndLimit `json:"expressionsAndLimits"`
-	GroupByFields        []string             `json:"groupByFields"`
-	IsPrototype          bool                 `json:"isPrototype"`
-	Ordered              bool                 `json:"ordered"`
-	Name                 string               `json:"name"`
-	Severity             int                  `json:"score"`
-	Stream               string               `json:"stream"`
-	SummaryExpression    string               `json:"summaryExpression"`
-	Tags                 []string             `json:"tags"`
-	WindowSize           windowSizeField      `json:"windowSize,omitempty"`
-	WindowSizeName       string               `json:"windowSizeName,omitempty"`
+	ID                     string               `json:"id,omitempty"`
+	Description            string               `json:"description"`
+	Enabled                bool                 `json:"enabled"`
+	EntitySelectors        []EntitySelector     `json:"entitySelectors"`
+	ExpressionsAndLimits   []ExpressionAndLimit `json:"expressionsAndLimits"`
+	GroupByFields          []string             `json:"groupByFields"`
+	IsPrototype            bool                 `json:"isPrototype"`
+	Ordered                bool                 `json:"ordered"`
+	Name                   string               `json:"name"`
+	Severity               int                  `json:"score"`
+	Stream                 string               `json:"stream"`
+	SummaryExpression      string               `json:"summaryExpression"`
+	Tags                   []string             `json:"tags"`
+	WindowSize             windowSizeField      `json:"windowSize,omitempty"`
+	WindowSizeName         string               `json:"windowSizeName,omitempty"`
+	WindowSizeMilliseconds string               `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int                 `json:"suppressionWindowSize,omitempty"`
 }

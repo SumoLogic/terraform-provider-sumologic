@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEInsightsResolution(id string) (*CSEInsightsResolutionGet, error) {
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/insight-resolutions/%s", id))
 	if err != nil {
 		return nil, err
 	}

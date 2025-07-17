@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
@@ -41,9 +41,32 @@ var endpoints = map[string]string{
 	"jp":  "https://api.jp.sumologic.com/api/",
 	"ca":  "https://api.ca.sumologic.com/api/",
 	"in":  "https://api.in.sumologic.com/api/",
+	"kr":  "https://api.kr.sumologic.com/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
+
+func (s *Client) createSumoRequest(method, relativeURL string, body io.Reader) (*http.Request, error) {
+	parsedRelativeURL, err := url.Parse(relativeURL)
+	if err != nil {
+		return nil, err
+	}
+	if strings.Contains(relativeURL, "//") {
+		return nil, fmt.Errorf("malformed URL contains '//' in the path: %s", relativeURL)
+	}
+
+	fullURL := s.BaseURL.ResolveReference(parsedRelativeURL).String()
+	req, err := createNewRequest(method, fullURL, body, s.AccessID, s.AccessKey, s.AuthJwt)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.IsInAdminMode {
+		req.Header.Add("isAdminMode", "true")
+	}
+
+	return req, nil
+}
 
 func createNewRequest(method, url string, body io.Reader, accessID string, accessKey string, authJwt string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
@@ -60,272 +83,152 @@ func createNewRequest(method, url string, body io.Reader, accessID string, acces
 	return req, nil
 }
 
+func (s *Client) doSumoRequest(req *http.Request) (*http.Response, error) {
+	<-rateLimiter.C
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	logRequestAndResponse(req, resp)
+	return resp, nil
+}
+
 func logRequestAndResponse(req *http.Request, resp *http.Response) {
 	var maskedHeader = req.Header.Clone()
 	maskedHeader.Set("Authorization", "xxxxxxxxxxx")
 	log.Printf("[DEBUG] Request: [Method=%s] [URL=%s] [Headers=%s]. Response: [Status=%s]\n", req.Method, req.URL, maskedHeader, resp.Status)
 }
 
-func (s *Client) PostWithCookies(urlPath string, payload interface{}) ([]byte, []*http.Cookie, error) {
-	relativeURL, err := url.Parse(urlPath)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
-	if err != nil {
-		return nil, nil, err
-	}
-	logRequestAndResponse(req, resp)
+func (s *Client) handleSumoResponse(resp *http.Response) ([]byte, error) {
+	d, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
-
-	respCookie := resp.Cookies()
-
-	d, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if resp.StatusCode >= 400 {
-		return nil, nil, errors.New(string(d))
+		return nil, errors.New(string(d))
 	}
 
-	return d, respCookie, nil
-}
-
-func (s *Client) GetWithCookies(urlPath string, cookies []*http.Cookie) ([]byte, string, error) {
-	relativeURL, err := url.Parse(urlPath)
-	if err != nil {
-		return nil, "", err
-	}
-
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
-	if err != nil {
-		return nil, "", err
-	}
-
-	for _, cookie := range cookies {
-		req.AddCookie(cookie)
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
-	if err != nil {
-		return nil, "", err
-	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
-
-	d, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, "", err
-	}
-
-	if resp.StatusCode == 404 {
-		return nil, "", nil
-	} else if resp.StatusCode >= 400 {
-		return nil, "", errors.New(string(d))
-	}
-
-	return d, resp.Header.Get("ETag"), nil
+	return d, nil
 }
 
 func (s *Client) Post(urlPath string, payload interface{}) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	body, _ := json.Marshal(payload)
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
-
-	d, err := ioutil.ReadAll(resp.Body)
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
 	}
 
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-	req, err := createNewRequest(http.MethodPost, sumoURL.String(), bytes.NewBuffer([]byte(payload)), s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer([]byte(payload)))
 	if err != nil {
 		return nil, err
 	}
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
-	logRequestAndResponse(req, resp)
 
-	d, _ := ioutil.ReadAll(resp.Body)
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
 func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
+	etag, _ := s.GetETag(urlPath)
 
-	_, etag, _ := s.Get(sumoURL.String())
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
 
-	body, _ := json.Marshal(payload)
-
-	req, err := createNewRequest(http.MethodPut, sumoURL.String(), bytes.NewBuffer(body), s.AccessID, s.AccessKey, s.AuthJwt)
+	req, err := s.createSumoRequest(http.MethodPut, urlPath, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("If-Match", etag)
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
-
-	d, err := ioutil.ReadAll(resp.Body)
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(string(d))
-	}
-
-	return d, nil
+	return s.handleSumoResponse(resp)
 }
 
-func (s *Client) Get(urlPath string) ([]byte, string, error) {
+func (s *Client) Get(urlPath string) ([]byte, error) {
 	return s.GetWithErrOpt(urlPath, false)
 }
 
-func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, string, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	req, err := createNewRequest(http.MethodGet, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
+func (s *Client) GetWithErrOpt(urlPath string, return404Err bool) ([]byte, error) {
+	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
+	resp, err := s.doSumoRequest(req)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
-	logRequestAndResponse(req, resp)
 
+	d, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
-
-	d, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	if resp.StatusCode == 404 {
 		if return404Err {
-			return nil, "", errors.New(string(d))
+			return nil, errors.New(string(d))
 		} else {
-			return nil, "", nil
+			return nil, nil
 		}
 	} else if resp.StatusCode >= 400 {
-		return nil, "", errors.New(string(d))
-	}
-
-	return d, resp.Header.Get("ETag"), nil
-}
-
-func (s *Client) Delete(urlPath string) ([]byte, error) {
-	relativeURL, _ := url.Parse(urlPath)
-	sumoURL := s.BaseURL.ResolveReference(relativeURL)
-
-	req, err := createNewRequest(http.MethodDelete, sumoURL.String(), nil, s.AccessID, s.AccessKey, s.AuthJwt)
-	if err != nil {
-		return nil, err
-	}
-
-	if s.IsInAdminMode {
-		req.Header.Add("isAdminMode", "true")
-	}
-
-	<-rateLimiter.C
-	resp, err := s.httpClient.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-	logRequestAndResponse(req, resp)
-	defer resp.Body.Close()
-
-	d, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))
 	}
 
 	return d, nil
+}
+
+func (s *Client) GetETag(urlPath string) (string, error) {
+	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Header.Get("ETag"), nil
+}
+
+func (s *Client) Delete(urlPath string) ([]byte, error) {
+	req, err := s.createSumoRequest(http.MethodDelete, urlPath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.handleSumoResponse(resp)
 }
 
 func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {

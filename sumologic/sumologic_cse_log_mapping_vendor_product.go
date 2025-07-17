@@ -8,7 +8,7 @@ import (
 
 func (s *Client) GetCSELogMappingVendorsAndProducts(product, vendor string) (*CSELogMappingVendorAndProduct, error) {
 
-	data, _, err := s.Get(fmt.Sprintf("sec/v1/vendors-and-products?product=%s&vendor=%s", url.QueryEscape(product), url.QueryEscape(vendor)))
+	data, err := s.Get(fmt.Sprintf("sec/v1/vendors-and-products?product=%s&vendor=%s", url.QueryEscape(product), url.QueryEscape(vendor)))
 	if err != nil {
 		return nil, err
 	}

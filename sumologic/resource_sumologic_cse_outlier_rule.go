@@ -1,9 +1,10 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicCSEOutlierRule() *schema.Resource {
@@ -111,6 +112,12 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"suppression_window_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
+				ForceNew:     false,
+			},
 		},
 	}
 }
@@ -149,6 +156,9 @@ func resourceSumologicCSEOutlierRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("summary_expression", CSEOutlierRuleGet.SummaryExpression)
 	d.Set("tags", CSEOutlierRuleGet.Tags)
 	d.Set("window_size", CSEOutlierRuleGet.WindowSizeName)
+	if CSEOutlierRuleGet.SuppressionWindowSize != nil {
+		d.Set("suppression_window_size", CSEOutlierRuleGet.SuppressionWindowSize)
+	}
 
 	return nil
 }
@@ -164,6 +174,12 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 	c := meta.(*Client)
 
 	if d.Id() == "" {
+		var suppressionWindowSize *int = nil
+		if suppression, ok := d.GetOk("suppression_window_size"); ok {
+			suppressionInt := suppression.(int)
+			suppressionWindowSize = &suppressionInt
+		}
+
 		id, err := c.CreateCSEOutlierRule(CSEOutlierRule{
 			AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
 			BaselineWindowSize:    d.Get("baseline_window_size").(string),
@@ -182,6 +198,7 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 			SummaryExpression:     d.Get("summary_expression").(string),
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 			WindowSize:            windowSizeField(d.Get("window_size").(string)),
+			SuppressionWindowSize: suppressionWindowSize,
 		})
 
 		if err != nil {
@@ -213,6 +230,12 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 		return CSEOutlierRule{}, nil
 	}
 
+	var suppressionWindowSize *int = nil
+	if suppression, ok := d.GetOk("suppression_window_size"); ok {
+		suppressionInt := suppression.(int)
+		suppressionWindowSize = &suppressionInt
+	}
+
 	return CSEOutlierRule{
 		ID:                    id,
 		AggregationFunctions:  resourceToAggregationFunctionsArray(d.Get("aggregation_functions").([]interface{})),
@@ -232,5 +255,6 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		WindowSize:            windowSizeField(d.Get("window_size").(string)),
+		SuppressionWindowSize: suppressionWindowSize,
 	}, nil
 }

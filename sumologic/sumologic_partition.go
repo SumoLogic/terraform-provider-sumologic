@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Client) GetPartition(id string) (*Partition, error) {
-	data, _, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
+	data, err := s.Get(fmt.Sprintf("v1/partitions/%s", id))
 	if err != nil {
 		if strings.Contains(err.Error(), "Partition Not Found") {
 			if data == nil {
@@ -26,7 +26,7 @@ func (s *Client) GetPartition(id string) (*Partition, error) {
 	err = json.Unmarshal(data, &spartition)
 	if err != nil {
 		return nil, err
-	} else if spartition.IsActive == false {
+	} else if !spartition.IsActive {
 		return nil, nil
 	}
 
@@ -63,16 +63,68 @@ func (s *Client) UpdatePartition(spartition Partition) error {
 	return err
 }
 
+func (s *Client) ListPartitions() ([]Partition, error) {
+	var listPartitionResp ListPartitionResp
+
+	data, err := s.Get("v1/partitions")
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(data, &listPartitionResp)
+	if err != nil {
+		return nil, err
+	}
+
+	spartitions := listPartitionResp.Data
+
+	for listPartitionResp.Next != "" {
+		data, err = s.Get("v1/partitions?token=" + listPartitionResp.Next)
+		if err != nil {
+			return nil, err
+		}
+
+		listPartitionResp.Reset()
+
+		err = json.Unmarshal(data, &listPartitionResp)
+		if err != nil {
+			return nil, err
+		}
+
+		spartitions = append(spartitions, listPartitionResp.Data...)
+	}
+
+	var activePartitions []Partition
+	for _, partition := range spartitions {
+		if partition.IsActive {
+			activePartitions = append(activePartitions, partition)
+		}
+	}
+
+	return activePartitions, nil
+}
+
 type Partition struct {
-	ID                               string `json:"id,omitempty"`
-	Name                             string `json:"name"`
-	RoutingExpression                string `json:"routingExpression,omitempty"`
-	AnalyticsTier                    string `json:"analyticsTier"`
-	RetentionPeriod                  int    `json:"retentionPeriod"`
-	IsCompliant                      bool   `json:"isCompliant"`
-	DataForwardingId                 string `json:"dataForwardingId"`
-	IsActive                         bool   `json:"isActive"`
-	TotalBytes                       int    `json:"totalBytes"`
-	IndexType                        string `json:"indexType"`
-	ReduceRetentionPeriodImmediately bool   `json:"reduceRetentionPeriodImmediately,omitempty"`
+	ID                               string  `json:"id,omitempty"`
+	Name                             string  `json:"name"`
+	RoutingExpression                string  `json:"routingExpression,omitempty"`
+	AnalyticsTier                    *string `json:"analyticsTier"`
+	RetentionPeriod                  int     `json:"retentionPeriod"`
+	IsCompliant                      bool    `json:"isCompliant"`
+	DataForwardingId                 string  `json:"dataForwardingId"`
+	IsActive                         bool    `json:"isActive"`
+	TotalBytes                       int     `json:"totalBytes"`
+	IndexType                        string  `json:"indexType"`
+	ReduceRetentionPeriodImmediately bool    `json:"reduceRetentionPeriodImmediately,omitempty"`
+	IsIncludedInDefaultSearch        *bool   `json:"isIncludedInDefaultSearch,omitempty"`
+}
+
+type ListPartitionResp struct {
+	Data []Partition `json:"data"`
+	Next string      `json:"next"`
+}
+
+func (s *ListPartitionResp) Reset() {
+	s.Data = nil
+	s.Next = ""
 }

@@ -10,7 +10,7 @@ import (
 // READ
 func (s *Client) GetFolder(id string) (*Folder, error) {
 	url := fmt.Sprintf("v2/content/folders/%s", id)
-	rawFolder, _, err := s.Get(url)
+	rawFolder, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (s *Client) UpdateFolder(folder Folder) error {
 
 func (s *Client) getPersonalFolder() (*Folder, error) {
 	url := "v2/content/folders/personal"
-	rawFolder, _, err := s.Get(url)
+	rawFolder, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *Client) getPersonalFolder() (*Folder, error) {
 
 func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, error) {
 	url := "v2/content/folders/adminRecommended"
-	rawJID, _, err := s.Get(url)
+	rawJID, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (s *Client) getAdminRecommendedFolder(timeout time.Duration) (*Folder, erro
 	}
 
 	url = fmt.Sprintf("v2/content/folders/adminRecommended/%s/result", jid.ID)
-	rawContent, _, err := s.Get(url)
+	rawContent, err := s.Get(url)
 	if err != nil {
 		return nil, err
 	}

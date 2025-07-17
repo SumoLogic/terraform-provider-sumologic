@@ -2,10 +2,11 @@ package sumologic
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const fieldNameWindowBasedEvaluation = `window_based_evaluation`
@@ -202,6 +203,11 @@ func resourceSumologicSLO() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"content_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"is_system": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -385,7 +391,7 @@ func resourceSLORead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error setting compliance fields for resource %s: %s", d.Id(), err)
 	}
 
-	flatIndicator, err := flattenSLOIndicator(slo.Indicator)
+	flatIndicator, _ := flattenSLOIndicator(slo.Indicator)
 
 	if err := d.Set("indicator", []interface{}{flatIndicator}); err != nil {
 		return fmt.Errorf("error setting indicator field for resource %s: %s", d.Id(), err)

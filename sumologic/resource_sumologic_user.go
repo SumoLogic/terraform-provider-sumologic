@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSumologicUser() *schema.Resource {
@@ -111,6 +111,10 @@ func resourceSumologicUserCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceSumologicUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
+
+	if d.HasChange("email") {
+		return fmt.Errorf("a user's email may not be changed")
+	}
 
 	user := resourceToUser(d)
 
