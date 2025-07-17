@@ -63,7 +63,7 @@ The following arguments are supported:
 
 ### Schema for `field`
 - `name` - (Required) Name of the field.
-- `value` - (Optional) Value of the field. 
+- `value` - (Optional) Value of the field.
 - `value_type` - (Optional) The value type. Possible values: null (for standard mapping), constant, sumofield (for extracted mapping), format, join (for joined mapping), lookup, split, time
 - `skipped_values` - (Optional) List of skipped values.
 - `default_value` - (Optional) Default value of the field.
