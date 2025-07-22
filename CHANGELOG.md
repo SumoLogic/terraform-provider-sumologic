@@ -3,6 +3,7 @@
 
 FEATURES:
 * **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
+* **New Data Source:** sumologic_monitor_folder
 
 ## 3.1.1 (July 8, 2025)
 
