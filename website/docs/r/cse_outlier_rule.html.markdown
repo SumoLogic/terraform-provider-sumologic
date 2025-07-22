@@ -10,49 +10,20 @@ Provides a Sumo Logic CSE [Outlier Rule](https://help.sumologic.com/docs/cse/rul
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_outlier_rule" "sample_outlier_rule_1" {
-  name                   = "(Sample) Azure DevOps - Outlier in Pools Deleted Rapidly"
-  name_expression        = "Azure DevOps - Outlier in Agent Pools Deleted in an Hour"
-
-  description_expression = <<-EOT
-        Context:
-        An Attacker with sufficient administrative access to Azure DevOps (ADO) may abuse this access to destroy existing resources by deleting pools.
-
-        Detection:
-        This detection identifies statistical outliers in user behavior for the number of pools deleted in an hourly window.
-
-        Recommended Actions:
-        If an alert occurs, investigate the actions taken by the account to determine if this is normal operation of deleting pools or if this suspicious activity.
-
-        Tuning Recommendations:
-        Determine if the baseline basis should be hourly or daily based on normal activity in your organization.
-        If the detection is proving to be too sensitive to the number of pools deleted, adjust the floor value (currently 3) to a number that is less sensitive but within reason. Use Sumo Search using a count and the _timeslice function to aggregate on the number of pools deleted within the hourly (or daily) periods to find what is an acceptable level of activity to not alert on.
-    EOT
-
+resource "sumologic_cse_outlier_rule" "outlier_rule" {
+  name                   = "Outlier Rule Example"
+  name_expression        = "Signal name"
+  description_expression = "Signal description"
   enabled                = true
-
   baseline_window_size   = "2592000000"
   floor_value            = 3
   deviation_threshold    = 3
-
-  group_by_fields        = [
-    "user_username",
-  ]
-
   is_prototype           = false
-  match_expression       = <<-EOT
-        metadata_vendor = "Microsoft"
-        AND metadata_product = "Azure DevOps Auditing"
-        AND metadata_deviceEventId = "AzureDevOpsAuditEvent"
-        AND action = "Library.AgentPoolDeleted"
-    EOT
-
+  match_expression       = "objectType = \"Network\""
   retention_window_size  = "7776000000"
   window_size            = "T60M"
-
   severity               = 3
-  summary_expression     = "User: {{user_username}} has deleted an abnormal amount of Agent Pools within an hour"
-
+  summary_expression     = "Signal summary"
   aggregation_functions {
     arguments = [
       "true",
@@ -60,16 +31,11 @@ resource "sumologic_cse_outlier_rule" "sample_outlier_rule_1" {
     function  = "count"
     name      = "current"
   }
-
   entity_selectors {
     entity_type = "_username"
     expression  = "user_username"
   }
-
-  tags                   = [
-    "_mitreAttackTechnique:T1578.002",
-    "_mitreAttackTactic:TA0005",
-  ]
+  tags                   = ["_mitreAttackTactic:TA0005"]
 }
 ```
 ## Argument Reference
