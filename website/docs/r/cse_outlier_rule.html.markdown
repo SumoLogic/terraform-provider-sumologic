@@ -1,4 +1,4 @@
-___
+---
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_outlier_rule"
 description: |-
@@ -10,31 +10,66 @@ Provides a Sumo Logic CSE [Outlier Rule](https://help.sumologic.com/docs/cse/rul
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
-  aggregation_functions {
-  		name = "total"
-  		function = "count"
-  		arguments = ["true"]
-  }
-  baseline_window_size   = "1209600000" // 14 days
-  description_expression = "Spike in Login Failures - {{ user_username }}"
+resource "sumologic_cse_outlier_rule" "sample_outlier_rule_1" {
+  name                   = "(Sample) Azure DevOps - Outlier in Pools Deleted Rapidly"
+  name_expression        = "Azure DevOps - Outlier in Agent Pools Deleted in an Hour"
+
+  description_expression = <<-EOT
+        Context:
+        An Attacker with sufficient administrative access to Azure DevOps (ADO) may abuse this access to destroy existing resources by deleting pools.
+
+        Detection:
+        This detection identifies statistical outliers in user behavior for the number of pools deleted in an hourly window.
+
+        Recommended Actions:
+        If an alert occurs, investigate the actions taken by the account to determine if this is normal operation of deleting pools or if this suspicious activity.
+
+        Tuning Recommendations:
+        Determine if the baseline basis should be hourly or daily based on normal activity in your organization.
+        If the detection is proving to be too sensitive to the number of pools deleted, adjust the floor value (currently 3) to a number that is less sensitive but within reason. Use Sumo Search using a count and the _timeslice function to aggregate on the number of pools deleted within the hourly (or daily) periods to find what is an acceptable level of activity to not alert on.
+    EOT
+
   enabled                = true
+
+  baseline_window_size   = "2592000000"
+  floor_value            = 3
+  deviation_threshold    = 3
+
+  group_by_fields        = [
+    "user_username",
+  ]
+
+  is_prototype           = false
+  match_expression       = <<-EOT
+        metadata_vendor = "Microsoft"
+        AND metadata_product = "Azure DevOps Auditing"
+        AND metadata_deviceEventId = "AzureDevOpsAuditEvent"
+        AND action = "Library.AgentPoolDeleted"
+    EOT
+
+  retention_window_size  = "7776000000"
+  window_size            = "T60M"
+
+  severity               = 3
+  summary_expression     = "User: {{user_username}} has deleted an abnormal amount of Agent Pools within an hour"
+
+  aggregation_functions {
+    arguments = [
+      "true",
+    ]
+    function  = "count"
+    name      = "current"
+  }
+
   entity_selectors {
     entity_type = "_username"
-    expression = "user_username"
+    expression  = "user_username"
   }
-  floor_value            = 0
-  deviation_threshold    = 3
-  group_by_fields        = ["user_username"]
-  is_prototype           = false
-  match_expression       = "objectType=\"Authentication\" AND success=false"
-  name                   = "Spike in Login Failures"
-  name_expression        = "Spike in Login Failures - {{ user_username }}"
-  retention_window_size  = "7776000000" // 90 days
-  severity               = 1
-  summary_expression     = "Spike in Login Failures - {{ user_username }}"
-  window_size            = "T24H"
-  suppression_window_size = 90000000
+
+  tags                   = [
+    "_mitreAttackTechnique:T1578.002",
+    "_mitreAttackTactic:TA0005",
+  ]
 }
 ```
 ## Argument Reference
