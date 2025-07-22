@@ -53,6 +53,11 @@ func resourceSumologicFieldExtractionRule() *schema.Resource {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
+			"field_names": {
+				Computed: true,
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -77,6 +82,7 @@ func resourceSumologicFieldExtractionRuleRead(d *schema.ResourceData, meta inter
 	d.Set("scope", fieldextractionrule.Scope)
 	d.Set("parse_expression", fieldextractionrule.ParseExpression)
 	d.Set("enabled", fieldextractionrule.Enabled)
+	d.Set("field_names", fieldextractionrule.FieldNames)
 
 	return nil
 }
@@ -125,5 +131,6 @@ func resourceToFieldExtractionRule(d *schema.ResourceData) FieldExtractionRule {
 		Scope:           d.Get("scope").(string),
 		ParseExpression: d.Get("parse_expression").(string),
 		Enabled:         d.Get("enabled").(bool),
+		FieldNames:      resourceToStringArray(d.Get("field_names").([]interface{})),
 	}
 }
