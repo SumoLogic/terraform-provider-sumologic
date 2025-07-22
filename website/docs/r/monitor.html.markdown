@@ -417,6 +417,59 @@ resource "sumologic_monitor" "tf_example_metrics_anomaly_monitor" {
 }
 ```
 
+## Example Monitor with linked Playbook
+```hcl
+resource "sumologic_monitor" "tf_monitor_with_playbook" {
+  name         = "Terraform Monitor with Playbook"
+  description  = "tf monitor with Playbook"
+  type         = "MonitorsLibraryMonitor"
+  is_disabled  = false
+  content_type = "Monitor"
+  monitor_type = "Metrics"
+  evaluation_delay = "1m"
+  tags = {
+    "team" = "monitoring"
+    "application" = "sumologic"
+  }
+
+  queries {
+    row_id = "A"
+    query  = "metric=CPU* _sourceCategory=event-action"
+  }
+
+  trigger_conditions {
+    metrics_static_condition {
+      critical {
+        time_range = "15m"
+        occurrence_type = "Always"
+        alert {
+          threshold      = 40.0
+          threshold_type = "GreaterThan"
+          min_data_points = 5
+        }
+        resolution {
+          threshold      = 40.0
+          threshold_type = "LessThanOrEqual"
+        }
+      }
+    }
+  }
+  notifications {
+    notification {
+      connection_type = "Email"
+      recipients      = ["abc@example.com"]
+      subject         = "Triggered {{TriggerType}} Alert on Monitor {{Name}}"
+      time_zone       = "PST"
+      message_body    = "Triggered {{TriggerType}} Alert on {{Name}}: {{QueryURL}}"
+    }
+    run_for_trigger_types = ["Critical", "ResolvedCritical"]
+  }
+  playbook = "test playbook"
+  automated_playbook_ids = ["683a60a123ad6099e4d1333e"]
+  notification_group_fields = ["metric"]
+}
+```
+
 ## Monitor Folders
 
 NOTE: Monitor folders are considered a different resource from Library content folders. See [sumologic_monitor_folder][2] for more details.

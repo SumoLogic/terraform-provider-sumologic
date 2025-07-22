@@ -7,6 +7,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 		FilterExpression:      `objectType="Network"`,
 		GroupByFields:         []string{"user_username"},
 		IsPrototype:           false,
-		Name:                  "FirstSeenRuleTerraformTest",
+		Name:                  acctest.RandomWithPrefix("FirstSeenRuleTerraformTest"),
 		NameExpression:        "FirstSeenRuleTerraformTest - {{ user_username }}",
 		RetentionWindowSize:   "86400000",
 		Severity:              1,
