@@ -208,6 +208,14 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 
+		"automated_playbook_ids": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+
 		"slo_id": {
 			Type:     schema.TypeString,
 			Optional: true,
@@ -897,6 +905,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("status", monitor.Status)
 	d.Set("group_notifications", monitor.GroupNotifications)
 	d.Set("playbook", monitor.Playbook)
+	d.Set("automated_playbook_ids", monitor.AutomatedPlaybookIds)
 	d.Set("alert_name", monitor.AlertName)
 	d.Set("slo_id", monitor.SloID)
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
@@ -1759,6 +1768,12 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		notificationGroupFields[i] = rawGroupFields[i].(string)
 	}
 
+	rawPlaybookIds := d.Get("automated_playbook_ids").([]interface{})
+	automatedPlaybookIds := make([]string, len(rawPlaybookIds))
+	for i := range rawPlaybookIds {
+		automatedPlaybookIds[i] = rawPlaybookIds[i].(string)
+	}
+
 	return MonitorsLibraryMonitor{
 		CreatedBy:               d.Get("created_by").(string),
 		Name:                    d.Get("name").(string),
@@ -1784,6 +1799,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		Status:                  status,
 		GroupNotifications:      d.Get("group_notifications").(bool),
 		Playbook:                d.Get("playbook").(string),
+		AutomatedPlaybookIds:    automatedPlaybookIds,
 		AlertName:               d.Get("alert_name").(string),
 		SloID:                   d.Get("slo_id").(string),
 		NotificationGroupFields: notificationGroupFields,

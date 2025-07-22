@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
+
 ## 3.1.1 (July 8, 2025)
 
 ENHANCEMENTS:
