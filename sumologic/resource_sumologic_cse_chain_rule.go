@@ -95,6 +95,7 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -134,7 +135,7 @@ func resourceSumologicCSEChainRuleRead(d *schema.ResourceData, meta interface{})
 	if CSEChainRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEChainRuleGet.SuppressionWindowSize)
 	}
-
+	d.Set("tuning_expression_ids", CSEChainRuleGet.TuningExpressionIDs)
 	return nil
 }
 
@@ -172,6 +173,7 @@ func resourceSumologicCSEChainRuleCreate(d *schema.ResourceData, meta interface{
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 			SuppressionWindowSize:  suppressionWindowSize,
+			TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -252,5 +254,6 @@ func resourceToCSEChainRule(d *schema.ResourceData) (CSEChainRule, error) {
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 		SuppressionWindowSize:  suppressionWindowSize,
+		TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }

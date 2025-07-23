@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEChainRule(id string) (*CSEChainRule, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s?expand=tuningExpressions", id))
 	if err != nil {
 		return nil, err
 	}
@@ -15,13 +15,17 @@ func (s *Client) GetCSEChainRule(id string) (*CSEChainRule, error) {
 		return nil, nil
 	}
 
-	var response CSEChainRuleResponse
+	var response ExpandedChainRuleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.CSEChainRule, nil
+	// Populate the tuning expression IDs
+	rule := &response.Rule.CSEChainRule
+	rule.TuningExpressionIDs = getTuningExpressionIDs(response.Rule.TuningExpressions)
+
+	return rule, nil
 }
 
 func (s *Client) DeleteCSEChainRule(id string) error {
@@ -95,4 +99,14 @@ type CSEChainRule struct {
 	WindowSizeName         string               `json:"windowSizeName,omitempty"`
 	WindowSizeMilliseconds string               `json:"windowSizeMilliseconds,omitempty"`
 	SuppressionWindowSize  *int                 `json:"suppressionWindowSize,omitempty"`
+	TuningExpressionIDs    []string             `json:"tuningExpressionIds"`
+}
+
+type ExpandedChainRule struct {
+	CSEChainRule
+	TuningExpressions []TuningExpression `json:"tuningExpressions"`
+}
+
+type ExpandedChainRuleResponse struct {
+	Rule ExpandedChainRule `json:"data"`
 }

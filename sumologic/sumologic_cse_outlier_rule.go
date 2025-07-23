@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEOutlierRule(id string) (*CSEOutlierRule, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s?expand=tuningExpressions", id))
 	if err != nil {
 		return nil, err
 	}
@@ -15,13 +15,17 @@ func (s *Client) GetCSEOutlierRule(id string) (*CSEOutlierRule, error) {
 		return nil, nil
 	}
 
-	var response CSEOutlierRuleResponse
+	var response ExpandedOutlierRuleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.CSEOutlierRule, nil
+	// Populate the tuning expression IDs
+	rule := &response.Rule.CSEOutlierRule
+	rule.TuningExpressionIDs = getTuningExpressionIDs(response.Rule.TuningExpressions)
+
+	return rule, nil
 }
 
 func (s *Client) DeleteCSEOutlierRule(id string) error {
@@ -94,4 +98,14 @@ type CSEOutlierRule struct {
 	WindowSize            windowSizeField       `json:"windowSize,omitempty"`
 	WindowSizeName        string                `json:"windowSizeName,omitempty"`
 	SuppressionWindowSize *int                  `json:"suppressionWindowSize,omitempty"`
+	TuningExpressionIDs   []string              `json:"tuningExpressionIds"`
+}
+
+type ExpandedOutlierRule struct {
+	CSEOutlierRule
+	TuningExpressions []TuningExpression `json:"tuningExpressions"`
+}
+
+type ExpandedOutlierRuleResponse struct {
+	Rule ExpandedOutlierRule `json:"data"`
 }

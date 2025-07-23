@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func getEntitySelectorsSchema() *schema.Schema {
@@ -167,4 +168,36 @@ func (r *windowSizeField) UnmarshalJSON(data []byte) error {
 	cleanedData := strings.Trim(string(data), `"`)
 	*r = windowSizeField(cleanedData)
 	return nil
+}
+
+type TuningExpression struct {
+	ID          string `json:"id,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Expression  string `json:"expression"`
+	Enabled     bool   `json:"enabled"`
+	IsGlobal    bool   `json:"isGlobal"`
+}
+
+// getTuningExpressionSchema returns the schema for a tuning expression.
+func getTuningExpressionIDsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Schema{
+			Type:         schema.TypeString,
+			ValidateFunc: validation.StringIsNotEmpty,
+		},
+	}
+}
+
+// getTuningExpressionIDs converts a list of tuning expressions to a list of their IDs.
+func getTuningExpressionIDs(tuningExpressions []TuningExpression) []string {
+	var result []string
+
+	for _, tuningExpression := range tuningExpressions {
+		result = append(result, tuningExpression.ID)
+	}
+
+	return result
 }

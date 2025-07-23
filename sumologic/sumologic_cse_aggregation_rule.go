@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEAggregationRule(id string) (*CSEAggregationRule, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s?expand=tuningExpressions", id))
 	if err != nil {
 		return nil, err
 	}
@@ -15,13 +15,17 @@ func (s *Client) GetCSEAggregationRule(id string) (*CSEAggregationRule, error) {
 		return nil, nil
 	}
 
-	var response CSEAggregationRuleResponse
+	var response ExpandedAggregationRuleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.CSEAggregationRule, nil
+	// Populate the tuning expression IDs
+	rule := &response.Rule.CSEAggregationRule
+	rule.TuningExpressionIDs = getTuningExpressionIDs(response.Rule.TuningExpressions)
+
+	return rule, nil
 }
 
 func (s *Client) DeleteCSEAggregationRule(id string) error {
@@ -99,4 +103,14 @@ type CSEAggregationRule struct {
 	WindowSizeName         string                `json:"windowSizeName,omitempty"`
 	WindowSizeMilliseconds string                `json:"windowSizeMilliseconds,omitempty"`
 	SuppressionWindowSize  *int                  `json:"suppressionWindowSize,omitempty"`
+	TuningExpressionIDs    []string              `json:"tuningExpressionIds"`
+}
+
+type ExpandedAggregationRule struct {
+	CSEAggregationRule
+	TuningExpressions []TuningExpression `json:"tuningExpressions"`
+}
+
+type ExpandedAggregationRuleResponse struct {
+	Rule ExpandedAggregationRule `json:"data"`
 }

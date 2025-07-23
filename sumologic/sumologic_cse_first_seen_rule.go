@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEFirstSeenRule(id string) (*CSEFirstSeenRule, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s?expand=tuningExpressions", id))
 	if err != nil {
 		return nil, err
 	}
@@ -15,13 +15,17 @@ func (s *Client) GetCSEFirstSeenRule(id string) (*CSEFirstSeenRule, error) {
 		return nil, nil
 	}
 
-	var response CSEFirstSeenRuleResponse
+	var response ExpandedFirstSeenRuleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.CSEFirstSeenRule, nil
+	// Populate the tuning expression IDs
+	rule := &response.Rule.CSEFirstSeenRule
+	rule.TuningExpressionIDs = getTuningExpressionIDs(response.Rule.TuningExpressions)
+
+	return rule, nil
 }
 
 func (s *Client) DeleteCSEFirstSeenRule(id string) error {
@@ -92,4 +96,14 @@ type CSEFirstSeenRule struct {
 	ValueFields           []string         `json:"valueFields"`
 	Version               int              `json:"version"`
 	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
+	TuningExpressionIDs   []string         `json:"tuningExpressionIds"`
+}
+
+type ExpandedFirstSeenRule struct {
+	CSEFirstSeenRule
+	TuningExpressions []TuningExpression `json:"tuningExpressions"`
+}
+
+type ExpandedFirstSeenRuleResponse struct {
+	Rule ExpandedFirstSeenRule `json:"data"`
 }

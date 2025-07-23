@@ -93,6 +93,7 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -132,7 +133,7 @@ func resourceSumologicCSEFirstSeenRuleRead(d *schema.ResourceData, meta interfac
 	if CSEFirstSeenRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEFirstSeenRuleGet.SuppressionWindowSize)
 	}
-
+	d.Set("tuning_expression_ids", CSEFirstSeenRuleGet.TuningExpressionIDs)
 	return nil
 }
 
@@ -171,6 +172,7 @@ func resourceSumologicCSEFirstSeenRuleCreate(d *schema.ResourceData, meta interf
 			ValueFields:           resourceToStringArray(d.Get("value_fields").([]interface{})),
 			Version:               1,
 			SuppressionWindowSize: suppressionWindowSize,
+			TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -227,5 +229,6 @@ func resourceToCSEFirstSeenRule(d *schema.ResourceData) (CSEFirstSeenRule, error
 		ValueFields:           resourceToStringArray(d.Get("value_fields").([]interface{})),
 		Version:               1,
 		SuppressionWindowSize: suppressionWindowSize,
+		TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }

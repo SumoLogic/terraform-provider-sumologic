@@ -91,6 +91,7 @@ func resourceSumologicCSEThresholdRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -132,6 +133,7 @@ func resourceSumologicCSEThresholdRuleRead(d *schema.ResourceData, meta interfac
 	if CSEThresholdRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEThresholdRuleGet.SuppressionWindowSize)
 	}
+	d.Set("tuning_expression_ids", CSEThresholdRuleGet.TuningExpressionIDs)
 	return nil
 }
 
@@ -172,6 +174,7 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 			SuppressionWindowSize:  suppressionWindowSize,
+			TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -229,5 +232,6 @@ func resourceToCSEThresholdRule(d *schema.ResourceData) (CSEThresholdRule, error
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 		SuppressionWindowSize:  suppressionWindowSize,
+		TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }

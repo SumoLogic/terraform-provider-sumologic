@@ -62,6 +62,7 @@ func resourceSumologicCSEMatchRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -97,6 +98,7 @@ func resourceSumologicCSEMatchRuleRead(d *schema.ResourceData, meta interface{})
 	if CSEMatchRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEMatchRuleGet.SuppressionWindowSize)
 	}
+	d.Set("tuning_expression_ids", CSEMatchRuleGet.TuningExpressionIDs)
 
 	return nil
 }
@@ -131,6 +133,7 @@ func resourceSumologicCSEMatchRuleCreate(d *schema.ResourceData, meta interface{
 			SummaryExpression:     d.Get("summary_expression").(string),
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 			SuppressionWindowSize: suppressionWindowSize,
+			TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -148,6 +151,7 @@ func resourceSumologicCSEMatchRuleUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	log.Printf("[INFO] Updating CSE Match Rule tuning expression IDs: %v", CSEMatchRule.TuningExpressionIDs)
 	c := meta.(*Client)
 	if err = c.UpdateCSEMatchRule(CSEMatchRule); err != nil {
 		return err
@@ -182,5 +186,6 @@ func resourceToCSEMatchRule(d *schema.ResourceData) (CSEMatchRule, error) {
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		SuppressionWindowSize: suppressionWindowSize,
+		TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }

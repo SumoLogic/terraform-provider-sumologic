@@ -35,6 +35,7 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 		ValueFields:           []string{"dstDevice_hostname"},
 		Version:               1,
 		SuppressionWindowSize: nil,
+		TuningExpressionIDs:   []string{"abcd1234", "efgh5678"},
 	}
 	updatedPayload := payload
 	updatedPayload.Enabled = false
