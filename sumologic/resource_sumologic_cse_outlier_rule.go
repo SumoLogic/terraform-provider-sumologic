@@ -118,6 +118,7 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -159,7 +160,7 @@ func resourceSumologicCSEOutlierRuleRead(d *schema.ResourceData, meta interface{
 	if CSEOutlierRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEOutlierRuleGet.SuppressionWindowSize)
 	}
-
+	d.Set("tuning_expression_ids", CSEOutlierRuleGet.TuningExpressionIDs)
 	return nil
 }
 
@@ -199,6 +200,7 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 			Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 			WindowSize:            windowSizeField(d.Get("window_size").(string)),
 			SuppressionWindowSize: suppressionWindowSize,
+			TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -256,5 +258,6 @@ func resourceToCSEOutlierRule(d *schema.ResourceData) (CSEOutlierRule, error) {
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		WindowSize:            windowSizeField(d.Get("window_size").(string)),
 		SuppressionWindowSize: suppressionWindowSize,
+		TuningExpressionIDs:   resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }

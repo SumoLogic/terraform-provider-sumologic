@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetCSEMatchRule(id string) (*CSEMatchRule, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s?expand=tuningExpressions", id))
 	if err != nil {
 		return nil, err
 	}
@@ -15,13 +15,17 @@ func (s *Client) GetCSEMatchRule(id string) (*CSEMatchRule, error) {
 		return nil, nil
 	}
 
-	var response CSEMatchRuleResponse
+	var response ExpandedMatchRuleResponse
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.CSEMatchRule, nil
+	// Populate the tuning expression IDs
+	rule := &response.Rule.CSEMatchRule
+	rule.TuningExpressionIDs = getTuningExpressionIDs(response.Rule.TuningExpressions)
+
+	return rule, nil
 }
 
 func (s *Client) DeleteCSEMatchRule(id string) error {
@@ -100,4 +104,14 @@ type CSEMatchRule struct {
 	SummaryExpression     string           `json:"summaryExpression"`
 	Tags                  []string         `json:"tags"`
 	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
+	TuningExpressionIDs   []string         `json:"tuningExpressionIds"`
+}
+
+type ExpandedMatchRule struct {
+	CSEMatchRule
+	TuningExpressions []TuningExpression `json:"tuningExpressions"`
+}
+
+type ExpandedMatchRuleResponse struct {
+	Rule ExpandedMatchRule `json:"data"`
 }

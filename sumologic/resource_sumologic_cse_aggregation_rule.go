@@ -111,6 +111,7 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 7*24*60*60*1000),
 				ForceNew:     false,
 			},
+			"tuning_expression_ids": getTuningExpressionIDsSchema(),
 		},
 	}
 }
@@ -154,6 +155,7 @@ func resourceSumologicCSEAggregationRuleRead(d *schema.ResourceData, meta interf
 	if CSEAggregationRuleGet.SuppressionWindowSize != nil {
 		d.Set("suppression_window_size", CSEAggregationRuleGet.SuppressionWindowSize)
 	}
+	d.Set("tuning_expression_ids", CSEAggregationRuleGet.TuningExpressionIDs)
 	return nil
 }
 
@@ -194,6 +196,7 @@ func resourceSumologicCSEAggregationRuleCreate(d *schema.ResourceData, meta inte
 			WindowSize:             windowSizeField(d.Get("window_size").(string)),
 			WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 			SuppressionWindowSize:  suppressionWindowSize,
+			TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 		})
 
 		if err != nil {
@@ -280,5 +283,6 @@ func resourceToCSEAggregationRule(d *schema.ResourceData) (CSEAggregationRule, e
 		WindowSize:             windowSizeField(d.Get("window_size").(string)),
 		WindowSizeMilliseconds: d.Get("window_size_millis").(string),
 		SuppressionWindowSize:  suppressionWindowSize,
+		TuningExpressionIDs:    resourceToStringArray(d.Get("tuning_expression_ids").([]interface{})),
 	}, nil
 }
