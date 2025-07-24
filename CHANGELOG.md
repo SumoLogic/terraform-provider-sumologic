@@ -5,6 +5,11 @@ FEATURES:
 * **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
 * **New Data Source:** sumologic_monitor_folder
 
+## 3.1.3 (July 24, 2025)
+
+ENHANCEMENTS:
+* Added optional tuning_expression_ids for all types of rule resources
+
 ## 3.1.2 (July 23, 2025)
 
 BUG FIXES:
