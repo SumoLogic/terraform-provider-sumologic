@@ -2,10 +2,12 @@
 * Add new change notes here
 
 FEATURES:
+
+## 3.1.2 (July 24, 2025)
+
+ENHANCEMENTS:
 * **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
 * **New Data Source:** sumologic_monitor_folder
-
-## 3.1.2 (July 23, 2025)
 
 BUG FIXES:
 * Corrected example usage in documentation for sumologic_cse_outlier_rule
