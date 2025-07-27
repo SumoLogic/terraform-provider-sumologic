@@ -123,6 +123,7 @@ func Provider() *schema.Provider {
 			"sumologic_source_template":                          resourceSumologicSourceTemplate(),
 			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
 			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
+			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
