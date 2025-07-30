@@ -1,9 +1,10 @@
 ## X.Y.Z (Unreleased)
-* return computed `field_names` property for resource `field_extraction_rule`
+* Add new change notes here
 
 FEATURES:
 * **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
 * **New Data Source:** sumologic_monitor_folder
+* **Updated sumologic_extraction_rule resource:** Add computed `field_names` property
 
 ## 3.1.1 (July 8, 2025)
 
