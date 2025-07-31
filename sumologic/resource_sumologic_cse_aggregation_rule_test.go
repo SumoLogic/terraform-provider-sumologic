@@ -56,6 +56,52 @@ func TestAccSumologicCSEAggregationRule_createAndUpdateWithCustomWindowSize(t *t
 	})
 }
 
+func TestAccSumologicCSEAggregationRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var aggregationRule CSEAggregationRule
+	descriptionExpression := "This rule detects when a user has utilized multiple distinct User Agents when performing authentication through Okta. This activity could potentially indicate credential theft or a general session anomaly. Examine other Okta related events surrounding the time period for this signal, pivoting off the username value to examine if any other suspicious activity has taken place. If this rule is generating false positives, adjust the threshold value and consider excluding certain user accounts via tuning expression."
+
+	resourceName := "sumologic_cse_aggregation_rule.sumo_aggregation_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEAggregationRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEAggregationRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "AGGREGATION-S00009",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEAggregationRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckAggregationRuleOverrideValues(&aggregationRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "AGGREGATION-S00009"),
+				),
+			},
+			{
+				Config: testOverrideCSEAggregationRuleConfig(descriptionExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEAggregationRuleExists(resourceName, &aggregationRule),
+					testCheckAggregationRuleOverrideValues(&aggregationRule, descriptionExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "AGGREGATION-S00009"),
+				),
+			},
+			{
+				Config: getAggregationRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
 func TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
@@ -169,6 +215,62 @@ func testAccCSEAggregationRuleDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func testOverrideCSEAggregationRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_aggregation_rule" "sumo_aggregation_rule_test" {
+    description_expression = "%s"
+    enabled                = true
+    group_by_entity        = true
+    group_by_fields        = []
+    is_prototype           = true
+    match_expression       = <<-EOT
+        metadata_vendor = "Okta"
+        and metadata_deviceEventId = "user.authentication.sso"
+    EOT
+    name                   = "Okta - Session Anomaly (Multiple User Agents)"
+    name_expression        = "Okta - Session Anomaly (Multiple User Agents) for user: {{user_username}}"
+    summary_expression     = "{{user_username}} has utilized a number of distinct User Agents which has crossed the threshold (4) value within a 30-minute time period to perform Okta authentication."
+    tags                   = [
+        "_mitreAttackTactic:TA0001",
+        "_mitreAttackTechnique:T1078.004",
+    ]
+    trigger_expression     = "distinct_userAgents > 4"
+    window_size            = "T30M"
+
+    aggregation_functions {
+        arguments = [
+            "fields[\"client.userAgent.rawUserAgent\"]",
+        ]
+        function  = "count_distinct"
+        name      = "distinct_userAgents"
+    }
+
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "user_username"
+    }
+
+    severity_mapping {
+        default = 1
+        field   = null
+        type    = "constant"
+    }
+}
+`, descriptionExpression)
+}
+
+func getAggregationRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+removed {
+  from = sumologic_cse_aggregation_rule.sumo_aggregation_rule_test
+
+  lifecycle {
+	destroy = false
+  }
+}
+`)
 }
 
 func testCreateCSEAggregationRuleConfig(t *testing.T, payload *CSEAggregationRule) string {
@@ -300,6 +402,15 @@ func testCheckCSEAggregationRuleValues(t *testing.T, expected *CSEAggregationRul
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
 		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
+		return nil
+	}
+}
+
+func testCheckAggregationRuleOverrideValues(aggregationRule *CSEAggregationRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if aggregationRule.DescriptionExpression != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, aggregationRule.DescriptionExpression)
+		}
 		return nil
 	}
 }

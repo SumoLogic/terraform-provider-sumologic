@@ -56,6 +56,52 @@ func TestAccSumologicCSEChainRule_createAndUpdateWithCustomWindowSize(t *testing
 	})
 }
 
+func TestAccSumologicCSEChainRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var ChainRule CSEChainRule
+	descriptionExpression := "This rule utilizes Jamf telemetry and looks for osascript execution with a suspicious parent process indicating execution from a shell or terminal in addition to the osascript process making network connections to an external IP address."
+
+	resourceName := "sumologic_cse_chain_rule.sumo_chain_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEChainRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEChainRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "CHAIN-S00016",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEChainRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &ChainRule),
+					testCheckChainRuleOverrideValues(&ChainRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "CHAIN-S00016"),
+				),
+			},
+			{
+				Config: testOverrideCSEChainRuleConfig(descriptionExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEChainRuleExists(resourceName, &ChainRule),
+					testCheckChainRuleOverrideValues(&ChainRule, descriptionExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "CHAIN-S00016"),
+				),
+			},
+			{
+				Config: getChainRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
 func TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
@@ -219,6 +265,66 @@ func testCreateCSEChainRuleConfig(t *testing.T, payload *CSEChainRule) string {
 	return buffer.String()
 }
 
+func testOverrideCSEChainRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_chain_rule" "sumo_chain_rule_test" {
+    description        = "%s"
+    enabled            = true
+    group_by_fields    = [
+        "user_username",
+    ]
+    is_prototype       = true
+    name               = "macOS - Suspicious Osascript Execution and Network Activity"
+    ordered            = false
+    severity           = 3
+    summary_expression = "User: {{user_username}}  has created and deleted an agent pool in a short period of time - inaminadika10"
+    tags               = [
+        "_mitreAttackTactic:TA0002",
+        "_mitreAttackTechnique:T1059.002",
+    ]
+    window_size        = "T05M"
+
+    entity_selectors {
+        entity_type = "_hostname"
+        expression  = "device_hostname"
+    }
+
+    expressions_and_limits {
+        expression = <<-EOT
+            baseImage = "/usr/bin/osascript"
+            and !isNull(commandLine)
+            and parentBaseImage matches /(\/bin)/
+        EOT
+        limit      = 1
+    }
+    expressions_and_limits {
+        expression = <<-EOT
+            metadata_vendor = "Jamf"
+            and metadata_product = "Jamf"
+            and metadata_deviceEventId = "AUE_CONNECT"
+            and parentBaseImage matches /(\/bin)/
+            and baseImage = "/usr/bin/osascript"
+            and !isNull(dstDevice_ip)
+            and dstDevice_ip_isInternal = false
+        EOT
+        limit      = 1
+    }
+}
+`, descriptionExpression)
+}
+
+func getChainRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+removed {
+  from = sumologic_cse_chain_rule.sumo_chain_rule_test
+
+  lifecycle {
+	destroy = false
+  }
+}
+`)
+}
+
 func getCSEChainRuleTestPayload() CSEChainRule {
 	return CSEChainRule{
 		Description:            "Test description",
@@ -279,6 +385,15 @@ func testCheckCSEChainRuleValues(t *testing.T, expected *CSEChainRule, actual *C
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
 		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
+		return nil
+	}
+}
+
+func testCheckChainRuleOverrideValues(chainRule *CSEChainRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if chainRule.Description != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, chainRule.Description)
+		}
 		return nil
 	}
 }

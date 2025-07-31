@@ -57,6 +57,52 @@ func TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize(t *tes
 	})
 }
 
+func TestAccSumologicCSEThresholdRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var thresholdRule CSEThresholdRule
+	descriptionExpression := "Detects multiple network share access attempts from one internal host to another. Attackers will often scan the network for open network shares in order to pivot between internal hosts."
+
+	resourceName := "sumologic_cse_threshold_rule.sumo_threshold_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEThresholdRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEThresholdRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "THRESHOLD-S00059",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEThresholdRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
+					testCheckThresholdRuleOverrideValues(&thresholdRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "THRESHOLD-S00059"),
+				),
+			},
+			{
+				Config: testOverrideCSEThresholdRuleConfig(descriptionExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEThresholdRuleExists(resourceName, &thresholdRule),
+					testCheckThresholdRuleOverrideValues(&thresholdRule, descriptionExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "THRESHOLD-S00059"),
+				),
+			},
+			{
+				Config: getThresholdRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
 func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testing.T) {
 	SkipCseTest(t)
 
@@ -216,6 +262,67 @@ func testCreateCSEThresholdRuleConfig(t *testing.T, payload *CSEThresholdRule) s
 	return buffer.String()
 }
 
+func testOverrideCSEThresholdRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_threshold_rule" "sumo_threshold_rule_test" {
+    count_distinct     = true
+    count_field        = "resource"
+    description        = "%s"
+	enabled            = true
+    expression         = <<-EOT
+        metadata_vendor = 'Microsoft'
+        AND metadata_product = 'Windows'
+        AND metadata_deviceEventId = 'Security-5140'
+        AND NOT srcDevice_ip = '127.0.0.1'
+        AND NOT resource like '%%Printer%%'
+    EOT
+    group_by_fields    = [
+        "srcDevice_ip",
+        "device_hostname",
+    ]
+    is_prototype       = true
+    limit              = 25
+    name               = "Network Share Scan"
+    severity           = 1
+    summary_expression = "Multiple network share access attempts from IP: {{srcDevice_ip}}"
+    tags               = [
+        "_mitreAttackTactic:TA0007",
+        "_mitreAttackTechnique:T1135",
+    ]
+    window_size        = "T05M"
+
+    entity_selectors {
+        entity_type = "_ip"
+        expression  = "device_ip"
+    }
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "user_username"
+    }
+    entity_selectors {
+        entity_type = "_hostname"
+        expression  = "device_hostname"
+    }
+    entity_selectors {
+        entity_type = "_ip"
+        expression  = "srcDevice_ip"
+    }
+}
+`, descriptionExpression)
+}
+
+func getThresholdRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+removed {
+  from = sumologic_cse_threshold_rule.sumo_threshold_rule_test
+
+  lifecycle {
+	destroy = false
+  }
+}
+`)
+}
+
 func getCSEThresholdRuleTestPayload() CSEThresholdRule {
 	return CSEThresholdRule{
 		CountDistinct:          true,
@@ -280,6 +387,15 @@ func testCheckCSEThresholdRuleValues(t *testing.T, expected *CSEThresholdRule, a
 			assert.Equal(t, expected.WindowSizeMilliseconds, string(actual.WindowSize))
 		}
 		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
+		return nil
+	}
+}
+
+func testCheckThresholdRuleOverrideValues(thresholdRule *CSEThresholdRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if thresholdRule.Description != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, thresholdRule.Description)
+		}
 		return nil
 	}
 }

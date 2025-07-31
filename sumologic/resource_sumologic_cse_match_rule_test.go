@@ -75,6 +75,52 @@ func TestAccSumologicCSEMatchRule_createAndUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSumologicCSEMatchRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var matchRule CSEMatchRule
+	descriptionExpression := "Detects email addresses associated with known malicious actor(s) or campaign(s) as designated by a threat intelligence provider."
+
+	resourceName := "sumologic_cse_match_rule.sumo_match_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEMatchRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEMatchRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "MATCH-S01020",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEMatchRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchRuleExists(resourceName, &matchRule),
+					testCheckMatchRuleOverrideValues(&matchRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "MATCH-S01020"),
+				),
+			},
+			{
+				Config: testOverrideCSEMatchRuleConfig(descriptionExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchRuleExists(resourceName, &matchRule),
+					testCheckMatchRuleOverrideValues(&matchRule, descriptionExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "MATCH-S01020"),
+				),
+			},
+			{
+				Config: getMatchRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
 func TestAccSumologicCSEMatchRule_failSuppressionValidation(t *testing.T) {
 	SkipCseTest(t)
 
@@ -161,6 +207,55 @@ resource "sumologic_cse_match_rule" "match_rule" {
 		summaryExpression, tag, *suppressionWindowSize)
 }
 
+func testOverrideCSEMatchRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_match_rule" "sumo_match_rule_test" {
+    description_expression = "%s"
+    enabled                = true
+    expression             = "hasThreatMatch([targetUser_email], confidence > 1 AND type='email-addr')"
+    is_prototype           = true
+    name                   = "Threat Intel - Matched Target Email"
+    name_expression        = "Threat Intel - Matched Target Email"
+    summary_expression     = "The record contains a target email address associated with a threat intelligence feed: {{targetUser_email}}"
+    tags                   = []
+
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "user_username"
+    }
+    entity_selectors {
+        entity_type = "_email"
+        expression  = "user_email"
+    }
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "targetUser_username"
+    }
+    entity_selectors {
+        entity_type = "_email"
+        expression  = "targetUser_email"
+    }
+
+    severity_mapping {
+        default = 1
+        type    = "constant"
+    }
+}
+`, descriptionExpression)
+}
+
+func getMatchRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+removed {
+  from = sumologic_cse_match_rule.sumo_match_rule_test
+
+  lifecycle {
+	destroy = false
+  }
+}
+`)
+}
+
 func testCheckCSEMatchRuleExists(n string, matchRule *CSEMatchRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -230,6 +325,15 @@ func testCheckMatchRuleValues(matchRule *CSEMatchRule, descriptionExpression str
 			return fmt.Errorf("bad suppressionWindowSize, expected %d, got %#v", suppressionWindowSize, matchRule.SuppressionWindowSize)
 		}
 
+		return nil
+	}
+}
+
+func testCheckMatchRuleOverrideValues(matchRule *CSEMatchRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if matchRule.DescriptionExpression != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, matchRule.DescriptionExpression)
+		}
 		return nil
 	}
 }
