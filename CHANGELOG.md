@@ -3,6 +3,11 @@
 
 FEATURES:
 
+## 3.1.3 (July 31, 2025)
+
+ENHANCEMENTS:
+* Added support for overriding sumo built-in rules
+
 ## 3.1.2 (July 24, 2025)
 
 ENHANCEMENTS:
