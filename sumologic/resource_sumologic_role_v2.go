@@ -96,6 +96,10 @@ func resourceSumologicRoleV2Read(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+    if roleV2.SelectionType == "" {
+        roleV2.SelectionType = "All"
+    }
+
 	d.Set("name", roleV2.Name)
 	d.Set("audit_data_filter", roleV2.AuditDataFilter)
 	d.Set("selection_type", roleV2.SelectionType)
@@ -122,6 +126,11 @@ func resourceSumologicRoleV2Update(d *schema.ResourceData, meta interface{}) err
 	c := meta.(*Client)
 
 	roleV2 := resourceToRoleV2(d)
+
+	if roleV2.SelectionType == "" {
+       roleV2.SelectionType = "All"
+    }
+
 
 	id := d.Id()
 	retrievedRoleV2, _ := c.GetRole(id)
