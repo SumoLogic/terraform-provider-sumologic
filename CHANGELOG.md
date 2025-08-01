@@ -4,6 +4,9 @@
 FEATURES:
 * The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).
 
+MAINTENANCE:
+* Add a [guide for contributors](CONTRIBUTING.md)
+
 ## 3.1.2 (July 24, 2025)
 
 ENHANCEMENTS:
