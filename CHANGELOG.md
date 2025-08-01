@@ -4,6 +4,11 @@
 FEATURES:
 * The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).
 
+## 3.1.3 (July 31, 2025)
+
+ENHANCEMENTS:
+* Added support for overriding sumo built-in rules
+
 ## 3.1.2 (July 24, 2025)
 
 ENHANCEMENTS:

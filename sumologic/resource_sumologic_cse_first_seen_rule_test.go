@@ -71,6 +71,52 @@ func TestAccSumologicCSEFirstSeenRule_createAndUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSumologicCSEFirstSeenRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var FirstSeenRule CSEFirstSeenRule
+	descriptionExpression := "Observes for a user performing a RDP logon for the first time."
+
+	resourceName := "sumologic_cse_first_seen_rule.sumo_first_seen_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEFirstSeenRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEFirstSeenRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "FIRST-S00009",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEFirstSeenRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEFirstSeenRuleExists(resourceName, &FirstSeenRule),
+					testCheckFirstSeenRuleOverrideValues(&FirstSeenRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "FIRST-S00009"),
+				),
+			},
+			{
+				Config: testOverrideCSEFirstSeenRuleConfig(fmt.Sprintf(descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEFirstSeenRuleExists(resourceName, &FirstSeenRule),
+					testCheckFirstSeenRuleOverrideValues(&FirstSeenRule, fmt.Sprintf(descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "FIRST-S00009"),
+				),
+			},
+			{
+				Config: getFirstSeenRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
 func testAccCSEFirstSeenRuleDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
@@ -130,6 +176,54 @@ resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
 	return buffer.String()
 }
 
+func testOverrideCSEFirstSeenRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_first_seen_rule" "sumo_first_seen_rule_test" {
+    baseline_type          = "GLOBAL"
+    baseline_window_size   = "1814400000"
+    description_expression = "%s"
+    enabled                = true
+    filter_expression      = <<-EOT
+        metadata_vendor = 'Microsoft'
+        AND metadata_product = 'Windows'
+        AND metadata_deviceEventId = 'Security-4624'
+        AND fields["EventData.LogonType"] = "10"
+        AND user_username != "local service"
+    EOT
+    group_by_fields        = []
+    is_prototype           = true
+    name                   = "First Seen RDP Logon From User"
+    name_expression        = "First Seen RDP Logon From User"
+    retention_window_size  = "7776000000"
+    severity               = 2
+    summary_expression     = "First Seen RDP logon by the user: {{user_username}}"
+    tags                   = [
+        "_mitreAttackTactic:TA0008",
+        "_mitreAttackTechnique:T1021",
+        "_mitreAttackTechnique:T1021.001",
+    ]
+    value_fields           = []
+
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "user_username"
+    }
+}
+`, descriptionExpression)
+}
+
+func getFirstSeenRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+removed {
+  from = sumologic_cse_first_seen_rule.sumo_first_seen_rule_test
+
+  lifecycle {
+	destroy = false
+  }
+}
+`)
+}
+
 func testCheckCSEFirstSeenRuleExists(n string, firstSeenRule *CSEFirstSeenRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -170,6 +264,15 @@ func testCheckFirstSeenRuleValues(t *testing.T, expected *CSEFirstSeenRule, actu
 		assert.Equal(t, expected.ValueFields, actual.ValueFields)
 		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 
+		return nil
+	}
+}
+
+func testCheckFirstSeenRuleOverrideValues(firstSeenRule *CSEFirstSeenRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if firstSeenRule.DescriptionExpression != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, firstSeenRule.DescriptionExpression)
+		}
 		return nil
 	}
 }

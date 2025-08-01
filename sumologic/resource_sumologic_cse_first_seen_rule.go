@@ -36,8 +36,9 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"filter_expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"group_by_fields": {
 				Type:     schema.TypeList,
@@ -183,13 +184,20 @@ func resourceSumologicCSEFirstSeenRuleCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceSumologicCSEFirstSeenRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
 	CSEFirstSeenRule, err := resourceToCSEFirstSeenRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEFirstSeenRule(CSEFirstSeenRule); err != nil {
+	if ruleSource == "user" {
+		err = c.UpdateCSEFirstSeenRule(CSEFirstSeenRule)
+	} else {
+		err = c.OverrideCSEFirstSeenRule(CSEFirstSeenRule)
+	}
+
+	if err != nil {
 		return err
 	}
 

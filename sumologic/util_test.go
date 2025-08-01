@@ -1,7 +1,9 @@
 package sumologic
 
 import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"reflect"
 	"testing"
 )
@@ -272,5 +274,11 @@ func TestRemoveEmptyValues(t *testing.T) {
 	if !isEqual {
 		processedJsonStr, _ := structure.FlattenJsonToString(inputMapObject)
 		t.Fatal("Expected json after removing empty values:", cleanedJsonStr, "but was:", processedJsonStr)
+	}
+}
+
+func removeState(addr ...string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return s.Remove(addr...)
 	}
 }

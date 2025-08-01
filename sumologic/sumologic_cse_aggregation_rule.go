@@ -64,8 +64,43 @@ func (s *Client) UpdateCSEAggregationRule(CSEAggregationRule CSEAggregationRule)
 	return err
 }
 
+func (s *Client) OverrideCSEAggregationRule(CSEAggregationRule CSEAggregationRule) error {
+	url := fmt.Sprintf("sec/v1/rules/aggregation/%s/override", CSEAggregationRule.ID)
+
+	CSEAggregationRuleOverride := toOverrideAggregation(CSEAggregationRule)
+
+	request := CSEAggregationRuleOverrideRequest{
+		CSEAggregationRuleOverride: CSEAggregationRuleOverride,
+	}
+	_, err := s.Put(url, request)
+
+	return err
+}
+
+func toOverrideAggregation(CSEAggregationRule CSEAggregationRule) CSEAggregationRuleOverride {
+
+	return CSEAggregationRuleOverride{
+		DescriptionExpression:  CSEAggregationRule.DescriptionExpression,
+		EntitySelectors:        CSEAggregationRule.EntitySelectors,
+		GroupByFields:          CSEAggregationRule.GroupByFields,
+		IsPrototype:            CSEAggregationRule.IsPrototype,
+		Name:                   CSEAggregationRule.Name,
+		NameExpression:         CSEAggregationRule.NameExpression,
+		SeverityMapping:        CSEAggregationRule.SeverityMapping,
+		SummaryExpression:      CSEAggregationRule.SummaryExpression,
+		Tags:                   CSEAggregationRule.Tags,
+		WindowSize:             CSEAggregationRule.WindowSize,
+		WindowSizeMilliseconds: CSEAggregationRule.WindowSizeMilliseconds,
+		SuppressionWindowSize:  CSEAggregationRule.SuppressionWindowSize,
+	}
+}
+
 type CSEAggregationRuleRequest struct {
 	CSEAggregationRule CSEAggregationRule `json:"fields"`
+}
+
+type CSEAggregationRuleOverrideRequest struct {
+	CSEAggregationRuleOverride CSEAggregationRuleOverride `json:"fields"`
 }
 
 type CSEAggregationRuleResponse struct {
@@ -99,4 +134,19 @@ type CSEAggregationRule struct {
 	WindowSizeName         string                `json:"windowSizeName,omitempty"`
 	WindowSizeMilliseconds string                `json:"windowSizeMilliseconds,omitempty"`
 	SuppressionWindowSize  *int                  `json:"suppressionWindowSize,omitempty"`
+}
+
+type CSEAggregationRuleOverride struct {
+	DescriptionExpression  string           `json:"descriptionExpression"`
+	EntitySelectors        []EntitySelector `json:"entitySelectors"`
+	GroupByFields          []string         `json:"groupByFields"`
+	IsPrototype            bool             `json:"isPrototype"`
+	Name                   string           `json:"name"`
+	NameExpression         string           `json:"nameExpression"`
+	SeverityMapping        SeverityMapping  `json:"scoreMapping"`
+	SummaryExpression      string           `json:"summaryExpression"`
+	Tags                   []string         `json:"tags"`
+	WindowSize             windowSizeField  `json:"windowSize,omitempty"`
+	WindowSizeMilliseconds string           `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int             `json:"suppressionWindowSize,omitempty"`
 }
