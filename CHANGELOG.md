@@ -6,6 +6,7 @@ FEATURES:
 
 MAINTENANCE:
 * Removed obsolete comments about auto-generated code. All code in this repo is eligible for by-hand modification.
+* Add a [guide for contributors](CONTRIBUTING.md)
 
 ## 3.1.2 (July 24, 2025)
 
