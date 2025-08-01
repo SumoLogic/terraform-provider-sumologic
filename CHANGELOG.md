@@ -2,6 +2,7 @@
 * Add new change notes here
 
 FEATURES:
+* The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).
 
 ## 3.1.2 (July 24, 2025)
 
