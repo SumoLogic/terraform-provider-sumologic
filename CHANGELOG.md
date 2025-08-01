@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* return computed `field_names` property for resource `field_extraction_rule`
 
 FEATURES:
 * The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).

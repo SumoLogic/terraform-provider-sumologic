@@ -52,6 +52,7 @@ func TestAccSumologicFieldExtractionRule_create(t *testing.T) {
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
+	testFieldName := FieldsMap["FieldExtractionRule"]["fieldNames"]
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -66,6 +67,7 @@ func TestAccSumologicFieldExtractionRule_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "scope", testScope),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "parse_expression", testParseExpression),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "enabled", strconv.FormatBool(testEnabled)),
+					resource.TestCheckTypeSetElemAttr("sumologic_field_extraction_rule.test", "field_names.*", testFieldName),
 				),
 			},
 		},
@@ -120,11 +122,13 @@ func TestAccSumologicFieldExtractionRule_update(t *testing.T) {
 	testScope := FieldsMap["FieldExtractionRule"]["scope"]
 	testParseExpression := FieldsMap["FieldExtractionRule"]["parseExpression"]
 	testEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["enabled"])
+	testFieldName := FieldsMap["FieldExtractionRule"]["fieldNames"]
 
 	testUpdatedName := FieldsMap["FieldExtractionRule"]["updatedName"] + randomSuffix
 	testUpdatedScope := FieldsMap["FieldExtractionRule"]["updatedScope"]
 	testUpdatedParseExpression := FieldsMap["FieldExtractionRule"]["updatedParseExpression"]
 	testUpdatedEnabled, _ := strconv.ParseBool(FieldsMap["FieldExtractionRule"]["updatedEnabled"])
+	testUpdatedFieldName := FieldsMap["FieldExtractionRule"]["updatedFieldNames"]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -140,6 +144,7 @@ func TestAccSumologicFieldExtractionRule_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "scope", testScope),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "parse_expression", testParseExpression),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "enabled", strconv.FormatBool(testEnabled)),
+					resource.TestCheckTypeSetElemAttr("sumologic_field_extraction_rule.test", "field_names.*", testFieldName),
 				),
 			},
 			{
@@ -151,6 +156,7 @@ func TestAccSumologicFieldExtractionRule_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "scope", testUpdatedScope),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "parse_expression", testUpdatedParseExpression),
 					resource.TestCheckResourceAttr("sumologic_field_extraction_rule.test", "enabled", strconv.FormatBool(testUpdatedEnabled)),
+					resource.TestCheckTypeSetElemAttr("sumologic_field_extraction_rule.test", "field_names.*", testUpdatedFieldName),
 				),
 			},
 		},
@@ -197,6 +203,7 @@ func testAccCheckFieldExtractionRuleAttributes(name string) resource.TestCheckFu
 			resource.TestCheckResourceAttrSet(name, "scope"),
 			resource.TestCheckResourceAttrSet(name, "parse_expression"),
 			resource.TestCheckResourceAttrSet(name, "enabled"),
+			resource.TestCheckResourceAttrSet(name, "field_names.#"),
 		)
 		return f(s)
 	}
