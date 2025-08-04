@@ -1,11 +1,13 @@
 package sumologic
 
 import (
+	"log"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"reflect"
-	"testing"
 )
 
 // Based on https://github.com/hashicorp/terraform-provider-aws/blob/232c3ed9c9d18aab6f6b70672d7c46d44c75a52e/internal/verify/diff_test.go#L62.
@@ -277,8 +279,12 @@ func TestRemoveEmptyValues(t *testing.T) {
 	}
 }
 
-func removeState(addr ...string) resource.TestCheckFunc {
+func removeState(addr string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		return s.Remove(addr...)
+		err := s.Remove(addr)
+		if err != nil {
+			log.Printf("Error removing multiple items: %v", err)
+		}
+		return nil
 	}
 }

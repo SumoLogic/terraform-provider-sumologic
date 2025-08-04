@@ -108,10 +108,8 @@ func TestAccSumologicCSEFirstSeenRule_Override(t *testing.T) {
 					testCheckFirstSeenRuleOverrideValues(&FirstSeenRule, fmt.Sprintf(descriptionExpression)),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "FIRST-S00009"),
+					removeState("sumologic_cse_first_seen_rule.sumo_first_seen_rule_test"),
 				),
-			},
-			{
-				Config: getFirstSeenRuleRemovedBlock(),
 			},
 		},
 	})
@@ -210,18 +208,6 @@ resource "sumologic_cse_first_seen_rule" "sumo_first_seen_rule_test" {
     }
 }
 `, descriptionExpression)
-}
-
-func getFirstSeenRuleRemovedBlock() string {
-	return fmt.Sprintf(`
-removed {
-  from = sumologic_cse_first_seen_rule.sumo_first_seen_rule_test
-
-  lifecycle {
-	destroy = false
-  }
-}
-`)
 }
 
 func testCheckCSEFirstSeenRuleExists(n string, firstSeenRule *CSEFirstSeenRule) resource.TestCheckFunc {

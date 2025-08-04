@@ -93,10 +93,8 @@ func TestAccSumologicCSEAggregationRule_Override(t *testing.T) {
 					testCheckAggregationRuleOverrideValues(&aggregationRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "AGGREGATION-S00009"),
+					removeState("sumologic_cse_aggregation_rule.sumo_aggregation_rule_test"),
 				),
-			},
-			{
-				Config: getAggregationRuleRemovedBlock(),
 			},
 		},
 	})
@@ -259,18 +257,6 @@ resource "sumologic_cse_aggregation_rule" "sumo_aggregation_rule_test" {
     }
 }
 `, descriptionExpression)
-}
-
-func getAggregationRuleRemovedBlock() string {
-	return fmt.Sprintf(`
-removed {
-  from = sumologic_cse_aggregation_rule.sumo_aggregation_rule_test
-
-  lifecycle {
-	destroy = false
-  }
-}
-`)
 }
 
 func testCreateCSEAggregationRuleConfig(t *testing.T, payload *CSEAggregationRule) string {

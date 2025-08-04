@@ -112,7 +112,7 @@ func TestAccSumologicCSEMatchRule_Override(t *testing.T) {
 					testCheckMatchRuleOverrideValues(&matchRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "MATCH-S01020"),
-					removeState("sumologic_cse_match_rule", "sumo_match_rule_test"),
+					removeState("sumologic_cse_match_rule.sumo_match_rule_test"),
 				),
 			},
 		},
