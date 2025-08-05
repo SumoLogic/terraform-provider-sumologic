@@ -52,6 +52,7 @@ func resourceSumologicRoleV2() *schema.Resource {
 			"selection_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"name": {
