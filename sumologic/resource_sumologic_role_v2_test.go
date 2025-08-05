@@ -218,11 +218,11 @@ resource "sumologic_role_v2" "test" {
 `, name, auditDataFilter, selectionType, capabilities, description, securityDataFilter, logAnalyticsFilter)
 }
 
-func TestAccSumologicRoleV2_selectionTypeOptional(t *testing.T) {
+func TestAccSumologicRoleV2_selectionType_DefaultsToAll(t *testing.T) {
     var roleV2 RoleV2
     testName := acctest.RandomWithPrefix("tf-acc-test")
     testCapabilities := []string{"\"manageContent\""}
-    testDescription := "Role with optional selection_type"
+    testDescription := "Role with default selection_type"
     testAuditDataFilter := "info"
     testSecurityDataFilter := "error"
     testLogAnalyticsFilter := "!_sourceCategory=collector"
@@ -232,7 +232,6 @@ func TestAccSumologicRoleV2_selectionTypeOptional(t *testing.T) {
         Providers:    testAccProviders,
         CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
         Steps: []resource.TestStep{
-            // Step 1: selection_type is not set at all
             {
                 Config: fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
@@ -246,10 +245,9 @@ resource "sumologic_role_v2" "test" {
 `, testName, testAuditDataFilter, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
                 Check: resource.ComposeTestCheckFunc(
                     testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
-                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", ""),
+                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
                 ),
             },
-            // Step 2: Explicitly set selection_type = ""
             {
                 Config: fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
@@ -264,7 +262,8 @@ resource "sumologic_role_v2" "test" {
 `, testName, testAuditDataFilter, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
                 Check: resource.ComposeTestCheckFunc(
                     testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
-                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", ""),
+                    // Even if user sets "", internally defaults to "All"
+                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
                 ),
             },
         },
