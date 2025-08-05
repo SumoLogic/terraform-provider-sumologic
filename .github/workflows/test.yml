@@ -40,6 +40,7 @@ jobs:
               - '**'
               - '!README.md'
               - '!CHANGELOG.md'
+              - '!CONTRIBUTING.md'
               - '!website/**'
   # ensure the code builds...
   build:
