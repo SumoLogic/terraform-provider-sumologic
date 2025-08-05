@@ -219,21 +219,21 @@ resource "sumologic_role_v2" "test" {
 }
 
 func TestAccSumologicRoleV2_selectionType_DefaultsToAll(t *testing.T) {
-    var roleV2 RoleV2
-    testName := acctest.RandomWithPrefix("tf-acc-test")
-    testCapabilities := []string{"\"manageContent\""}
-    testDescription := "Role with default selection_type"
-    testAuditDataFilter := "info"
-    testSecurityDataFilter := "error"
-    testLogAnalyticsFilter := "!_sourceCategory=collector"
+	var roleV2 RoleV2
+	testName := acctest.RandomWithPrefix("tf-acc-test")
+	testCapabilities := []string{"\"manageContent\""}
+	testDescription := "Role with default selection_type"
+	testAuditDataFilter := "info"
+	testSecurityDataFilter := "error"
+	testLogAnalyticsFilter := "!_sourceCategory=collector"
 
-    resource.Test(t, resource.TestCase{
-        PreCheck:     func() { testAccPreCheck(t) },
-        Providers:    testAccProviders,
-        CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
-        Steps: []resource.TestStep{
-            {
-                Config: fmt.Sprintf(`
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
     name                 = "%s"
     audit_data_filter    = "%s"
@@ -243,13 +243,13 @@ resource "sumologic_role_v2" "test" {
     log_analytics_filter = "%s"
 }
 `, testName, testAuditDataFilter, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
-                Check: resource.ComposeTestCheckFunc(
-                    testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
-                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
-                ),
-            },
-            {
-                Config: fmt.Sprintf(`
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
+					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
 resource "sumologic_role_v2" "test" {
     name                 = "%s"
     audit_data_filter    = "%s"
@@ -260,14 +260,14 @@ resource "sumologic_role_v2" "test" {
     log_analytics_filter = "%s"
 }
 `, testName, testAuditDataFilter, testCapabilities, testDescription, testSecurityDataFilter, testLogAnalyticsFilter),
-                Check: resource.ComposeTestCheckFunc(
-                    testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
-                    // Even if user sets "", internally defaults to "All"
-                    resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
-                ),
-            },
-        },
-    })
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
+					// Even if user sets "", internally defaults to "All"
+					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selection_type", "All"),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckRoleV2Attributes(name string) resource.TestCheckFunc {

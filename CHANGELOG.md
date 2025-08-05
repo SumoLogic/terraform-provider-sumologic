@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+BUG FIXES:
+* Corrected selection_type configuration in RolesV2 resources.
 
 FEATURES:
 
