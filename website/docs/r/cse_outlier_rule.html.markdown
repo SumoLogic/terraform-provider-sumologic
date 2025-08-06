@@ -1,4 +1,4 @@
-___
+---
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_outlier_rule"
 description: |-
@@ -10,31 +10,32 @@ Provides a Sumo Logic CSE [Outlier Rule](https://help.sumologic.com/docs/cse/rul
 
 ## Example Usage
 ```hcl
-resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
-  aggregation_functions {
-  		name = "total"
-  		function = "count"
-  		arguments = ["true"]
-  }
-  baseline_window_size   = "1209600000" // 14 days
-  description_expression = "Spike in Login Failures - {{ user_username }}"
+resource "sumologic_cse_outlier_rule" "outlier_rule" {
+  name                   = "Outlier Rule Example"
+  name_expression        = "Signal name"
+  description_expression = "Signal description"
   enabled                = true
+  baseline_window_size   = "2592000000"
+  floor_value            = 3
+  deviation_threshold    = 3
+  is_prototype           = false
+  match_expression       = "objectType = \"Network\""
+  retention_window_size  = "7776000000"
+  window_size            = "T60M"
+  severity               = 3
+  summary_expression     = "Signal summary"
+  aggregation_functions {
+    arguments = [
+      "true",
+    ]
+    function  = "count"
+    name      = "current"
+  }
   entity_selectors {
     entity_type = "_username"
-    expression = "user_username"
+    expression  = "user_username"
   }
-  floor_value            = 0
-  deviation_threshold    = 3
-  group_by_fields        = ["user_username"]
-  is_prototype           = false
-  match_expression       = "objectType=\"Authentication\" AND success=false"
-  name                   = "Spike in Login Failures"
-  name_expression        = "Spike in Login Failures - {{ user_username }}"
-  retention_window_size  = "7776000000" // 90 days
-  severity               = 1
-  summary_expression     = "Spike in Login Failures - {{ user_username }}"
-  window_size            = "T24H"
-  suppression_window_size = 90000000
+  tags                   = ["_mitreAttackTactic:TA0005"]
 }
 ```
 ## Argument Reference

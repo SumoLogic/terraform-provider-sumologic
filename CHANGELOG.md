@@ -1,6 +1,25 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
-* Add support for local windows event log source for installed collectors
+
+BUG FIXES:
+* Corrected selection_type configuration in RolesV2 resources.
+
+FEATURES:
+* The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).
+*  **New Resource:** sumologic_local_windows_event_log_source (GH-785)
+
+MAINTENANCE:
+* Removed obsolete comments about auto-generated code. All code in this repo is eligible for by-hand modification.
+* Add a [guide for contributors](CONTRIBUTING.md)
+
+## 3.1.2 (July 24, 2025)
+
+ENHANCEMENTS:
+* **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
+* **New Data Source:** sumologic_monitor_folder
+
+BUG FIXES:
+* Corrected example usage in documentation for sumologic_cse_outlier_rule
 
 ## 3.1.1 (July 8, 2025)
 
