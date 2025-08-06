@@ -1,7 +1,7 @@
 package sumologic
 
 import (
-    "fmt"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -41,11 +41,11 @@ func dataSourceSumologicMonitorFolderRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-    if monitorsLibraryFolder == nil || monitorsLibraryFolder.ID == "" {
-        return fmt.Errorf("folder with path '%s' does not exist", d.Get("path").(string))
-    }
+	if monitorsLibraryFolder == nil || monitorsLibraryFolder.ID == "" {
+		return fmt.Errorf("folder with path '%s' does not exist", d.Get("path").(string))
+	}
 
-    d.SetId(monitorsLibraryFolder.ID)
+	d.SetId(monitorsLibraryFolder.ID)
 	d.Set("name", monitorsLibraryFolder.Name)
 	d.Set("description", monitorsLibraryFolder.Description)
 

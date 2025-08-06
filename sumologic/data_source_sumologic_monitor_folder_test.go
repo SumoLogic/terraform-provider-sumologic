@@ -8,12 +8,12 @@ import (
 )
 
 func TestAccDataSourceMonitorFolder_basic(t *testing.T) {
-    resource.Test(t, resource.TestCase{
-        PreCheck:  func() { testAccPreCheck(t) },
-        Providers: testAccProviders,
-        Steps: []resource.TestStep{
-            {
-                Config: `
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: `
                     resource "sumologic_monitor_folder" "test_folder" {
                         name        = "Terraform Test"
                         description = "Terraform Test Folder"
@@ -23,12 +23,12 @@ func TestAccDataSourceMonitorFolder_basic(t *testing.T) {
                         depends_on = [sumologic_monitor_folder.test_folder]
                     }
                 `,
-                Check: resource.ComposeTestCheckFunc(
-                    testAccDataSourceMonitorFolderCheck("data.sumologic_monitor_folder.test"),
-                ),
-            },
-        },
-    })
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceMonitorFolderCheck("data.sumologic_monitor_folder.test"),
+				),
+			},
+		},
+	})
 }
 
 func TestAccDataSourceMonitorFolder_folder_does_not_exist(t *testing.T) {
