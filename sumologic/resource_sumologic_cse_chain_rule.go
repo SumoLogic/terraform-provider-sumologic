@@ -34,8 +34,9 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"expression": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: suppressSpaceDiff,
 						},
 						"limit": {
 							Type:     schema.TypeInt,
