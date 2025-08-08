@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.1.3 (August 6, 2025)
+
 BUG FIXES:
 * Corrected selection_type configuration in RolesV2 resources.
 
