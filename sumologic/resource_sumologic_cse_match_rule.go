@@ -28,8 +28,9 @@ func resourceSumologicCSEMatchRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"is_prototype": {
 				Type:     schema.TypeBool,
