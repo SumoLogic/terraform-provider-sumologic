@@ -36,8 +36,9 @@ func resourceSumologicCSEFirstSeenRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"filter_expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"group_by_fields": {
 				Type:     schema.TypeList,

@@ -12,6 +12,11 @@ MAINTENANCE:
 * Removed obsolete comments about auto-generated code. All code in this repo is eligible for by-hand modification.
 * Add a [guide for contributors](CONTRIBUTING.md)
 
+## 3.1.3 (August 8, 2025)
+
+BUG FIXES:
+* Added a fix to suppress any diff for whitespaces in the match_expression/expression field.
+
 ## 3.1.2 (July 24, 2025)
 
 ENHANCEMENTS:

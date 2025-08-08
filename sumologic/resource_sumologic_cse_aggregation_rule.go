@@ -69,8 +69,9 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 				Optional: true,
 			},
 			"match_expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"name": {
 				Type:     schema.TypeString,
