@@ -93,11 +93,24 @@ func TestAccSumologicCSEChainRule_Override(t *testing.T) {
 					testCheckChainRuleOverrideValues(&ChainRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "CHAIN-S00016"),
-					removeState("sumologic_cse_chain_rule.sumo_chain_rule_test"),
 				),
+			},
+			{
+				Config: getChainRuleRemovedBlock(),
 			},
 		},
 	})
+}
+
+func getChainRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+	removed {
+		from = sumologic_cse_chain_rule.sumo_chain_rule_test
+		lifecycle {
+			destroy = false
+		}
+	}
+	`)
 }
 
 func TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize(t *testing.T) {

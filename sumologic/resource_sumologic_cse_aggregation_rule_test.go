@@ -93,11 +93,23 @@ func TestAccSumologicCSEAggregationRule_Override(t *testing.T) {
 					testCheckAggregationRuleOverrideValues(&aggregationRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "AGGREGATION-S00009"),
-					removeState("sumologic_cse_aggregation_rule.sumo_aggregation_rule_test"),
 				),
+			},
+			{
+				Config: getAggregationRuleRemovedBlock(),
 			},
 		},
 	})
+}
+
+func getAggregationRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+	removed {
+		from = sumologic_cse_aggregation_rule.sumo_aggregation_rule_test
+		lifecycle {
+			destroy = false
+		}
+	}`)
 }
 
 func TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize(t *testing.T) {

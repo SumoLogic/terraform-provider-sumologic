@@ -112,11 +112,23 @@ func TestAccSumologicCSEOutlierRule_Override(t *testing.T) {
 					testCheckOutlierRuleOverrideValues(&OutlierRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "OUTLIER-S00007"),
-					removeState("sumologic_cse_outlier_rule.sumo_outlier_rule_test"),
 				),
+			},
+			{
+				Config: getOutlierRuleRemovedBlock(),
 			},
 		},
 	})
+}
+
+func getOutlierRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+	removed {
+		from = sumologic_cse_outlier_rule.sumo_outlier_rule_test
+		lifecycle {
+			destroy = false
+		}
+	}`)
 }
 
 func testAccCSEOutlierRuleDestroy(s *terraform.State) error {

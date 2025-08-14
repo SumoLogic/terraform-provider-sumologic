@@ -94,11 +94,24 @@ func TestAccSumologicCSEThresholdRule_Override(t *testing.T) {
 					testCheckThresholdRuleOverrideValues(&thresholdRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "THRESHOLD-S00059"),
-					removeState("sumologic_cse_threshold_rule.sumo_threshold_rule_test"),
 				),
+			},
+			{
+				Config: getThresholdRuleRemovedBlock(),
 			},
 		},
 	})
+}
+
+func getThresholdRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+	removed {
+		from = sumologic_cse_threshold_rule.sumo_threshold_rule_test
+		lifecycle {
+			destroy = false
+		}
+	}
+	`)
 }
 
 func TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize(t *testing.T) {
