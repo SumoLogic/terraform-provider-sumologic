@@ -1,7 +1,18 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.1.3 (August 6, 2025)
+
+BUG FIXES:
+* Corrected selection_type configuration in RolesV2 resources.
+
 FEATURES:
+* The **sumologic_role_v2** resource has been promoted from Beta to General Availability (GA).
+*  **New Resource:** sumologic_local_windows_event_log_source (GH-785)
+
+MAINTENANCE:
+* Removed obsolete comments about auto-generated code. All code in this repo is eligible for by-hand modification.
+* Add a [guide for contributors](CONTRIBUTING.md)
 
 ## 3.1.3 (July 31, 2025)
 

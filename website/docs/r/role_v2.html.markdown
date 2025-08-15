@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic Role v2
 ---
 
-# sumologic_role_v2 ( beta )
+# sumologic_role_v2
 Provider to manage Sumologic Role v2
 
 ## Example Usage
