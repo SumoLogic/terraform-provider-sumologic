@@ -34,8 +34,9 @@ func resourceSumologicCSEChainRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"expression": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: suppressSpaceDiff,
 						},
 						"limit": {
 							Type:     schema.TypeInt,
@@ -184,13 +185,20 @@ func resourceSumologicCSEChainRuleCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceSumologicCSEChainRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
 	CSEChainRule, err := resourceToCSEChainRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEChainRule(CSEChainRule); err != nil {
+	if ruleSource == "user" {
+		err = c.UpdateCSEChainRule(CSEChainRule)
+	} else {
+		err = c.OverrideCSEChainRule(CSEChainRule)
+	}
+
+	if err != nil {
 		return err
 	}
 

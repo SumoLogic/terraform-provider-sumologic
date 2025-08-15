@@ -28,8 +28,9 @@ func resourceSumologicCSEMatchRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"is_prototype": {
 				Type:     schema.TypeBool,
@@ -143,13 +144,22 @@ func resourceSumologicCSEMatchRuleCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceSumologicCSEMatchRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
+
 	CSEMatchRule, err := resourceToCSEMatchRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEMatchRule(CSEMatchRule); err != nil {
+
+	if ruleSource == "user" {
+		err = c.UpdateCSEMatchRule(CSEMatchRule)
+	} else {
+		err = c.OverrideCSEMatchRule(CSEMatchRule)
+	}
+
+	if err != nil {
 		return err
 	}
 

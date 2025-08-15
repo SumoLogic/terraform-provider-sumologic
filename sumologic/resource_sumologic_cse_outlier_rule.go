@@ -77,8 +77,9 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 				Optional: true,
 			},
 			"match_expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -211,13 +212,20 @@ func resourceSumologicCSEOutlierRuleCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceSumologicCSEOutlierRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
 	CSEOutlierRule, err := resourceToCSEOutlierRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEOutlierRule(CSEOutlierRule); err != nil {
+	if ruleSource == "user" {
+		err = c.UpdateCSEOutlierRule(CSEOutlierRule)
+	} else {
+		err = c.OverrideCSEOutlierRule(CSEOutlierRule)
+	}
+
+	if err != nil {
 		return err
 	}
 
