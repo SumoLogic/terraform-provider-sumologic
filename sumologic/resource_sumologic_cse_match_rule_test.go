@@ -222,6 +222,10 @@ func testOverrideCSEMatchRuleConfig(descriptionExpression string) string {
 resource "sumologic_cse_match_rule" "sumo_match_rule_test" {
     description_expression = "%s"
     enabled                = true
+	expression             = <<-EOT
+        lower(parentBaseImage) like '%%winwosrd.exe'
+        AND lower(baseImage) like '%%csc.exe'
+    EOT
     is_prototype           = false
     name                   = ".NET Framework Remote Code Execution Vulnerability"
     name_expression        = ".NET Framework Remote Code Execution Vulnerability"
