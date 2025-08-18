@@ -221,9 +221,9 @@ func testOverrideCSEMatchRuleConfig(descriptionExpression string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_match_rule" "sumo_match_rule_test" {
     description_expression = "%s"
-    enabled                = true
+    enabled                = false
 	expression             = <<-EOT
-        lower(parentBaseImage) like '%%winwosrd.exe'
+        lower(parentBaseImage) like '%%winword.exe'
         AND lower(baseImage) like '%%csc.exe'
     EOT
     is_prototype           = false
