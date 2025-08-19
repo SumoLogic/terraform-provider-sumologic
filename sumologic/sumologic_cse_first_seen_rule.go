@@ -75,7 +75,11 @@ func (s *Client) OverrideCSEFirstSeenRule(CSEFirstSeenRule CSEFirstSeenRule) err
 
 	// Log the request as JSON for debugging
 	if requestJSON, err := json.MarshalIndent(request, "", "  "); err == nil {
-		log.Printf("CSE First Seen Rule Override Request: %s", string(requestJSON))
+	// Log the request as JSON for debugging, only if DEBUG env var is set
+	if os.Getenv("DEBUG") == "true" {
+		if requestJSON, err := json.MarshalIndent(request, "", "  "); err == nil {
+			log.Printf("CSE First Seen Rule Override Request: %s", string(requestJSON))
+		}
 	}
 
 	_, err := s.Put(url, request)
