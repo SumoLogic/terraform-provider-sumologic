@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Updated Terraform version in GitHub Actions tests to 1.7.5
+
 ## 3.1.3 (August 6, 2025)
 
 BUG FIXES:
