@@ -1,8 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-## 3.1.4 (August 15, 2025)
-
 ENHANCEMENTS:
 * Added support for overriding sumo built-in rules
 * Updated Terraform version in GitHub Actions tests to 1.7.5
