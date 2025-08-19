@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 func (s *Client) GetCSEFirstSeenRule(id string) (*CSEFirstSeenRule, error) {
@@ -73,15 +72,6 @@ func (s *Client) OverrideCSEFirstSeenRule(CSEFirstSeenRule CSEFirstSeenRule) err
 		CSEFirstSeenRuleOverride: CSEFirstSeenRuleOverride,
 	}
 
-	// Log the request as JSON for debugging
-	if requestJSON, err := json.MarshalIndent(request, "", "  "); err == nil {
-	// Log the request as JSON for debugging, only if DEBUG env var is set
-	if os.Getenv("DEBUG") == "true" {
-		if requestJSON, err := json.MarshalIndent(request, "", "  "); err == nil {
-			log.Printf("CSE First Seen Rule Override Request: %s", string(requestJSON))
-		}
-	}
-
 	_, err := s.Put(url, request)
 
 	return err
@@ -91,7 +81,6 @@ func toOverrideFirstSeen(CSEFirstSeenRule CSEFirstSeenRule) CSEFirstSeenRuleOver
 	return CSEFirstSeenRuleOverride{
 		BaselineWindowSize:    CSEFirstSeenRule.BaselineWindowSize,
 		DescriptionExpression: CSEFirstSeenRule.DescriptionExpression,
-		// EntitySelectors:       CSEFirstSeenRule.EntitySelectors, // commented out till admiral is fixed, currently not working because of an issue in admiral
 		GroupByFields:         CSEFirstSeenRule.GroupByFields,
 		IsPrototype:           CSEFirstSeenRule.IsPrototype,
 		Name:                  CSEFirstSeenRule.Name,
@@ -139,9 +128,8 @@ type CSEFirstSeenRule struct {
 }
 
 type CSEFirstSeenRuleOverride struct {
-	BaselineWindowSize    string `json:"baselineWindowSize"`
-	DescriptionExpression string `json:"descriptionExpression"`
-	// EntitySelectors       []EntitySelector `json:"entitySelectors"` // commented out till admiral is fixed, currently not working because of an issue in admiral
+	BaselineWindowSize    string   `json:"baselineWindowSize"`
+	DescriptionExpression string   `json:"descriptionExpression"`
 	GroupByFields         []string `json:"groupByFields"`
 	IsPrototype           bool     `json:"isPrototype"`
 	Name                  string   `json:"name"`
