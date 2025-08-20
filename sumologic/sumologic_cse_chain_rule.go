@@ -64,12 +64,45 @@ func (s *Client) UpdateCSEChainRule(CSEChainRule CSEChainRule) error {
 	return err
 }
 
+func (s *Client) OverrideCSEChainRule(CSEChainRule CSEChainRule) error {
+	url := fmt.Sprintf("sec/v1/rules/chain/%s/override", CSEChainRule.ID)
+
+	CSEChainRuleOverride := toOverrideChain(CSEChainRule)
+
+	request := CSEChainRuleOverrideRequest{
+		CSEChainRuleOverride: CSEChainRuleOverride,
+	}
+	_, err := s.Put(url, request)
+
+	return err
+}
+
+func toOverrideChain(CSEChainRule CSEChainRule) CSEChainRuleOverride {
+	return CSEChainRuleOverride{
+		Description:            CSEChainRule.Description,
+		EntitySelectors:        CSEChainRule.EntitySelectors,
+		GroupByFields:          CSEChainRule.GroupByFields,
+		IsPrototype:            CSEChainRule.IsPrototype,
+		Name:                   CSEChainRule.Name,
+		Severity:               CSEChainRule.Severity,
+		SummaryExpression:      CSEChainRule.SummaryExpression,
+		Tags:                   CSEChainRule.Tags,
+		WindowSize:             CSEChainRule.WindowSize,
+		WindowSizeMilliseconds: CSEChainRule.WindowSizeMilliseconds,
+		SuppressionWindowSize:  CSEChainRule.SuppressionWindowSize,
+	}
+}
+
 type CSEChainRuleRequest struct {
 	CSEChainRule CSEChainRule `json:"fields"`
 }
 
 type CSEChainRuleResponse struct {
 	CSEChainRule CSEChainRule `json:"data"`
+}
+
+type CSEChainRuleOverrideRequest struct {
+	CSEChainRuleOverride CSEChainRuleOverride `json:"fields"`
 }
 
 type ExpressionAndLimit struct {
@@ -95,4 +128,18 @@ type CSEChainRule struct {
 	WindowSizeName         string               `json:"windowSizeName,omitempty"`
 	WindowSizeMilliseconds string               `json:"windowSizeMilliseconds,omitempty"`
 	SuppressionWindowSize  *int                 `json:"suppressionWindowSize,omitempty"`
+}
+
+type CSEChainRuleOverride struct {
+	Description            string           `json:"description"`
+	EntitySelectors        []EntitySelector `json:"entitySelectors"`
+	GroupByFields          []string         `json:"groupByFields"`
+	IsPrototype            bool             `json:"isPrototype"`
+	Name                   string           `json:"name"`
+	Severity               int              `json:"score"`
+	SummaryExpression      string           `json:"summaryExpression"`
+	Tags                   []string         `json:"tags"`
+	WindowSize             windowSizeField  `json:"windowSize,omitempty"`
+	WindowSizeMilliseconds string           `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int             `json:"suppressionWindowSize,omitempty"`
 }

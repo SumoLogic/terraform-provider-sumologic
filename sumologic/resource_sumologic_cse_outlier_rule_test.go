@@ -75,6 +75,62 @@ func TestAccSumologicCSEOutlierRule_createAndUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSumologicCSEOutlierRule_Override(t *testing.T) {
+	SkipCseTest(t)
+
+	var OutlierRule CSEOutlierRule
+	descriptionExpression := "Observes granting of administrative privileges in Windows environments where the number of systems accessed by a single user exceeds standard deviation of what is expected for the user based on a historic baseline. The minumum floor of unique systems expected by default is set to 1."
+
+	resourceName := "sumologic_cse_outlier_rule.sumo_outlier_rule_test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEOutlierRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:                  testOverrideCSEOutlierRuleConfig(descriptionExpression),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateId:           "OUTLIER-S00007",
+				ImportStateVerify:       false,
+				ImportStateVerifyIgnore: []string{"name"}, // Ignore fields that might differ
+				ImportStatePersist:      true,
+			},
+			{
+				Config: testOverrideCSEOutlierRuleConfig(fmt.Sprintf("Updated %s", descriptionExpression)),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEOutlierRuleExists(resourceName, &OutlierRule),
+					testCheckOutlierRuleOverrideValues(&OutlierRule, fmt.Sprintf("Updated %s", descriptionExpression)),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "OUTLIER-S00007"),
+				),
+			},
+			{
+				Config: testOverrideCSEOutlierRuleConfig(descriptionExpression),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEOutlierRuleExists(resourceName, &OutlierRule),
+					testCheckOutlierRuleOverrideValues(&OutlierRule, descriptionExpression),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "id", "OUTLIER-S00007"),
+				),
+			},
+			{
+				Config: getOutlierRuleRemovedBlock(),
+			},
+		},
+	})
+}
+
+func getOutlierRuleRemovedBlock() string {
+	return fmt.Sprintf(`
+	removed {
+		from = sumologic_cse_outlier_rule.sumo_outlier_rule_test
+		lifecycle {
+			destroy = false
+		}
+	}`)
+}
+
 func testAccCSEOutlierRuleDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
@@ -145,6 +201,57 @@ resource "sumologic_cse_outlier_rule" "outlier_rule" {
 	return buffer.String()
 }
 
+func testOverrideCSEOutlierRuleConfig(descriptionExpression string) string {
+	return fmt.Sprintf(`
+resource "sumologic_cse_outlier_rule" "sumo_outlier_rule_test" {
+    baseline_window_size   = "432000000"
+    description_expression = "%s"
+    deviation_threshold    = 2
+    enabled                = true
+    floor_value            = 1
+    group_by_fields        = [
+        "user_username",
+    ]
+    is_prototype           = true
+    match_expression       = <<-EOT
+        metadata_vendor = 'Microsoft'
+        AND metadata_product = 'Windows'
+        AND metadata_deviceEventId = 'Security-4672'
+        AND NOT user_username = 'system'
+        AND NOT user_username RLIKE '(\$$)'
+        AND NOT user_username RLIKE '(dwm\-)'
+        AND NOT user_username RLIKE '(local service|network service)'
+        AND NOT user_username RLIKE '(iusr)'AND NOT (
+            LOWER(user_username) LIKE '%%svc%%'
+        )
+    EOT
+    name                   = "Spike in Windows Administrative Privileges Granted for User"
+    name_expression        = "Spike in Windows Administrative Privileges Granted for User: {{user_username}}"
+    retention_window_size  = "7776000000"
+    severity               = 2
+    summary_expression     = "Outlier in distinct count of systems identified with Windows Administrative Privileges Granted for user: {{user_username}} based on hourly historic activity"
+    tags                   = [
+        "_mitreAttackTactic:TA0004",
+        "_mitreAttackTechnique:T1078.002",
+    ]
+    window_size            = "T60M"
+
+    aggregation_functions {
+        arguments = [
+            "device_hostname",
+        ]
+        function  = "count_distinct"
+        name      = "current"
+    }
+
+    entity_selectors {
+        entity_type = "_username"
+        expression  = "user_username"
+    }
+}
+`, descriptionExpression)
+}
+
 func testCheckCSEOutlierRuleExists(n string, outlierRule *CSEOutlierRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -189,6 +296,15 @@ func testCheckOutlierRuleValues(t *testing.T, expected *CSEOutlierRule, actual *
 		assert.Equal(t, expected.WindowSize, windowSizeField(actual.WindowSizeName))
 		assert.Equal(t, expected.SuppressionWindowSize, actual.SuppressionWindowSize)
 
+		return nil
+	}
+}
+
+func testCheckOutlierRuleOverrideValues(outlierRule *CSEOutlierRule, descriptionExpression string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if outlierRule.DescriptionExpression != descriptionExpression {
+			return fmt.Errorf("bad descriptionExpression, expected \"%s\", got %#v", descriptionExpression, outlierRule.DescriptionExpression)
+		}
 		return nil
 	}
 }

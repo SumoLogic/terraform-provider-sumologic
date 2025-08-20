@@ -64,12 +64,47 @@ func (s *Client) UpdateCSEThresholdRule(CSEThresholdRule CSEThresholdRule) error
 	return err
 }
 
+func (s *Client) OverrideCSEThresholdRule(CSEThresholdRule CSEThresholdRule) error {
+	url := fmt.Sprintf("sec/v1/rules/threshold/%s/override", CSEThresholdRule.ID)
+
+	CSEThresholdRuleOverride := toOverrideThreshold(CSEThresholdRule)
+
+	request := CSEThresholdRuleOverrideRequest{
+		CSEThresholdRuleOverride: CSEThresholdRuleOverride,
+	}
+	_, err := s.Put(url, request)
+
+	return err
+}
+
+func toOverrideThreshold(CSEThresholdRule CSEThresholdRule) CSEThresholdRuleOverride {
+
+	return CSEThresholdRuleOverride{
+		Description:            CSEThresholdRule.Description,
+		EntitySelectors:        CSEThresholdRule.EntitySelectors,
+		GroupByFields:          CSEThresholdRule.GroupByFields,
+		IsPrototype:            CSEThresholdRule.IsPrototype,
+		Limit:                  CSEThresholdRule.Limit,
+		Name:                   CSEThresholdRule.Name,
+		Severity:               CSEThresholdRule.Severity,
+		SummaryExpression:      CSEThresholdRule.SummaryExpression,
+		Tags:                   CSEThresholdRule.Tags,
+		WindowSize:             CSEThresholdRule.WindowSize,
+		WindowSizeMilliseconds: CSEThresholdRule.WindowSizeMilliseconds,
+		SuppressionWindowSize:  CSEThresholdRule.SuppressionWindowSize,
+	}
+}
+
 type CSEThresholdRuleRequest struct {
 	CSEThresholdRule CSEThresholdRule `json:"fields"`
 }
 
 type CSEThresholdRuleResponse struct {
 	CSEThresholdRule CSEThresholdRule `json:"data"`
+}
+
+type CSEThresholdRuleOverrideRequest struct {
+	CSEThresholdRuleOverride CSEThresholdRuleOverride `json:"fields"`
 }
 
 type CSEThresholdRule struct {
@@ -91,6 +126,21 @@ type CSEThresholdRule struct {
 	Version                int              `json:"version"`
 	WindowSize             windowSizeField  `json:"windowSize,omitempty"`
 	WindowSizeName         string           `json:"windowSizeName,omitempty"`
+	WindowSizeMilliseconds string           `json:"windowSizeMilliseconds,omitempty"`
+	SuppressionWindowSize  *int             `json:"suppressionWindowSize,omitempty"`
+}
+
+type CSEThresholdRuleOverride struct {
+	Description            string           `json:"description"`
+	EntitySelectors        []EntitySelector `json:"entitySelectors"`
+	GroupByFields          []string         `json:"groupByFields"`
+	IsPrototype            bool             `json:"isPrototype"`
+	Limit                  int              `json:"limit"`
+	Name                   string           `json:"name"`
+	Severity               int              `json:"score"`
+	SummaryExpression      string           `json:"summaryExpression"`
+	Tags                   []string         `json:"tags"`
+	WindowSize             windowSizeField  `json:"windowSize,omitempty"`
 	WindowSizeMilliseconds string           `json:"windowSizeMilliseconds,omitempty"`
 	SuppressionWindowSize  *int             `json:"suppressionWindowSize,omitempty"`
 }
