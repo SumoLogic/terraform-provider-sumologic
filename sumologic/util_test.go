@@ -1,9 +1,13 @@
 package sumologic
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"log"
 	"reflect"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Based on https://github.com/hashicorp/terraform-provider-aws/blob/232c3ed9c9d18aab6f6b70672d7c46d44c75a52e/internal/verify/diff_test.go#L62.
@@ -272,5 +276,15 @@ func TestRemoveEmptyValues(t *testing.T) {
 	if !isEqual {
 		processedJsonStr, _ := structure.FlattenJsonToString(inputMapObject)
 		t.Fatal("Expected json after removing empty values:", cleanedJsonStr, "but was:", processedJsonStr)
+	}
+}
+
+func removeState(addr string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		err := s.Remove(addr)
+		if err != nil {
+			log.Printf("Error removing multiple items: %v", err)
+		}
+		return nil
 	}
 }

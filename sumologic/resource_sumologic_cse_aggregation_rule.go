@@ -69,8 +69,9 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 				Optional: true,
 			},
 			"match_expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -206,13 +207,20 @@ func resourceSumologicCSEAggregationRuleCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceSumologicCSEAggregationRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
 	CSEAggregationRule, err := resourceToCSEAggregationRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEAggregationRule(CSEAggregationRule); err != nil {
+	if ruleSource == "user" {
+		err = c.UpdateCSEAggregationRule(CSEAggregationRule)
+	} else {
+		err = c.OverrideCSEAggregationRule(CSEAggregationRule)
+	}
+
+	if err != nil {
 		return err
 	}
 

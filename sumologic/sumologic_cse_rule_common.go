@@ -1,6 +1,9 @@
 package sumologic
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -167,4 +170,50 @@ func (r *windowSizeField) UnmarshalJSON(data []byte) error {
 	cleanedData := strings.Trim(string(data), `"`)
 	*r = windowSizeField(cleanedData)
 	return nil
+}
+
+func getRuleSource(id string, meta interface{}) string {
+	c := meta.(*Client)
+
+	ruleSource, err := c.GetCSERuleSource(id)
+	if err != nil {
+		log.Printf("[WARN] CSE Match Rule not found when looking by id: %s, err: %v", id, err)
+
+	}
+
+	return ruleSource
+}
+
+func (s *Client) GetCSERuleSource(id string) (string, error) {
+	data, err := s.Get(fmt.Sprintf("sec/v1/rules/%s", id))
+	if err != nil {
+		return "", err
+	}
+
+	if data == nil {
+		return "", nil
+	}
+
+	var response CSERuleSourceResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return "", err
+	}
+
+	return response.CSERuleSource.RuleSource, nil
+}
+
+type CSERuleSource struct {
+	RuleSource string `json:"ruleSource"`
+}
+
+type CSERuleSourceResponse struct {
+	CSERuleSource CSERuleSource `json:"data"`
+}
+
+func suppressSpaceDiff(_, old, new string, _ *schema.ResourceData) bool {
+	oldNormalized := strings.TrimSpace(old)
+	newNormalized := strings.TrimSpace(new)
+
+	return oldNormalized == newNormalized
 }

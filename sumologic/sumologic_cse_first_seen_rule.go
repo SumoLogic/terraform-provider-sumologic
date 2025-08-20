@@ -64,12 +64,45 @@ func (s *Client) UpdateCSEFirstSeenRule(CSEFirstSeenRule CSEFirstSeenRule) error
 	return err
 }
 
+func (s *Client) OverrideCSEFirstSeenRule(CSEFirstSeenRule CSEFirstSeenRule) error {
+	url := fmt.Sprintf("sec/v1/rules/first-seen/%s/override", CSEFirstSeenRule.ID)
+
+	CSEFirstSeenRuleOverride := toOverrideFirstSeen(CSEFirstSeenRule)
+	request := CSEFirstSeenRuleOverrideRequest{
+		CSEFirstSeenRuleOverride: CSEFirstSeenRuleOverride,
+	}
+
+	_, err := s.Put(url, request)
+
+	return err
+}
+
+func toOverrideFirstSeen(CSEFirstSeenRule CSEFirstSeenRule) CSEFirstSeenRuleOverride {
+	return CSEFirstSeenRuleOverride{
+		BaselineWindowSize:    CSEFirstSeenRule.BaselineWindowSize,
+		DescriptionExpression: CSEFirstSeenRule.DescriptionExpression,
+		GroupByFields:         CSEFirstSeenRule.GroupByFields,
+		IsPrototype:           CSEFirstSeenRule.IsPrototype,
+		Name:                  CSEFirstSeenRule.Name,
+		NameExpression:        CSEFirstSeenRule.NameExpression,
+		RetentionWindowSize:   CSEFirstSeenRule.RetentionWindowSize,
+		Severity:              CSEFirstSeenRule.Severity,
+		SummaryExpression:     CSEFirstSeenRule.SummaryExpression,
+		Tags:                  CSEFirstSeenRule.Tags,
+		SuppressionWindowSize: CSEFirstSeenRule.SuppressionWindowSize,
+	}
+}
+
 type CSEFirstSeenRuleRequest struct {
 	CSEFirstSeenRule CSEFirstSeenRule `json:"fields"`
 }
 
 type CSEFirstSeenRuleResponse struct {
 	CSEFirstSeenRule CSEFirstSeenRule `json:"data"`
+}
+
+type CSEFirstSeenRuleOverrideRequest struct {
+	CSEFirstSeenRuleOverride CSEFirstSeenRuleOverride `json:"fields"`
 }
 
 type CSEFirstSeenRule struct {
@@ -92,4 +125,18 @@ type CSEFirstSeenRule struct {
 	ValueFields           []string         `json:"valueFields"`
 	Version               int              `json:"version"`
 	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
+}
+
+type CSEFirstSeenRuleOverride struct {
+	BaselineWindowSize    string   `json:"baselineWindowSize"`
+	DescriptionExpression string   `json:"descriptionExpression"`
+	GroupByFields         []string `json:"groupByFields"`
+	IsPrototype           bool     `json:"isPrototype"`
+	Name                  string   `json:"name"`
+	NameExpression        string   `json:"nameExpression"`
+	RetentionWindowSize   string   `json:"retentionWindowSize"`
+	Severity              int      `json:"score"`
+	SummaryExpression     string   `json:"summaryExpression"`
+	Tags                  []string `json:"tags"`
+	SuppressionWindowSize *int     `json:"suppressionWindowSize,omitempty"`
 }

@@ -38,8 +38,9 @@ func resourceSumologicCSEThresholdRule() *schema.Resource {
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"expression": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"group_by_fields": {
 				Type:     schema.TypeList,
@@ -184,13 +185,20 @@ func resourceSumologicCSEThresholdRuleCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceSumologicCSEThresholdRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	ruleSource := getRuleSource(d.Id(), meta)
 	CSEThresholdRule, err := resourceToCSEThresholdRule(d)
 	if err != nil {
 		return err
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEThresholdRule(CSEThresholdRule); err != nil {
+	if ruleSource == "user" {
+		err = c.UpdateCSEThresholdRule(CSEThresholdRule)
+	} else {
+		err = c.OverrideCSEThresholdRule(CSEThresholdRule)
+	}
+
+	if err != nil {
 		return err
 	}
 
