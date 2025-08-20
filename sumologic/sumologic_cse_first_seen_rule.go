@@ -73,7 +73,6 @@ func (s *Client) OverrideCSEFirstSeenRule(CSEFirstSeenRule CSEFirstSeenRule) err
 	}
 
 	_, err := s.Put(url, request)
-
 	return err
 }
 
