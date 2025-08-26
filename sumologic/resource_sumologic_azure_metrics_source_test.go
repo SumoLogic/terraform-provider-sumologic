@@ -38,6 +38,9 @@ func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "content_type", "AzureMetrics"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.type", "AzureMetricsPath"),
+					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.limit_to_regions.0", "eastus2"),
+					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.limit_to_regions.1", "westeurope"),
+					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.limit_to_namespaces.0", "Microsoft.ClassicStorage/storageAccounts"),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -187,6 +190,7 @@ resource "sumologic_azure_metrics_source" "azure" {
 	path {
 		type = "AzureMetricsPath"
 		environment = "Azure"
+		limit_to_regions = ["eastus2", "westeurope"]
 		limit_to_namespaces = ["Microsoft.ClassicStorage/storageAccounts"]
 		azure_tag_filters {
 			type = "AzureTagFilters"

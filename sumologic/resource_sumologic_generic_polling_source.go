@@ -804,6 +804,14 @@ func getPollingPathSettings(d *schema.ResourceData) (PollingPath, error) {
 		case "AzureMetricsPath":
 			pathSettings.Type = "AzureMetricsPath"
 			pathSettings.Environment = path["environment"].(string)
+			rawLimitToRegions := path["limit_to_regions"].([]interface{})
+			LimitToRegions := make([]string, 0, len(rawLimitToRegions))
+			for _, v := range rawLimitToRegions {
+				if v != nil {
+					LimitToRegions = append(LimitToRegions, v.(string))
+				}
+			}
+			pathSettings.LimitToRegions = LimitToRegions
 			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
 			LimitToNamespaces := make([]string, 0, len(rawLimitToNamespaces))
 			for _, v := range rawLimitToNamespaces {
