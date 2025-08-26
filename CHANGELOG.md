@@ -5,6 +5,9 @@ ENHANCEMENTS:
 * Added support for overriding sumo built-in rules
 * Updated Terraform version in GitHub Actions tests to 1.7.5
 
+BUG FIXES:
+* Add region filter support to sumologic_azure_metrics_source
+
 ## 3.1.3 (August 6, 2025)
 
 BUG FIXES:
