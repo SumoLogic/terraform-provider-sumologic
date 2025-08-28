@@ -63,9 +63,9 @@ func dataSourceSumologicRoleV2() *schema.Resource {
 				Computed: true,
 			},
 			"capabilities": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
-				Description: "List of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role",
+				Description: "Set of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -110,9 +110,11 @@ func dataSourceSumologicRoleV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("description", roleV2.Description)
 	d.Set("security_data_filter", roleV2.SecurityDataFilter)
 	d.Set("log_analytics_filter", roleV2.LogAnalyticsFilter)
-	if err := d.Set("capabilities", roleV2.Capabilities); err != nil {
+
+	if err := d.Set("capabilities", schema.NewSet(schema.HashString, convertStringsToInterfaces(roleV2.Capabilities))); err != nil {
 		return fmt.Errorf("error setting capabilities for datasource %s: %s", d.Id(), err)
 	}
+
 	if err := d.Set("selected_views", flattenSelectedViews(roleV2.SelectedViews)); err != nil {
 		return fmt.Errorf("error setting selected views for datasource %s: %s", d.Id(), err)
 	}
@@ -140,6 +142,14 @@ func (s *Client) GetRoleNameV2(name string) (*RoleV2, error) {
 	}
 
 	return &response.RolesV2[0], nil
+}
+
+func convertStringsToInterfaces(strs []string) []interface{} {
+	result := make([]interface{}, len(strs))
+	for i, s := range strs {
+		result[i] = s
+	}
+	return result
 }
 
 type RoleResponseV2 struct {
