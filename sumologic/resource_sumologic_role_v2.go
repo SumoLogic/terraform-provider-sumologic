@@ -71,9 +71,9 @@ func resourceSumologicRoleV2() *schema.Resource {
 			},
 
 			"capabilities": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "List of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role",
+				Description: "Set of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -168,10 +168,10 @@ func resourceToRoleV2(d *schema.ResourceData) RoleV2 {
 		selectedViews = append(selectedViews, resourceToViewFilterDefinition([]interface{}{data}))
 	}
 
-	capabilitiesData := d.Get("capabilities").([]interface{})
-	var capabilities []string
-	for _, data := range capabilitiesData {
-		capabilities = append(capabilities, data.(string))
+	capabilitiesSet := d.Get("capabilities").(*schema.Set)
+	capabilities := make([]string, 0, capabilitiesSet.Len())
+	for _, v := range capabilitiesSet.List() {
+		capabilities = append(capabilities, v.(string))
 	}
 
 	return RoleV2{
