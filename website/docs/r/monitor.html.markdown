@@ -138,10 +138,27 @@ resource "sumologic_monitor" "tf_metrics_monitor_1" {
         resolution {
           threshold      = 40.0
           threshold_type = "LessThanOrEqual"
+          min_data_points = 5
+        }
+      }
+      warning {
+        time_range = "30m"
+        occurrence_type = "Always"
+        alert {
+          threshold      = 30.0
+          threshold_type = "GreaterThan"
+          min_data_points = 3
+        }
+        resolution {
+          threshold      = 30.0
+          threshold_type = "LessThanOrEqual"
+          min_data_points = 3
+          occurrence_type = "AtLeastOnce"
         }
       }
     }
   }
+
   notifications {
     notification {
       connection_type = "Email"
@@ -615,6 +632,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `occurrence_type` (Optional)
       - `min_data_points` (Optional)
   - `warning`
     - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
@@ -626,6 +644,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `resolution` (Required)
       - `threshold`
       - `threshold_type`
+      - `occurrence_type` (Optional)
       - `min_data_points` (Optional)
 #### logs_outlier_condition
   - `field`
@@ -651,6 +670,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
   - `frequency` Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `1m`, `2m`, `10m`'.
 #### metrics_missing_data_condition
   - `time_range` (Required) :  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
+  - `trigger_source` (Required) : Accepted format: `AnyTimeSeries`, `AllTimeSeries`, or `AllResults`
 #### slo_sli_condition
   - `critical`
     - `sli_threshold` (Required) : The remaining SLI error budget threshold percentage [0,100).

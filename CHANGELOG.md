@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+DOCS:
+* Updated monitor documentation with a few trigger condition fields that were missing.
+
 
 ## 3.1.4 (August 26, 2025)
 
