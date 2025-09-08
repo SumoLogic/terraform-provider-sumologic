@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Moved Capabilities from List to Set in Roles V2 API
+
 ## 3.1.4 (August 26, 2025)
 
 ENHANCEMENTS:
