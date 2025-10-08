@@ -99,7 +99,7 @@ func testAccCheckMacroDestroy(macro Macro) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*Client)
 		for _, r := range s.RootModule().Resources {
 			id := r.Primary.ID
-			u, err := client.MutingSchedulesRead(id)
+			u, err := client.GetMacro(id)
 			if err != nil {
 				return fmt.Errorf("Encountered an error: " + err.Error())
 			}
