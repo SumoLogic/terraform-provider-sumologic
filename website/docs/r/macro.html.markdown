@@ -1,11 +1,11 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_dashboard"
+page_title: "SumoLogic: sumologic_macro"
 description: |-
-  Provides a Sumologic Dashboard (New)
+  Provides a Sumologic Macro
 ---
 
-# sumologic_macro
+# sumologic_macro (beta)
 Provides a Sumo Logic Macro (beta).
 
 ## Example Usage
