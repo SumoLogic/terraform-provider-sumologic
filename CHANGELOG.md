@@ -2,9 +2,8 @@
 * Add new change notes here
 DOCS:
 * Updated monitor documentation with a few trigger condition fields that were missing.
-
 FEATURES:
-* **New Resource:** sumologic_azure_metrics_source (GH-710)
+* **New Resource:** sumologic_azure_metrics_source (GH-710), macros (SUMO-260843)
 
 ## 3.1.5 (September 9, 2025)
 
