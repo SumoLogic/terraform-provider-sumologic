@@ -6,7 +6,9 @@ description: |-
 ---
 
 # sumologic_macro (beta)
-Provides a Sumo Logic Macro (beta).
+Provides a [Sumologic Macro (Beta)][1].
+
+The feature is in beta, talk to sumologic support engineer to have it enabled.
 
 ## Example Usage
 ```hcl
@@ -49,3 +51,6 @@ In addition to all arguments above, the following attributes are exported:
 ### Schema for `argumentValidation`
 - `evalExpression` - (Required) The expression to validate a macro argument.
 - `errorMessage` - (Required) Error message to show when the argument validation failed.
+
+
+[1]: https://help.sumologic.com/docs/search/search-query-language/search-operators/macro/
