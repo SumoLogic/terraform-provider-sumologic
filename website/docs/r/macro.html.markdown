@@ -8,9 +8,10 @@ description: |-
 # sumologic_macro (beta)
 Provides a [Sumologic Macro (Beta)][1].
 
-The feature is in beta, talk to sumologic support engineer to have it enabled.
+The feature is in beta, will not function if not enabled for your org. Please reach out to sumologic support engineer to have the feature enabled for your org.
 
 ## Example Usage
+Single macro
 ```hcl
 
 resource "sumologic_macro" "ip_macro" {
@@ -24,6 +25,21 @@ resource "sumologic_macro" "ip_macro" {
     eval_expression = "isValidIP(ip_address)"
     error_message = "The ip you provided is invalid"
   }
+}
+```
+
+Macros with dependencies
+```hcl
+
+resource "sumologic_macro" "ip_macro" {
+  depends_on = [sumologic_macro.ip_macro_nested]
+  name = "ip_macro"
+  definition = "_sourceCategory=yourcategory | `ip_macro_nested`"
+}
+
+resource "sumologic_macro" "ip_macro_nested" {
+  name = "ip_macro_nested"
+  definition = "_sourceCategory=yourcategory | count"
 }
 ```
 
@@ -54,3 +70,5 @@ In addition to all arguments above, the following attributes are exported:
 
 
 [1]: https://help.sumologic.com/docs/search/search-query-language/search-operators/macro/
+
+
