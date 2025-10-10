@@ -104,6 +104,7 @@ func Provider() *schema.Provider {
 			"sumologic_lookup_table":                             resourceSumologicLookupTable(),
 			"sumologic_subdomain":                                resourceSumologicSubdomain(),
 			"sumologic_dashboard":                                resourceSumologicDashboard(),
+			"sumologic_macro":                                    resourceSumologicMacro(),
 			"sumologic_password_policy":                          resourceSumologicPasswordPolicy(),
 			"sumologic_saml_configuration":                       resourceSumologicSamlConfiguration(),
 			"sumologic_kinesis_metrics_source":                   resourceSumologicKinesisMetricsSource(),
