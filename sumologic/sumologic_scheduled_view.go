@@ -67,4 +67,5 @@ type ScheduledView struct {
 	ParsingMode                      string    `json:"parsingMode"`
 	ReduceRetentionPeriodImmediately bool      `json:"reduceRetentionPeriodImmediately"`
 	TimeZone                         string    `json:"timeZone,omitempty"`
+	AutoPauseEnabled                 string    `json:"autoPauseEnabled,omitempty"`
 }
