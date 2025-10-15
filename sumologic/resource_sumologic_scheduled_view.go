@@ -93,7 +93,7 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 		}
 
         if v, ok := d.GetOk("auto_pause_enabled"); ok {
-            sview.AutoPauseEnabled = v.(string)
+            sview.AutoPauseEnabled = v.(bool)
         }
 
 		createdSview, err := c.CreateScheduledView(sview)
@@ -151,7 +151,7 @@ func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface
 	}
 
     if d.HasChange("auto_pause_enabled") {
-        sview.AutoPauseEnabled = d.Get("auto_pause_enabled").(string)
+        sview.AutoPauseEnabled = d.Get("auto_pause_enabled").(bool)
     }
 
 	c := meta.(*Client)
