@@ -76,6 +76,7 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
+				Default:     true,
 				Description: "Auto Pause status of Scheduled View.",
 			},
 		},
