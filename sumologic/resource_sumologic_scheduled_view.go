@@ -72,12 +72,12 @@ func resourceSumologicScheduledView() *schema.Resource {
 				Computed:    true,
 				Description: "Time zone for ingesting data in scheduled view. Follow the format in the [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).",
 			},
-            "auto_pause_enabled": {
-                Type:        schema.TypeBool,
-                Optional:    true,
-                Computed:    true,
-                Description: "Auto Pause status of Scheduled View.",
-            },
+			"auto_pause_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Auto Pause status of Scheduled View.",
+			},
 		},
 	}
 }
@@ -92,9 +92,9 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 			sview.TimeZone = v.(string)
 		}
 
-        if v, ok := d.GetOk("auto_pause_enabled"); ok {
-            sview.AutoPauseEnabled = v.(bool)
-        }
+		if v, ok := d.GetOk("auto_pause_enabled"); ok {
+			sview.AutoPauseEnabled = v.(bool)
+		}
 
 		createdSview, err := c.CreateScheduledView(sview)
 
@@ -150,9 +150,9 @@ func resourceSumologicScheduledViewUpdate(d *schema.ResourceData, meta interface
 		sview.TimeZone = d.Get("time_zone").(string)
 	}
 
-    if d.HasChange("auto_pause_enabled") {
-        sview.AutoPauseEnabled = d.Get("auto_pause_enabled").(bool)
-    }
+	if d.HasChange("auto_pause_enabled") {
+		sview.AutoPauseEnabled = d.Get("auto_pause_enabled").(bool)
+	}
 
 	c := meta.(*Client)
 	err := c.UpdateScheduledView(sview)
