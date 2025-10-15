@@ -75,7 +75,6 @@ func resourceSumologicScheduledView() *schema.Resource {
 			"auto_pause_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
 				Default:     true,
 				Description: "Auto Pause status of Scheduled View.",
 			},
@@ -92,7 +91,7 @@ func resourceSumologicScheduledViewCreate(d *schema.ResourceData, meta interface
 		if v, ok := d.GetOk("time_zone"); ok {
 			sview.TimeZone = v.(string)
 		}
-
+		sview.AutoPauseEnabled = true // API default
 		if v, ok := d.GetOk("auto_pause_enabled"); ok {
 			sview.AutoPauseEnabled = v.(bool)
 		}
