@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -75,24 +76,14 @@ func resourceSumologicCsoarPlaybook() *schema.Resource {
 				Default:  true,
 			},
 			"links": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeMap,
-					Elem: &schema.Schema{
-						Type: schema.TypeString,
-					},
-				},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "JSON string representation of playbook links",
 			},
 			"nodes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeMap,
-					Elem: &schema.Schema{
-						Type: schema.TypeString,
-					},
-				},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "JSON string representation of playbook nodes",
 			},
 		},
 	}
@@ -108,51 +99,105 @@ func resourceSumologicCsoarPlaybookUpdate(d *schema.ResourceData, meta interface
 	c := meta.(*Client)
 
 	playbook := Playbook{
-		Description: d.Get("description").(string),
-		Name:        d.Get("name").(string),
-		UpdatedName: d.Get("updated_name").(string),
-		Tags:        d.Get("tags").(string),
-		IsDeleted:   d.Get("is_deleted").(bool),
-		Draft:       d.Get("draft").(bool),
-		IsPublished: d.Get("is_published").(bool),
-		LastUpdated: int64(d.Get("last_updated").(int)),
-		CreatedBy:   int64(d.Get("created_by").(int)),
-		UpdatedBy:   int64(d.Get("updated_by").(int)),
-		Nested:      d.Get("nested").(bool),
-		Type:        d.Get("type").(string),
-		IsEnabled:   d.Get("is_enabled").(bool),
+		Name: d.Get("name").(string),
 	}
 
-	if v, ok := d.Get("links").([]interface{}); ok {
-		links := make([]map[string]interface{}, len(v))
-		for i, link := range v {
-			if linkMap, ok := link.(map[string]interface{}); ok {
-				links[i] = linkMap
-			}
+	playbook.Description = d.Get("description").(string)
+	playbook.UpdatedName = d.Get("updated_name").(string)
+	playbook.Tags = d.Get("tags").(string)
+	playbook.Type = d.Get("type").(string)
+	playbook.IsDeleted = d.Get("is_deleted").(bool)
+	playbook.Draft = d.Get("draft").(bool)
+	playbook.IsPublished = d.Get("is_published").(bool)
+	playbook.Nested = d.Get("nested").(bool)
+	playbook.IsEnabled = d.Get("is_enabled").(bool)
+
+	// Handle links as JSON string
+	if linksJSON, ok := d.Get("links").(string); ok && linksJSON != "" {
+		var links []map[string]interface{}
+		if err := json.Unmarshal([]byte(linksJSON), &links); err != nil {
+			return fmt.Errorf("error parsing links JSON: %v", err)
 		}
 		playbook.Links = links
 	}
 
-	if v, ok := d.Get("nodes").([]interface{}); ok {
-		nodes := make([]map[string]interface{}, len(v))
-		for i, node := range v {
-			if nodeMap, ok := node.(map[string]interface{}); ok {
-				nodes[i] = nodeMap
-			}
+	// Handle nodes as JSON string
+	if nodesJSON, ok := d.Get("nodes").(string); ok && nodesJSON != "" {
+		var nodes []map[string]interface{}
+		if err := json.Unmarshal([]byte(nodesJSON), &nodes); err != nil {
+			return fmt.Errorf("error parsing nodes JSON: %v", err)
 		}
 		playbook.Nodes = nodes
 	}
 
-	return c.UpdatePlaybook(playbook)
+	err := c.UpdatePlaybook(playbook)
+	if err != nil {
+		return err
+	}
+
+	// Always set state after successful update
+	d.Set("description", playbook.Description)
+	d.Set("tags", playbook.Tags)
+	d.Set("updated_name", playbook.UpdatedName)
+	d.Set("type", playbook.Type)
+	d.Set("is_deleted", playbook.IsDeleted)
+	d.Set("draft", playbook.Draft)
+	d.Set("is_published", playbook.IsPublished)
+	d.Set("nested", playbook.Nested)
+	d.Set("is_enabled", playbook.IsEnabled)
+
+	linksJSON := d.Get("links").(string)
+	d.Set("links", linksJSON)
+
+	nodesJSON := d.Get("nodes").(string)
+	d.Set("nodes", nodesJSON)
+
+	return nil
 }
 
 func resourceSumologicCsoarPlaybookCreate(d *schema.ResourceData, meta interface{}) error {
-	return fmt.Errorf("playbooks cannot be created via Terraform. Please create the playbook in the Sumo Logic UI and then import it using 'terraform import'")
+	return fmt.Errorf("playbooks cannot be created via Terraform. Please create the playbook in the CSOAR UI, export it as JSON, and then import it using 'terraform import'")
 }
 
 func resourceSumologicCsoarPlaybookRead(d *schema.ResourceData, meta interface{}) error {
 	if d.Id() == "" {
 		return fmt.Errorf("resource ID is empty")
+	}
+
+	// For import-only resources, ensure the name matches the ID
+	d.Set("name", d.Id())
+
+	// For import-only resources, preserve existing state values or set reasonable defaults
+	// This prevents Terraform from thinking the resource doesn't exist
+	if d.Get("description") == nil {
+		d.Set("description", "")
+	}
+	if d.Get("tags") == nil {
+		d.Set("tags", "")
+	}
+	if d.Get("is_deleted") == nil {
+		d.Set("is_deleted", false)
+	}
+	if d.Get("draft") == nil {
+		d.Set("draft", false)
+	}
+	if d.Get("is_published") == nil {
+		d.Set("is_published", true)
+	}
+	if d.Get("nested") == nil {
+		d.Set("nested", false)
+	}
+	if d.Get("type") == nil {
+		d.Set("type", "General")
+	}
+	if d.Get("is_enabled") == nil {
+		d.Set("is_enabled", true)
+	}
+	if d.Get("nodes") == nil {
+		d.Set("nodes", "[]")
+	}
+	if d.Get("links") == nil {
+		d.Set("links", "[]")
 	}
 
 	return nil
@@ -167,6 +212,18 @@ func resourceSumologicCsoarPlaybookImport(d *schema.ResourceData, meta interface
 
 	d.SetId(playbookName)
 	d.Set("name", playbookName)
+
+	// Set default values for all schema fields to prevent Terraform from thinking this is a new resource
+	d.Set("description", "")
+	d.Set("tags", "")
+	d.Set("is_deleted", false)
+	d.Set("draft", false)
+	d.Set("is_published", true)
+	d.Set("nested", false)
+	d.Set("type", "General")
+	d.Set("is_enabled", true)
+	d.Set("nodes", "[]")
+	d.Set("links", "[]")
 
 	return []*schema.ResourceData{d}, nil
 }
