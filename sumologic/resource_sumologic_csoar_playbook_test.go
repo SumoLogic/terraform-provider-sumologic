@@ -16,8 +16,9 @@ func TestAccSumologicCsoarPlaybook_createShouldFail(t *testing.T) {
 	rname := acctest.RandomWithPrefix("tf-acc-test-playbook")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCsoarPlaybookDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccSumologicCsoarPlaybookConfigBasic(rname),
@@ -27,7 +28,7 @@ func TestAccSumologicCsoarPlaybook_createShouldFail(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCsoarPlaybook_importAndUpdate(t *testing.T) {
+func TestAccSumologicCsoarPlaybook_update(t *testing.T) {
 	playbookName := PUBLISHED_PLAYBOOK_NAME
 	resourceName := "sumologic_csoar_playbook.test"
 
