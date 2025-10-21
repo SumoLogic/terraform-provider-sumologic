@@ -27,7 +27,7 @@ resource "sumologic_csoar_playbook" "complex_playbook" {
   type         = "General"
   is_enabled   = true
   
-  nodes = [
+  nodes = jsonencode([
     {
       id = "start-node-1"
       type = "devs.Start"
@@ -76,9 +76,9 @@ resource "sumologic_csoar_playbook" "complex_playbook" {
       stepType = "end"
       elementType = "END"
     }
-  ]
+  ])
   
-  links = [
+  links = jsonencode([
     {
       id = "link-1"
       type = "link"
@@ -103,7 +103,7 @@ resource "sumologic_csoar_playbook" "complex_playbook" {
         port = "in"
       }
     }
-  ]
+  ])
 }
 ```
 
