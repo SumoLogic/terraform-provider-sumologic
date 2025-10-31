@@ -1,9 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
-  
+
+## 3.1.7 (October 31, 2025)
+
 ENHANCEMENTS:
 * Add auto_pause_enabled support for scheduled_view
-
 
 ## 3.1.6 (October 10, 2025)
 
