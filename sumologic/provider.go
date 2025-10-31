@@ -66,6 +66,7 @@ func Provider() *schema.Provider {
 			"sumologic_cse_threshold_rule":                       resourceSumologicCSEThresholdRule(),
 			"sumologic_cse_first_seen_rule":                      resourceSumologicCSEFirstSeenRule(),
 			"sumologic_cse_outlier_rule":                         resourceSumologicCSEOutlierRule(),
+			"sumologic_csoar_playbook":                           resourceSumologicCsoarPlaybook(),
 			"sumologic_collector":                                resourceSumologicCollector(),
 			"sumologic_installed_collector":                      resourceSumologicInstalledCollector(),
 			"sumologic_http_source":                              resourceSumologicHTTPSource(),
