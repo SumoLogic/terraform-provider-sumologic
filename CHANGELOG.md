@@ -1,4 +1,4 @@
-## X.Y.Z (Unreleased)
+## 3.1.8 (Unreleased)
 BUG FIXES:
 * Fixed validation error when updating roles with selection_type="Deny" 
 
