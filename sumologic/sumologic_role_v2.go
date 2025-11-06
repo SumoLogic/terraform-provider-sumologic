@@ -95,5 +95,5 @@ type RoleV2 struct {
 
 type ViewFilterDefinition struct {
 	ViewName   string `json:"viewName"`
-	ViewFilter string `json:"viewFilter"`
+	ViewFilter string `json:"viewFilter,omitempty"`
 }
