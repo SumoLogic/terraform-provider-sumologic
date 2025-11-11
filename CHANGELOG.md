@@ -1,4 +1,7 @@
-## 3.1.8 (Unreleased)
+## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.1.8 (November 11, 2025)
 BUG FIXES:
 * Fixed validation error when updating roles with selection_type="Deny" 
 
