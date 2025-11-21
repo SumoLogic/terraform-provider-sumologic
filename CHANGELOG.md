@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* Add support for Zurich region
 
 ## 3.1.8 (November 11, 2025)
 BUG FIXES:
