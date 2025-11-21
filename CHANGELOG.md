@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* return computed `field_names` property for resource `field_extraction_rule`
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
