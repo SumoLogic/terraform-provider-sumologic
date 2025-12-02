@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Add scan_interval and paused configuration support for Azure Metrics source
+
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
 
