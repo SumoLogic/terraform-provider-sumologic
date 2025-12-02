@@ -182,6 +182,7 @@ type Variable struct {
 	AllowMultiSelect bool        `json:"allowMultiSelect,omitempty"`
 	IncludeAllOption bool        `json:"includeAllOption"`
 	HideFromUI       bool        `json:"hideFromUI,omitempty"`
+	ValueType        string      `json:"valueType,omitempty"`
 }
 
 type MetadataVariableSourceDefinition struct {
@@ -199,6 +200,14 @@ type LogQueryVariableSourceDefinition struct {
 	VariableSourceType string `json:"variableSourceType"`
 	Query              string `json:"query"`
 	Field              string `json:"field"`
+}
+
+type FilterVariableSourceDefinition struct {
+	VariableSourceType string `json:"variableSourceType"`
+	Filter             string `json:"filter"`
+	Key                string `json:"key"`
+	Values             string `json:"values"`
+	PanelIds           string `json:"panelIds"`
 }
 
 // Coloring Rule related structs

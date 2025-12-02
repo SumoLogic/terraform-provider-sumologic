@@ -583,6 +583,33 @@ func getSourceDefinitionSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"filter_variable_source_definition": {
+			Type:     schema.TypeList,
+			MaxItems: 1,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"filter": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "",
+					},
+					"values": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"panel_ids": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "\"allpanels\"",
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -1033,6 +1060,15 @@ func getSourceDefinition(tfSourceDef map[string]interface{}) interface{} {
 			VariableSourceType: "CsvVariableSourceDefinition",
 			Values:             csvSourceDef["values"].(string),
 		}
+	} else if val := tfSourceDef["filter_variable_source_definition"].([]interface{}); len(val) == 1 {
+		filterSourceDef := val[0].(map[string]interface{})
+		return FilterVariableSourceDefinition{
+			VariableSourceType: "FilterSourceDefinition",
+			Filter:             filterSourceDef["filter"].(string),
+			Key:                filterSourceDef["key"].(string),
+			Values:             filterSourceDef["values"].(string),
+			PanelIds:           filterSourceDef["panel_ids"].(string),
+		}
 	}
 	return nil
 }
@@ -1445,6 +1481,13 @@ func getTerraformVariableSourceDefinition(sourceDefinition map[string]interface{
 		logQueryDefinition[0]["query"] = sourceDefinition["query"]
 		logQueryDefinition[0]["field"] = sourceDefinition["field"]
 		tfSourceDefinition[0]["log_query_variable_source_definition"] = logQueryDefinition
+	} else if sourceDefinition["variableSourceType"] == "FilterSourceDefinition" {
+		filterDefinition := MakeTerraformObject()
+		filterDefinition[0]["key"] = sourceDefinition["key"]
+		filterDefinition[0]["filter"] = sourceDefinition["filter"]
+		filterDefinition[0]["values"] = sourceDefinition["values"]
+		filterDefinition[0]["panel_ids"] = sourceDefinition["panelIds"]
+		tfSourceDefinition[0]["filter_variable_source_definition"] = filterDefinition
 	}
 
 	return tfSourceDefinition
