@@ -45,6 +45,30 @@ func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int)
 	return &response.CSEMatchListItemsGetData, nil
 }
 
+func (s *Client) SendGetCSEMatchListItemsAllRequest(MatchListId string, nextPageToken string) (*CSEMatchListItemsAllInMatchListGet, error) {
+	var data []byte
+	var err error
+	if nextPageToken == "" {
+		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s", MatchListId))
+	} else {
+		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s&nextPageToken=%s", MatchListId, nextPageToken))
+	}
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, nil
+	}
+
+	var response CSEMatchListItemsAllInMatchListResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.CSEMatchListItemsAllGetData, nil
+}
+
 func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
 	offset := 0
 	response, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
@@ -64,6 +88,26 @@ func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchL
 		}
 	}
 
+	return response, nil
+}
+
+func (s *Client) GetCSEMatchListItemsAllInMatchList(MatchListId string) (*CSEMatchListItemsAllInMatchListGet, error) {
+	response, err := s.SendGetCSEMatchListItemsAllRequest(MatchListId, "")
+	if err != nil {
+		return nil, err
+	}
+
+	for response.NextPageToken != "" {
+		nextPageResponse, err := s.SendGetCSEMatchListItemsAllRequest(MatchListId, response.NextPageToken)
+		if err != nil {
+			return nil, err
+		}
+		for i := 0; i < len(nextPageResponse.CSEMatchListItemsAllGetObjects); i++ {
+			response.CSEMatchListItemsAllGetObjects = append(response.CSEMatchListItemsAllGetObjects, nextPageResponse.CSEMatchListItemsAllGetObjects[i])
+		}
+		response.NextPageToken = nextPageResponse.NextPageToken
+	}
+	
 	return response, nil
 }
 
@@ -144,9 +188,18 @@ type CSEMatchListItemsInMatchListResponse struct {
 	CSEMatchListItemsGetData CSEMatchListItemsInMatchListGet `json:"data"`
 }
 
+type CSEMatchListItemsAllInMatchListResponse struct {
+	CSEMatchListItemsAllGetData CSEMatchListItemsAllInMatchListGet `json:"data"`
+}
+
 type CSEMatchListItemsInMatchListGet struct {
 	CSEMatchListItemsGetObjects []CSEMatchListItemGet `json:"objects"`
 	Total                       int                   `json:"total"`
+}
+
+type CSEMatchListItemsAllInMatchListGet struct {
+	CSEMatchListItemsAllGetObjects []CSEMatchListItemGet `json:"objects"`
+	NextPageToken                  string                `json:"nextPageToken"`
 }
 
 type CSEMatchListItemPost struct {
