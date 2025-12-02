@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+* Add `filter_variable_source_definition` support for dashboard variables (scope-based variables)
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
