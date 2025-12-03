@@ -278,7 +278,7 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 			if !strings.Contains(item.Meta.Description, expectedDescription) {
 				return fmt.Errorf("expected match list item description to contain \"%s\", but found \"%s\" instead", expectedDescription, item.Meta.Description)
 			}
-			if !strings.Contains(item.Expiration, expectedExpiration) {
+			if !strings.Contains(item.Expiration, strings.Split(expectedExpiration, "+")[0]) { //Exclude the timezone offset which may or may not be returned by the API
 				return fmt.Errorf("expected expiration to contain \"%s\", but found \"%s\" instead", expectedExpiration, item.Expiration)
 			}
 			if !strings.Contains(item.Value, expectedValue) {
