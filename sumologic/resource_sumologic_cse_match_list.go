@@ -91,44 +91,44 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	var CSEMatchList *CSEMatchListGet
+	var cseMatchList *CSEMatchListGet
 	id := d.Id()
 
 	// Determine whether the target column is defined using its ID or its name
 	definedTargetColumnIsId, _ := regexp.MatchString("^-?[0-9]*$", d.Get("target_column").(string))
 	definedTargetColumnIsName := !definedTargetColumnIsId
 
-	CSEMatchList, err := c.GetCSEMatchList(id, definedTargetColumnIsName)
+	cseMatchList, err := c.GetCSEMatchList(id, definedTargetColumnIsName)
 	if err != nil {
 		log.Printf("[WARN] CSE Match List not found when looking by id: %s, err: %v", id, err)
 
 	}
 
-	if CSEMatchList == nil {
+	if cseMatchList == nil {
 		log.Printf("[WARN] CSE Match List not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 		return nil
 	}
 
-	d.Set("name", CSEMatchList.Name)
-	d.Set("default_ttl", CSEMatchList.DefaultTtl)
-	d.Set("description", CSEMatchList.Description)
-	d.Set("name", CSEMatchList.Name)
-	d.Set("target_column", CSEMatchList.TargetColumn)
-	d.Set("created", CSEMatchList.Created)
-	d.Set("created_by", CSEMatchList.CreatedBy)
-	d.Set("last_updated", CSEMatchList.LastUpdated)
-	d.Set("last_updated_by", CSEMatchList.LastUpdatedBy)
+	d.Set("name", cseMatchList.Name)
+	d.Set("default_ttl", cseMatchList.DefaultTtl)
+	d.Set("description", cseMatchList.Description)
+	d.Set("name", cseMatchList.Name)
+	d.Set("target_column", cseMatchList.TargetColumn)
+	d.Set("created", cseMatchList.Created)
+	d.Set("created_by", cseMatchList.CreatedBy)
+	d.Set("last_updated", cseMatchList.LastUpdated)
+	d.Set("last_updated_by", cseMatchList.LastUpdatedBy)
 
-	CSEMatchListItems, err := c.GetCSEMatchListItemsAllInMatchList(id)
+	cseMatchListItems, err := c.GetCSEMatchListItemsAllInMatchList(id)
 	if err != nil {
 		log.Printf("[WARN] CSE Match List items not found when looking by match list id: %s, err: %v", id, err)
 	}
 
-	if CSEMatchListItems == nil {
+	if cseMatchListItems == nil {
 		d.Set("items", nil)
 	} else {
-		setItems(d, CSEMatchListItems.CSEMatchListItemsAllGetObjects)
+		setItems(d, cseMatchListItems.CSEMatchListItemsAllGetObjects)
 	}
 
 	return nil
@@ -250,13 +250,13 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 }
 
 func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{}) error {
-	CSEMatchListPost, err := resourceToCSEMatchList(d)
+	cseMatchListPost, err := resourceToCSEMatchList(d)
 	if err != nil {
 		return fmt.Errorf("[ERROR] An error occurred converting resource to match list with id %s, err: %v", d.Id(), err)
 	}
 
 	c := meta.(*Client)
-	if err = c.UpdateCSEMatchList(CSEMatchListPost); err != nil {
+	if err = c.UpdateCSEMatchList(cseMatchListPost); err != nil {
 		return fmt.Errorf("[ERROR] An error occurred updating match list with id %s, err: %v", d.Id(), err)
 	}
 
@@ -278,14 +278,14 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	CSEMatchListItemsAll, err := c.GetCSEMatchListItemsAllInMatchList(d.Id())
+	cseMatchListItemsAll, err := c.GetCSEMatchListItemsAllInMatchList(d.Id())
 	if err != nil {
 		return fmt.Errorf("[ERROR] CSE Match List items not found when looking by match list id %s, err: %v", d.Id(), err)
 	}
 
 	// Compare currently existing match list items with the new items to determine if they should be deleted or updated
 	oldItemsMap := make(map[string]CSEMatchListItemGet)
-	for _, item := range CSEMatchListItemsAll.CSEMatchListItemsAllGetObjects {
+	for _, item := range cseMatchListItemsAll.CSEMatchListItemsAllGetObjects {
 		oldItemsMap[item.ID] = item
 	}
 
@@ -307,7 +307,7 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Match List update items - to add: %d, to update: %d, to delete: %d", len(addItems), len(updateItems), len(deleteItemIds))
 
 	// Delete old items
-	for _, oldItem := range CSEMatchListItemsAll.CSEMatchListItemsAllGetObjects {
+	for _, oldItem := range cseMatchListItemsAll.CSEMatchListItemsAllGetObjects {
 		if contains(deleteItemIds, oldItem.ID) {
 			err = c.DeleteCSEMatchListItem(oldItem.ID)
 			if err != nil {
