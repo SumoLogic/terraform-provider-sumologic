@@ -22,7 +22,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
 	liDescription := "Match List Item Description"
-	liExpiration := "2122-02-27T04:00:00+00:00"
+	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
 	liCount := 2
 
@@ -30,7 +30,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	uDefaultTtl := 3600
 	uDescription := "Updated Match List Description"
 	uliDescription := "Updated Match List item Description"
-	uliExpiration := "2122-02-27T05:00:00+00:00"
+	uliExpiration := "2122-02-27T05:00:00"
 	uliValue := "updated value"
 	uliCount := 3
 
@@ -91,7 +91,7 @@ func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
 	liDescription := "Match List Item Description"
-	liExpiration := "2122-02-27T04:00:00+00:00"
+	liExpiration := "2122-02-27T04:00:00"
 	liValue := "value"
 	liCount := 3
 
