@@ -26,8 +26,8 @@ func (s *Client) GetCSEMatchListItem(id string) (*CSEMatchListItemGet, error) {
 	return &response.CSEMatchListItemGet, nil
 }
 
-func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int) (*CSEMatchListItemsInMatchListGet, error) {
-	data, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", MatchListId, limit, offset))
+func (s *Client) SendGetCSEMatchListItemsRequest(matchListId string, offset int) (*CSEMatchListItemsInMatchListGet, error) {
+	data, err := s.Get(fmt.Sprintf("sec/v1/match-list-items?listIds=%s&limit=%d&offset=%d", matchListId, limit, offset))
 	if err != nil {
 		return nil, err
 	}
@@ -45,13 +45,13 @@ func (s *Client) SendGetCSEMatchListItemsRequest(MatchListId string, offset int)
 	return &response.CSEMatchListItemsGetData, nil
 }
 
-func (s *Client) SendGetCSEMatchListItemsAllRequest(MatchListId string, nextPageToken string) (*CSEMatchListItemsAllInMatchListGet, error) {
+func (s *Client) SendGetCSEMatchListItemsAllRequest(matchListId string, nextPageToken string) (*CSEMatchListItemsAllInMatchListGet, error) {
 	var data []byte
 	var err error
 	if nextPageToken == "" {
-		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s", MatchListId))
+		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s", matchListId))
 	} else {
-		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s&nextPageToken=%s", MatchListId, nextPageToken))
+		data, err = s.Get(fmt.Sprintf("sec/v1/match-list-items/all?listIds=%s&nextPageToken=%s", matchListId, nextPageToken))
 	}
 	if err != nil {
 		return nil, err
@@ -69,16 +69,16 @@ func (s *Client) SendGetCSEMatchListItemsAllRequest(MatchListId string, nextPage
 	return &response.CSEMatchListItemsAllGetData, nil
 }
 
-func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchListItemsInMatchListGet, error) {
+func (s *Client) GetCSEMatchListItemsInMatchList(matchListId string) (*CSEMatchListItemsInMatchListGet, error) {
 	offset := 0
-	response, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+	response, err := s.SendGetCSEMatchListItemsRequest(matchListId, offset)
 	if err != nil {
 		return nil, err
 	}
 
 	// When the match list has over 1000 items, fetch items from the remaining pages
 	for offset = limit; offset < response.Total; offset += limit {
-		nextPageResponse, err := s.SendGetCSEMatchListItemsRequest(MatchListId, offset)
+		nextPageResponse, err := s.SendGetCSEMatchListItemsRequest(matchListId, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -91,14 +91,14 @@ func (s *Client) GetCSEMatchListItemsInMatchList(MatchListId string) (*CSEMatchL
 	return response, nil
 }
 
-func (s *Client) GetCSEMatchListItemsAllInMatchList(MatchListId string) (*CSEMatchListItemsAllInMatchListGet, error) {
-	response, err := s.SendGetCSEMatchListItemsAllRequest(MatchListId, "")
+func (s *Client) GetCSEMatchListItemsAllInMatchList(matchListId string) (*CSEMatchListItemsAllInMatchListGet, error) {
+	response, err := s.SendGetCSEMatchListItemsAllRequest(matchListId, "")
 	if err != nil {
 		return nil, err
 	}
 
 	for response.NextPageToken != "" {
-		nextPageResponse, err := s.SendGetCSEMatchListItemsAllRequest(MatchListId, response.NextPageToken)
+		nextPageResponse, err := s.SendGetCSEMatchListItemsAllRequest(matchListId, response.NextPageToken)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func (s *Client) GetCSEMatchListItemsAllInMatchList(MatchListId string) (*CSEMat
 		}
 		response.NextPageToken = nextPageResponse.NextPageToken
 	}
-	
+
 	return response, nil
 }
 
@@ -117,14 +117,14 @@ func (s *Client) DeleteCSEMatchListItem(id string) error {
 	return err
 }
 
-func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
+func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
 	request := CSEMatchListItemRequestPost{
-		CSEMatchListItemPost: CSEMatchListItemPost,
+		CSEMatchListItemPost: cseMatchListItemPost,
 	}
 
 	var response CSEMatchListItemResponse
 
-	responseBody, err := s.Post(fmt.Sprintf("sec/v1/match-lists/%s/items", MatchListID), request)
+	responseBody, err := s.Post(fmt.Sprintf("sec/v1/match-lists/%s/items", matchListID), request)
 	if err != nil {
 		return err
 	}
@@ -138,13 +138,13 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost []CSEMa
 	return nil
 }
 
-func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItemPost, MatchListID string) error {
+func (s *Client) CreateCSEMatchListItems(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
 	var start = 0
 	var end = 1000
 
 	//If there are more than 1000 items, send requests in batches of 1000
-	for end < len(CSEMatchListItemPost) {
-		err := s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:end], MatchListID)
+	for end < len(cseMatchListItemPost) {
+		err := s.SendCreateCSEMatchListItemsRequest(cseMatchListItemPost[start:end], matchListID)
 		if err != nil {
 			return err
 		}
@@ -152,18 +152,18 @@ func (s *Client) CreateCSEMatchListItems(CSEMatchListItemPost []CSEMatchListItem
 		end += 1000
 	}
 
-	return s.SendCreateCSEMatchListItemsRequest(CSEMatchListItemPost[start:], MatchListID)
+	return s.SendCreateCSEMatchListItemsRequest(cseMatchListItemPost[start:], matchListID)
 
 }
 
-func (s *Client) UpdateCSEMatchListItem(CSEMatchListItemPost CSEMatchListItemPost) error {
-	url := fmt.Sprintf("sec/v1/match-list-items/%s", CSEMatchListItemPost.ID)
+func (s *Client) UpdateCSEMatchListItem(cseMatchListItemPost CSEMatchListItemPost) error {
+	url := fmt.Sprintf("sec/v1/match-list-items/%s", cseMatchListItemPost.ID)
 
 	request := CSEMatchListItemRequestUpdate{
 		CSEMatchListItemUpdate{
-			Active:      CSEMatchListItemPost.Active,
-			Expiration:  CSEMatchListItemPost.Expiration,
-			Description: CSEMatchListItemPost.Description,
+			Active:      cseMatchListItemPost.Active,
+			Expiration:  cseMatchListItemPost.Expiration,
+			Description: cseMatchListItemPost.Description,
 		},
 	}
 
