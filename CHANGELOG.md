@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* Fixed a typo in the resource documentation for sumologic_cse_tag_schema
+BUG FIXES:
+* Fixed sumologic_cse_match_list to support more than 10000 match list items
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
