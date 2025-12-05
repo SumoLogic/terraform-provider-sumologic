@@ -2,7 +2,7 @@
 * Add new change notes here
 
 ENHANCEMENTS:
-* Document scan_interval and paused parameters for Azure Metrics source
+* Document scan_interval parameter for Azure Metrics source
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region

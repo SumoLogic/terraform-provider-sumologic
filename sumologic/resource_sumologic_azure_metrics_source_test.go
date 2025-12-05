@@ -38,7 +38,6 @@ func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "content_type", "AzureMetrics"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "scan_interval", "300000"),
-					resource.TestCheckResourceAttr(azureMetricsResourceName, "paused", "false"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.type", "AzureMetricsPath"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.limit_to_regions.0", "eastus2"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.limit_to_regions.1", "westeurope"),
@@ -76,7 +75,6 @@ func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "category", sCategory),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "content_type", "AzureMetrics"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "scan_interval", "300000"),
-					resource.TestCheckResourceAttr(azureMetricsResourceName, "paused", "false"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.type", "AzureMetricsPath"),
 				),
 				ExpectNonEmptyPlan: true,
@@ -92,7 +90,6 @@ func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "category", sCategoryUpdated),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "content_type", "AzureMetrics"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "scan_interval", "300000"),
-					resource.TestCheckResourceAttr(azureMetricsResourceName, "paused", "false"),
 					resource.TestCheckResourceAttr(azureMetricsResourceName, "path.0.type", "AzureMetricsPath"),
 				),
 				ExpectNonEmptyPlan: true,
@@ -185,7 +182,6 @@ resource "sumologic_azure_metrics_source" "azure" {
 	category = "%s"
 	content_type = "AzureMetrics"
 	scan_interval = 300000
-	paused = false
 	collector_id = "${sumologic_collector.test.id}"
 
 	authentication {
