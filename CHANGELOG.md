@@ -6,6 +6,9 @@ DOCS:
 BUG FIXES:
 * Fixed sumologic_cse_match_list to support more than 10000 match list items
 
+ENHANCEMENTS:
+* Document scan_interval parameter for Azure Metrics source
+
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
 
