@@ -1,19 +1,6 @@
-## X.Y.Z (Unreleased)
-ENHANCEMENTS:
-* Added update support for `sumologic_ot_collector` resource.
-* Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
-
-## 3.2.1 (December 4, 2025)
+## 3.1.9 (December 12, 2025)
 DOCS:
-* Fixed a typo in the resource documentation for sumologic_cse_tag_schema
-BUG FIXES:
-* Fixed sumologic_cse_match_list to support more than 10000 match list items
-
-ENHANCEMENTS:
-* Document scan_interval parameter for Azure Metrics source
-
-## 3.2.0 (November 21, 2025)
-* Add support for Zurich region
+* Added searchableTime description for intervalTimeType in create log search parameters
 
 ## 3.1.8 (November 11, 2025)
 BUG FIXES:
