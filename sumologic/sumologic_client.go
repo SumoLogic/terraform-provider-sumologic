@@ -42,6 +42,7 @@ var endpoints = map[string]string{
 	"ca":  "https://api.ca.sumologic.com/api/",
 	"in":  "https://api.in.sumologic.com/api/",
 	"kr":  "https://api.kr.sumologic.com/api/",
+	"ch":  "https://api.ch.sumologic.com/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)

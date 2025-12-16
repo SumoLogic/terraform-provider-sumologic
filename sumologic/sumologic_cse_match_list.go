@@ -30,10 +30,10 @@ func (s *Client) DeleteCSEMatchList(id string) error {
 	return err
 }
 
-func (s *Client) CreateCSEMatchList(CSEMatchListPost CSEMatchListPost) (string, error) {
+func (s *Client) CreateCSEMatchList(cseMatchListPost CSEMatchListPost) (string, error) {
 
 	request := CSEMatchListRequestPost{
-		CSEMatchListPost: CSEMatchListPost,
+		CSEMatchListPost: cseMatchListPost,
 	}
 
 	var response CSEMatchListResponse
@@ -52,14 +52,14 @@ func (s *Client) CreateCSEMatchList(CSEMatchListPost CSEMatchListPost) (string, 
 	return response.CSEMatchListGet.ID, nil
 }
 
-func (s *Client) UpdateCSEMatchList(CSEMatchListPost CSEMatchListPost) error {
-	url := fmt.Sprintf("sec/v1/match-lists/%s", CSEMatchListPost.ID)
+func (s *Client) UpdateCSEMatchList(cseMatchListPost CSEMatchListPost) error {
+	url := fmt.Sprintf("sec/v1/match-lists/%s", cseMatchListPost.ID)
 
 	request := CSEMatchListRequestUpdate{
 		CSEMatchListUpdate{
-			Active:      CSEMatchListPost.Active,
-			DefaultTtl:  CSEMatchListPost.DefaultTtl,
-			Description: CSEMatchListPost.Description,
+			Active:      cseMatchListPost.Active,
+			DefaultTtl:  cseMatchListPost.DefaultTtl,
+			Description: cseMatchListPost.Description,
 		},
 	}
 

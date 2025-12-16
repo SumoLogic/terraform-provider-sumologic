@@ -33,6 +33,7 @@ resource "sumologic_azure_metrics_source" "terraform_azure_metrics_source" {
   description = "My description"
   category = "azure/metrics"
   content_type = "AzureMetrics"
+  scan_interval = 300000
   collector_id = "${sumologic_collector.collector.id}"
 
   authentication {
@@ -70,6 +71,7 @@ resource "sumologic_collector" "collector" {
 ## Argument reference
 In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 - `content_type` - (Required) Must be `AzureMetrics`.
+- `scan_interval` - (Optional) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
 - `authentication` - (Required) Authentication details for connecting to ingest metrics from Azure.
      + `type` - (Required) Must be `AzureClientSecretAuthentication`.
      + `tenant_id` - (Required) Your tenant id collected from [Azure platform](https://help.sumologic.com/docs/send-data/hosted-collectors/microsoft-source/azure-metrics-source/#vendor-configuration).
