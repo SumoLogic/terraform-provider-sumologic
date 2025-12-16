@@ -1,5 +1,10 @@
 ## X.Y.Z (Unreleased)
 
+## 3.2.2 (December 12, 2025)
+DOCS:
+* Added searchableTime description for intervalTimeType in create log search parameters
+
+
 ## 3.2.1 (December 4, 2025)
 DOCS:
 * Fixed a typo in the resource documentation for sumologic_cse_tag_schema
@@ -11,10 +16,6 @@ ENHANCEMENTS:
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
-
-## 3.1.9 (December 12, 2025)
-DOCS:
-* Added searchableTime description for intervalTimeType in create log search parameters
 
 ## 3.1.8 (November 11, 2025)
 BUG FIXES:
