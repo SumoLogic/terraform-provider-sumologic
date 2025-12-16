@@ -1,4 +1,7 @@
 ## X.Y.Z (Unreleased)
+ENHANCEMENTS:
+* Added update support for `sumologic_ot_collector` resource.
+* Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
 
 ## 3.2.1 (December 4, 2025)
 DOCS:
