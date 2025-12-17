@@ -1,6 +1,4 @@
 ## X.Y.Z (Unreleased)
-
-## 3.2.2 (December 12, 2025)
 DOCS:
 * Added searchableTime description for intervalTimeType in create log search parameters
 
