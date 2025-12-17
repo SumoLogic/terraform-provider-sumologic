@@ -2,7 +2,6 @@
 DOCS:
 * Added searchableTime description for intervalTimeType in create log search parameters
 
-
 ## 3.2.1 (December 4, 2025)
 DOCS:
 * Fixed a typo in the resource documentation for sumologic_cse_tag_schema
