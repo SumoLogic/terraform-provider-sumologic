@@ -131,11 +131,11 @@ func resourceSumologicOTCollectorUpdate(d *schema.ResourceData, meta interface{}
 	id := d.Id()
 	req := make(map[string]interface{})
 	if d.HasChange("time_zone") {
-		req["timeZone"] = d.Get("time_zone")
+		req["timezone"] = d.Get("time_zone")
 	}
 
-	if d.HasChange("description") {
-		req["description"] = d.Get("description")
+	if d.HasChange("name") {
+		req["name"] = d.Get("name")
 	}
 
 	if d.HasChange("tags") {

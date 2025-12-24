@@ -122,6 +122,13 @@ func resourceSumologicSourceTemplate() *schema.Resource {
 				Computed: true,
 			},
 
+			"is_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Enable or disable the source template",
+			},
+
 			"input_json": {
 				Type:             schema.TypeString,
 				Description:      "inputJson of source template",
@@ -143,7 +150,15 @@ func resourceSumologicSourceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	if sourceTemplate == nil {
-		log.Printf("[WARN] SourceTemplate not found, removing from state: %v - %v", id, err)
+		// API returns 404 for both disabled and deleted source templates
+		// Check if we expect this to be disabled - if so, keep it in state
+		// If we expect it to be enabled, then it was actually deleted - remove from state
+		isEnabledInState := d.Get("is_enabled").(bool)
+		if !isEnabledInState {
+			log.Printf("[INFO] SourceTemplate not found (likely disabled): %v - keeping in state", id)
+			return nil
+		}
+		log.Printf("[WARN] SourceTemplate not found (actually deleted): %v - removing from state", id)
 		d.SetId("")
 		return nil
 	}
@@ -158,6 +173,10 @@ func resourceSumologicSourceTemplateRead(d *schema.ResourceData, meta interface{
 
 	if err := d.Set("input_json", string(sourceTemplate.InputJson)); err != nil {
 		return fmt.Errorf("Error setting input_json for resource %s: %s", d.Id(), err)
+	}
+
+	if sourceTemplate.IsEnabled != nil {
+		d.Set("is_enabled", *sourceTemplate.IsEnabled)
 	}
 
 	d.Set("created_by", sourceTemplate.CreatedBy)
@@ -216,6 +235,11 @@ func resourceToSourceTemplate(d *schema.ResourceData) SourceTemplate {
 		log.Println("Unable to unmarshal the input json configuration")
 		return SourceTemplate{}
 	}
+	var isEnabled *bool
+	if v, ok := d.GetOkExists("is_enabled"); ok {
+		val := v.(bool)
+		isEnabled = &val
+	}
 
 	return SourceTemplate{
 		Config:               d.Get("config").(string),
@@ -224,6 +248,7 @@ func resourceToSourceTemplate(d *schema.ResourceData) SourceTemplate {
 		TotalCollectorLinked: d.Get("total_collector_linked").(int),
 		Selector:             selector,
 		InputJson:            jsonRawConf,
+		IsEnabled:            isEnabled,
 		CreatedBy:            d.Get("created_by").(string),
 		ModifiedBy:           d.Get("modified_by").(string),
 		ModifiedAt:           d.Get("modified_at").(string),

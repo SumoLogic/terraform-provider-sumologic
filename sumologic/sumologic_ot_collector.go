@@ -75,7 +75,7 @@ type OTCollector struct {
 	CreatedBy         string                 `json:"createdBy"`
 	ModifiedBy        string                 `json:"modifiedBy"`
 	ModifiedAt        string                 `json:"modifiedAt"`
-	TimeZone          string                 `json:"timeZone"`
+	TimeZone          string                 `json:"timezone"`
 	IsAlive           bool                   `json:"alive"`
 	IsRemotelyManaged bool                   `json:"isRemotelyManaged"`
 	ID                string                 `json:"id,omitempty"`

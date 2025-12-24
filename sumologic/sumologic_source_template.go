@@ -81,6 +81,7 @@ type SourceTemplate struct {
 	Selector             Selector        `json:"selector,omitempty"`
 	Config               string          `json:"config"`
 	InputJson            json.RawMessage `json:"inputJson"`
+	IsEnabled            *bool           `json:"isEnabled,omitempty"`
 	CreatedAt            string          `json:"createdAt"`
 	CreatedBy            string          `json:"createdBy"`
 	ModifiedBy           string          `json:"modifiedBy"`
