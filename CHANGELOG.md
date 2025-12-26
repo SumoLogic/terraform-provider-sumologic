@@ -1,7 +1,4 @@
 ## X.Y.Z (Unreleased)
-DOCS:
-* Added searchableTime description for intervalTimeType in create log search parameters
-
 ENHANCEMENTS:
 * Added update support for `sumologic_ot_collector` resource.
 * Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
