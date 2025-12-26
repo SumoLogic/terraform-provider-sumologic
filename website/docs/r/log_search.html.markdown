@@ -116,7 +116,7 @@ The following arguments are supported:
     `false` if it is to be run by message time. Default value is `false`.
 - `interval_time_type` - (Optional) This field defines whether the search should run by message time or receipt time .  
   Allowed values are: `messageTime`, `receiptTime`.  
-  If not set, the system uses the run_by_receipt_time field.
+  If not set, the system uses the run_by_receipt_time field. 
   If both fields are set, interval_time_type will take precedence
 
 ### Schema for `query_parameter`
