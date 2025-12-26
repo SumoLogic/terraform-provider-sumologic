@@ -97,6 +97,87 @@ func TestAccSumologicSourceTemplate_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicSourceTemplate_enableDisable(t *testing.T) {
+	var sourceTemplate SourceTemplate
+
+	testSchemaRef := `type = "Mac"`
+	testSelector := `tags = [
+	[
+	{
+	  key = "tag"
+	  values = ["Value"]
+	}
+	]
+	]`
+
+	testInputJson := `jsonencode({
+	  "name": "hostmetrics_test_source_template_enable_disable",
+	  "description": "Host metric source",
+	  "receivers": {
+		"hostmetrics": {
+		  "receiverType": "hostmetrics",
+		  "collection_interval": "5m"
+		}
+	  }
+	})`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSourceTemplateDestroy(sourceTemplate),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicSourceTemplateWithEnabled(
+					testSchemaRef,
+					testSelector,
+					testInputJson,
+					true,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSourceTemplateExists("sumologic_source_template.test", &sourceTemplate, t),
+					resource.TestCheckResourceAttr(
+						"sumologic_source_template.test",
+						"is_enabled",
+						"true",
+					),
+				),
+			},
+			// Step 2: Disable via update
+			{
+				Config: testAccSumologicSourceTemplateWithEnabled(
+					testSchemaRef,
+					testSelector,
+					testInputJson,
+					false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"sumologic_source_template.test",
+						"is_enabled",
+						"false",
+					),
+				),
+			},
+			// Step 3: Re-enable via update
+			{
+				Config: testAccSumologicSourceTemplateWithEnabled(
+					testSchemaRef,
+					testSelector,
+					testInputJson,
+					true,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"sumologic_source_template.test",
+						"is_enabled",
+						"true",
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckSourceTemplateDestroy(sourceTemplate SourceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
@@ -195,4 +276,26 @@ func testAccCheckSourceTemplateAttributes(name string) resource.TestCheckFunc {
 		)
 		return f(s)
 	}
+}
+
+func testAccSumologicSourceTemplateWithEnabled(
+	schemaRef string,
+	selector string,
+	inputJson string,
+	isEnabled bool,
+) string {
+	return fmt.Sprintf(`
+resource "sumologic_source_template" "test" {
+  schema_ref {
+    %s
+  }
+
+  selector {
+    %s
+  }
+
+  is_enabled = %t
+  input_json = %s
+}
+`, schemaRef, selector, isEnabled, inputJson)
 }

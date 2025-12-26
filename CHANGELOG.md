@@ -2,6 +2,12 @@
 DOCS:
 * Added searchableTime description for intervalTimeType in create log search parameters
 
+ENHANCEMENTS:
+* Added update support for `sumologic_ot_collector` resource.
+* Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
+* Added IsEnabled field in `sumologic_source_template` resource.
+* Added enable/disable support to the `sumologic_source_template` resource.
+
 ## 3.2.1 (December 4, 2025)
 DOCS:
 * Fixed a typo in the resource documentation for sumologic_cse_tag_schema

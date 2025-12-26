@@ -25,6 +25,7 @@ resource "sumologic_source_template" "example_source_template" {
         ]
         names = ["TestCollector1"]
     }
+    is_enabled = true
     input_json = jsonencode({
         "name": "hostmetrics_test_source_template_test",
         "description": "Host metric source" ,
@@ -81,6 +82,7 @@ The following arguments are supported:
 - `schema_ref` - (Required) Schema reference for source template.
 - `input_json` - (Required) This is a JSON object which contains the configuration parameters for the source template.
 - `selector` - (Optional) Conditions to select OT Agent.
+- `is_enabled` - (Optional) Indicates whether the source template is enabled or disabled.
 
 The following attributes are exported:
 
