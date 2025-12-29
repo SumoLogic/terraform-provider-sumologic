@@ -150,14 +150,10 @@ func resourceSumologicOTCollectorUpdate(d *schema.ResourceData, meta interface{}
 	if len(req) == 0 {
 		return resourceSumologicOTCollectorRead(d, meta)
 	}
-	resp, err := c.UpdateOTCollector(id, req)
-	if err != nil {
+	if err := c.UpdateOTCollector(id, req); err != nil {
 		return fmt.Errorf("failed to update OTel collector %s: %w", id, err)
 	}
 
-	if len(resp.Errors) > 0 {
-		return fmt.Errorf("Sumo Logic returned update errors for collector %s: %v", id, resp.Errors)
-	}
 	return resourceSumologicOTCollectorRead(d, meta)
 }
 

@@ -43,25 +43,25 @@ func (s *Client) DeleteOTCollector(id string) error {
 	return err
 }
 
-func (s *Client) UpdateOTCollector(id string, req map[string]interface{}) (*UpdateOTCollectorResponse, error) {
+func (s *Client) UpdateOTCollector(id string, req map[string]interface{}) error {
 	url := fmt.Sprintf("v1/otCollectors?id=%s", id)
 
 	data, err := s.Put(url, req)
 	if err != nil {
-		return nil, err
-	}
-	if data == nil {
-		return nil, nil
+		return err
 	}
 
 	if len(data) == 0 {
-		return &UpdateOTCollectorResponse{}, nil
+		return nil
 	}
 	var resp UpdateOTCollectorResponse
 	if err := json.Unmarshal(data, &resp); err != nil {
-		return nil, err
+		return err
 	}
-	return &resp, nil
+	if len(resp.Errors) > 0 {
+		return fmt.Errorf("update ot collector failed: %v", resp.Errors)
+	}
+	return nil
 }
 
 type UpdateOTCollectorResponse struct {
