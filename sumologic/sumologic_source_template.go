@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Client) GetSourceTemplate(id string) (*SourceTemplate, error) {
-	urlWithoutParams := "v1/sourceTemplate/%s"
+	urlWithoutParams := "v1/sourceTemplates/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
@@ -32,7 +32,7 @@ func (s *Client) GetSourceTemplate(id string) (*SourceTemplate, error) {
 }
 
 func (s *Client) UpdateSourceTemplate(sourceTemplate SourceTemplate) error {
-	urlWithoutParams := "v1/sourceTemplate/%s"
+	urlWithoutParams := "v1/sourceTemplates/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, sourceTemplate.ID)
@@ -44,7 +44,7 @@ func (s *Client) UpdateSourceTemplate(sourceTemplate SourceTemplate) error {
 }
 
 func (s *Client) DeleteSourceTemplate(id string) error {
-	urlWithoutParams := "v1/sourceTemplate/%s"
+	urlWithoutParams := "v1/sourceTemplates/%s"
 	paramString := ""
 	sprintfArgs := []interface{}{}
 	sprintfArgs = append(sprintfArgs, id)
@@ -57,7 +57,7 @@ func (s *Client) DeleteSourceTemplate(id string) error {
 }
 
 func (s *Client) CreateSourceTemplate(sourceTemplate SourceTemplate) (string, error) {
-	urlWithoutParams := "v1/sourceTemplate"
+	urlWithoutParams := "v1/sourceTemplates"
 
 	data, err := s.Post(urlWithoutParams, sourceTemplate)
 	if err != nil {

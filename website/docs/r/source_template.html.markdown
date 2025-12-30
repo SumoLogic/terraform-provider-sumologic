@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_source_template
-Provides a Sumologic Source Template
+Provides a [Sumologic Source Template](https://www.sumologic.com/help/docs/send-data/opentelemetry-collector/remote-management/source-templates/manage-source-templates/#create-a-new-source-template)
 
 ## Example Usage
 ```hcl
