@@ -106,6 +106,7 @@ func Provider() *schema.Provider {
 			"sumologic_subdomain":                                resourceSumologicSubdomain(),
 			"sumologic_dashboard":                                resourceSumologicDashboard(),
 			"sumologic_macro":                                    resourceSumologicMacro(),
+			"sumologic_event_extraction_rule":                    resourceEventExtractionRule(),
 			"sumologic_password_policy":                          resourceSumologicPasswordPolicy(),
 			"sumologic_saml_configuration":                       resourceSumologicSamlConfiguration(),
 			"sumologic_kinesis_metrics_source":                   resourceSumologicKinesisMetricsSource(),
@@ -143,6 +144,7 @@ func Provider() *schema.Provider {
 			"sumologic_role_v2":                        dataSourceSumologicRoleV2(),
 			"sumologic_user":                           dataSourceSumologicUser(),
 			"sumologic_apps":                           dataSourceSumoLogicApps(),
+			"sumologic_event_extraction_rule":          dataSourceEventExtractionRule(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
