@@ -4,6 +4,11 @@ ENHANCEMENTS:
 * Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
 * Added IsEnabled field in `sumologic_source_template` resource.
 * Added enable/disable support to the `sumologic_source_template` resource.
+* Updated endpoint for `sumologic_source_template` resource to use the open API standard.
+
+## 3.2.2 (January 6, 2026)
+DOCS:
+* Added searchableTime description for intervalTimeType in create log search parameters
 
 ## 3.2.1 (December 4, 2025)
 DOCS:
