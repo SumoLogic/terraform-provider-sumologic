@@ -176,7 +176,7 @@ func resourceSumologicSourceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	if sourceTemplate.IsEnabled != nil {
-		d.Set("is_enabled", *sourceTemplate.IsEnabled)
+		d.Set("is_enabled", sourceTemplate.IsEnabled)
 	}
 
 	d.Set("created_by", sourceTemplate.CreatedBy)
