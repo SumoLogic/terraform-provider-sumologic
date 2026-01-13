@@ -59,71 +59,38 @@ func resourceSumologicEventExtractionRule() *schema.Resource {
 						"string_matching_algorithm": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"ExactMatch",
-							}, false),
+							ValidateFunc: validation.StringInSlice(
+								[]string{"ExactMatch"},
+								false,
+							),
 						},
 					},
 				},
 			},
-			"field_mapping": {
-				Type:     schema.TypeSet,
+
+			"configuration": {
+				Type:     schema.TypeMap,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"field_name": {
+						"value_source": {
 							Type:     schema.TypeString,
 							Required: true,
-						},
-						"value_source": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringLenBetween(1, 256),
 						},
 						"mapping_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "HardCoded",
-							ValidateFunc: validation.StringInSlice([]string{
-								"HardCoded",
-							}, false),
+							ValidateFunc: validation.StringInSlice(
+								[]string{"HardCoded"},
+								false,
+							),
 						},
 					},
 				},
 			},
 		},
 	}
-}
-
-func resourceSumologicEventExtractionRuleRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*Client)
-
-	id := d.Id()
-	rule, err := c.GetEventExtractionRule(id)
-	if err != nil {
-		return err
-	}
-
-	if rule == nil {
-		log.Printf("[WARN] Event Extraction Rule not found, removing from state: %v", id)
-		d.SetId("")
-		return nil
-	}
-
-	d.Set("name", rule.Name)
-	d.Set("description", rule.Description)
-	d.Set("query", rule.Query)
-	d.Set("enabled", rule.Enabled)
-
-	if rule.CorrelationExpression != nil {
-		d.Set("correlation_expression", flattenCorrelationExpression(rule.CorrelationExpression))
-	}
-
-	if err := d.Set("field_mapping", flattenConfigurationMap(rule.Configuration)); err != nil {
-		return fmt.Errorf("error setting field_mapping for resource %s: %s", id, err)
-	}
-
-	return nil
 }
 
 func resourceSumologicEventExtractionRuleCreate(d *schema.ResourceData, meta interface{}) error {
@@ -139,14 +106,43 @@ func resourceSumologicEventExtractionRuleCreate(d *schema.ResourceData, meta int
 	return resourceSumologicEventExtractionRuleRead(d, meta)
 }
 
+func resourceSumologicEventExtractionRuleRead(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*Client)
+
+	rule, err := c.GetEventExtractionRule(d.Id())
+	if err != nil {
+		return err
+	}
+
+	if rule == nil {
+		log.Printf("[WARN] Event Extraction Rule not found: %s", d.Id())
+		d.SetId("")
+		return nil
+	}
+
+	d.Set("name", rule.Name)
+	d.Set("description", rule.Description)
+	d.Set("query", rule.Query)
+	d.Set("enabled", rule.Enabled)
+
+	if rule.CorrelationExpression != nil {
+		d.Set("correlation_expression", flattenCorrelationExpression(rule.CorrelationExpression))
+	}
+
+	if err := d.Set("configuration", flattenConfiguration(rule.Configuration)); err != nil {
+		return fmt.Errorf("error setting configuration: %w", err)
+	}
+
+	return nil
+}
+
 func resourceSumologicEventExtractionRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
 	rule := resourceToEventExtractionRule(d)
 	rule.ID = d.Id()
 
-	err := c.UpdateEventExtractionRule(rule)
-	if err != nil {
+	if err := c.UpdateEventExtractionRule(rule); err != nil {
 		return err
 	}
 
@@ -167,38 +163,28 @@ func resourceToEventExtractionRule(d *schema.ResourceData) EventExtractionRule {
 	}
 
 	if v, ok := d.GetOk("correlation_expression"); ok {
-		list := v.([]interface{})
-		if len(list) > 0 {
-			item := list[0].(map[string]interface{})
-			rule.CorrelationExpression = &CorrelationExpression{
-				QueryFieldName:          item["query_field_name"].(string),
-				EventFieldName:          item["event_field_name"].(string),
-				StringMatchingAlgorithm: item["string_matching_algorithm"].(string),
-			}
+		item := v.([]interface{})[0].(map[string]interface{})
+		rule.CorrelationExpression = &CorrelationExpression{
+			QueryFieldName:          item["query_field_name"].(string),
+			EventFieldName:          item["event_field_name"].(string),
+			StringMatchingAlgorithm: item["string_matching_algorithm"].(string),
 		}
 	}
 
-	if v, ok := d.GetOk("field_mapping"); ok {
-		mappingsSet := v.(*schema.Set).List()
-		configMap := make(map[string]FieldMapping)
-		for _, m := range mappingsSet {
-			item := m.(map[string]interface{})
-			key := item["field_name"].(string)
-			configMap[key] = FieldMapping{
-				ValueSource: item["value_source"].(string),
-				MappingType: item["mapping_type"].(string),
-			}
+	config := make(map[string]FieldMapping)
+	for key, raw := range d.Get("configuration").(map[string]interface{}) {
+		val := raw.(map[string]interface{})
+		config[key] = FieldMapping{
+			ValueSource: val["value_source"].(string),
+			MappingType: val["mapping_type"].(string),
 		}
-		rule.Configuration = configMap
 	}
+	rule.Configuration = config
 
 	return rule
 }
 
 func flattenCorrelationExpression(ce *CorrelationExpression) []interface{} {
-	if ce == nil {
-		return []interface{}{}
-	}
 	return []interface{}{
 		map[string]interface{}{
 			"query_field_name":          ce.QueryFieldName,
@@ -208,14 +194,13 @@ func flattenCorrelationExpression(ce *CorrelationExpression) []interface{} {
 	}
 }
 
-func flattenConfigurationMap(config map[string]FieldMapping) []interface{} {
-	result := []interface{}{}
+func flattenConfiguration(config map[string]FieldMapping) map[string]interface{} {
+	result := make(map[string]interface{})
 	for key, val := range config {
-		result = append(result, map[string]interface{}{
-			"field_name":   key,
+		result[key] = map[string]interface{}{
 			"value_source": val.ValueSource,
 			"mapping_type": val.MappingType,
-		})
+		}
 	}
 	return result
 }
