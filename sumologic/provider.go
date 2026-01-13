@@ -126,6 +126,7 @@ func Provider() *schema.Provider {
 			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
 			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
+			"sumologic_event_extraction_rule":                    resourceSumologicEventExtractionRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
@@ -143,6 +144,7 @@ func Provider() *schema.Provider {
 			"sumologic_role_v2":                        dataSourceSumologicRoleV2(),
 			"sumologic_user":                           dataSourceSumologicUser(),
 			"sumologic_apps":                           dataSourceSumoLogicApps(),
+			"sumologic_event_extraction_rule":          dataSourceSumologicEventExtractionRule(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -196,7 +198,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if environment == "" && baseUrl == "" {
-		log.Printf("Attempting to resolve redirection URL from access key/id")
+		//log.Printf("Attempting to resolve redirection URL from access key/id")
 		url, err := resolveRedirectURL(accessId, accessKey, authJwt)
 		if err != nil {
 			log.Printf("[WARN] Unable to resolve redirection URL, %s", err)
