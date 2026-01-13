@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
- * Add new change notes here
+ * Fix for failing content test case for scheduled searches
 
 ## 3.2.2 (January 6, 2026)
 DOCS:
