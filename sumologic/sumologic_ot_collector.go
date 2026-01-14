@@ -43,13 +43,39 @@ func (s *Client) DeleteOTCollector(id string) error {
 	return err
 }
 
+func (s *Client) UpdateOTCollector(id string, req map[string]interface{}) error {
+	url := fmt.Sprintf("v1/otCollectors?id=%s", id)
+
+	data, err := s.Put(url, req)
+	if err != nil {
+		return err
+	}
+
+	if len(data) == 0 {
+		return nil
+	}
+	var resp UpdateOTCollectorResponse
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return err
+	}
+	if len(resp.Errors) > 0 {
+		return fmt.Errorf("update ot collector failed: %v", resp.Errors)
+	}
+	return nil
+}
+
+type UpdateOTCollectorResponse struct {
+	ID     string                   `json:"id"`
+	Errors []map[string]interface{} `json:"errors,omitempty"`
+}
+
 type OTCollector struct {
 	Category          string                 `json:"category"`
 	CreatedAt         string                 `json:"createdAt"`
 	CreatedBy         string                 `json:"createdBy"`
 	ModifiedBy        string                 `json:"modifiedBy"`
 	ModifiedAt        string                 `json:"modifiedAt"`
-	TimeZone          string                 `json:"timeZone"`
+	TimeZone          string                 `json:"timezone"`
 	IsAlive           bool                   `json:"alive"`
 	IsRemotelyManaged bool                   `json:"isRemotelyManaged"`
 	ID                string                 `json:"id,omitempty"`
