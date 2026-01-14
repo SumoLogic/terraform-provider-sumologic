@@ -7,6 +7,9 @@ ENHANCEMENTS:
 * Updated endpoint for `sumologic_source_template` resource to use the open API standard.
 * Fix for failing content test case for scheduled searches
 
+BUG FIXES:
+* Fixed collector creation error by including all fields in initial create request.
+
 ## 3.2.2 (January 6, 2026)
 DOCS:
 * Added searchableTime description for intervalTimeType in create log search parameters
