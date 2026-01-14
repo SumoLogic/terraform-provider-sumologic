@@ -1,10 +1,10 @@
 package sumologic
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"strings"
 )
 
 func resourceSumologicOTCollector() *schema.Resource {
@@ -78,6 +78,9 @@ func resourceSumologicOTCollector() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.HasPrefix(strings.ToLower(k), "tags.sumo.disco")
+				},
 			},
 		},
 	}
@@ -98,7 +101,7 @@ func resourceSumologicOTCollectorRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	if err := d.Set("tags", otCollector.Tags); err != nil {
+	if err := d.Set("tags", filterUpdatableTags(otCollector.Tags)); err != nil {
 		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
 	}
 
@@ -124,7 +127,49 @@ func resourceSumologicOTCollectorDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSumologicOTCollectorUpdate(d *schema.ResourceData, meta interface{}) error {
-	return errors.New("Terraform does not support OTel collector updates")
+	c := meta.(*Client)
+	id := d.Id()
+	req := make(map[string]interface{})
+	if d.HasChange("time_zone") {
+		req["timezone"] = d.Get("time_zone")
+	}
+
+	if d.HasChange("name") {
+		req["name"] = d.Get("name")
+	}
+
+	if d.HasChange("tags") {
+		newTags := d.Get("tags").(map[string]interface{})
+		filtered := filterUpdatableTags(newTags)
+
+		if len(filtered) > 0 {
+			req["tags"] = filtered
+		}
+	}
+
+	if len(req) == 0 {
+		return resourceSumologicOTCollectorRead(d, meta)
+	}
+	if err := c.UpdateOTCollector(id, req); err != nil {
+		return fmt.Errorf("failed to update OTel collector %s: %w", id, err)
+	}
+
+	return resourceSumologicOTCollectorRead(d, meta)
+}
+
+func filterUpdatableTags(tags map[string]interface{}) map[string]interface{} {
+	if tags == nil {
+		return nil
+	}
+
+	updatable := make(map[string]interface{})
+	for k, v := range tags {
+		if strings.HasPrefix(k, "sumo.disco") {
+			continue
+		}
+		updatable[k] = v
+	}
+	return updatable
 }
 
 func resourceToOTCollector(d *schema.ResourceData) OTCollector {
@@ -142,6 +187,6 @@ func resourceToOTCollector(d *schema.ResourceData) OTCollector {
 		TimeZone:          d.Get("time_zone").(string),
 		ID:                d.Id(),
 		Name:              d.Get("name").(string),
-		Tags:              d.Get("fields").(map[string]interface{}),
+		Tags:              d.Get("tags").(map[string]interface{}),
 	}
 }
