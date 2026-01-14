@@ -5,6 +5,7 @@ ENHANCEMENTS:
 * Added IsEnabled field in `sumologic_source_template` resource.
 * Added enable/disable support to the `sumologic_source_template` resource.
 * Updated endpoint for `sumologic_source_template` resource to use the open API standard.
+* Fix for failing content test case for scheduled searches
 
 ## 3.2.2 (January 6, 2026)
 DOCS:
