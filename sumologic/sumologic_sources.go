@@ -30,6 +30,8 @@ type Source struct {
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
 	Url                        string                 `json:"url,omitempty"`
+	Token                      string                 `json:"token,omitempty"`
+	BaseUrl                    string                 `json:"baseUrl,omitempty"`
 	ContentType                string                 `json:"contentType,omitempty"`
 }
 
