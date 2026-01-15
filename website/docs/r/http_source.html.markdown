@@ -73,6 +73,8 @@ The following attributes are exported:
 
 - `id` - The internal ID of the source.
 - `url` - The HTTP endpoint to use for sending data to this source.
+- `token` - The token to use for sending data to this source.
+- `base_url` - The base URL for the HTTP source endpoint.
 
 ## Import
 HTTP sources can be imported using the collector and source IDs (`collector/source`), e.g.:

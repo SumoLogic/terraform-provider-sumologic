@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+ENHANCEMENTS:
+* **Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose authentication token and base URL for HTTP sources
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
