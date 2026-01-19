@@ -1,7 +1,27 @@
 ## X.Y.Z (Unreleased)
 
 ENHANCEMENTS:
-* **Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose authentication token and base URL for HTTP sources
+* Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose authentication token and base URL for HTTP sources
+* Added update support for `sumologic_ot_collector` resource.
+* Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
+* Added IsEnabled field in `sumologic_source_template` resource.
+* Added enable/disable support to the `sumologic_source_template` resource.
+* Updated endpoint for `sumologic_source_template` resource to use the open API standard.
+* Fix for failing content test case for scheduled searches
+
+## 3.2.2 (January 6, 2026)
+DOCS:
+* Added searchableTime description for intervalTimeType in create log search parameters
+
+## 3.2.1 (December 4, 2025)
+DOCS:
+* Fixed a typo in the resource documentation for sumologic_cse_tag_schema
+BUG FIXES:
+* Fixed sumologic_cse_match_list to support more than 10000 match list items
+
+ENHANCEMENTS:
+* Document scan_interval parameter for Azure Metrics source
+>>>>>>> eb087b65b76385f3111a9eb807355a94a927fc90
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region

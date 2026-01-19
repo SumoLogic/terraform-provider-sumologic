@@ -5,7 +5,7 @@ description: |-
   Provides a Sumologic CSE Tag Schema
 ---
 
-# sumologic_cse_tag_schemna
+# sumologic_cse_tag_schema
 Provides a Sumologic CSE Tag Schema.
 
 ## Example Usage
