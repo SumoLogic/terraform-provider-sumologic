@@ -20,16 +20,14 @@ func resourceSumologicEventExtractionRule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "Name of event extraction rule.",
-				ValidateFunc: validation.StringLenBetween(1, 256),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Name of event extraction rule.",
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "Description of event extraction rule.",
-				ValidateFunc: validation.StringLenBetween(0, 1024),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of event extraction rule.",
 			},
 			"query": {
 				Type:        schema.TypeString,
@@ -69,22 +67,25 @@ func resourceSumologicEventExtractionRule() *schema.Resource {
 			},
 
 			"configuration": {
-				Type:     schema.TypeMap,
-				Required: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Structured field mappings for the extraction rule.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"field_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The name of the field being mapped.",
+						},
 						"value_source": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 						"mapping_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "HardCoded",
-							ValidateFunc: validation.StringInSlice(
-								[]string{"HardCoded"},
-								false,
-							),
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "HardCoded",
+							ValidateFunc: validation.StringInSlice([]string{"HardCoded"}, false),
 						},
 					},
 				},
@@ -172,11 +173,15 @@ func resourceToEventExtractionRule(d *schema.ResourceData) EventExtractionRule {
 	}
 
 	config := make(map[string]FieldMapping)
-	for key, raw := range d.Get("configuration").(map[string]interface{}) {
-		val := raw.(map[string]interface{})
-		config[key] = FieldMapping{
-			ValueSource: val["value_source"].(string),
-			MappingType: val["mapping_type"].(string),
+	if v, ok := d.GetOk("configuration"); ok {
+		configs := v.([]interface{})
+		for _, raw := range configs {
+			val := raw.(map[string]interface{})
+			fieldName := val["field_name"].(string)
+			config[fieldName] = FieldMapping{
+				ValueSource: val["value_source"].(string),
+				MappingType: val["mapping_type"].(string),
+			}
 		}
 	}
 	rule.Configuration = config
@@ -194,13 +199,14 @@ func flattenCorrelationExpression(ce *CorrelationExpression) []interface{} {
 	}
 }
 
-func flattenConfiguration(config map[string]FieldMapping) map[string]interface{} {
-	result := make(map[string]interface{})
+func flattenConfiguration(config map[string]FieldMapping) []interface{} {
+	var result []interface{}
 	for key, val := range config {
-		result[key] = map[string]interface{}{
+		result = append(result, map[string]interface{}{
+			"field_name":   key,
 			"value_source": val.ValueSource,
 			"mapping_type": val.MappingType,
-		}
+		})
 	}
 	return result
 }

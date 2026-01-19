@@ -1,6 +1,6 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_event_extraction_rule"
+page_title: "SumoLogic: sumologic_event_extraction_rule [Beta feature]"
 description: |-
   Provides a Sumo Logic Event Extraction Rule
 ---
@@ -38,7 +38,7 @@ resource "sumologic_event_extraction_rule" "deployment_event" {
 }
 ```
 
-Event Extraction Rule with Correlation Expression
+### Event Extraction Rule with Correlation Expression
 
 ```hcl
 resource "sumologic_event_extraction_rule" "deployment_event" {
