@@ -21,7 +21,6 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * Document scan_interval parameter for Azure Metrics source
->>>>>>> eb087b65b76385f3111a9eb807355a94a927fc90
 
 ## 3.2.0 (November 21, 2025)
 * Add support for Zurich region
