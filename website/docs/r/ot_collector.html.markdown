@@ -7,8 +7,10 @@ description: |-
 
 # sumologic_OT_Collector
 Provides a [Sumologic OT Collector][1]
-**NOTE**: This resource can only be imported and deleted by terraform. Creation/Updation of this resource via terrform is not supported.
-Tag Edit functionality will be supported in future.
+
+**NOTE**: 
+- This resource can only be imported and deleted by terraform. Creation of this resource via terraform is not supported.
+- Editing of supported fields (such as name, timezone, and tags) is now supported via Terraform.
 
 ## Example Usage
 ```hcl

@@ -17,7 +17,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	// Create values
-	nName := fmt.Sprintf("Terraform Test Match List Loop %s", uuid.New())
+	nName := fmt.Sprintf("terraform_TestAccSumologicSCEMatchList_createAndUpdate_%s", uuid.New())
 	nDefaultTtl := 10800
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
@@ -39,7 +39,7 @@ func TestAccSumologicSCEMatchList_createAndUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
-			// Creates a match list with 2 match list items
+			// Creates a match list with {liCount} total match list items
 			{
 				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -86,7 +86,7 @@ func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	// Create values
-	nName := fmt.Sprintf("Terraform Test Match List %s", uuid.New())
+	nName := fmt.Sprintf("terraform_TestAccSumologicSCEMatchList_createAddRemoveItems_%s", uuid.New())
 	nDefaultTtl := 10800
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
@@ -103,7 +103,7 @@ func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCSEMatchListDestroy,
 		Steps: []resource.TestStep{
-			// Creates a match list with 3 match list items
+			// Creates a match list with {liCount} total match list items
 			{
 				Config: testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount),
 				Check: resource.ComposeTestCheckFunc(
@@ -257,12 +257,12 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 		}
 
 		c := testAccProvider.Meta().(*Client)
-		matchListResp, err := c.GetCSEMatchListItemsInMatchList(rs.Primary.ID)
+		matchListResp, err := c.GetCSEMatchListItemsAllInMatchList(rs.Primary.ID)
 		if err != nil {
 			return fmt.Errorf("could not get match list items by match list id %s", rs.Primary.ID)
 		}
 
-		actualCount := len(matchListResp.CSEMatchListItemsGetObjects)
+		actualCount := len(matchListResp.CSEMatchListItemsAllGetObjects)
 		if actualCount != expectedCount {
 			return fmt.Errorf("expected %d match list items, but found %d instead", expectedCount, actualCount)
 		}
@@ -271,14 +271,14 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 			return nil
 		}
 
-		for _, item := range matchListResp.CSEMatchListItemsGetObjects {
+		for _, item := range matchListResp.CSEMatchListItemsAllGetObjects {
 			if item.ID == "" {
 				return fmt.Errorf("expected match list item ID to be non-empty, but found empty string instead")
 			}
 			if !strings.Contains(item.Meta.Description, expectedDescription) {
 				return fmt.Errorf("expected match list item description to contain \"%s\", but found \"%s\" instead", expectedDescription, item.Meta.Description)
 			}
-			if !strings.Contains(item.Expiration, expectedExpiration) {
+			if !strings.Contains(item.Expiration, strings.Split(expectedExpiration, "+")[0]) { //Exclude the timezone offset which may or may not be returned by the API
 				return fmt.Errorf("expected expiration to contain \"%s\", but found \"%s\" instead", expectedExpiration, item.Expiration)
 			}
 			if !strings.Contains(item.Value, expectedValue) {
