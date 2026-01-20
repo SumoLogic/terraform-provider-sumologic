@@ -1,7 +1,7 @@
 ## X.Y.Z (Unreleased)
 
 ENHANCEMENTS:
-* Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose authentication token and base URL for HTTP sources
+* Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose use in authentication via header
 * Added update support for `sumologic_ot_collector` resource.
 * Suppressed system-managed `sumo.disco.*` tags so they no longer appear in Terraform plans or state when reading OT Collectors.
 * Added IsEnabled field in `sumologic_source_template` resource.
