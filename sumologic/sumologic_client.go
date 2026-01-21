@@ -233,7 +233,11 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 }
 
 func ErrorHandler(resp *http.Response, err error, numTries int) (*http.Response, error) {
-	log.Printf("[ERROR] Request %s failed after %d attempts with response: [%s]", resp.Request.URL, numTries, resp.Status)
+	if resp != nil && resp.Request != nil {
+		log.Printf("[ERROR] Request %s failed after %d attempts with response: [%s]", resp.Request.URL, numTries, resp.Status)
+	} else {
+		log.Printf("[ERROR] Request failed after %d attempts with error: %v", numTries, err)
+	}
 	return resp, err
 }
 
