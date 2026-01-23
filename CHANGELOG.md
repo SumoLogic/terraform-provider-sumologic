@@ -6,7 +6,7 @@ ENHANCEMENTS:
 * Added enable/disable support to the `sumologic_source_template` resource.
 * Updated endpoint for `sumologic_source_template` resource to use the open API standard.
 * Fix for failing content test case for scheduled searches
-* Support for Event extraction rules(SUMO-275219)
+* Support for Event extraction rules.
 
 ## 3.2.2 (January 6, 2026)
 DOCS:

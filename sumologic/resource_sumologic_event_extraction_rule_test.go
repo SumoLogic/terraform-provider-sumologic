@@ -25,12 +25,39 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "query", "_sourceCategory=deployments"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-					// Note: Testing specific indices in a list.
-					// If the order is non-deterministic, use TestCheckTypeSetElemAttr instead.
-					resource.TestCheckResourceAttr(resourceName, "configuration.0.field_name", "eventType"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.0.value_source", "Deployment"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.1.field_name", "eventPriority"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.1.value_source", "High"),
+
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"configuration.*",
+						map[string]string{
+							"field_name":   "eventType",
+							"value_source": "Deployment",
+						},
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"configuration.*",
+						map[string]string{
+							"field_name":   "eventPriority",
+							"value_source": "High",
+						},
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"configuration.*",
+						map[string]string{
+							"field_name":   "eventSource",
+							"value_source": "Jenkins",
+						},
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"configuration.*",
+						map[string]string{
+							"field_name":   "eventName",
+							"value_source": "monitor-manager deployed",
+						},
+					),
 				),
 			},
 			{
@@ -38,9 +65,15 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "description", "updated description"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
-					// Verifying the new added block
-					resource.TestCheckResourceAttr(resourceName, "configuration.4.field_name", "eventDescription"),
-					resource.TestCheckResourceAttr(resourceName, "configuration.4.value_source", "2 containers upgraded"),
+
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"configuration.*",
+						map[string]string{
+							"field_name":   "eventDescription",
+							"value_source": "2 containers upgraded",
+						},
+					),
 				),
 			},
 			{
