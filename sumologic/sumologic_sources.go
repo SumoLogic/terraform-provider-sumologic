@@ -276,6 +276,8 @@ func resourceSumologicSourceRead(d *schema.ResourceData, source Source) error {
 		return fmt.Errorf("error setting fields for resource %s: %s", d.Id(), err)
 	}
 	d.Set("content_type", source.ContentType)
+	d.Set("token", source.Token)
+	d.Set("base_url", source.BaseUrl)
 	return nil
 }
 
