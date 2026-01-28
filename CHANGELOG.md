@@ -6,6 +6,12 @@ ENHANCEMENTS:
 * Added enable/disable support to the `sumologic_source_template` resource.
 * Updated endpoint for `sumologic_source_template` resource to use the open API standard.
 * Fix for failing content test case for scheduled searches
+  
+BUG FIXES:
+* Fixes import operation for `sumologic_data_forwarding_rule`
+
+DOCS:
+* Fix import documentation for `sumologic_data_forwarding_rule` to clarify index_id usage in imports.
 
 ## 3.2.2 (January 6, 2026)
 DOCS:
