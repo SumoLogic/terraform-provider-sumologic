@@ -1,0 +1,1162 @@
+2026/01/28 12:16:52 Sumo Logic Terraform Provider Version=
+=== RUN   TestAccDataSourceAdminRecommendedFolder_basic
+    data_source_sumologic_admin_recommended_folder_test.go:10: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v2/content/folders/adminRecommended</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_admin_recommended_folder.test,
+          on terraform_plugin_test.tf line 3, in data "sumologic_admin_recommended_folder" "test":
+           3: data "sumologic_admin_recommended_folder" "test" {
+        
+--- FAIL: TestAccDataSourceAdminRecommendedFolder_basic (2.61s)
+=== RUN   TestAccDataSourceSumoLogicApps_basic
+    data_source_sumologic_apps_test.go:13: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v2/apps</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_apps.test,
+          on terraform_plugin_test.tf line 3, in data "sumologic_apps" "test":
+           3: 	data "sumologic_apps" "test" {}
+        
+--- FAIL: TestAccDataSourceSumoLogicApps_basic (2.76s)
+=== RUN   TestAccDataSourceSumoLogicApps_filtered
+    data_source_sumologic_apps_test.go:30: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v2/apps</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_apps.filtered,
+          on terraform_plugin_test.tf line 3, in data "sumologic_apps" "filtered":
+           3: 	data "sumologic_apps" "filtered" {
+        
+--- FAIL: TestAccDataSourceSumoLogicApps_filtered (2.61s)
+=== RUN   TestAccDataSourcSumologicCollector_basic
+    data_source_sumologic_collector_test.go:10: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "C439O-1981H-A65U8",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccDataSourcSumologicCollector_basic (3.71s)
+=== RUN   TestAccDataSourceCSELogMappingVendorProduct_basic
+    data_source_sumologic_cse_log_mapping_vendor_product_test.go:12: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/sec/v1/vendors-and-products</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_cse_log_mapping_vendor_product.web_gateway,
+          on terraform_plugin_test.tf line 3, in data "sumologic_cse_log_mapping_vendor_product" "web_gateway":
+           3: data "sumologic_cse_log_mapping_vendor_product" "web_gateway" {
+        
+--- FAIL: TestAccDataSourceCSELogMappingVendorProduct_basic (2.52s)
+=== RUN   TestAccDataSourceFolder_basic
+    data_source_sumologic_folder_test.go:12: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"FDZKX-QFH2M-3F52X","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_folder.personal_folder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_folder" "personal_folder":
+           3: 		data "sumologic_folder" "personal_folder" {
+        
+--- FAIL: TestAccDataSourceFolder_basic (2.43s)
+=== RUN   TestAccDataSourceFolder_folder_does_not_exist
+    data_source_sumologic_folder_test.go:27: Step 1/1, expected an error with pattern, no match on: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"OCYRS-QO19W-AISKN","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_folder.personal_folder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_folder" "personal_folder":
+           3: 		data "sumologic_folder" "personal_folder" {
+        
+--- FAIL: TestAccDataSourceFolder_folder_does_not_exist (2.60s)
+=== RUN   TestAccDataSourceMonitorFolder_basic
+    data_source_sumologic_monitor_folder_test.go:11: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/monitors/root</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_monitor_folder.test_folder,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_monitor_folder" "test_folder":
+           3:                     resource "sumologic_monitor_folder" "test_folder" {
+        
+--- FAIL: TestAccDataSourceMonitorFolder_basic (3.73s)
+=== RUN   TestAccDataSourceMonitorFolder_folder_does_not_exist
+    data_source_sumologic_monitor_folder_test.go:35: Step 1/1, expected an error with pattern, no match on: Error running pre-apply refresh: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/monitors/path</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_monitor_folder.test,
+          on terraform_plugin_test.tf line 3, in data "sumologic_monitor_folder" "test":
+           3: 					data "sumologic_monitor_folder" "test" {
+        
+--- FAIL: TestAccDataSourceMonitorFolder_folder_does_not_exist (2.51s)
+=== RUN   TestAccDataSourcePartition_basic
+    data_source_sumologic_partition_test.go:10: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: error retrieving partition with id 00000000000AD88D: unexpected end of JSON input
+        
+          with data.sumologic_partition.test,
+          on terraform_plugin_test.tf line 3, in data "sumologic_partition" "test":
+           3: 	data "sumologic_partition" "test" {
+        
+--- FAIL: TestAccDataSourcePartition_basic (2.49s)
+=== RUN   TestAccDataSourcePartitions_basic
+    data_source_sumologic_partitions_test.go:10: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: error retrieving partitions: {"id":"TQDPV-F9ETH-YQNN7","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_partitions.test,
+          on terraform_plugin_test.tf line 3, in data "sumologic_partitions" "test":
+           3: 	data "sumologic_partitions" "test" {}
+        
+--- FAIL: TestAccDataSourcePartitions_basic (2.53s)
+=== RUN   TestAccDataSourceSumologicRole_basic
+    data_source_sumologic_role_test.go:11: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/roles</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_role.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_role" "test":
+           3: resource "sumologic_role" "test" {
+        
+--- FAIL: TestAccDataSourceSumologicRole_basic (3.77s)
+=== RUN   TestAccDataSourceSumologicRole_role_name_doesnt_exist
+    data_source_sumologic_role_test.go:42: Step 1/1, expected an error with pattern, no match on: Error running pre-apply refresh: exit status 1
+        
+        Error: role with name someRoleNameDoesntExist8746 not found: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/roles</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_role.role_name_doesnt_exist,
+          on terraform_plugin_test.tf line 3, in data "sumologic_role" "role_name_doesnt_exist":
+           3:   data "sumologic_role" "role_name_doesnt_exist" {
+        
+--- FAIL: TestAccDataSourceSumologicRole_role_name_doesnt_exist (2.50s)
+=== RUN   TestAccDataSourceSumologicRole_role_id_doesnt_exist
+--- PASS: TestAccDataSourceSumologicRole_role_id_doesnt_exist (2.49s)
+=== RUN   TestAccDataSourceSumologicRoleV2_basic
+    data_source_sumologic_role_v2_test.go:11: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v2/roles</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_role_v2.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_role_v2" "test":
+           3: resource "sumologic_role_v2" "test" {
+        
+--- FAIL: TestAccDataSourceSumologicRoleV2_basic (3.76s)
+=== RUN   TestAccDataSourceSumologicRoleV2_role_name_doesnt_exist
+    data_source_sumologic_role_v2_test.go:45: Step 1/1, expected an error with pattern, no match on: Error running pre-apply refresh: exit status 1
+        
+        Error: role with name someRoleNameDoesntExist87461 not found: {"id":"BJ9TY-EF09X-8TMEB","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_role_v2.role_name_doesnt_exist,
+          on terraform_plugin_test.tf line 3, in data "sumologic_role_v2" "role_name_doesnt_exist":
+           3:   data "sumologic_role_v2" "role_name_doesnt_exist" {
+        
+--- FAIL: TestAccDataSourceSumologicRoleV2_role_name_doesnt_exist (2.45s)
+=== RUN   TestAccDataSourceSumologicRoleV2_role_id_doesnt_exist
+--- PASS: TestAccDataSourceSumologicRoleV2_role_id_doesnt_exist (2.46s)
+=== RUN   TestAccDataSourceSumologicUser_basic
+    data_source_sumologic_user_test.go:12: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"6NO9L-5EWSR-Q44HT","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_role.test_role,
+          on terraform_plugin_test.tf line 12, in resource "sumologic_role" "test_role":
+          12: resource "sumologic_role" "test_role" {
+        
+--- FAIL: TestAccDataSourceSumologicUser_basic (3.68s)
+=== RUN   TestAccDataSourceSumologicUser_user_email_doesnt_exist
+    data_source_sumologic_user_test.go:43: Step 1/1, expected an error with pattern, no match on: Error running pre-apply refresh: exit status 1
+        
+        Error: user with email address someNonExistentEmail2374@sumologic.com not found: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/users</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with data.sumologic_user.user_email_doesnt_exist,
+          on terraform_plugin_test.tf line 3, in data "sumologic_user" "user_email_doesnt_exist":
+           3:   data "sumologic_user" "user_email_doesnt_exist" {
+        
+--- FAIL: TestAccDataSourceSumologicUser_user_email_doesnt_exist (2.58s)
+=== RUN   TestAccDataSourceSumologicUser_user_id_doesnt_exist
+--- PASS: TestAccDataSourceSumologicUser_user_id_doesnt_exist (2.41s)
+=== RUN   TestProvider
+--- PASS: TestProvider (0.00s)
+=== RUN   TestProvider_impl
+--- PASS: TestProvider_impl (0.00s)
+=== RUN   TestAccSumologicApp_basic
+    resource_sumologic_app_test.go:21: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"N8MFF-TNJU8-QUK1B","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_app.tf_app_test,
+          on terraform_plugin_test.tf line 4, in resource "sumologic_app" "tf_app_test":
+           4: 	resource "sumologic_app" "tf_app_test" {
+        
+--- FAIL: TestAccSumologicApp_basic (3.66s)
+=== RUN   TestAccSumologicApp_create
+    resource_sumologic_app_test.go:49: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"4L9E7-YLJE6-O73KZ","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_app.tf_app_test,
+          on terraform_plugin_test.tf line 4, in resource "sumologic_app" "tf_app_test":
+           4: 	resource "sumologic_app" "tf_app_test" {
+        
+--- FAIL: TestAccSumologicApp_create (3.71s)
+=== RUN   TestAccSumologicApp_update
+    resource_sumologic_app_test.go:80: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"A9GNY-QFB6N-MXSTR","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_app.tf_app_test,
+          on terraform_plugin_test.tf line 4, in resource "sumologic_app" "tf_app_test":
+           4: 	resource "sumologic_app" "tf_app_test" {
+        
+--- FAIL: TestAccSumologicApp_update (3.62s)
+=== RUN   TestAccSumologicAzureEventHubLogSource_create
+    resource_sumologic_azure_event_hub_log_source_test.go:25: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "SZCYJ-EOGU2-1TW5W",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicAzureEventHubLogSource_create (3.83s)
+=== RUN   TestAccSumologicAzureEventHubLogSource_update
+    resource_sumologic_azure_event_hub_log_source_test.go:60: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "VH41S-83YS5-MJ2FH",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicAzureEventHubLogSource_update (3.60s)
+=== RUN   TestAccSumologicAzureMetricsSource_create
+    resource_sumologic_azure_metrics_source_test.go:23: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "0PDUW-JCMD3-9PRY3",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicAzureMetricsSource_create (3.68s)
+=== RUN   TestAccSumologicAzureMetricsSource_update
+    resource_sumologic_azure_metrics_source_test.go:62: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "CRDY4-9YMP9-5CUVQ",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicAzureMetricsSource_update (3.88s)
+=== RUN   TestAccSumologicCloudToCloudSource_create
+    resource_sumologic_cloud_to_cloud_source_test.go:18: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "73HCD-IXV8Q-SV2T1",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCloudToCloudSource_create (3.60s)
+=== RUN   TestAccSumologicCloudToCloudSource_update
+    resource_sumologic_cloud_to_cloud_source_test.go:40: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "PODZO-6BK73-YB0BB",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCloudToCloudSource_update (3.63s)
+=== RUN   TestAccSumologicCloudFrontSource_create
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudFrontSource_create (0.00s)
+=== RUN   TestAccSumologicCloudFrontSource_update
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudFrontSource_update (0.00s)
+=== RUN   TestAccSumologicCloudsyslogSource_basic
+    resource_sumologic_cloudsyslog_source_test.go:16: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "9D9XO-5N5HC-WOFDG",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 4, in resource "sumologic_collector" "test":
+           4: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCloudsyslogSource_basic (3.73s)
+=== RUN   TestAccSumologicCloudTrailSource_create
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudTrailSource_create (0.00s)
+=== RUN   TestAccSumologicCloudTrailSource_update
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudTrailSource_update (0.00s)
+=== RUN   TestAccSumologicCloudWatchSource_create
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudWatchSource_create (0.00s)
+=== RUN   TestAccSumologicCloudWatchSource_update
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicCloudWatchSource_update (0.00s)
+=== RUN   TestAccSumologicCollector_basic
+    resource_sumologic_collector_test.go:17: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "9QF7Y-5YWTL-B98VT",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCollector_basic (3.69s)
+=== RUN   TestAccSumologicCollector_create
+    resource_sumologic_collector_test.go:49: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "FDTHE-QHXN5-6FX4E",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCollector_create (3.71s)
+=== RUN   TestAccSumologicCollector_update
+    resource_sumologic_collector_test.go:79: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {
+          "status" : 401,
+          "id" : "U4G81-6RH5A-7FR3W",
+          "code" : "unauthorized",
+          "message" : "Credential could not be verified."
+        }
+        
+          with sumologic_collector.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_collector" "test":
+           3: resource "sumologic_collector" "test" {
+        
+--- FAIL: TestAccSumologicCollector_update (3.69s)
+=== RUN   TestAccConnection_create
+    resource_sumologic_connection_test.go:24: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"E6FD0-3YXBL-6P39N","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_connection.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_connection" "test":
+           3: resource "sumologic_connection" "test" {
+        
+--- FAIL: TestAccConnection_create (3.60s)
+=== RUN   TestAccConnection_createServiceNowWebhook
+    resource_sumologic_connection_test.go:59: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"Q3OMF-8QI1K-S26EN","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_connection.serviceNowTest,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_connection" "serviceNowTest":
+           3: resource "sumologic_connection" "serviceNowTest" {
+        
+--- FAIL: TestAccConnection_createServiceNowWebhook (3.65s)
+=== RUN   TestAccConnection_update
+    resource_sumologic_connection_test.go:97: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"OCDX9-0XGUY-24LHM","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_connection.serviceNowTest,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_connection" "serviceNowTest":
+           3: resource "sumologic_connection" "serviceNowTest" {
+        
+--- FAIL: TestAccConnection_update (3.71s)
+=== RUN   TestAccContent_create
+    resource_sumologic_content_test.go:15: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"6QKG3-YM5A0-P0OBE","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_personal_folder.personalFolder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_personal_folder" "personalFolder":
+           3: data "sumologic_personal_folder" "personalFolder" {}
+        
+--- FAIL: TestAccContent_create (2.54s)
+=== RUN   TestAccContent_update
+    resource_sumologic_content_test.go:34: Step 1/2 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"XGRDF-RLWTA-WA4RR","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_personal_folder.personalFolder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_personal_folder" "personalFolder":
+           3: data "sumologic_personal_folder" "personalFolder" {}
+        
+--- FAIL: TestAccContent_update (2.49s)
+=== RUN   TestAccSumologicCSEAggregationRule_createAndUpdateWithCustomWindowSize
+    resource_sumologic_cse_aggregation_rule_test.go:30: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"WJEES-A59QY-5ODQS","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_aggregation_rule.aggregation_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_aggregation_rule" "aggregation_rule":
+           3: 		resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
+        
+--- FAIL: TestAccSumologicCSEAggregationRule_createAndUpdateWithCustomWindowSize (3.95s)
+=== RUN   TestAccSumologicCSEAggregationRule_Override
+    resource_sumologic_cse_aggregation_rule_test.go:66: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_aggregation_rule.sumo_aggregation_rule_test", the provider
+        detected that no object exists with the given id. Only pre-existing objects
+        can be imported; check that the id is correct and that it is associated with
+        the provider's configured region or endpoint, or use "terraform apply" to
+        create a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEAggregationRule_Override (2.87s)
+=== RUN   TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize
+    resource_sumologic_cse_aggregation_rule_test.go:132: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"4GZNO-7X3F3-WRDKG","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_aggregation_rule.aggregation_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_aggregation_rule" "aggregation_rule":
+           3: 		resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
+        
+--- FAIL: TestAccSumologicCSEAggregationRule_createAndUpdateToCustomWindowSize (4.04s)
+=== RUN   TestAccSumologicCSEAggregationRule_createAndUpdate
+    resource_sumologic_cse_aggregation_rule_test.go:178: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"V5CSX-SZJRU-OQGB9","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_aggregation_rule.aggregation_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_aggregation_rule" "aggregation_rule":
+           3: 		resource "sumologic_cse_aggregation_rule" "aggregation_rule" {
+        
+--- FAIL: TestAccSumologicCSEAggregationRule_createAndUpdate (3.71s)
+=== RUN   TestAccSumologicSCEAutomation_create_update
+    resource_sumologic_cse_automation_test.go:22: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"G2ITD-L6RXY-5FJZN","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_automation.automation,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_automation" "automation":
+           3: resource "sumologic_cse_automation" "automation" {
+        
+--- FAIL: TestAccSumologicSCEAutomation_create_update (3.71s)
+=== RUN   TestAccSumologicCSEChainRule_createAndUpdateWithCustomWindowSize
+    resource_sumologic_cse_chain_rule_test.go:30: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/sec/v1/rules/chain</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_cse_chain_rule.chain_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_chain_rule" "chain_rule":
+           3: 		resource "sumologic_cse_chain_rule" "chain_rule" {
+        
+--- FAIL: TestAccSumologicCSEChainRule_createAndUpdateWithCustomWindowSize (3.78s)
+=== RUN   TestAccSumologicCSEChainRule_Override
+    resource_sumologic_cse_chain_rule_test.go:66: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_chain_rule.sumo_chain_rule_test", the provider detected that
+        no object exists with the given id. Only pre-existing objects can be
+        imported; check that the id is correct and that it is associated with the
+        provider's configured region or endpoint, or use "terraform apply" to create
+        a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEChainRule_Override (2.79s)
+=== RUN   TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize
+    resource_sumologic_cse_chain_rule_test.go:133: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/sec/v1/rules/chain</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_cse_chain_rule.chain_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_chain_rule" "chain_rule":
+           3: 		resource "sumologic_cse_chain_rule" "chain_rule" {
+        
+--- FAIL: TestAccSumologicCSEChainRule_createAndUpdateToCustomWindowSize (3.87s)
+=== RUN   TestAccSumologicCSEChainRule_createAndUpdate
+    resource_sumologic_cse_chain_rule_test.go:179: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"5G9KV-O7CSG-OPHIB","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_chain_rule.chain_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_chain_rule" "chain_rule":
+           3: 		resource "sumologic_cse_chain_rule" "chain_rule" {
+        
+--- FAIL: TestAccSumologicCSEChainRule_createAndUpdate (3.73s)
+=== RUN   TestAccSumologicSCEContextAction_create_update
+    resource_sumologic_cse_context_action_test.go:26: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"IOYBU-GSHHP-RFXYS","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_context_action.context_action,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_context_action" "context_action":
+           3: resource "sumologic_cse_context_action" "context_action" {
+        
+--- FAIL: TestAccSumologicSCEContextAction_create_update (3.68s)
+=== RUN   TestAccSumologicSCECustomEntityType_create
+    resource_sumologic_cse_custom_entity_type_test.go:19: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"NQMWW-2AKEL-RK58O","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_entity_type.custom_entity_type,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_entity_type" "custom_entity_type":
+           3: resource "sumologic_cse_custom_entity_type" "custom_entity_type" {
+        
+--- FAIL: TestAccSumologicSCECustomEntityType_create (3.81s)
+=== RUN   TestAccSumologicSCECustomEntityType_update
+    resource_sumologic_cse_custom_entity_type_test.go:46: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"AZ0K5-HFPAG-DKAWG","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_entity_type.custom_entity_type,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_entity_type" "custom_entity_type":
+           3: resource "sumologic_cse_custom_entity_type" "custom_entity_type" {
+        
+--- FAIL: TestAccSumologicSCECustomEntityType_update (3.68s)
+=== RUN   TestAccSumologicCSECustomInsight_createAndUpdate
+    resource_sumologic_cse_custom_insight_test.go:29: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"C8M4V-5LCLN-2HXMB","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_insight.custom_insight,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_insight" "custom_insight":
+           3: resource "sumologic_cse_custom_insight" "custom_insight" {
+        
+--- FAIL: TestAccSumologicCSECustomInsight_createAndUpdate (3.76s)
+=== RUN   TestAccSumologicCSECustomInsight_createAndUpdateWithDynamicSeverity
+    resource_sumologic_cse_custom_insight_test.go:78: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"Y5MS6-0GVXF-TK6SI","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_insight.custom_insight2,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_insight" "custom_insight2":
+           3: resource "sumologic_cse_custom_insight" "custom_insight2" {
+        
+--- FAIL: TestAccSumologicCSECustomInsight_createAndUpdateWithDynamicSeverity (3.82s)
+=== RUN   TestAccSumologicCSECustomInsight_createAndUpdateWithSignalMatchStrategy
+    resource_sumologic_cse_custom_insight_test.go:115: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"EVCDN-CSE8P-0FMU9","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_insight.custom_insight_signal_match_strategy,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_insight" "custom_insight_signal_match_strategy":
+           3: resource "sumologic_cse_custom_insight" "custom_insight_signal_match_strategy" {
+        
+--- FAIL: TestAccSumologicCSECustomInsight_createAndUpdateWithSignalMatchStrategy (3.63s)
+=== RUN   TestAccSumologicSCECustomMatchListColumn_create
+    resource_sumologic_cse_custom_match_list_column_test.go:18: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"RV0TP-7HV55-FS8WX","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_custom_match_list_column.custom_match_list_column,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_custom_match_list_column" "custom_match_list_column":
+           3: resource "sumologic_cse_custom_match_list_column" "custom_match_list_column" {
+        
+--- FAIL: TestAccSumologicSCECustomMatchListColumn_create (3.61s)
+=== RUN   TestAccSumologicSCEEntityCriticalityConfig_create
+    resource_sumologic_cse_entity_criticality_config_test.go:18: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"EEQR1-ST6QW-DRD3R","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_entity_criticality_config.entity_criticality_config,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_entity_criticality_config" "entity_criticality_config":
+           3: resource "sumologic_cse_entity_criticality_config" "entity_criticality_config" {
+        
+--- FAIL: TestAccSumologicSCEEntityCriticalityConfig_create (3.81s)
+=== RUN   TestAccSumologicSCEEntityCriticalityConfig_update
+    resource_sumologic_cse_entity_criticality_config_test.go:43: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"RP1MM-SE3YC-DZ96D","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_entity_criticality_config.entity_criticality_config,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_entity_criticality_config" "entity_criticality_config":
+           3: resource "sumologic_cse_entity_criticality_config" "entity_criticality_config" {
+        
+--- FAIL: TestAccSumologicSCEEntityCriticalityConfig_update (3.61s)
+=== RUN   TestAccSumologicCSEEntityEntityGroupConfiguration_createAndUpdate
+    resource_sumologic_cse_entity_entity_group_configuration_test.go:26: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"XXG6F-E07AS-MOCIG","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_entity_entity_group_configuration.entity_entity_group_configuration,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_entity_entity_group_configuration" "entity_entity_group_configuration":
+           3: resource "sumologic_cse_entity_entity_group_configuration" "entity_entity_group_configuration" {
+        
+--- FAIL: TestAccSumologicCSEEntityEntityGroupConfiguration_createAndUpdate (3.65s)
+=== RUN   TestAccSumologicSCEEntityNormalizationConfiguration_create
+    resource_sumologic_cse_entity_normalization_configuration_test.go:25: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"B8M6O-20ZLZ-S3NKH","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_entity_normalization_configuration.entity_normalization_configuration,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_entity_normalization_configuration" "entity_normalization_configuration":
+           3: resource "sumologic_cse_entity_normalization_configuration" "entity_normalization_configuration" {
+        
+    testing_new.go:85: Error running post-test destroy, there may be dangling resources: exit status 1
+        
+        Error: {"id":"B4DZL-0932Z-2H530","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+--- FAIL: TestAccSumologicSCEEntityNormalizationConfiguration_create (5.85s)
+=== RUN   TestAccSumologicCSEFirstSeenRule_createAndUpdate
+    resource_sumologic_cse_first_seen_rule_test.go:45: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"UN602-GCB3P-FS48O","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_first_seen_rule.first_seen_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_first_seen_rule" "first_seen_rule":
+           3: resource "sumologic_cse_first_seen_rule" "first_seen_rule" {
+        
+--- FAIL: TestAccSumologicCSEFirstSeenRule_createAndUpdate (3.89s)
+=== RUN   TestAccSumologicCSEFirstSeenRule_Override
+    resource_sumologic_cse_first_seen_rule_test.go:81: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_first_seen_rule.sumo_first_seen_rule_test", the provider
+        detected that no object exists with the given id. Only pre-existing objects
+        can be imported; check that the id is correct and that it is associated with
+        the provider's configured region or endpoint, or use "terraform apply" to
+        create a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEFirstSeenRule_Override (2.85s)
+=== RUN   TestAccSumologicSCEInsightsConfiguration_create
+    resource_sumologic_cse_insights_configuration_test.go:19: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"1HP04-IYGWF-AN4OV","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_insights_configuration.insights_configuration,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_insights_configuration" "insights_configuration":
+           3: resource "sumologic_cse_insights_configuration" "insights_configuration" {
+        
+    testing_new.go:85: Error running post-test destroy, there may be dangling resources: exit status 1
+        
+        Error: {"id":"PJWBU-1U7OL-Z8KTC","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+--- FAIL: TestAccSumologicSCEInsightsConfiguration_create (5.77s)
+=== RUN   TestAccSumologicSCEInsightsResolution_create
+    resource_sumologic_cse_insights_resolution_test.go:19: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"YO14I-1WHQ4-PFG8I","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_insights_resolution.insights_resolution,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_insights_resolution" "insights_resolution":
+           3: resource "sumologic_cse_insights_resolution" "insights_resolution" {
+        
+--- FAIL: TestAccSumologicSCEInsightsResolution_create (3.74s)
+=== RUN   TestAccSumologicSCEInsightsStatus_create
+    resource_sumologic_cse_insights_status_test.go:18: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"WHDU2-1HIXW-GUL2A","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_insights_status.insights_status,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_insights_status" "insights_status":
+           3: resource "sumologic_cse_insights_status" "insights_status" {
+        
+--- FAIL: TestAccSumologicSCEInsightsStatus_create (3.64s)
+=== RUN   TestAccSumologicCSEInventoryEntityGroupConfiguration_createAndUpdate
+    resource_sumologic_cse_inventory_entity_group_configuration_test.go:31: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"O2LZR-4LZLI-9RNUZ","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_inventory_entity_group_configuration.inventory_entity_group_configuration,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_inventory_entity_group_configuration" "inventory_entity_group_configuration":
+           3: resource "sumologic_cse_inventory_entity_group_configuration" "inventory_entity_group_configuration" {
+        
+--- FAIL: TestAccSumologicCSEInventoryEntityGroupConfiguration_createAndUpdate (3.66s)
+=== RUN   TestAccSumologicSCELogMapping_create
+    resource_sumologic_cse_log_mapping_test.go:50: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"BQMW2-J2OBZ-ZSYZ6","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_cse_log_mapping_vendor_product.web_gateway,
+          on terraform_plugin_test.tf line 4, in data "sumologic_cse_log_mapping_vendor_product" "web_gateway":
+           4: data "sumologic_cse_log_mapping_vendor_product" "web_gateway" {
+        
+--- FAIL: TestAccSumologicSCELogMapping_create (2.60s)
+=== RUN   TestAccSumologicSCELogMapping_update
+    resource_sumologic_cse_log_mapping_test.go:107: Step 1/2 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"IXAL5-G7QDY-VN6NB","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_cse_log_mapping_vendor_product.web_gateway,
+          on terraform_plugin_test.tf line 4, in data "sumologic_cse_log_mapping_vendor_product" "web_gateway":
+           4: data "sumologic_cse_log_mapping_vendor_product" "web_gateway" {
+        
+--- FAIL: TestAccSumologicSCELogMapping_update (6.21s)
+=== RUN   TestAccSumologicSCEMatchList_createAndUpdate
+    resource_sumologic_cse_match_list_test.go:37: Step 1/4 error: Error running apply: exit status 1
+        
+        Error: [ERROR] An error occurred converting resource to match list with id , err: {"id":"XF0JG-IPYNF-RTOFP","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_match_list.match_list,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_match_list" "match_list":
+           3: resource "sumologic_cse_match_list" "match_list" {
+        
+--- FAIL: TestAccSumologicSCEMatchList_createAndUpdate (8.52s)
+=== RUN   TestAccSumologicSCEMatchList_createAddRemoveItems
+    resource_sumologic_cse_match_list_test.go:101: Step 1/4 error: Error running apply: exit status 1
+        
+        Error: [ERROR] An error occurred converting resource to match list with id , err: {"id":"VNDCU-8XJNC-BWWR6","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_match_list.match_list,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_match_list" "match_list":
+           3: resource "sumologic_cse_match_list" "match_list" {
+        
+--- FAIL: TestAccSumologicSCEMatchList_createAddRemoveItems (3.96s)
+=== RUN   TestAccSumologicCSEMatchRule_createAndUpdate
+    resource_sumologic_cse_match_rule_test.go:36: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"8S3U2-30RMF-YA2FN","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_match_rule.match_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_match_rule" "match_rule":
+           3: resource "sumologic_cse_match_rule" "match_rule" {
+        
+--- FAIL: TestAccSumologicCSEMatchRule_createAndUpdate (3.71s)
+=== RUN   TestAccSumologicCSEMatchRule_Override
+    resource_sumologic_cse_match_rule_test.go:84: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_match_rule.sumo_match_rule_test", the provider detected that
+        no object exists with the given id. Only pre-existing objects can be
+        imported; check that the id is correct and that it is associated with the
+        provider's configured region or endpoint, or use "terraform apply" to create
+        a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEMatchRule_Override (2.67s)
+=== RUN   TestAccSumologicCSEMatchRule_failSuppressionValidation
+--- PASS: TestAccSumologicCSEMatchRule_failSuppressionValidation (1.15s)
+=== RUN   TestAccSumologicSCENetworkBlock_create
+    resource_sumologic_cse_network_block_test.go:22: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"Y6RP4-GJX3V-EX5DW","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_network_block.network_block,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_network_block" "network_block":
+           3: resource "sumologic_cse_network_block" "network_block" {
+        
+--- FAIL: TestAccSumologicSCENetworkBlock_create (3.64s)
+=== RUN   TestAccSumologicCSEOutlierRule_createAndUpdate
+    resource_sumologic_cse_outlier_rule_test.go:49: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"DKUFL-ULVSA-HUKKP","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_outlier_rule.outlier_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_outlier_rule" "outlier_rule":
+           3: resource "sumologic_cse_outlier_rule" "outlier_rule" {
+        
+--- FAIL: TestAccSumologicCSEOutlierRule_createAndUpdate (3.64s)
+=== RUN   TestAccSumologicCSEOutlierRule_Override
+    resource_sumologic_cse_outlier_rule_test.go:85: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_outlier_rule.sumo_outlier_rule_test", the provider detected
+        that no object exists with the given id. Only pre-existing objects can be
+        imported; check that the id is correct and that it is associated with the
+        provider's configured region or endpoint, or use "terraform apply" to create
+        a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEOutlierRule_Override (2.77s)
+=== RUN   TestAccSumologicSCERuleTuningExpression_create
+    resource_sumologic_cse_rule_tuning_expression_test.go:26: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"70Z9X-J791I-VHE3I","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_rule_tuning_expression.rule_tuning_expression,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression":
+           3: resource "sumologic_cse_rule_tuning_expression" "rule_tuning_expression" {
+        
+--- FAIL: TestAccSumologicSCERuleTuningExpression_create (3.63s)
+=== RUN   TestAccSumologicSCETagSchema_create_update
+    resource_sumologic_cse_tag_schema_test.go:24: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"OD2RZ-Y6CP9-2FILR","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_tag_schema.tag_schema,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_tag_schema" "tag_schema":
+           3: resource "sumologic_cse_tag_schema" "tag_schema" {
+        
+--- FAIL: TestAccSumologicSCETagSchema_create_update (4.38s)
+=== RUN   TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize
+    resource_sumologic_cse_threshold_rule_test.go:31: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"HYSG5-15OU3-6TB0W","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_threshold_rule.threshold_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_threshold_rule" "threshold_rule":
+           3: 		resource "sumologic_cse_threshold_rule" "threshold_rule" {
+        
+--- FAIL: TestAccSumologicCSEThresholdRule_createAndUpdateWithCustomWindowSize (3.69s)
+=== RUN   TestAccSumologicCSEThresholdRule_Override
+    resource_sumologic_cse_threshold_rule_test.go:67: Step 1/4 error running import: exit status 1
+        
+        Error: Cannot import non-existent remote object
+        
+        While attempting to import an existing object to
+        "sumologic_cse_threshold_rule.sumo_threshold_rule_test", the provider
+        detected that no object exists with the given id. Only pre-existing objects
+        can be imported; check that the id is correct and that it is associated with
+        the provider's configured region or endpoint, or use "terraform apply" to
+        create a new remote object for this resource.
+        
+--- FAIL: TestAccSumologicCSEThresholdRule_Override (2.78s)
+=== RUN   TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize
+    resource_sumologic_cse_threshold_rule_test.go:134: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"C9M7J-DABPX-C58V0","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_threshold_rule.threshold_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_threshold_rule" "threshold_rule":
+           3: 		resource "sumologic_cse_threshold_rule" "threshold_rule" {
+        
+--- FAIL: TestAccSumologicCSEThresholdRule_createAndUpdateToCustomWindowSize (3.64s)
+=== RUN   TestAccSumologicCSEThresholdRule_createAndUpdate
+    resource_sumologic_cse_threshold_rule_test.go:180: Step 1/3 error: Error running apply: exit status 1
+        
+        Error: {"id":"TCN3R-TGTQI-5UI16","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_cse_threshold_rule.threshold_rule,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_cse_threshold_rule" "threshold_rule":
+           3: 		resource "sumologic_cse_threshold_rule" "threshold_rule" {
+        
+--- FAIL: TestAccSumologicCSEThresholdRule_createAndUpdate (3.59s)
+=== RUN   TestAccSumologicCsoarPlaybook_createShouldFail
+--- PASS: TestAccSumologicCsoarPlaybook_createShouldFail (2.37s)
+=== RUN   TestAccSumologicCsoarPlaybook_update
+--- PASS: TestAccSumologicCsoarPlaybook_update (2.29s)
+=== RUN   TestAccSumologicCsoarPlaybook_booleanFieldUpdates
+--- PASS: TestAccSumologicCsoarPlaybook_booleanFieldUpdates (2.28s)
+=== RUN   TestAccSumologicCsoarPlaybook_updatedNameField
+--- PASS: TestAccSumologicCsoarPlaybook_updatedNameField (2.31s)
+=== RUN   TestAccSumologicDashboard_basic
+    resource_sumologic_dashboard_test.go:27: Step 1/2 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"PPBAW-Y1MYL-3DJ2I","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_personal_folder.personalFolder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_personal_folder" "personalFolder":
+           3: 		data "sumologic_personal_folder" "personalFolder" {}
+        
+--- FAIL: TestAccSumologicDashboard_basic (2.41s)
+=== RUN   TestAccSumologicDashboard_create
+    resource_sumologic_dashboard_test.go:90: Step 1/1 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"3RR8P-NEHSF-3R7T9","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_personal_folder.personalFolder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_personal_folder" "personalFolder":
+           3: 		data "sumologic_personal_folder" "personalFolder" {}
+        
+--- FAIL: TestAccSumologicDashboard_create (2.42s)
+=== RUN   TestAccSumologicDashboard_update
+    resource_sumologic_dashboard_test.go:235: Step 1/2 error: Error running pre-apply refresh: exit status 1
+        
+        Error: {"id":"TJ519-71CYR-PEA8K","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with data.sumologic_personal_folder.personalFolder,
+          on terraform_plugin_test.tf line 3, in data "sumologic_personal_folder" "personalFolder":
+           3: 		data "sumologic_personal_folder" "personalFolder" {}
+        
+--- FAIL: TestAccSumologicDashboard_update (2.47s)
+=== RUN   TestAccSumologicElbSource_create
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicElbSource_create (0.00s)
+=== RUN   TestAccSumologicElbSource_update
+    provider_test.go:52: SUMOLOGIC_TEST_ROLE_ARN must be set for polling source acceptance tests
+--- FAIL: TestAccSumologicElbSource_update (0.00s)
+=== RUN   TestAccSumologicFieldExtractionRule_basic
+    resource_sumologic_extraction_rule_test.go:21: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"FY5C1-1CLBR-UXAMN","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_field_extraction_rule.foo,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_field_extraction_rule" "foo":
+           3: resource "sumologic_field_extraction_rule" "foo" {
+        
+--- FAIL: TestAccSumologicFieldExtractionRule_basic (3.79s)
+=== RUN   TestAccSumologicFieldExtractionRule_create
+    resource_sumologic_extraction_rule_test.go:44: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: {"id":"7P89S-OC1HN-TAJ90","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_field_extraction_rule.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_field_extraction_rule" "test":
+           3: resource "sumologic_field_extraction_rule" "test" {
+        
+--- FAIL: TestAccSumologicFieldExtractionRule_create (3.61s)
+=== RUN   TestAccSumologicFieldExtractionRule_update
+    resource_sumologic_extraction_rule_test.go:118: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"B9R6G-L2LDT-16FU3","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_field_extraction_rule.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_field_extraction_rule" "test":
+           3: resource "sumologic_field_extraction_rule" "test" {
+        
+--- FAIL: TestAccSumologicFieldExtractionRule_update (3.70s)
+=== RUN   TestAccSumologicField_basic
+    resource_sumologic_field_test.go:18: Step 1/2 error: Error running apply: exit status 1
+        
+        Error: {"id":"3SMD3-TH7AQ-XVRCC","errors":[{"code":"unauthorized","message":"Credential could not be verified."}]}
+        
+          with sumologic_field.foo,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_field" "foo":
+           3: resource "sumologic_field" "foo" {
+        
+--- FAIL: TestAccSumologicField_basic (4.06s)
+=== RUN   TestAccSumologicField_create
+    resource_sumologic_field_test.go:40: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        <title>Error 401 Unauthorized</title>
+        </head>
+        <body><h2>HTTP ERROR 401 Unauthorized</h2>
+        <table>
+        <tr><th>URI:</th><td>/api/v1/fields</td></tr>
+        <tr><th>STATUS:</th><td>401</td></tr>
+        <tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+        <tr><th>SERVLET:</th><td>rest</td></tr>
+        </table>
+        
+        </body>
+        </html>
+        
+        
+          with sumologic_field.test,
+          on terraform_plugin_test.tf line 3, in resource "sumologic_field" "test":
+           3: resource "sumologic_field" "test" {
+        
+--- FAIL: TestAccSumologicField_create (3.92s)
+=== RUN   TestAccSumologicField_update
