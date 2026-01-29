@@ -82,7 +82,6 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	d.Set("timezone", source.TimeZone)
 	d.Set("multiline", source.MultilineProcessingEnabled)
 	d.Set("url", source.Url)
-	d.Set("url", source.Url)
 
 	return nil
 }
