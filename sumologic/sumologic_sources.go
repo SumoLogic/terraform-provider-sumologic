@@ -152,7 +152,7 @@ func resourceSumologicSource() *schema.Resource {
 			"cutoff_timestamp": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+				Computed: true,
 			},
 			"cutoff_relative_time": {
 				Type:     schema.TypeString,
