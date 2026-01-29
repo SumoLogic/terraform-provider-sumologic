@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 
+* Add new change notes here
+
+## 3.2.3 (January 28, 2026)
 ENHANCEMENTS:
 * Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose use in authentication via header
 * Added update support for `sumologic_ot_collector` resource.
@@ -7,6 +10,8 @@ ENHANCEMENTS:
 * Added IsEnabled field in `sumologic_source_template` resource.
 * Added enable/disable support to the `sumologic_source_template` resource.
 * Updated endpoint for `sumologic_source_template` resource to use the open API standard.
+
+BUG FIXES:
 * Fix for failing content test case for scheduled searches
 
 ## 3.2.2 (January 6, 2026)
