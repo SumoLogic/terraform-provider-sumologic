@@ -93,7 +93,7 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if source == nil {
-		log.Printf("[WARN] HTTP source not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] HTTP sources not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
