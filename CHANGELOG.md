@@ -13,6 +13,12 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix for failing content test case for scheduled searches
+  
+BUG FIXES:
+* Fixes import operation for `sumologic_data_forwarding_rule`
+
+DOCS:
+* Fix import documentation for `sumologic_data_forwarding_rule` to clarify index_id usage in imports.
 
 ## 3.2.2 (January 6, 2026)
 DOCS:
