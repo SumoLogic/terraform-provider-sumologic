@@ -260,32 +260,27 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 
 		c := testAccProvider.Meta().(*Client)
 
-		// Retry logic to handle eventual consistency
+		// Retry logic to handle eventual consistency using resource.Retry
 		var matchListResp *CSEMatchListItemsAllInMatchListGet
-		var err error
-		var actualCount int
 
-		// Retry for up to 30 seconds to handle eventual consistency
-		for i := 0; i < 15; i++ {
+		err := resource.Retry(30*time.Second, func() *resource.RetryError {
+			var err error
 			matchListResp, err = c.GetCSEMatchListItemsAllInMatchList(rs.Primary.ID)
 			if err != nil {
-				return fmt.Errorf("could not get match list items by match list id %s", rs.Primary.ID)
+				return resource.NonRetryableError(fmt.Errorf("could not get match list items by match list id %s: %v", rs.Primary.ID, err))
 			}
 
-			actualCount = len(matchListResp.CSEMatchListItemsAllGetObjects)
-			if actualCount == expectedCount {
-				break
+			actualCount := len(matchListResp.CSEMatchListItemsAllGetObjects)
+			if actualCount != expectedCount {
+				log.Printf("[DEBUG] Match list items count mismatch (expected %d, got %d), retrying...", expectedCount, actualCount)
+				return resource.RetryableError(fmt.Errorf("expected %d match list items, but found %d", expectedCount, actualCount))
 			}
 
-			// Wait 2 seconds before retrying
-			if i < 14 {
-				log.Printf("[DEBUG] Match list items count mismatch (expected %d, got %d), retrying in 2 seconds... (attempt %d/15)", expectedCount, actualCount, i+1)
-				time.Sleep(2 * time.Second)
-			}
-		}
+			return nil
+		})
 
-		if actualCount != expectedCount {
-			return fmt.Errorf("expected %d match list items, but found %d instead after retries", expectedCount, actualCount)
+		if err != nil {
+			return err
 		}
 
 		if expectedCount == 0 {
