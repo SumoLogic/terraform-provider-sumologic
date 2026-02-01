@@ -31,6 +31,8 @@ The following attributes are exported:
 - `category` - The default source category for any source attached to this collector.
 - `timezone` - The time zone to use for this collector. The value follows the [tzdata][2] naming convention.
 - `multiline` - Multiline processing enabled or not.
-- `url` - The HTTP endpoint to use for sending data to this source.
+- `url` - The HTTP endpoint which will be used for sending data to this source.
+- `token` - The token to use for sending data to this source.
+- `base_url` - The base URL for the HTTP source endpoint.
 
 
