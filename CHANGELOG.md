@@ -14,6 +14,9 @@ ENHANCEMENTS:
 BUG FIXES:
 * Fix for failing content test case for scheduled searches
 
+BUG FIXES:
+* Fixed collector creation error by including all fields in initial create request.
+
 ## 3.2.2 (January 6, 2026)
 DOCS:
 * Added searchableTime description for intervalTimeType in create log search parameters

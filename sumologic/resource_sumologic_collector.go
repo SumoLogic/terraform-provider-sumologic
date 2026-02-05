@@ -115,11 +115,16 @@ func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) 
 	c := meta.(*Client)
 
 	if d.Id() == "" {
-		id, err := c.CreateCollector(Collector{
+		collector := Collector{
 			CollectorType: "Hosted",
 			Name:          d.Get("name").(string),
-		})
+			Description:   d.Get("description").(string),
+			Category:      d.Get("category").(string),
+			TimeZone:      d.Get("timezone").(string),
+			Fields:        d.Get("fields").(map[string]interface{}),
+		}
 
+		id, err := c.CreateCollector(collector)
 		if err != nil {
 			return err
 		}
@@ -127,7 +132,7 @@ func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) 
 		d.SetId(strconv.FormatInt(id, 10))
 	}
 
-	return resourceSumologicCollectorUpdate(d, meta)
+	return resourceSumologicCollectorRead(d, meta)
 }
 
 func resourceSumologicCollectorUpdate(d *schema.ResourceData, meta interface{}) error {
