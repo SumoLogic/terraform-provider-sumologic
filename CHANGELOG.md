@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 
-* Add new change notes here
+* DOCS:
+* Updated description for intervalTimeType in create log search parameters after searchable time GA
 
 ## 3.2.3 (January 28, 2026)
 ENHANCEMENTS:
