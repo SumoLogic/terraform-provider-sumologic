@@ -79,6 +79,7 @@ MAINTENANCE:
 ENHANCEMENTS:
 * **Updated sumologic_monitor resource:** Added support for automated playbooks in monitors
 * **New Data Source:** sumologic_monitor_folder
+* **Updated sumologic_extraction_rule resource:** Add computed `field_names` property
 
 BUG FIXES:
 * Corrected example usage in documentation for sumologic_cse_outlier_rule
