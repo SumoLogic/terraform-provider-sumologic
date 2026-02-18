@@ -2,6 +2,7 @@
 
 * DOCS:
 * Updated description for intervalTimeType in create log search parameters after searchable time GA
+* Updated sumologic_http_source resource and data source:** Added `token` and `base_url` computed attributes to expose use in authentication via header
 
 ## 3.2.3 (January 28, 2026)
 ENHANCEMENTS:
