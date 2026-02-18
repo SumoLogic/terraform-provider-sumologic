@@ -30,8 +30,6 @@ type Source struct {
 	CutoffRelativeTime         string                 `json:"cutoffRelativeTime,omitempty"`
 	Fields                     map[string]interface{} `json:"fields,omitempty"`
 	Url                        string                 `json:"url,omitempty"`
-	Token                      string                 `json:"token,omitempty"`
-	BaseUrl                    string                 `json:"baseUrl,omitempty"`
 	ContentType                string                 `json:"contentType,omitempty"`
 }
 
@@ -154,7 +152,7 @@ func resourceSumologicSource() *schema.Resource {
 			"cutoff_timestamp": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+				Computed: true,
 			},
 			"cutoff_relative_time": {
 				Type:     schema.TypeString,

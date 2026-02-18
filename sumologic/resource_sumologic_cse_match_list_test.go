@@ -2,8 +2,10 @@ package sumologic
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -257,14 +259,28 @@ func testCheckMatchListItemsValuesAndCount(resourceName string, expectedDescript
 		}
 
 		c := testAccProvider.Meta().(*Client)
-		matchListResp, err := c.GetCSEMatchListItemsAllInMatchList(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("could not get match list items by match list id %s", rs.Primary.ID)
-		}
 
-		actualCount := len(matchListResp.CSEMatchListItemsAllGetObjects)
-		if actualCount != expectedCount {
-			return fmt.Errorf("expected %d match list items, but found %d instead", expectedCount, actualCount)
+		// Retry logic to handle eventual consistency using resource.Retry
+		var matchListResp *CSEMatchListItemsAllInMatchListGet
+
+		err := resource.Retry(30*time.Second, func() *resource.RetryError {
+			var err error
+			matchListResp, err = c.GetCSEMatchListItemsAllInMatchList(rs.Primary.ID)
+			if err != nil {
+				return resource.NonRetryableError(fmt.Errorf("could not get match list items by match list id %s: %v", rs.Primary.ID, err))
+			}
+
+			actualCount := len(matchListResp.CSEMatchListItemsAllGetObjects)
+			if actualCount != expectedCount {
+				log.Printf("[DEBUG] Match list items count mismatch (expected %d, got %d), retrying...", expectedCount, actualCount)
+				return resource.RetryableError(fmt.Errorf("expected %d match list items, but found %d", expectedCount, actualCount))
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			return err
 		}
 
 		if expectedCount == 0 {
