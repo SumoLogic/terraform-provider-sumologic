@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 
-* Add new change notes here
+FEATURES:
+* **New Resource:** sumologic_o365_audit_source - Collect Office 365 audit logs using Azure AD App Registration authentication
+
+BUG FIXES:
+* Fixed `base_url` provider configuration to properly read from `SUMOLOGIC_BASE_URL` environment variable at runtime
 
 ## 3.2.3 (January 28, 2026)
 ENHANCEMENTS:
