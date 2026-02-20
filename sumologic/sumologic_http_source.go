@@ -7,15 +7,15 @@ import (
 
 type HTTPSource struct {
 	Source
-	MessagePerRequest bool              `json:"messagePerRequest"`
-	URL               string            `json:"url,omitempty"`
-	Token             string            `json:"token,omitempty"`
-	BaseUrl           string            `json:"baseUrl,omitempty"`
-	ThirdPartyRef     HTTPThirdPartyRef `json:"thirdPartyRef,omitempty"`
+	MessagePerRequest bool               `json:"messagePerRequest"`
+	URL               string             `json:"url,omitempty"`
+	Token             string             `json:"token,omitempty"`
+	BaseUrl           string             `json:"baseUrl,omitempty"`
+	ThirdPartyRef     *HTTPThirdPartyRef `json:"thirdPartyRef,omitempty"`
 }
 
 type HTTPThirdPartyRef struct {
-	Resources []HTTPResource `json:"resources"`
+	Resources []HTTPResource `json:"resources,omitempty"`
 }
 
 type HTTPResource struct {

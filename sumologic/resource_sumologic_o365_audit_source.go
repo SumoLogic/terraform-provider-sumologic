@@ -173,6 +173,8 @@ func resourceToO365AuditSource(d *schema.ResourceData) HTTPSource {
 
 	thirdPartyRefList := d.Get("third_party_ref").([]interface{})
 	if len(thirdPartyRefList) > 0 {
+		httpSource.ThirdPartyRef = &HTTPThirdPartyRef{}
+
 		thirdPartyRef := thirdPartyRefList[0].(map[string]interface{})
 		resourcesList := thirdPartyRef["resources"].([]interface{})
 
@@ -232,8 +234,8 @@ func resourceSumologicO365AuditSourceRead(d *schema.ResourceData, meta interface
 	d.Set("message_per_request", source.MessagePerRequest)
 	d.Set("url", source.URL)
 
-	if len(source.ThirdPartyRef.Resources) > 0 {
-		thirdPartyRef := flattenO365HTTPThirdPartyRef(source.ThirdPartyRef)
+	if source.ThirdPartyRef != nil && len(source.ThirdPartyRef.Resources) > 0 {
+		thirdPartyRef := flattenO365HTTPThirdPartyRef(*source.ThirdPartyRef)
 		if err := d.Set("third_party_ref", thirdPartyRef); err != nil {
 			return err
 		}
