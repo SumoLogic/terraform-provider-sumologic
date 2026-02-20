@@ -19,6 +19,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix for failing content test case for scheduled searches
+* Support for Event extraction rules.
 
 ## 3.2.2 (January 6, 2026)
 DOCS:
