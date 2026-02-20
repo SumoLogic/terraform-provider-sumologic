@@ -21,19 +21,21 @@ resource "sumologic_event_extraction_rule" "deployment_event" {
   name  = "deployment-event"
   query = "_sourceCategory=deployments"
 
-  configuration = {
-    eventType = {
-      value_source = "Deployment"
-    }
-    eventPriority = {
-      value_source = "High"
-    }
-    eventSource = {
-      value_source = "Jenkins"
-    }
-    eventName = {
-      value_source = "monitor-manager deployed"
-    }
+  configuration {
+    field_name   = "eventType"
+    value_source = "Deployment"
+  }
+  configuration {
+    field_name   = "eventPriority"
+    value_source = "High"
+  }
+  configuration {
+    field_name   = "eventSource"
+    value_source = "Jenkins"
+  }
+  configuration {
+    field_name   = "eventName"
+    value_source = "monitor-manager deployed"
   }
 }
 ```
@@ -53,22 +55,25 @@ resource "sumologic_event_extraction_rule" "deployment_event" {
     string_matching_algorithm = "ExactMatch"
   }
 
-  configuration = {
-    eventType = {
-      value_source = "Deployment"
-    }
-    eventPriority = {
-      value_source = "High"
-    }
-    eventSource = {
-      value_source = "Jenkins"
-    }
-    eventName = {
-      value_source = "monitor-manager deployed"
-    }
-    eventDescription = {
-      value_source = "2 containers were upgraded"
-    }
+  configuration {
+    field_name   = "eventType"
+    value_source = "Deployment"
+  }
+  configuration {
+    field_name   = "eventPriority"
+    value_source = "High"
+  }
+  configuration {
+    field_name   = "eventSource"
+    value_source = "Jenkins"
+  }
+  configuration {
+    field_name   = "eventName"
+    value_source = "monitor-manager deployed"
+  }
+  configuration {
+    field_name   = "eventDescription"
+    value_source = "2 containers upgraded"
   }
 }
 ```
@@ -82,7 +87,7 @@ The following arguments are supported:
 - `query` - (Required) Log query used to extract events.
 - `enabled` - (Optional) Whether the macro will be enabled. Default true.
 - `correlation_expression` - (Block List, Optional) Specifies how to determine related events for a log search query. See [correlationExpression schema](#schema-for-correlationExpression) for details.
-- `configuration` - (Block List, Optional) Defines how event fields are mapped to their corresponding values. See [configuration schema](#schema-for-configuration)
+- `configuration` - (Block List, Required) Defines how event fields are mapped to their corresponding values. See [configuration schema](#schema-for-configuration)
 for details.
 
 ## Attributes reference
@@ -97,17 +102,15 @@ In addition to all arguments above, the following attributes are exported:
 
 ### Schema for `configuration`
 
-- `configuration` - (Required, Map) This object defines how event fields are mapped to their corresponding values. Each field specifies a valueSource, which provides the actual value, and an optional mappingType, indicating the value is hardcoded.
+The `configuration` block can be repeated multiple times to define event field mappings. Each block supports:
 
-#### Configuration field mapping
-
+- `field_name` - (Required) The name of the event field being configured.
 - `value_source` - (Required) The value or extracted field used for the event field.
-- `mapping_type` - (Optional) Specifies how the value is mapped.
-  Supported value: `HardCoded` (default)
+- `mapping_type` - (Optional) Specifies how the value is mapped. Defaults to `HardCoded`.
 
 #### Required event fields
 
-The following keys **must** be defined inside the `configuration` map:
+The following `field_name` values **must** be defined:
 
 - `eventType` - (Required) Type of the event.
   Accepted values: `Deployment`, `Feature Flag Change`, `Configuration Change`, `Infrastructure Change`
@@ -119,4 +122,3 @@ The following keys **must** be defined inside the `configuration` map:
 #### Optional event fields
 
 - `eventDescription` - (Optional) Additional context or details about the event.
-- Custom fields - (Optional) Additional keys can be added to capture domain-specific event metadata.

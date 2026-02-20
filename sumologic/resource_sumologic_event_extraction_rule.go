@@ -67,27 +67,34 @@ func resourceSumologicEventExtractionRule() *schema.Resource {
 			},
 
 			"configuration": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Required:    true,
-				Description: "Structured field mappings for the extraction rule.",
+				Description: "Field mappings for the extraction rule. Each block represents a field with its value_source and optional mapping_type.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"field_name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The name of the field being mapped.",
+							Description: "The name of the field (e.g., eventType, eventName).",
 						},
 						"value_source": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The source value for the field.",
 						},
 						"mapping_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "HardCoded",
+							Description:  "The mapping type for the field. Defaults to 'HardCoded'.",
 							ValidateFunc: validation.StringInSlice([]string{"HardCoded"}, false),
 						},
 					},
+				},
+				Set: func(v interface{}) int {
+					// Use field_name as the unique identifier for the set
+					m := v.(map[string]interface{})
+					return schema.HashString(m["field_name"].(string))
 				},
 			},
 		},
@@ -174,13 +181,19 @@ func resourceToEventExtractionRule(d *schema.ResourceData) EventExtractionRule {
 
 	config := make(map[string]FieldMapping)
 	if v, ok := d.GetOk("configuration"); ok {
-		configs := v.([]interface{})
-		for _, raw := range configs {
-			val := raw.(map[string]interface{})
-			fieldName := val["field_name"].(string)
+		configSet := v.(*schema.Set)
+		for _, raw := range configSet.List() {
+			item := raw.(map[string]interface{})
+			fieldName := item["field_name"].(string)
+
+			mappingType := "HardCoded"
+			if mt, ok := item["mapping_type"].(string); ok && mt != "" {
+				mappingType = mt
+			}
+
 			config[fieldName] = FieldMapping{
-				ValueSource: val["value_source"].(string),
-				MappingType: val["mapping_type"].(string),
+				ValueSource: item["value_source"].(string),
+				MappingType: mappingType,
 			}
 		}
 	}
@@ -199,14 +212,21 @@ func flattenCorrelationExpression(ce *CorrelationExpression) []interface{} {
 	}
 }
 
-func flattenConfiguration(config map[string]FieldMapping) []interface{} {
-	var result []interface{}
-	for key, val := range config {
-		result = append(result, map[string]interface{}{
-			"field_name":   key,
-			"value_source": val.ValueSource,
-			"mapping_type": val.MappingType,
+func flattenConfiguration(config map[string]FieldMapping) *schema.Set {
+	// Create a set using the same hash function as the schema
+	setFunc := func(v interface{}) int {
+		m := v.(map[string]interface{})
+		return schema.HashString(m["field_name"].(string))
+	}
+
+	result := &schema.Set{F: setFunc}
+	for fieldName, fieldMapping := range config {
+		result.Add(map[string]interface{}{
+			"field_name":   fieldName,
+			"value_source": fieldMapping.ValueSource,
+			"mapping_type": fieldMapping.MappingType,
 		})
 	}
+
 	return result
 }

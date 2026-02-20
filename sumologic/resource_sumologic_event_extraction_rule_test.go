@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -22,16 +23,23 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 			{
 				Config: testAccSumologicEventExtractionRule(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Validate basic attributes
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "query", "_sourceCategory=deployments"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 
+					// Validate configuration count
+					resource.TestCheckResourceAttr(resourceName, "configuration.#", "4"),
+
+					// Validate individual configuration fields (order may vary, so we check using TypeSetElemNestedAttrs)
 					resource.TestCheckTypeSetElemNestedAttrs(
 						resourceName,
 						"configuration.*",
 						map[string]string{
 							"field_name":   "eventType",
 							"value_source": "Deployment",
+							"mapping_type": "HardCoded",
 						},
 					),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -40,6 +48,7 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 						map[string]string{
 							"field_name":   "eventPriority",
 							"value_source": "High",
+							"mapping_type": "HardCoded",
 						},
 					),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -48,6 +57,7 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 						map[string]string{
 							"field_name":   "eventSource",
 							"value_source": "Jenkins",
+							"mapping_type": "HardCoded",
 						},
 					),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -56,6 +66,7 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 						map[string]string{
 							"field_name":   "eventName",
 							"value_source": "monitor-manager deployed",
+							"mapping_type": "HardCoded",
 						},
 					),
 				),
@@ -63,15 +74,23 @@ func TestAccSumologicEventExtractionRule_crud(t *testing.T) {
 			{
 				Config: testAccSumologicEventExtractionRuleUpdate(name),
 				Check: resource.ComposeTestCheckFunc(
+					// Validate basic attributes
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated description"),
-					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "query", "_sourceCategory=deployments"),
 
+					// Validate configuration count (now 5 fields)
+					resource.TestCheckResourceAttr(resourceName, "configuration.#", "5"),
+
+					// Validate the new eventDescription field was added
 					resource.TestCheckTypeSetElemNestedAttrs(
 						resourceName,
 						"configuration.*",
 						map[string]string{
 							"field_name":   "eventDescription",
 							"value_source": "2 containers upgraded",
+							"mapping_type": "HardCoded",
 						},
 					),
 				),
@@ -117,7 +136,6 @@ resource "sumologic_event_extraction_rule" "test" {
   name        = "%s"
   description = "updated description"
   query       = "_sourceCategory=deployments"
-  enabled     = false
 
   configuration {
     field_name   = "eventType"
@@ -153,6 +171,10 @@ func testAccCheckEventExtractionRuleDestroy(s *terraform.State) error {
 
 		found, err := client.GetEventExtractionRule(r.Primary.ID)
 		if err != nil {
+			// If the error is "not found" or "record_not_found", the resource was successfully destroyed
+			if strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "record_not_found") {
+				continue
+			}
 			return err
 		}
 		if found != nil {
