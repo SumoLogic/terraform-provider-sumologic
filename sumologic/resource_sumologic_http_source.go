@@ -26,6 +26,14 @@ func resourceSumologicHTTPSource() *schema.Resource {
 		Type:     schema.TypeString,
 		Computed: true,
 	}
+	httpSource.Schema["token"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Computed: true,
+	}
+	httpSource.Schema["base_url"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Computed: true,
+	}
 
 	return httpSource
 }
@@ -96,6 +104,8 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("message_per_request", source.MessagePerRequest)
 	d.Set("url", source.URL)
+	d.Set("token", source.Token)
+	d.Set("base_url", source.BaseUrl)
 
 	return nil
 }

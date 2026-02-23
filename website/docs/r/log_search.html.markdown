@@ -118,7 +118,6 @@ The following arguments are supported:
   This parameter defines whether you want to run the search by `messageTime`, `receiptTime`, or `searchableTime`.
   By default, the search will run by `messageTime`.  
   If both `runByReceiptTime` and `intervalTimeType` parameters are present then the preference will be given to the `intervalTimeType`.
-  This is available in `beta` only (Contact your sumologic representative to enable this feature).  
   Allowed values are: `messageTime`, `receiptTime`, and `searchableTime`.
 
 ### Schema for `query_parameter`

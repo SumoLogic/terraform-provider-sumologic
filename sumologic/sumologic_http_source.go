@@ -9,6 +9,8 @@ type HTTPSource struct {
 	Source
 	MessagePerRequest bool   `json:"messagePerRequest"`
 	URL               string `json:"url,omitempty"`
+	Token             string `json:"token,omitempty"`
+	BaseUrl           string `json:"baseUrl,omitempty"`
 }
 
 func (s *Client) CreateHTTPSource(httpSource HTTPSource, collectorID int) (int, error) {

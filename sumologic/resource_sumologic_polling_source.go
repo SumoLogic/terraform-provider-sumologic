@@ -101,6 +101,13 @@ func resourceSumologicPollingSource() *schema.Resource {
 						Type: schema.TypeString,
 					},
 				},
+				"limit_to_services": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+				},
 
 				"tag_filters": {
 					Type:     schema.TypeList,
@@ -235,6 +242,7 @@ func getThirdPartyPathAttributes(pollingResource []PollingResource) []map[string
 			"path_expression":     t.Path.PathExpression,
 			"limit_to_regions":    t.Path.LimitToRegions,
 			"limit_to_namespaces": t.Path.LimitToNamespaces,
+			"limit_to_services":   t.Path.LimitToServices,
 			"tag_filters":         flattenTagFilters(t.Path.TagFilters),
 		}
 		s = append(s, mapping)
@@ -316,19 +324,29 @@ func getPathSettings(d *schema.ResourceData) PollingPath {
 			pathSettings.PathExpression = path["path_expression"].(string)
 		case "CloudWatchPath":
 			pathSettings.Type = "CloudWatchPath"
-			rawLimitToRegions := path["limit_to_regions"].([]interface{})
-			LimitToRegions := make([]string, len(rawLimitToRegions))
-			for i, v := range rawLimitToRegions {
-				LimitToRegions[i] = v.(string)
+			if rawLimitToRegions, ok := path["limit_to_regions"].([]interface{}); ok && rawLimitToRegions != nil {
+				LimitToRegions := make([]string, len(rawLimitToRegions))
+				for i, v := range rawLimitToRegions {
+					LimitToRegions[i] = v.(string)
+				}
+				pathSettings.LimitToRegions = LimitToRegions
 			}
 
-			rawLimitToNamespaces := path["limit_to_namespaces"].([]interface{})
-			LimitToNamespaces := make([]string, len(rawLimitToNamespaces))
-			for i, v := range rawLimitToNamespaces {
-				LimitToNamespaces[i] = v.(string)
+			if rawLimitToNamespaces, ok := path["limit_to_namespaces"].([]interface{}); ok && rawLimitToNamespaces != nil {
+				LimitToNamespaces := make([]string, len(rawLimitToNamespaces))
+				for i, v := range rawLimitToNamespaces {
+					LimitToNamespaces[i] = v.(string)
+				}
+				pathSettings.LimitToNamespaces = LimitToNamespaces
 			}
-			pathSettings.LimitToRegions = LimitToRegions
-			pathSettings.LimitToNamespaces = LimitToNamespaces
+
+			if rawLimitToServices, ok := path["limit_to_services"].([]interface{}); ok && rawLimitToServices != nil {
+				LimitToServices := make([]string, len(rawLimitToServices))
+				for i, v := range rawLimitToServices {
+					LimitToServices[i] = v.(string)
+				}
+				pathSettings.LimitToServices = LimitToServices
+			}
 			pathSettings.TagFilters = getTagFilters(d)
 		default:
 			log.Printf("[ERROR] Unknown resourceType in path: %v", pathType)
