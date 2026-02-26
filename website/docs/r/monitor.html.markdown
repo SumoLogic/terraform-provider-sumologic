@@ -370,6 +370,7 @@ resource "sumologic_monitor" "tf_example_anomaly_monitor" {
   trigger_conditions {
     logs_anomaly_condition {
       field = "_count"
+      direction = "Both"
       anomaly_detector_type = "Cluster"
       critical {
         sensitivity = 0.4
@@ -410,6 +411,7 @@ resource "sumologic_monitor" "tf_example_metrics_anomaly_monitor" {
 
   trigger_conditions {
     metrics_anomaly_condition {
+      direction = "Up"
       anomaly_detector_type = "Cluster"
       critical {
         sensitivity = 0.4
@@ -693,6 +695,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
 
 #### logs_anomaly_condition
   - `field`: The name of the field that the trigger condition will alert on. The trigger could compare the value of specified field with the threshold. If field is not specified, monitor would default to result count instead.
+  - `direction` (Optional): The direction to monitor for anomalies. Valid values: `Both`, `Up`, `Down`. Default: `Both`.
   - `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
   - `critical`
     - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
@@ -700,6 +703,7 @@ Here is a summary of arguments for each condition type (fields which are not mar
     - `time_range` (Required) : The relative time range for anomaly evaluation.  Accepted format: Optional `-` sign followed by `<number>` followed by a `<time_unit>` character: `s` for seconds, `m` for minutes, `h` for hours, `d` for days. Examples: `30m`, `-12h`.
 
 #### metrics_anomaly_condition
+- `direction` (Optional): The direction to monitor for anomalies. Valid values: `Both`, `Up`, `Down`. Default: `Both`.
 - `anomaly_detector_type`: The type of anomaly model that will be used for evaluating this monitor. Possible values are: `Cluster`.
 - `critical`
     - `sensitivity`: The triggering sensitivity of the anomaly model used for this monitor.
