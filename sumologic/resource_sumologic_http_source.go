@@ -26,14 +26,6 @@ func resourceSumologicHTTPSource() *schema.Resource {
 		Type:     schema.TypeString,
 		Computed: true,
 	}
-	httpSource.Schema["token"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Computed: true,
-	}
-	httpSource.Schema["base_url"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Computed: true,
-	}
 
 	return httpSource
 }
@@ -93,7 +85,7 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if source == nil {
-		log.Printf("[WARN] HTTP source not found, removing from state: %v - %v", id, err)
+		log.Printf("[WARN] HTTP sources not found, removing from state: %v - %v", id, err)
 		d.SetId("")
 
 		return nil
@@ -104,8 +96,6 @@ func resourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("message_per_request", source.MessagePerRequest)
 	d.Set("url", source.URL)
-	d.Set("token", source.Token)
-	d.Set("base_url", source.BaseUrl)
 
 	return nil
 }
