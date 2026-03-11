@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.2.5 (March 12, 2026)
+FEATURES:
+* **New Resource:** sumologic_event_extraction_rule (GH-840)
+
 ## 3.2.4 (February 18, 2026)
 
 DOCS:
@@ -19,7 +23,6 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix for failing content test case for scheduled searches
-* Support for Event extraction rules.
 
 BUG FIXES:
 * Fixed collector creation error by including all fields in initial create request.
