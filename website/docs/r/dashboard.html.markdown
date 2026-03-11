@@ -432,6 +432,11 @@ One of `Basic` or `Advanced`.
     - `key` - (Required) Return the values for this given key.
 - `csv_variable_source_definition` - (Optional) Variable values in csv format.
     - `values` - (Required) A comma separated values for the variable.
+- `filter_variable_source_definition` - (Optional) Variable values from a filter (scope-based variable).
+    - `key` - (Required) The metadata key to filter on (e.g., `_sourcecategory`).
+    - `filter` - (Optional) Additional filter expression. Defaults to empty string.
+    - `values` - (Optional) Comma-separated list of values for the filter.
+    - `panel_ids` - (Optional) Panel IDs to apply the filter to. Defaults to `"allpanels"`.
 
 
 ## Import

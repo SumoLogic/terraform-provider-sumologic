@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+* Add `filter_variable_source_definition` support for dashboard variables (scope-based variables)
 
 ## 3.2.4 (February 18, 2026)
 

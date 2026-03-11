@@ -652,3 +652,92 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 		variables[1].Name, variables[1].DisplayName, loqQuerySourceDef.Query, loqQuerySourceDef.Field,
 	)
 }
+
+func TestAccSumologicDashboard_filterSourceDefinition(t *testing.T) {
+	testNameSuffix := acctest.RandString(16)
+
+	title := "terraform_test_dashboard_filter_" + testNameSuffix
+	variableName := "_sourcecategory"
+	variableDisplayName := "Source Category"
+	filterKey := "_sourcecategory"
+	filterValues := "aws/prod,aws/dev"
+	filterPanelIds := "\"allpanels\""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDashboardDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: dashboardFilterSourceDefinitionConfig(title, variableName, variableDisplayName, filterKey, filterValues, filterPanelIds),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"title", title),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"variable.0.name", variableName),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"variable.0.display_name", variableDisplayName),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"variable.0.source_definition.0.filter_variable_source_definition.0.key", filterKey),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"variable.0.source_definition.0.filter_variable_source_definition.0.values", filterValues),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_filter_test",
+						"variable.0.source_definition.0.filter_variable_source_definition.0.panel_ids", filterPanelIds),
+				),
+			},
+		},
+	})
+}
+
+func dashboardFilterSourceDefinitionConfig(title, variableName, variableDisplayName, filterKey, filterValues, filterPanelIds string) string {
+	return fmt.Sprintf(`
+		data "sumologic_personal_folder" "personalFolder" {}
+		resource "sumologic_dashboard" "tf_filter_test" {
+			title = "%s"
+			folder_id = data.sumologic_personal_folder.personalFolder.id
+
+			time_range {
+				begin_bounded_time_range {
+					from {
+						literal_time_range {
+							range_name = "today"
+						}
+					}
+				}
+			}
+
+			panel {
+				text_panel {
+					key = "text-panel-01"
+					title = "Test Panel"
+					text = "Test text"
+				}
+			}
+
+			layout {
+				grid {
+					layout_structure {
+						key = "text-panel-01"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":0}"
+					}
+				}
+			}
+
+			variable {
+				name = "%s"
+				display_name = "%s"
+				source_definition {
+					filter_variable_source_definition {
+						key = "%s"
+						values = "%s"
+						panel_ids = "%s"
+					}
+				}
+				allow_multi_select = true
+				include_all_option = true
+				hide_from_ui = false
+			}
+		}`,
+		title, variableName, variableDisplayName, filterKey, filterValues, filterPanelIds,
+	)
+}
