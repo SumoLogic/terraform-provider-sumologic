@@ -1069,7 +1069,26 @@ resource "sumologic_role" "tf_test_role_01" {
 		"viewMonitorsV2",
 		"manageMonitorsV2"
 	]
-}`, testName, testName)
+}
+resource "sumologic_role" "tf_test_role_02" {
+  name        = "tf_test_role_02_%s"
+  description = "Testing resource sumologic_role"
+  capabilities = [
+    "viewAlerts",
+    "viewMonitorsV2",
+    "manageMonitorsV2"
+  ]
+}
+
+resource "sumologic_role" "tf_test_role_03" {
+  name        = "tf_test_role_03_%s"
+  description = "Testing resource sumologic_role"
+  capabilities = [
+    "viewAlerts",
+    "viewMonitorsV2",
+    "manageMonitorsV2"
+  ]
+}`, testName, testName, testName, testName)
 }
 
 func testAccSumologicMonitorsLibraryMonitorUpdateConection(testName string, defaultPayload string, resolutionPayload string,
