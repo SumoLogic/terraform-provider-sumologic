@@ -2,13 +2,10 @@
 
 FEATURES:
 * **New Resource:** sumologic_o365_audit_source - Collect Office 365 audit logs using Azure AD App Registration authentication
+* **New Resource:** sumologic_event_extraction_rule (GH-840) [Beta]
 
 BUG FIXES:
 * Fixed `base_url` provider configuration to properly read from `SUMOLOGIC_BASE_URL` environment variable at runtime
-
-## 3.2.5 (March 12, 2026)
-FEATURES:
-* **New Resource:** sumologic_event_extraction_rule (GH-840)
 
 ## 3.2.4 (February 18, 2026)
 
