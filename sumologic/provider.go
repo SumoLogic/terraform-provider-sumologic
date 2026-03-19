@@ -31,9 +31,9 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_ENVIRONMENT", nil),
 			},
 			"base_url": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  os.Getenv("SUMOLOGIC_BASE_URL"),
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SUMOLOGIC_BASE_URL", nil),
 			},
 			"admin_mode": {
 				Type:     schema.TypeBool,
@@ -70,6 +70,7 @@ func Provider() *schema.Provider {
 			"sumologic_collector":                                resourceSumologicCollector(),
 			"sumologic_installed_collector":                      resourceSumologicInstalledCollector(),
 			"sumologic_http_source":                              resourceSumologicHTTPSource(),
+			"sumologic_o365_audit_source":                         resourceSumologicO365AuditSource(),
 			"sumologic_gcp_source":                               resourceSumologicGCPSource(),
 			"sumologic_polling_source":                           resourceSumologicPollingSource(),
 			"sumologic_s3_source":                                resourceSumologicGenericPollingSource(),
@@ -126,6 +127,7 @@ func Provider() *schema.Provider {
 			"sumologic_azure_metrics_source":                     resourceSumologicGenericPollingSource(),
 			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
+			"sumologic_event_extraction_rule":                    resourceSumologicEventExtractionRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
