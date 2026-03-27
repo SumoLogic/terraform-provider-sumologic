@@ -1528,6 +1528,7 @@ var exampleSloBurnRateTriggerConditionBlock = `
 var exampleLogsAnomalyTriggerConditionBlock = `
     logs_anomaly_condition {
     	field = "_count"
+    	direction = "Both"
       	anomaly_detector_type = "Cluster"
        	critical {
        		sensitivity = 0.5
@@ -1538,6 +1539,7 @@ var exampleLogsAnomalyTriggerConditionBlock = `
 
 var exampleMetricsAnomalyTriggerConditionBlock = `
     metrics_anomaly_condition {
+    	direction = "Up"
       	anomaly_detector_type = "Cluster"
        	critical {
        		sensitivity = 0.5
