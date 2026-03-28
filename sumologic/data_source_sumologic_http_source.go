@@ -46,14 +46,6 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"token": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"base_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 
@@ -111,8 +103,6 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	d.Set("timezone", source.TimeZone)
 	d.Set("multiline", source.MultilineProcessingEnabled)
 	d.Set("url", source.Url)
-	d.Set("token", source.Token)
-	d.Set("base_url", source.BaseUrl)
 
 	return nil
 }
