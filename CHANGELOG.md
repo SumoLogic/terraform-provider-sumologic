@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Added `disallow_weak_passwords` field to `sumologic_password_policy` resource to support the Disallow Weak Passwords setting introduced in the Sumo Logic password policy API.
+
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
 
