@@ -6,7 +6,7 @@ description: |-
 ---
 
 # sumologic_event_extraction_rule
-Provides a **Sumo Logic Event Extraction Rule**, which allows you to extract structured **Events** from log data and ingest them into Sumo Logic’s Events index.
+Provides a [**Sumo Logic Event Extraction Rule**](https://www.sumologic.com/help/docs/manage/event-extraction-rules/), which allows you to extract structured **Events** from log data and ingest them into Sumo Logic’s Events index.
 
 Event Extraction Rules are commonly used to capture **deployment events, configuration changes, feature flag changes, and infrastructure changes** from logs.
 
