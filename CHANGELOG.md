@@ -3,6 +3,7 @@
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
+* Added Sumo help docs link for `sumologic_event_extraction_rule` resource documentation.
 
 ## 3.2.5 (March 25, 2026)
 
