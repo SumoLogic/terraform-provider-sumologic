@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* return computed `field_names` property for resource `field_extraction_rule`
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
