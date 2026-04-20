@@ -1,5 +1,6 @@
-## X.Y.Z (Unreleased)
-* Add new change notes here
+## 3.1.8 (Unreleased)
+BUG FIXES:
+* Fixed validation error when updating roles with selection_type="Deny" 
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
