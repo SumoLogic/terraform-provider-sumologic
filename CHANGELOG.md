@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+* Add `filter_variable_source_definition` support for dashboard variables (scope-based variables)
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
