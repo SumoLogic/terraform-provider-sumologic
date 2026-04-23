@@ -16,6 +16,7 @@ The following policies are supported:
 - [Search Audit Policy][4]
 - [Share a Dashboard Outside Organization Policy][5]
 - [User Concurrent Sessions Limit Policy][6]
+- [Check Data Ingestion Policy][7]
 
 ## Example Usage
 ```hcl
@@ -28,6 +29,10 @@ resource "sumologic_policies" "example_policies" {
   user_concurrent_sessions_limit {
     enabled = false
     max_concurrent_sessions = 100
+  }
+  check_data_ingestion {
+    enabled = true
+    no_data_threshold = "24h"
   }
 }
 ```
@@ -42,10 +47,15 @@ The following arguments are supported:
 - `search_audit` - (Required) Whether the [Search Audit Policy][4] is enabled.
 - `share_dashboards_outside_organization` - (Required) Whether the [Share a Dashboard Outside Organization Policy][5] is enabled.
 - `user_concurrent_sessions_limit` - (Block List, Max: 1, Required) The [User Concurrent Sessions Limit Policy][6]. See [user_concurrent_sessions_limit schema](#user_concurrent_sessions_limit) for details.
+- `check_data_ingestion` - (Block List, Max: 1, Required) The [Check Data Ingestion Policy][7]. See [check_data_ingestion schema](#check_data_ingestion) for details.
 
 ### Schema for `user_concurrent_sessions_limit`
 - `enabled` - (Required) Whether the [User Concurrent Sessions Limit Policy][6] is enabled.
 - `max_concurrent_sessions` - (Optional) Maximum number of concurrent sessions a user may have. Defaults to `100`.
+
+### Schema for `check_data_ingestion`
+- `enabled` - (Required) Whether the [Check Data Ingestion Policy][7] is enabled.
+- `no_data_threshold` - (Optional) Duration threshold after which an OT collector not sending data will trigger an alert. Valid values are: `1h`, `2h`, `4h`, `8h`, `16h`, or `24h`. Defaults to `24h`.
 
 ## Import
 Policies can be imported using the id `org-policies`.
@@ -62,3 +72,4 @@ terraform import sumologic_policies.example_policies org-policies
 [4]: https://help.sumologic.com/Manage/Security/Search_Audit_Index
 [5]: https://help.sumologic.com/Visualizations-and-Alerts/Dashboards/Share_Dashboards/Share_a_Dashboard_Outside_Your_Org
 [6]: https://help.sumologic.com/Manage/Security/Set_a_Limit_for_User_Concurrent_Sessions
+[7]: https://help.sumologic.com/docs/ADD-URL-TO-CHECK-DATA-INGESTION-POLICY
