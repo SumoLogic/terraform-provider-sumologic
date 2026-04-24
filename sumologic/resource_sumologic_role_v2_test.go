@@ -129,7 +129,7 @@ func testAccCheckRoleV2Destroy(roleV2 RoleV2) resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetRoleV2(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("RoleV2 %s still exists", id)

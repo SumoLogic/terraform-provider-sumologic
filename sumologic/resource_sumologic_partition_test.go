@@ -84,7 +84,7 @@ func testAccCheckPartitionDestroy(s *terraform.State) error {
 		p, err := client.GetPartition(id)
 
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 
 		if p != nil {

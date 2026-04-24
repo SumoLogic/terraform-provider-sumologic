@@ -72,7 +72,7 @@ func testAccCheckTokenDestroy(token Token) resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetToken(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("Token %s still exists", id)

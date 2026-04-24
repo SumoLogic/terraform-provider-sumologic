@@ -220,7 +220,7 @@ func testAccCSEThresholdRuleDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSEThresholdRule(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("Threshold rule still exists")

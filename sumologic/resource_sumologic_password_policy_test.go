@@ -109,7 +109,7 @@ func testAccCheckPasswordPolicyDestroy() resource.TestCheckFunc {
 
 			passwordPolicy, err := client.GetPasswordPolicy()
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 
 			if (*passwordPolicy) != DefaultPasswordPolicy {

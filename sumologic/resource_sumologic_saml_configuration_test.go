@@ -184,7 +184,7 @@ func testAccCheckSamlConfigurationDestroy(s *terraform.State) error {
 		id := rs.Primary.ID
 		samlConfiguration, err := client.GetSamlConfiguration(id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 
 		if samlConfiguration != nil {

@@ -72,7 +72,7 @@ func testAccCSEInventoryEntityGroupConfigurationDestroy(s *terraform.State) erro
 
 		s, err := client.GetCSEntityGroupConfiguration(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("Inventory Entity Group Configuration still exists")
