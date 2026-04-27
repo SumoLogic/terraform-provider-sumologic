@@ -185,7 +185,7 @@ func testAccCheckSourceTemplateDestroy(sourceTemplate SourceTemplate) resource.T
 			id := r.Primary.ID
 			u, err := client.GetSourceTemplate(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("SourceTemplate %s still exists", id)

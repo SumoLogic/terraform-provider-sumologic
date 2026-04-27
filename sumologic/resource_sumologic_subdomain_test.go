@@ -87,7 +87,7 @@ func testAccCheckSubdomainDestroy(subdomain Subdomain) resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetSubdomain()
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("Subdomain %s still exists", id)

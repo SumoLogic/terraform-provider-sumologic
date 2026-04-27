@@ -51,11 +51,11 @@ func testAccCheckCloudsyslogSourceDestroy(name string, cloudsyslogSource CloudSy
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		u, err := client.GetCloudSyslogSource(collectorID, cloudsyslogSource.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if u != nil {
 			return fmt.Errorf("FieldExtractionRule still exists")
@@ -79,11 +79,11 @@ func testAccCheckCloudSyslogSourceExists(name string, cloudsyslogSource *CloudSy
 
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		c := testAccProvider.Meta().(*Client)
 		newCloudsyslogSource, err := c.GetCloudSyslogSource(collectorID, id)

@@ -127,7 +127,7 @@ func testAccCheckCollectorDestroy(s *terraform.State) error {
 		}
 		c, err := client.GetCollector(id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if c != nil {
 			return fmt.Errorf("Collector still exists")

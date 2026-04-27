@@ -98,7 +98,7 @@ func testAccCheckFieldDestroy(field Field) resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetField(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("Field %s still exists", id)

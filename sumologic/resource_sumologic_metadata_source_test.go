@@ -92,15 +92,15 @@ func testAccCheckMetadataSourceDestroy(s *terraform.State) error {
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		s, err := client.GetMetadataSource(collectorID, id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("Polling Source still exists")
@@ -123,7 +123,7 @@ func testAccCheckMetadataSourceExists(n string, pollingSource *MetadataSource) r
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		c := testAccProvider.Meta().(*Client)
 		pollingSourceResp, err := c.GetMetadataSource(collectorID, id)

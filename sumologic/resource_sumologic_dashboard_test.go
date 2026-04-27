@@ -342,7 +342,7 @@ func testAccCheckDashboardDestroy() resource.TestCheckFunc {
 			id := r.Primary.ID
 			dashboard, err := client.GetDashboard(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if dashboard != nil {
 				return fmt.Errorf("Dashboard (id=%s) still exists", id)

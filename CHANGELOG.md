@@ -5,6 +5,9 @@ DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
 * Added Sumo help docs link for `sumologic_event_extraction_rule` resource documentation.
 
+BUG FIXES:
+* Bumped `hc-install` (transitive dependency from `terraform-plugin-sdk/v2`) from v0.9.3 to v0.9.4 to fix acceptance test failures caused by an expired HashiCorp GPG key
+
 ## 3.2.5 (March 25, 2026)
 
 FEATURES:
