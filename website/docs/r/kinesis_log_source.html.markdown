@@ -24,6 +24,7 @@ __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This i
       type       = "S3BucketAuthentication"
       access_key = "someKey"
       secret_key = "******"
+      region     = "us-east-1"
     }
 
     path {
@@ -71,6 +72,7 @@ In addition to the common properties, the following arguments are supported:
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
      + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
+     + `region` - (Optional) Your AWS bucket region.
  - `path` - (Optional) The location of S3 bucket for failed Kinesis log data.
      + `type` - (Required) Must be either `KinesisLogPath` or `NoPathExpression`
      + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `KinesisLogPath`. 
