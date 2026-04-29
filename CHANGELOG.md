@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.2.7 (April 29, 2026)
+
 ENHANCEMENTS:
 * Added `region` field to `authentication` block of `sumologic_kinesis_log_source` to support non-standard AWS partitions such as EU Sovereign Cloud (`eusc-de-east-1`).
 
