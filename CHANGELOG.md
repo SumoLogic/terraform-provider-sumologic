@@ -1,5 +1,5 @@
-## X.Y.Z (Unreleased)
-* Add new change notes here
+## 3.2.6 (April 28, 2026)
+* Add support for EU Soverign Cloud region
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
