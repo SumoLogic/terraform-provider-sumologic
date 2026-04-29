@@ -66,4 +66,5 @@ type PasswordPolicy struct {
 	AccountLockoutDurationInMins   int  `json:"accountLockoutDurationInMins"`
 	RequireMfa                     bool `json:"requireMfa"`
 	RememberMfa                    bool `json:"rememberMfa"`
+	DisallowWeakPasswords          bool `json:"disallowWeakPasswords"`
 }
