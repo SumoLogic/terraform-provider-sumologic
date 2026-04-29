@@ -24,28 +24,7 @@ __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This i
       type       = "S3BucketAuthentication"
       access_key = "someKey"
       secret_key = "******"
-    }
-
-    path {
-      type            = "KinesisLogPath"
-      bucket_name     = "testBucket"
-      path_expression = "http-endpoint-failed/*"
-      scan_interval   = 30000
-    }
-  }
-
-  # EU Sovereign Cloud example using access key authentication with explicit region
-  resource "sumologic_kinesis_log_source" "kinesis_log_esc" {
-    name         = "Kinesis Log ESC"
-    description  = "Description for Kinesis Log Source in EU Sovereign Cloud"
-    category     = "prod/kinesis/log"
-    content_type = "KinesisLog"
-    collector_id = "${sumologic_collector.collector.id}"
-    authentication {
-      type       = "S3BucketAuthentication"
-      access_key = "someKey"
-      secret_key = "******"
-      region     = "eusc-de-east-1"
+      region     = "us-east-1"
     }
 
     path {
@@ -93,7 +72,7 @@ In addition to the common properties, the following arguments are supported:
      + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`
      + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`
      + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`
-     + `region` - (Optional) Your AWS bucket region. Required when using non-standard AWS partitions such as EU Sovereign Cloud (`eusc-de-east-1`).
+     + `region` - (Optional) Your AWS bucket region.
  - `path` - (Optional) The location of S3 bucket for failed Kinesis log data.
      + `type` - (Required) Must be either `KinesisLogPath` or `NoPathExpression`
      + `bucket_name` - (Optional) The name of the bucket. This is needed if using type `KinesisLogPath`. 
