@@ -67,3 +67,20 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - The Index ID of the data_forwarding_rule
+
+## Import
+
+A `sumologic_data_forwarding_rule` can be imported using the **Index ID** (`index_id`) of the rule.
+
+The Index ID is the unique identifier used by the Sumo Logic API to read a Data Forwarding Rule and
+is also used internally by Terraform as the resource ID.
+
+### Import using Terraform CLI
+
+```terraform
+import {
+  to = sumologic_data_forwarding_rule.example
+  id = "[index id]"
+}
+
+```

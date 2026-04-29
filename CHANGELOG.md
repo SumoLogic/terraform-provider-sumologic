@@ -35,6 +35,12 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix for failing content test case for scheduled searches
+  
+BUG FIXES:
+* Fixes import operation for `sumologic_data_forwarding_rule`
+
+DOCS:
+* Fix import documentation for `sumologic_data_forwarding_rule` to clarify index_id usage in imports.
 
 BUG FIXES:
 * Fixed collector creation error by including all fields in initial create request.
