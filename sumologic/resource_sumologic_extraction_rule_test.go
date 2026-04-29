@@ -68,7 +68,7 @@ func testAccCheckFieldExtractionRuleDestroy(fieldextractionrule FieldExtractionR
 			id := r.Primary.ID
 			u, err := client.GetFieldExtractionRule(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("FieldExtractionRule still exists")

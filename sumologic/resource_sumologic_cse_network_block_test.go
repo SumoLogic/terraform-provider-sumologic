@@ -52,7 +52,7 @@ func testAccCSENetworkBlockDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSENetworkBlock(networkBlockID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("network Block still exists")

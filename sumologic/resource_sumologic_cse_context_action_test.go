@@ -61,7 +61,7 @@ func testAccCSEContextActionDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSEContextAction(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("Context Action still exists")
