@@ -58,6 +58,10 @@ func resourceSumologicKinesisLogSource() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"region": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}

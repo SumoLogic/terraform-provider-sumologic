@@ -178,6 +178,69 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
 }
 
+func TestAccSumologicKinesisLogSource_s3BucketAuthWithRegion(t *testing.T) {
+	var kinesisLogSource KinesisLogSource
+	var collector Collector
+	cName, cDescription, cCategory := getRandomizedParams()
+	sName, sDescription, sCategory := getRandomizedParams()
+	kinesisLogResourceName := "sumologic_kinesis_log_source.kinesisLog"
+	testAwsID := os.Getenv("SUMOLOGIC_TEST_AWS_ID")
+	testAwsKey := os.Getenv("SUMOLOGIC_TEST_AWS_KEY")
+	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
+	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKinesisLogSourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicKinesisLogSourceS3AuthWithRegionConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsID, testAwsKey, testAwsBucket, testAwsRegion),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKinesisLogSourceExists(kinesisLogResourceName, &kinesisLogSource),
+					testAccCheckKinesisLogSourceValues(&kinesisLogSource, sName, sDescription, sCategory),
+					testAccCheckCollectorExists("sumologic_collector.test", &collector),
+					resource.TestCheckResourceAttrSet(kinesisLogResourceName, "id"),
+					resource.TestCheckResourceAttr(kinesisLogResourceName, "name", sName),
+					resource.TestCheckResourceAttr(kinesisLogResourceName, "content_type", "KinesisLog"),
+					resource.TestCheckResourceAttr(kinesisLogResourceName, "authentication.0.type", "S3BucketAuthentication"),
+					resource.TestCheckResourceAttr(kinesisLogResourceName, "authentication.0.region", testAwsRegion),
+					resource.TestCheckResourceAttr(kinesisLogResourceName, "path.0.type", "KinesisLogPath"),
+				),
+			},
+		},
+	})
+}
+
+func testAccSumologicKinesisLogSourceS3AuthWithRegionConfig(cName, cDescription, cCategory, sName, sDescription, sCategory, awsID, awsKey, awsBucket, awsRegion string) string {
+	return fmt.Sprintf(`
+resource "sumologic_collector" "test" {
+    name        = "%s"
+    description = "%s"
+    category    = "%s"
+}
+
+resource "sumologic_kinesis_log_source" "kinesisLog" {
+    name         = "%s"
+    description  = "%s"
+    category     = "%s"
+    content_type = "KinesisLog"
+    collector_id = "${sumologic_collector.test.id}"
+    authentication {
+        type       = "S3BucketAuthentication"
+        access_key = "%s"
+        secret_key = "%s"
+        region     = "%s"
+    }
+    path {
+        type            = "KinesisLogPath"
+        bucket_name     = "%s"
+        path_expression = "http-endpoint-failed/*"
+        scan_interval   = 30000
+    }
+}
+`, cName, cDescription, cCategory, sName, sDescription, sCategory, awsID, awsKey, awsRegion, awsBucket)
+}
+
 func testAccSumologicKinesisLogSourceNoAuthConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {
 	return fmt.Sprintf(`
 resource "sumologic_collector" "test" {

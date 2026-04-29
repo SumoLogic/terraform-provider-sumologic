@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+ENHANCEMENTS:
+* Added `region` field to `authentication` block of `sumologic_kinesis_log_source` to support non-standard AWS partitions such as EU Sovereign Cloud (`eusc-de-east-1`).
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource
