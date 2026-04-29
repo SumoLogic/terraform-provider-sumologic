@@ -1,4 +1,4 @@
-## X.Y.Z (Unreleased)
+## 3.2.6 (April 28, 2026)
 * Add support for EU Soverign Cloud region
 
 DOCS:
