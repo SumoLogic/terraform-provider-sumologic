@@ -82,15 +82,15 @@ func testAccCheckCloudToCloudSourceDestroy(s *terraform.State) error {
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		s, err := client.GetCloudToCloudSource(collectorID, id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("Cloud-to-Cloud Source still exists")
@@ -113,7 +113,7 @@ func testAccCheckCloudToCloudSourceExists(n string, cloudToCloudSource *CloudToC
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		c := testAccProvider.Meta().(*Client)
 		cloudToCloudSourceResp, err := c.GetCloudToCloudSource(collectorID, id)

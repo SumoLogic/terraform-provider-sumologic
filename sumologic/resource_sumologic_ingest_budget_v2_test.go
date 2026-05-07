@@ -148,7 +148,7 @@ func testAccCheckIngestBudgetV2Destroy(ingestBudgetV2 IngestBudgetV2) resource.T
 			id := r.Primary.ID
 			u, err := client.GetIngestBudgetV2(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("IngestBudgetV2 %s still exists", id)

@@ -174,7 +174,7 @@ func testAccCheckConnectionDestroy(s *terraform.State) error {
 		id := rs.Primary.ID
 		c, err := client.GetConnection(id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if c != nil {
 			return fmt.Errorf("Connection still exists")

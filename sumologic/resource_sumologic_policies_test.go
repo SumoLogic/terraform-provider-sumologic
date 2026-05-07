@@ -114,7 +114,7 @@ func testAccCheckPoliciesDestroy() resource.TestCheckFunc {
 
 			policies, err := client.GetPolicies()
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 
 			if (*policies) != DefaultPolicies {

@@ -142,7 +142,7 @@ func testAccCSELogMappingDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSELogMapping(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("log mapping still exists")

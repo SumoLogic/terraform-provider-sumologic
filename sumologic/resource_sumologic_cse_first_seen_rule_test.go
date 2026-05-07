@@ -102,10 +102,10 @@ func TestAccSumologicCSEFirstSeenRule_Override(t *testing.T) {
 				),
 			},
 			{
-				Config: testOverrideCSEFirstSeenRuleConfig(fmt.Sprintf(descriptionExpression)),
+				Config: testOverrideCSEFirstSeenRuleConfig(descriptionExpression),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckCSEFirstSeenRuleExists(resourceName, &FirstSeenRule),
-					testCheckFirstSeenRuleOverrideValues(&FirstSeenRule, fmt.Sprintf(descriptionExpression)),
+					testCheckFirstSeenRuleOverrideValues(&FirstSeenRule, descriptionExpression),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "id", "FIRST-S00009"),
 				),
@@ -142,7 +142,7 @@ func testAccCSEFirstSeenRuleDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSEFirstSeenRule(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("FirstSeen rule still exists")

@@ -162,7 +162,7 @@ func testAccCSEMatchListDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSEMatchList(rs.Primary.ID, false)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("match List still exists")

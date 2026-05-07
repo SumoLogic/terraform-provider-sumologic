@@ -183,7 +183,7 @@ func testAccCheckHierarchyDestroy(hierarchy Hierarchy) resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetHierarchy(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("Hierarchy %s still exists", id)

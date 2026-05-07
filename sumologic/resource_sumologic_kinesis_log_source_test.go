@@ -94,15 +94,15 @@ func testAccCheckKinesisLogSourceDestroy(s *terraform.State) error {
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		s, err := client.GetKinesisLogSource(collectorID, id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("KinesisLog Source still exists")
@@ -125,7 +125,7 @@ func testAccCheckKinesisLogSourceExists(n string, kinesisLogSource *KinesisLogSo
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		c := testAccProvider.Meta().(*Client)
 		kinesisLogSourceResp, err := c.GetKinesisLogSource(collectorID, id)
@@ -176,6 +176,59 @@ resource "sumologic_kinesis_log_source" "kinesisLog" {
     }
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, testAwsRoleArn, testAwsBucket)
+}
+
+func TestGetKinesisLogAuthentication_S3BucketWithRegion(t *testing.T) {
+	r := resourceSumologicKinesisLogSource()
+	d := r.Data(nil)
+	d.Set("authentication", []interface{}{
+		map[string]interface{}{
+			"type":       "S3BucketAuthentication",
+			"access_key": "myAccessKey",
+			"secret_key": "mySecretKey",
+			"region":     "us-west-2",
+			"role_arn":   "",
+		},
+	})
+
+	auth, err := getKinesisLogAuthentication(d)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	if auth.Type != "S3BucketAuthentication" {
+		t.Errorf("expected type S3BucketAuthentication, got %s", auth.Type)
+	}
+	if auth.Region != "us-west-2" {
+		t.Errorf("expected region us-west-2, got %s", auth.Region)
+	}
+	if auth.AwsID != "myAccessKey" {
+		t.Errorf("expected AwsID myAccessKey, got %s", auth.AwsID)
+	}
+	if auth.AwsKey != "mySecretKey" {
+		t.Errorf("expected AwsKey mySecretKey, got %s", auth.AwsKey)
+	}
+}
+
+func TestGetKinesisLogAuthentication_S3BucketWithoutRegion(t *testing.T) {
+	r := resourceSumologicKinesisLogSource()
+	d := r.Data(nil)
+	d.Set("authentication", []interface{}{
+		map[string]interface{}{
+			"type":       "S3BucketAuthentication",
+			"access_key": "myAccessKey",
+			"secret_key": "mySecretKey",
+			"region":     "",
+			"role_arn":   "",
+		},
+	})
+
+	auth, err := getKinesisLogAuthentication(d)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	if auth.Region != "" {
+		t.Errorf("expected empty region, got %s", auth.Region)
+	}
 }
 
 func testAccSumologicKinesisLogSourceNoAuthConfig(cName, cDescription, cCategory, sName, sDescription, sCategory string) string {

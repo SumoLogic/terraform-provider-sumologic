@@ -823,5 +823,5 @@ func validateSLOComplianceSize(i interface{}, k string) (warnings []string, erro
 	errorMessage := "compliance period must be " + strings.Join(calendarPeriods, ", ") + " or " +
 		fmt.Sprintf("%dd...%dd", minRollingDays, maxRollingDays)
 
-	return warnings, append(errors, fmt.Errorf(errorMessage))
+	return warnings, append(errors, fmt.Errorf("%s", errorMessage))
 }

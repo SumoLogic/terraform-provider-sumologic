@@ -47,7 +47,7 @@ func testAccCSEInsightsConfigurationDestroy(s *terraform.State) error {
 
 		s, err := client.GetCSEInsightsConfiguration()
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			if s.Threshold != nil && s.LookbackDays != nil && s.GlobalSignalSuppressionWindow != nil {

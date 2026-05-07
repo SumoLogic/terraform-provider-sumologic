@@ -110,7 +110,7 @@ func testAccCheckPermissionDestroy(s *terraform.State) error {
 		id := rs.Primary.ID
 		u, err := client.GetPermissions(id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if u != nil {
 			return fmt.Errorf("Content and permissions still exists")
@@ -134,7 +134,7 @@ func testAccCheckPermissionDelete(name string) resource.TestCheckFunc {
 		contentId := rs.Primary.ID
 		permissions, err := client.GetPermissions(contentId)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s == nil {
 			return fmt.Errorf("All permissions have been deleted")

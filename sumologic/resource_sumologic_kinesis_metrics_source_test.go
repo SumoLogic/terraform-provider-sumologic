@@ -92,15 +92,15 @@ func testAccCheckKinesisMetricsSourceDestroy(s *terraform.State) error {
 		}
 		id, err := strconv.Atoi(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		s, err := client.GetKinesisMetricsSource(collectorID, id)
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		if s != nil {
 			return fmt.Errorf("KinesisMetric Source still exists")
@@ -123,7 +123,7 @@ func testAccCheckKinesisMetricsSourceExists(n string, kinesisMetricsSource *Kine
 		}
 		collectorID, err := strconv.Atoi(rs.Primary.Attributes["collector_id"])
 		if err != nil {
-			return fmt.Errorf("Encountered an error: " + err.Error())
+			return fmt.Errorf("Encountered an error: %w", err)
 		}
 		c := testAccProvider.Meta().(*Client)
 		kinesisMetricsSourceResp, err := c.GetKinesisMetricsSource(collectorID, id)

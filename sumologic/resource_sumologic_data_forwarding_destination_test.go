@@ -159,7 +159,7 @@ func testAccCheckDataForwardingDestinationDestroy() resource.TestCheckFunc {
 					continue
 				}
 
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 
 			if p != nil {

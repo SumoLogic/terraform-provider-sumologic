@@ -184,7 +184,7 @@ func testAccCheckMetricsSearchDestroy(metricsSearch MetricsSearch) resource.Test
 			id := r.Primary.ID
 			search, err := client.GetMetricsSearch(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if search != nil {
 				return fmt.Errorf("MetricsSearch %s still exists", id)

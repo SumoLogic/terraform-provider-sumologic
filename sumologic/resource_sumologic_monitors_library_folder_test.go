@@ -207,7 +207,7 @@ func testAccCheckMonitorsLibraryFolderDestroy() resource.TestCheckFunc {
 			id := r.Primary.ID
 			u, err := client.GetMonitorsLibraryFolder(id)
 			if err != nil {
-				return fmt.Errorf("Encountered an error: " + err.Error())
+				return fmt.Errorf("Encountered an error: %w", err)
 			}
 			if u != nil {
 				return fmt.Errorf("monitorsLibraryFolder %s still exists", id)
