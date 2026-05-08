@@ -26,6 +26,7 @@ resource "sumologic_password_policy" "examplePasswordPolicy" {
   account_lockout_duration_in_mins = 30
   require_mfa = false
   remember_mfa = true
+  disallow_weak_passwords = false
 }
 ```
 
@@ -46,5 +47,6 @@ The following arguments are supported:
 - `account_lockout_duration_in_mins` - (Optional) The duration of time in minutes that a locked-out account remained locked before getting unlocked automatically. Defaults to 30.
 - `require_mfa` - (Optional) If MFA should be required to log in. Defaults to false.
 - `remember_mfa` - (Optional) If MFA should be remembered on the browser. Defaults to true.
+- `disallow_weak_passwords` - (Optional) If weak passwords should be disallowed. When enabled, Sumo Logic will reject passwords that are commonly used, obtained from previous breaches, dictionary words, repetitive or sequential characters, or context-specific words such as the service name or username. Defaults to false.
 
 [1]: https://help.sumologic.com/Manage/Security/Set-the-Password-Policy

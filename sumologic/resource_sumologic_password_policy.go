@@ -18,6 +18,7 @@ var DefaultPasswordPolicy = PasswordPolicy{
 	AccountLockoutDurationInMins:   30,
 	RequireMfa:                     false,
 	RememberMfa:                    true,
+	DisallowWeakPasswords:          false,
 }
 
 func resourceSumologicPasswordPolicy() *schema.Resource {
@@ -93,6 +94,11 @@ func resourceSumologicPasswordPolicy() *schema.Resource {
 				Optional: true,
 				Default:  DefaultPasswordPolicy.RememberMfa,
 			},
+			"disallow_weak_passwords": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  DefaultPasswordPolicy.DisallowWeakPasswords,
+			},
 		},
 	}
 }
@@ -153,6 +159,7 @@ func resourceToPasswordPolicy(d *schema.ResourceData) PasswordPolicy {
 		AccountLockoutDurationInMins:   d.Get("account_lockout_duration_in_mins").(int),
 		RequireMfa:                     d.Get("require_mfa").(bool),
 		RememberMfa:                    d.Get("remember_mfa").(bool),
+		DisallowWeakPasswords:          d.Get("disallow_weak_passwords").(bool),
 	}
 }
 
@@ -170,4 +177,5 @@ func setPasswordPolicyResource(d *schema.ResourceData, passwordPolicy *PasswordP
 	d.Set("account_lockout_duration_in_mins", passwordPolicy.AccountLockoutDurationInMins)
 	d.Set("require_mfa", passwordPolicy.RequireMfa)
 	d.Set("remember_mfa", passwordPolicy.RememberMfa)
+	d.Set("disallow_weak_passwords", passwordPolicy.DisallowWeakPasswords)
 }

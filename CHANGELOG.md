@@ -1,13 +1,16 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* Added `disallow_weak_passwords` field to `sumologic_password_policy` resource to support the Disallow Weak Passwords setting introduced in the Sumo Logic password policy API.
+
 ## 3.2.7 (April 29, 2026)
 
 ENHANCEMENTS:
 * Added `region` field to `authentication` block of `sumologic_kinesis_log_source` to support non-standard AWS partitions such as EU Sovereign Cloud (`eusc-de-east-1`).
 
 ## 3.2.6 (April 28, 2026)
-* Add support for EU Soverign Cloud region
+* Add support for EU Sovereign Cloud region
 
 DOCS:
 * Added documentation for `direction` field in `logs_anomaly_condition` and `metrics_anomaly_condition` for `sumologic_monitor` resource

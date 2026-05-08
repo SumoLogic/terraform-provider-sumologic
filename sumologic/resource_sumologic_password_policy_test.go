@@ -24,6 +24,7 @@ func TestAccPasswordPolicy_create(t *testing.T) {
 		AccountLockoutDurationInMins:   30,
 		RequireMfa:                     false,
 		RememberMfa:                    false,
+		DisallowWeakPasswords:          true,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -57,6 +58,7 @@ func TestAccPasswordPolicy_update(t *testing.T) {
 		AccountLockoutDurationInMins:   30,
 		RequireMfa:                     false,
 		RememberMfa:                    false,
+		DisallowWeakPasswords:          false,
 	}
 
 	updatedPasswordPolicy := PasswordPolicy{
@@ -73,6 +75,7 @@ func TestAccPasswordPolicy_update(t *testing.T) {
 		AccountLockoutDurationInMins:   31,
 		RequireMfa:                     true,
 		RememberMfa:                    true,
+		DisallowWeakPasswords:          true,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -146,6 +149,7 @@ func testPasswordPolicyCheckResourceAttr(resourceName string, passwordPolicy *Pa
 			resource.TestCheckResourceAttr(resourceName, "account_lockout_duration_in_mins", strconv.Itoa(passwordPolicy.AccountLockoutDurationInMins)),
 			resource.TestCheckResourceAttr(resourceName, "require_mfa", strconv.FormatBool(passwordPolicy.RequireMfa)),
 			resource.TestCheckResourceAttr(resourceName, "remember_mfa", strconv.FormatBool(passwordPolicy.RememberMfa)),
+			resource.TestCheckResourceAttr(resourceName, "disallow_weak_passwords", strconv.FormatBool(passwordPolicy.DisallowWeakPasswords)),
 		)
 		return f(s)
 	}
@@ -167,6 +171,7 @@ resource "sumologic_password_policy" "%s" {
 	account_lockout_duration_in_mins = %d
 	require_mfa = %t
 	remember_mfa = %t
+	disallow_weak_passwords = %t
 }`, label,
 		passwordPolicy.MinLength,
 		passwordPolicy.MaxLength,
@@ -180,5 +185,6 @@ resource "sumologic_password_policy" "%s" {
 		passwordPolicy.FailedLoginResetDurationInMins,
 		passwordPolicy.AccountLockoutDurationInMins,
 		passwordPolicy.RequireMfa,
-		passwordPolicy.RememberMfa)
+		passwordPolicy.RememberMfa,
+		passwordPolicy.DisallowWeakPasswords)
 }
