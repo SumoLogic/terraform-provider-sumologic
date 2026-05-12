@@ -1,6 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.2.8 (May 11, 2026)
+
 ENHANCEMENTS:
 * Added `disallow_weak_passwords` field to `sumologic_password_policy` resource to support the Disallow Weak Passwords setting introduced in the Sumo Logic password policy API.
 
