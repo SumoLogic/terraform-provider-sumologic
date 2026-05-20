@@ -2,11 +2,13 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_s3_archive_source"
 description: |-
-  Provides a Sumologic AWS S3 Archive Source.
+  Provides a Sumologic AWS S3 Archive Source for ingesting data from an existing S3 archive bucket.
 ---
 
 # sumologic_s3_archive_source
-Provides a [Sumologic AWS S3 Archive Source][2].
+Provides a [Sumologic AWS S3 Archive Source][2] for **ingesting data from an existing S3 archive bucket**.
+
+> **NOTE:** This resource creates a *source* to read/ingest from an S3 archive. It does **not** create an Archive Destination. To create an Archive Destination, use the [Sumo Logic Archive Management UI](https://www.sumologic.com/help/docs/manage/data-archiving/archive/#create-an-aws-archive-destination).
 
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
 
@@ -17,7 +19,7 @@ resource "sumologic_s3_archive_source" "terraform_s3_archive_source" {
   name          = "Amazon S3 Archive Source"
   description   = "My description"
   category      = "aws/s3"
-  content_type  = "AwsS3Bucket"
+  content_type  = "AwsS3ArchiveBucket"
   scan_interval = 300000
   paused        = false
   collector_id  = "${sumologic_collector.collector.id}"
@@ -72,13 +74,13 @@ The following attributes are exported:
 ## Import
 S3 sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
-```hcl
+```
 terraform import sumologic_s3_archive_source.test 123/456
 ```
 
 S3 sources can be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
 
-```hcl
+```
 terraform import sumologic_s3_archive_source.test my-test-collector/my-test-source
 ```
 
