@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+
+DOCS:
+* Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
 
 ## 3.2.8 (May 11, 2026)
 
