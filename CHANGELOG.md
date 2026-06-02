@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 
+ENHANCEMENTS:
+* Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
+
 DOCS:
+* Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
 
 ## 3.2.8 (May 11, 2026)

@@ -84,6 +84,17 @@ type TextPanel struct {
 	Text string `json:"text"`
 }
 
+type CollapsiblePanel struct {
+	Id                                    string   `json:"id,omitempty"`
+	Key                                   string   `json:"key"`
+	Title                                 string   `json:"title"`
+	VisualSettings                        string   `json:"visualSettings"`
+	KeepVisualSettingsConsistentWithParent bool     `json:"keepVisualSettingsConsistentWithParent"`
+	PanelType                             string   `json:"panelType"`
+	Collapsed                             bool     `json:"collapsed"`
+	CollapsiblePanelChildKeys             []string `json:"collapsiblePanelChildKeys"`
+}
+
 type SumoSearchPanel struct {
 	Id                                     string `json:"id,omitempty"`
 	Key                                    string `json:"key"`
