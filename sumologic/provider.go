@@ -128,6 +128,7 @@ func Provider() *schema.Provider {
 			"sumologic_scan_budget":                              resourceSumologicScanBudget(),
 			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
 			"sumologic_event_extraction_rule":                    resourceSumologicEventExtractionRule(),
+			"sumologic_data_mask_rule":                           resourceSumologicDataMaskRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
@@ -145,6 +146,8 @@ func Provider() *schema.Provider {
 			"sumologic_role_v2":                        dataSourceSumologicRoleV2(),
 			"sumologic_user":                           dataSourceSumologicUser(),
 			"sumologic_apps":                           dataSourceSumoLogicApps(),
+			"sumologic_data_mask_rule":                 dataSourceSumologicDataMaskRule(),
+			"sumologic_data_mask_rules":                dataSourceSumologicDataMaskRules(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
