@@ -12,7 +12,7 @@ import (
 func TestAccSumologicDataMaskRule_basic(t *testing.T) {
 	var rule DataMaskRule
 	resourceName := "sumologic_data_mask_rule.test"
-	testName := acctest.RandStringFromCharSet(8, acctest.CharSetAlphaNum)
+	testName := acctest.RandString(8)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +40,7 @@ func TestAccSumologicDataMaskRule_basic(t *testing.T) {
 
 func TestAccSumologicDataMaskRule_update(t *testing.T) {
 	resourceName := "sumologic_data_mask_rule.test"
-	testName := acctest.RandStringFromCharSet(8, acctest.CharSetAlphaNum)
+	testName := acctest.RandString(8)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
