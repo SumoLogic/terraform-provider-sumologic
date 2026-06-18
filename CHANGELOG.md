@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 
+FEATURES:
+* **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.
+
 DOCS:
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
 

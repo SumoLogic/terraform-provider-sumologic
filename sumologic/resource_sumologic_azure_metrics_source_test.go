@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
-    t.Skip("Temporarily skipping Azure Metrics source update test - azure account issue")
+	t.Skip("Temporarily skipping Azure Metrics source update test - azure account issue")
 	var azureMetricsSource PollingSource
 	var collector Collector
 	cName, cDescription, cCategory := getRandomizedParams()
@@ -51,7 +51,7 @@ func TestAccSumologicAzureMetricsSource_create(t *testing.T) {
 }
 
 func TestAccSumologicAzureMetricsSource_update(t *testing.T) {
-    t.Skip("Temporarily skipping Azure Metrics source update test - azure account issue")
+	t.Skip("Temporarily skipping Azure Metrics source update test - azure account issue")
 	var azureMetricsSource PollingSource
 	cName, cDescription, cCategory := getRandomizedParams()
 	sName, sDescription, sCategory := getRandomizedParams()
