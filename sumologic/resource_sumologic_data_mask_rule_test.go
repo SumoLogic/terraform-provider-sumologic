@@ -12,7 +12,7 @@ import (
 func TestAccSumologicDataMaskRule_basic(t *testing.T) {
 	var rule DataMaskRule
 	resourceName := "sumologic_data_mask_rule.test"
-	testName := acctest.RandString(8)
+	testName := fmt.Sprintf("terraform_data_mask_%s", acctest.RandString(8))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,12 +20,12 @@ func TestAccSumologicDataMaskRule_basic(t *testing.T) {
 		CheckDestroy: testAccCheckDataMaskRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataMaskRuleConfig(testName, "email", "org", true),
+				Config: testAccDataMaskRuleConfig(testName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataMaskRuleExists(resourceName, &rule),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_data_mask_%s", testName)),
-					resource.TestCheckResourceAttr(resourceName, "pii_type", "email"),
-					resource.TestCheckResourceAttr(resourceName, "scope", "org"),
+					resource.TestCheckResourceAttr(resourceName, "name", testName),
+					resource.TestCheckResourceAttr(resourceName, "regex_pattern", "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"),
+					resource.TestCheckResourceAttr(resourceName, "mask_string", "[REDACTED]"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 				),
 			},
@@ -40,7 +40,7 @@ func TestAccSumologicDataMaskRule_basic(t *testing.T) {
 
 func TestAccSumologicDataMaskRule_update(t *testing.T) {
 	resourceName := "sumologic_data_mask_rule.test"
-	testName := acctest.RandString(8)
+	testName := fmt.Sprintf("terraform_data_mask_%s", acctest.RandString(8))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -48,19 +48,18 @@ func TestAccSumologicDataMaskRule_update(t *testing.T) {
 		CheckDestroy: testAccCheckDataMaskRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataMaskRuleConfig(testName, "email", "org", true),
+				Config: testAccDataMaskRuleConfig(testName, true),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "pii_type", "email"),
-					resource.TestCheckResourceAttr(resourceName, "scope", "org"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "mask_string", "[REDACTED]"),
 				),
 			},
 			{
-				Config: testAccDataMaskRuleConfig(testName, "ssn", "all_orgs", false),
+				Config: testAccDataMaskRuleConfigUpdated(testName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "pii_type", "ssn"),
-					resource.TestCheckResourceAttr(resourceName, "scope", "all_orgs"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "mask_string", "***MASKED***"),
+					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform acceptance tests"),
 				),
 			},
 		},
@@ -112,17 +111,26 @@ func testAccCheckDataMaskRuleExists(n string, rule *DataMaskRule) resource.TestC
 	}
 }
 
-func testAccDataMaskRuleConfig(testName, piiType, scope string, enabled bool) string {
+func testAccDataMaskRuleConfig(testName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "sumologic_data_mask_rule" "test" {
-  name        = "terraform_data_mask_%s"
-  pattern     = "[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-  pii_type    = "%s"
-  replacement = "[REDACTED]"
-  scope       = "%s"
-  enabled     = %t
-  description = "managed by terraform acceptance tests"
+  name          = "%s"
+  regex_pattern = "[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+  mask_string   = "[REDACTED]"
+  enabled       = %t
+  description   = "managed by terraform acceptance tests"
 }
-`, testName, piiType, scope, enabled)
+`, testName, enabled)
 }
 
+func testAccDataMaskRuleConfigUpdated(testName string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_mask_rule" "test" {
+  name          = "%s"
+  regex_pattern = "[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+  mask_string   = "***MASKED***"
+  enabled       = false
+  description   = "updated by terraform acceptance tests"
+}
+`, testName)
+}

@@ -32,28 +32,13 @@ func dataSourceDataMaskRuleComputedSchema() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Computed: true,
 		},
-		"pattern": {
+		"regex_pattern": {
 			Type:     schema.TypeString,
 			Computed: true,
 		},
-		"pii_type": {
+		"mask_string": {
 			Type:     schema.TypeString,
 			Computed: true,
-		},
-		"replacement": {
-			Type:     schema.TypeString,
-			Computed: true,
-		},
-		"scope": {
-			Type:     schema.TypeString,
-			Computed: true,
-		},
-		"scope_target_org_ids": {
-			Type:     schema.TypeList,
-			Computed: true,
-			Elem: &schema.Schema{
-				Type: schema.TypeString,
-			},
 		},
 		"enabled": {
 			Type:     schema.TypeBool,
@@ -61,10 +46,6 @@ func dataSourceDataMaskRuleComputedSchema() map[string]*schema.Schema {
 		},
 		"description": {
 			Type:     schema.TypeString,
-			Computed: true,
-		},
-		"is_active": {
-			Type:     schema.TypeBool,
 			Computed: true,
 		},
 	}
@@ -84,16 +65,10 @@ func dataSourceSumologicDataMaskRuleRead(d *schema.ResourceData, meta interface{
 
 	d.SetId(rule.ID)
 	d.Set("name", rule.Name)
-	d.Set("pattern", rule.Pattern)
-	d.Set("pii_type", rule.PiiType)
-	d.Set("replacement", rule.Replacement)
-	d.Set("scope", normalizeDataMaskRuleScope(rule.Scope))
-	d.Set("scope_target_org_ids", rule.ScopeTargetOrgIds)
+	d.Set("regex_pattern", rule.RegexPattern)
+	d.Set("mask_string", rule.MaskString)
 	d.Set("enabled", rule.Enabled)
 	d.Set("description", rule.Description)
-	d.Set("is_active", rule.IsActive)
 
 	return nil
 }
-
-

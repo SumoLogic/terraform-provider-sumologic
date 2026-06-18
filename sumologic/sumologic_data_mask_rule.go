@@ -6,16 +6,12 @@ import (
 )
 
 type DataMaskRule struct {
-	ID                string   `json:"id,omitempty"`
-	Name              string   `json:"name"`
-	Pattern           string   `json:"pattern"`
-	PiiType           string   `json:"piiType"`
-	Replacement       string   `json:"replacement"`
-	Scope             string   `json:"scope"`
-	ScopeTargetOrgIds []string `json:"scopeTargetOrgIds,omitempty"`
-	Enabled           bool     `json:"enabled"`
-	Description       string   `json:"description,omitempty"`
-	IsActive          bool     `json:"isActive,omitempty"`
+	ID           string `json:"id,omitempty"`
+	Name         string `json:"name"`
+	RegexPattern string `json:"regexPattern"`
+	MaskString   string `json:"maskString,omitempty"`
+	Enabled      bool   `json:"enabled"`
+	Description  string `json:"description,omitempty"`
 }
 
 type ListDataMaskRuleResponse struct {
@@ -29,7 +25,7 @@ func (s *ListDataMaskRuleResponse) Reset() {
 }
 
 func (c *Client) GetDataMaskRule(id string) (*DataMaskRule, error) {
-	data, err := c.Get(fmt.Sprintf("v1/dataMaskRules/%s", id))
+	data, err := c.Get(fmt.Sprintf("v1/dataMaskingRules/%s", id))
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +42,7 @@ func (c *Client) GetDataMaskRule(id string) (*DataMaskRule, error) {
 }
 
 func (c *Client) CreateDataMaskRule(rule DataMaskRule) (*DataMaskRule, error) {
-	responseBody, err := c.Post("v1/dataMaskRules", rule)
+	responseBody, err := c.Post("v1/dataMaskingRules", rule)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +56,7 @@ func (c *Client) CreateDataMaskRule(rule DataMaskRule) (*DataMaskRule, error) {
 }
 
 func (c *Client) UpdateDataMaskRule(rule DataMaskRule) (*DataMaskRule, error) {
-	url := fmt.Sprintf("v1/dataMaskRules/%s", rule.ID)
+	url := fmt.Sprintf("v1/dataMaskingRules/%s", rule.ID)
 	responseBody, err := c.Put(url, rule)
 	if err != nil {
 		return nil, err
@@ -75,14 +71,14 @@ func (c *Client) UpdateDataMaskRule(rule DataMaskRule) (*DataMaskRule, error) {
 }
 
 func (c *Client) DeleteDataMaskRule(id string) error {
-	_, err := c.Delete(fmt.Sprintf("v1/dataMaskRules/%s", id))
+	_, err := c.Delete(fmt.Sprintf("v1/dataMaskingRules/%s", id))
 	return err
 }
 
 func (c *Client) ListDataMaskRules() ([]DataMaskRule, error) {
 	var listResponse ListDataMaskRuleResponse
 
-	data, err := c.Get("v1/dataMaskRules")
+	data, err := c.Get("v1/dataMaskingRules")
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +90,7 @@ func (c *Client) ListDataMaskRules() ([]DataMaskRule, error) {
 	rules := listResponse.Data
 
 	for listResponse.Next != "" {
-		data, err = c.Get("v1/dataMaskRules?token=" + listResponse.Next)
+		data, err = c.Get("v1/dataMaskingRules?token=" + listResponse.Next)
 		if err != nil {
 			return nil, err
 		}

@@ -37,16 +37,12 @@ func dataSourceSumologicDataMaskRulesRead(d *schema.ResourceData, meta interface
 	terraformRules := make([]map[string]interface{}, 0, len(rules))
 	for _, rule := range rules {
 		terraformRules = append(terraformRules, map[string]interface{}{
-			"id":                   rule.ID,
-			"name":                 rule.Name,
-			"pattern":              rule.Pattern,
-			"pii_type":             rule.PiiType,
-			"replacement":          rule.Replacement,
-			"scope":                normalizeDataMaskRuleScope(rule.Scope),
-			"scope_target_org_ids": rule.ScopeTargetOrgIds,
-			"enabled":              rule.Enabled,
-			"description":          rule.Description,
-			"is_active":            rule.IsActive,
+			"id":            rule.ID,
+			"name":          rule.Name,
+			"regex_pattern": rule.RegexPattern,
+			"mask_string":   rule.MaskString,
+			"enabled":       rule.Enabled,
+			"description":   rule.Description,
 		})
 	}
 
@@ -67,5 +63,3 @@ func generateDataMaskRulesID(rules []DataMaskRule) string {
 	hash := sha256.Sum256([]byte(idString))
 	return hex.EncodeToString(hash[:])
 }
-
-

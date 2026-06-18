@@ -10,9 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var supportedDataMaskRuleScopes = []string{"org", "child_org", "all_orgs", "all_child_orgs"}
-var supportedDataMaskRulePIITypes = []string{"phone", "email", "ip", "ssn", "credit_card", "custom"}
-
 func resourceSumologicDataMaskRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSumologicDataMaskRuleCreate,
@@ -27,51 +24,29 @@ func resourceSumologicDataMaskRule() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 255),
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
-			"pattern": {
+			"regex_pattern": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateDataMaskRuleRegex,
 			},
-			"pii_type": {
+			"mask_string": {
 				Type:         schema.TypeString,
-				Required:     true,
-				StateFunc:    normalizeLowerState,
-				ValidateFunc: validation.StringInSlice(supportedDataMaskRulePIITypes, false),
-			},
-			"replacement": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
-			},
-			"scope": {
-				Type:         schema.TypeString,
-				Required:     true,
-				StateFunc:    normalizeDataMaskRuleScopeState,
-				ValidateFunc: validation.StringInSlice(supportedDataMaskRuleScopes, false),
-			},
-			"scope_target_org_ids": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Optional:     true,
+				Default:      "##redactedPII##",
+				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Required: true,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 1024),
+				ValidateFunc: validation.StringLenBetween(0, 512),
 				Default:      "",
-			},
-			"is_active": {
-				Type:     schema.TypeBool,
-				Computed: true,
 			},
 		},
 	}
@@ -115,29 +90,17 @@ func resourceSumologicDataMaskRuleRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("name", rule.Name); err != nil {
 		return fmt.Errorf("error setting name for data mask rule %s: %s", d.Id(), err)
 	}
-	if err = d.Set("pattern", rule.Pattern); err != nil {
-		return fmt.Errorf("error setting pattern for data mask rule %s: %s", d.Id(), err)
+	if err = d.Set("regex_pattern", rule.RegexPattern); err != nil {
+		return fmt.Errorf("error setting regex_pattern for data mask rule %s: %s", d.Id(), err)
 	}
-	if err = d.Set("pii_type", strings.ToLower(rule.PiiType)); err != nil {
-		return fmt.Errorf("error setting pii_type for data mask rule %s: %s", d.Id(), err)
-	}
-	if err = d.Set("replacement", rule.Replacement); err != nil {
-		return fmt.Errorf("error setting replacement for data mask rule %s: %s", d.Id(), err)
-	}
-	if err = d.Set("scope", normalizeDataMaskRuleScope(rule.Scope)); err != nil {
-		return fmt.Errorf("error setting scope for data mask rule %s: %s", d.Id(), err)
-	}
-	if err = d.Set("scope_target_org_ids", rule.ScopeTargetOrgIds); err != nil {
-		return fmt.Errorf("error setting scope_target_org_ids for data mask rule %s: %s", d.Id(), err)
+	if err = d.Set("mask_string", rule.MaskString); err != nil {
+		return fmt.Errorf("error setting mask_string for data mask rule %s: %s", d.Id(), err)
 	}
 	if err = d.Set("enabled", rule.Enabled); err != nil {
 		return fmt.Errorf("error setting enabled for data mask rule %s: %s", d.Id(), err)
 	}
 	if err = d.Set("description", rule.Description); err != nil {
 		return fmt.Errorf("error setting description for data mask rule %s: %s", d.Id(), err)
-	}
-	if err = d.Set("is_active", rule.IsActive); err != nil {
-		return fmt.Errorf("error setting is_active for data mask rule %s: %s", d.Id(), err)
 	}
 
 	return nil
@@ -169,46 +132,14 @@ func resourceSumologicDataMaskRuleDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceToDataMaskRule(d *schema.ResourceData) (DataMaskRule, error) {
-	scope := normalizeDataMaskRuleScopeState(d.Get("scope").(string))
-	scopeTargetOrgIDs := expandStringList(d.Get("scope_target_org_ids").([]interface{}))
-	if scope == "child_org" && len(scopeTargetOrgIDs) == 0 {
-		return DataMaskRule{}, fmt.Errorf("scope_target_org_ids must be set when scope is child_org")
-	}
-
 	return DataMaskRule{
-		ID:                d.Id(),
-		Name:              d.Get("name").(string),
-		Pattern:           d.Get("pattern").(string),
-		PiiType:           strings.ToLower(d.Get("pii_type").(string)),
-		Replacement:       d.Get("replacement").(string),
-		Scope:             normalizeDataMaskRuleScopeForAPI(scope),
-		ScopeTargetOrgIds: scopeTargetOrgIDs,
-		Enabled:           d.Get("enabled").(bool),
-		Description:       d.Get("description").(string),
+		ID:           d.Id(),
+		Name:         d.Get("name").(string),
+		RegexPattern: d.Get("regex_pattern").(string),
+		MaskString:   d.Get("mask_string").(string),
+		Enabled:      d.Get("enabled").(bool),
+		Description:  d.Get("description").(string),
 	}, nil
-}
-
-func normalizeLowerState(v interface{}) string {
-	return strings.ToLower(v.(string))
-}
-
-func normalizeDataMaskRuleScopeState(v interface{}) string {
-	return normalizeDataMaskRuleScope(v.(string))
-}
-
-func normalizeDataMaskRuleScope(scope string) string {
-	scope = strings.ToLower(scope)
-	if scope == "all_child_orgs" {
-		return "all_orgs"
-	}
-	return scope
-}
-
-func normalizeDataMaskRuleScopeForAPI(scope string) string {
-	if scope == "all_orgs" {
-		return "all_child_orgs"
-	}
-	return scope
 }
 
 func validateDataMaskRuleRegex(v interface{}, _ string) (warnings []string, errors []error) {
@@ -224,11 +155,4 @@ func isDataMaskRuleNotFoundErr(err error) bool {
 	return strings.Contains(errMsg, "not found") || strings.Contains(errMsg, "does not exist")
 }
 
-func expandStringList(items []interface{}) []string {
-	result := make([]string, 0, len(items))
-	for _, item := range items {
-		result = append(result, item.(string))
-	}
-	return result
-}
 
