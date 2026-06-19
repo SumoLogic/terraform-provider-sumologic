@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -117,7 +116,7 @@ func resourceSumologicLambdaInvokeActionCreate(ctx context.Context, d *schema.Re
 		return diag.FromErr(fmt.Errorf("lambda invocation failed: %w", err))
 	}
 
-	d.SetId(fmt.Sprintf("%s-%d", d.Get("lambda_name").(string), time.Now().UnixNano()))
+	d.SetId(fmt.Sprintf("%s-%s-%s", d.Get("lambda_name").(string), d.Get("account_id").(string), d.Get("aws_resource").(string)))
 	d.Set("last_lambda_output", output)
 
 	resourceProps, _ := json.Marshal(payloadMap["ResourceProperties"])
