@@ -22,35 +22,42 @@ func resourceSumologicLambdaInvokeAction() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"lambda_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the AWS Lambda function to invoke.",
 			},
 			"aws_resource": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ARN or identifier of the AWS resource to enable logging for.",
 			},
 			"bucket_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The S3 bucket name where logs will be delivered.",
 			},
 			"filter": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "A filter expression to match specific resources for enabling logging.",
 			},
 			"bucket_prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "The prefix path within the S3 bucket for log delivery.",
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The AWS account ID where the resources reside.",
 			},
 			"remove_on_delete_stack": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether to remove the logging configuration when the resource is destroyed.",
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -58,12 +65,14 @@ func resourceSumologicLambdaInvokeAction() *schema.Resource {
 				Description: "AWS region where the Lambda function is deployed. If not set, uses AWS_REGION env var or SDK defaults.",
 			},
 			"last_lambda_output": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The output returned by the most recent Lambda invocation.",
 			},
 			"last_resource_properties": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "JSON string of the resource properties sent in the most recent Lambda invocation.",
 			},
 		},
 	}
