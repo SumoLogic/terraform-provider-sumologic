@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -165,8 +164,9 @@ func TestLambdaInvokeResourceCreate_Success(t *testing.T) {
 		if d.Id() == "" {
 			t.Error("expected ID to be set")
 		}
-		if !strings.HasPrefix(d.Id(), "my-lambda-") {
-			t.Errorf("expected ID to start with 'my-lambda-', got '%s'", d.Id())
+		expectedId := "my-lambda-123456789012-my-resource"
+		if d.Id() != expectedId {
+			t.Errorf("expected ID '%s', got '%s'", expectedId, d.Id())
 		}
 		if d.Get("last_lambda_output").(string) == "" {
 			t.Error("expected last_lambda_output to be set")
