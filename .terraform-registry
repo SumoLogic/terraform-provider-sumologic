@@ -1,0 +1,3 @@
+Request: Transfer ownership of the SumoLogic namespace to our HCP Terraform organization. We have lost track of the original account that created this namespace and need to reclaim it to continue publishing and maintaining our provider and modules.
+Registry Link: https://registry.terraform.io/namespaces/SumoLogic
+Request by: md.azhar@sumologic.com
