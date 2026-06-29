@@ -207,23 +207,11 @@ resource "sumologic_cse_outlier_rule" "sumo_outlier_rule_test" {
     baseline_window_size   = "432000000"
     description_expression = "%s"
     deviation_threshold    = 2
-    enabled                = true
     floor_value            = 1
     group_by_fields        = [
         "user_username",
     ]
     is_prototype           = true
-    match_expression       = <<-EOT
-        metadata_vendor = 'Microsoft'
-        AND metadata_product = 'Windows'
-        AND metadata_deviceEventId = 'Security-4672'
-        AND NOT lower(user_username) = 'system'
-        AND NOT lower(user_username) RLIKE '(\$$)'
-        AND NOT lower(user_username) RLIKE '(dwm\-)'
-        AND NOT lower(user_username) RLIKE '(local service|network service)'
-        AND NOT lower(user_username) RLIKE '(iusr)'
-        AND NOT lower(user_username) LIKE '%%svc%%'
-    EOT
     name                   = "Spike in Windows Administrative Privileges Granted for User"
     name_expression        = "Spike in Windows Administrative Privileges Granted for User: {{user_username}}"
     retention_window_size  = "7776000000"
@@ -234,14 +222,6 @@ resource "sumologic_cse_outlier_rule" "sumo_outlier_rule_test" {
         "_mitreAttackTechnique:T1078.002",
     ]
     window_size            = "T60M"
-
-    aggregation_functions {
-        arguments = [
-            "device_hostname",
-        ]
-        function  = "count_distinct"
-        name      = "current"
-    }
 
     entity_selectors {
         entity_type = "_username"

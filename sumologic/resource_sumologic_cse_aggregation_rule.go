@@ -21,7 +21,8 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"aggregation_functions": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -48,7 +49,8 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"group_by_entity": {
@@ -70,7 +72,8 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 			},
 			"match_expression": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
+				Computed:         true,
 				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"name": {
@@ -96,7 +99,8 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 			},
 			"trigger_expression": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"window_size": {
 				Type:     schema.TypeString,

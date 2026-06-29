@@ -231,14 +231,9 @@ func testOverrideCSEAggregationRuleConfig(descriptionExpression string) string {
 	return fmt.Sprintf(`
 resource "sumologic_cse_aggregation_rule" "sumo_aggregation_rule_test" {
     description_expression = "%s"
-    enabled                = true
     group_by_entity        = true
     group_by_fields        = []
     is_prototype           = true
-    match_expression       = <<-EOT
-        metadata_vendor = "Okta"
-        and metadata_deviceEventId = "user.authentication.sso"
-    EOT
     name                   = "Okta - Session Anomaly (Multiple User Agents)"
     name_expression        = "Okta - Session Anomaly (Multiple User Agents) for user: {{user_username}}"
     summary_expression     = "{{user_username}} has utilized a number of distinct User Agents which has crossed the threshold (4) value within a 30-minute time period to perform Okta authentication."
@@ -246,16 +241,7 @@ resource "sumologic_cse_aggregation_rule" "sumo_aggregation_rule_test" {
         "_mitreAttackTactic:TA0001",
         "_mitreAttackTechnique:T1078.004",
     ]
-    trigger_expression     = "distinct_userAgents > 4"
     window_size            = "T30M"
-
-    aggregation_functions {
-        arguments = [
-            "fields[\"client.userAgent.rawUserAgent\"]",
-        ]
-        function  = "count_distinct"
-        name      = "distinct_userAgents"
-    }
 
     entity_selectors {
         entity_type = "_username"

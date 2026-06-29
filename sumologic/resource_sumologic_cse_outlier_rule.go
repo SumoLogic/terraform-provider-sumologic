@@ -20,7 +20,8 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"aggregation_functions": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -57,7 +58,8 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"entity_selectors": getEntitySelectorsSchema(),
 			"floor_value": {
@@ -78,7 +80,8 @@ func resourceSumologicCSEOutlierRule() *schema.Resource {
 			},
 			"match_expression": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
+				Computed:         true,
 				DiffSuppressFunc: suppressSpaceDiff,
 			},
 			"name": {
