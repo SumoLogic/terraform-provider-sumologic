@@ -1,8 +1,11 @@
 ## X.Y.Z (Unreleased)
 
+ENHANCEMENTS:
+* Adjusts fields in `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` that aren't sent as part of the override payload to be Optional & Computed. This allows the override config
+
 BUG FIXES:
 * Fixed `sumologic_source_template` deletion failing with "Enabled source template cannot be deleted" by disabling the template before issuing the delete call.
-* Fixed `TestAccSumologicCSEOutlierRule_Override` that broke after an internal update to the match expression of the built-in rule it tests.
+* Fixed `TestAccSumologicCSEOutlierRule_Override` that broke after an internal update to the match expression of the built-in rule it tests. The fix adjusts non-overrideable fields in `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` to be Optional & Computed, which allows those fields to be read from the API instead of asserting a hardcoded value. Any internal updates made to the built-in-rule's non-overrideable fields should no longer break this test, and users won't see a perpetual plan diff when Sumo internally changes a non-overridable field.
 
 DOCS:
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
