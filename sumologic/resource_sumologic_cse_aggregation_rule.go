@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -16,6 +18,17 @@ func resourceSumologicCSEAggregationRule() *schema.Resource {
 		Update: resourceSumologicCSEAggregationRuleUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if d.Id() != "" {
+				return nil
+			}
+			for _, field := range []string{"aggregation_functions", "enabled", "match_expression", "trigger_expression"} {
+				if _, ok := d.GetOk(field); !ok {
+					return fmt.Errorf("%q is required when creating a new aggregation rule", field)
+				}
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
