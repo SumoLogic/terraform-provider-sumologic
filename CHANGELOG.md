@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 
+FEATURES:
+* **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.
+
 BUG FIXES:
 * Fixed `sumologic_source_template` deletion failing with "Enabled source template cannot be deleted" by disabling the template before issuing the delete call.
 * Fixes `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` so that they don't see a perpetual plan diff when Sumo internally updates a non-overridable field. The fix adjusts non-overrideable fields to be Optional & Computed, which allows those fields to be read from the API during an override instead of asserting a hardcoded value. Logic has been added to ensure these fields are still required during a create.
