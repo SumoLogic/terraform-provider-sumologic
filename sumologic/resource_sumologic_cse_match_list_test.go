@@ -148,14 +148,14 @@ func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCSEMatchList_idempotent(t *testing.T) {
+func TestAccSumologicSCEMatchList_idempotent(t *testing.T) {
 	SkipCseTest(t)
 
 	var matchList CSEMatchListGet
 	resourceName := "sumologic_cse_match_list.match_list"
 
 	// Create values
-	nName := fmt.Sprintf("terraform_TestAccSumologicCSEMatchList_idempotent_%s", uuid.New())
+	nName := fmt.Sprintf("terraform_TestAccSumologicSCEMatchList_idempotent_%s", uuid.New())
 	nDefaultTtl := 10800
 	nDescription := "Match List Description"
 	nTargetColumn := "SrcIp"
