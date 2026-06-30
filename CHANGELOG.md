@@ -1,5 +1,8 @@
-## 3.2.9 (Jun 30, 2026)
+## X.Y.Z (Unreleased)
+* Fixed `sumologic_cse_match_list` producing a non-empty plan on every apply by excluding the computed `id` from the items set
+  hash.
 
+## 3.2.9 (Jun 30, 2026)
 FEATURES:
 * **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.
 
