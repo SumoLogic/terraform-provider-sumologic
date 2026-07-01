@@ -1,11 +1,17 @@
 ## X.Y.Z (Unreleased)
 
+FEATURES:
+* **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
+* **New Data Source:** `sumologic_data_mask_rule` - Look up an existing data mask rule by its ID.
+* **New Data Source:** `sumologic_data_mask_rules` - List all data mask rules.
+
 BUG FIXES:
 * Fixed `sumologic_source_template` deletion failing with "Enabled source template cannot be deleted" by disabling the template before issuing the delete call.
 * Fixes `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` so that they don't see a perpetual plan diff when Sumo internally updates a non-overridable field. The fix adjusts non-overrideable fields to be Optional & Computed, which allows those fields to be read from the API during an override instead of asserting a hardcoded value. Logic has been added to ensure these fields are still required during a create.
 
 DOCS:
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
+* Added documentation for `sumologic_data_mask_rule` resource and data sources.
 
 ## 3.2.8 (May 11, 2026)
 
