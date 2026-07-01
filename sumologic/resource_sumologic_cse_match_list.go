@@ -92,7 +92,11 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 
 func matchListItemHash(v interface{}) int {
 	var buf bytes.Buffer
-	m := v.(map[string]interface{})
+	m, ok := v.((map[string]interface{}))
+	if !ok {
+		log.Printf("[WARN] matchListItemHash: unexpected type %T, expected map[string]interface{}", v)
+		return 0
+	}
 	buf.WriteString(m["value"].(string))
 	buf.WriteString(m["description"].(string))
 	buf.WriteString(m["expiration"].(string))
