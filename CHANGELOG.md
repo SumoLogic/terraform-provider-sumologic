@@ -1,4 +1,4 @@
-## X.Y.Z (Unreleased)
+## 3.2.10 (July 1, 2026)
 
 FEATURES:
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
