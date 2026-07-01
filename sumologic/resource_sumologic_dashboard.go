@@ -163,6 +163,14 @@ func getPanelSchema() map[string]*schema.Schema {
 				Schema: getServiceMapPanelSchema(),
 			},
 		},
+		"collapsible_panel": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: getCollapsiblePanelSchema(),
+			},
+		},
 	}
 }
 
@@ -202,6 +210,30 @@ func getTextPanelSchema() map[string]*schema.Schema {
 		},
 	}
 	for k, v := range textPanelSchema {
+		panelSchema[k] = v
+	}
+
+	return panelSchema
+}
+
+func getCollapsiblePanelSchema() map[string]*schema.Schema {
+	panelSchema := getPanelBaseSchema()
+
+	collapsiblePanelSchema := map[string]*schema.Schema{
+		"collapsed": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  false,
+		},
+		"collapsible_panel_child_keys": {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+		},
+	}
+	for k, v := range collapsiblePanelSchema {
 		panelSchema[k] = v
 	}
 
@@ -703,6 +735,10 @@ func getPanel(tfPanel map[string]interface{}) interface{} {
 		if tfServiceMapPanel, ok := val[0].(map[string]interface{}); ok {
 			return getServiceMapPanel(tfServiceMapPanel)
 		}
+	} else if val := tfPanel["collapsible_panel"].([]interface{}); len(val) == 1 {
+		if tfCollapsiblePanel, ok := val[0].(map[string]interface{}); ok {
+			return getCollapsiblePanel(tfCollapsiblePanel)
+		}
 	}
 	return nil
 }
@@ -725,6 +761,33 @@ func getTextPanel(tfTextPanel map[string]interface{}) interface{} {
 	// text panel specific properties
 	textPanel.Text = tfTextPanel["text"].(string)
 	return textPanel
+}
+
+func getCollapsiblePanel(tfCollapsiblePanel map[string]interface{}) interface{} {
+	var collapsiblePanel CollapsiblePanel
+	collapsiblePanel.PanelType = "CollapsiblePanel"
+
+	collapsiblePanel.Key = tfCollapsiblePanel["key"].(string)
+	if title, ok := tfCollapsiblePanel["title"].(string); ok {
+		collapsiblePanel.Title = title
+	}
+	if visualSettings, ok := tfCollapsiblePanel["visual_settings"].(string); ok {
+		collapsiblePanel.VisualSettings = visualSettings
+	}
+	if consistentVisualSettings, ok := tfCollapsiblePanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
+		collapsiblePanel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
+	}
+	if collapsed, ok := tfCollapsiblePanel["collapsed"].(bool); ok {
+		collapsiblePanel.Collapsed = collapsed
+	}
+	if childKeys, ok := tfCollapsiblePanel["collapsible_panel_child_keys"].([]interface{}); ok {
+		keys := make([]string, len(childKeys))
+		for i, k := range childKeys {
+			keys[i] = k.(string)
+		}
+		collapsiblePanel.CollapsiblePanelChildKeys = keys
+	}
+	return collapsiblePanel
 }
 
 func getSumoSearchPanel(tfSearchPanel map[string]interface{}) interface{} {
@@ -1182,11 +1245,40 @@ func getTerraformPanels(panels []interface{}) []map[string]interface{} {
 			tfPanel["traces_list_panel"] = getTerraformTracesListPanel(panel)
 		} else if panel["panelType"] == "ServiceMapPanel" {
 			tfPanel["service_map_panel"] = getTerraformServiceMapPanel(panel)
+		} else if panel["panelType"] == "CollapsiblePanel" {
+			tfPanel["collapsible_panel"] = getTerraformCollapsiblePanel(panel)
 		}
 
 		tfPanels[i] = tfPanel
 	}
 	return tfPanels
+}
+
+func getTerraformCollapsiblePanel(collapsiblePanel map[string]interface{}) TerraformObject {
+	tfCollapsiblePanel := MakeTerraformObject()
+
+	tfCollapsiblePanel[0]["key"] = collapsiblePanel["key"]
+	if title, ok := collapsiblePanel["title"]; ok {
+		tfCollapsiblePanel[0]["title"] = title
+	}
+	if visualSettings, ok := collapsiblePanel["visualSettings"]; ok {
+		tfCollapsiblePanel[0]["visual_settings"] = visualSettings
+	}
+	if keepVisualSettingsConsistentWithParent, ok := collapsiblePanel["keepVisualSettingsConsistentWithParent"]; ok {
+		tfCollapsiblePanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
+	}
+	if collapsed, ok := collapsiblePanel["collapsed"]; ok {
+		tfCollapsiblePanel[0]["collapsed"] = collapsed
+	}
+	if childKeys, ok := collapsiblePanel["collapsiblePanelChildKeys"].([]interface{}); ok {
+		keys := make([]string, len(childKeys))
+		for i, k := range childKeys {
+			keys[i] = k.(string)
+		}
+		tfCollapsiblePanel[0]["collapsible_panel_child_keys"] = keys
+	}
+
+	return tfCollapsiblePanel
 }
 
 func getTerraformTextPanel(textPanel map[string]interface{}) TerraformObject {
