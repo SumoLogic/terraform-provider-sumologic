@@ -204,6 +204,14 @@ func resourceSumologicSourceTemplateUpdate(d *schema.ResourceData, meta interfac
 func resourceSumologicSourceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
+	sourceTemplate := resourceToSourceTemplate(d)
+	disabled := false
+	sourceTemplate.IsEnabled = &disabled
+	err := c.UpdateSourceTemplate(sourceTemplate)
+	if err != nil {
+		return err
+	}
+
 	return c.DeleteSourceTemplate(d.Id())
 }
 

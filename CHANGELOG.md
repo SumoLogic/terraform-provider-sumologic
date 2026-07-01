@@ -1,4 +1,11 @@
-## X.Y.Z (Unreleased)
+## 3.2.9 (Jun 30, 2026)
+
+FEATURES:
+* **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.
+
+BUG FIXES:
+* Fixed `sumologic_source_template` deletion failing with "Enabled source template cannot be deleted" by disabling the template before issuing the delete call.
+* Fixed `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` so that they don't see a perpetual plan diff when Sumo internally updates a non-overridable field. The fix adjusts non-overrideable fields to be Optional & Computed, which allows those fields to be read from the API during an override instead of asserting a hardcoded value. Logic has been added to ensure these fields are still required during a create.
 
 ENHANCEMENTS:
 * Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
