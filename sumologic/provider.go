@@ -70,7 +70,7 @@ func Provider() *schema.Provider {
 			"sumologic_collector":                                resourceSumologicCollector(),
 			"sumologic_installed_collector":                      resourceSumologicInstalledCollector(),
 			"sumologic_http_source":                              resourceSumologicHTTPSource(),
-			"sumologic_o365_audit_source":                         resourceSumologicO365AuditSource(),
+			"sumologic_o365_audit_source":                        resourceSumologicO365AuditSource(),
 			"sumologic_gcp_source":                               resourceSumologicGCPSource(),
 			"sumologic_polling_source":                           resourceSumologicPollingSource(),
 			"sumologic_s3_source":                                resourceSumologicGenericPollingSource(),
@@ -129,6 +129,7 @@ func Provider() *schema.Provider {
 			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
 			"sumologic_event_extraction_rule":                    resourceSumologicEventExtractionRule(),
 			"sumologic_data_mask_rule":                           resourceSumologicDataMaskRule(),
+			"sumologic_lambda_invoke_action":                     resourceSumologicLambdaInvokeAction(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
