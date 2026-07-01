@@ -148,6 +148,46 @@ func TestAccSumologicSCEMatchList_createAddRemoveItems(t *testing.T) {
 	})
 }
 
+func TestAccSumologicSCEMatchList_idempotent(t *testing.T) {
+	SkipCseTest(t)
+
+	var matchList CSEMatchListGet
+	resourceName := "sumologic_cse_match_list.match_list"
+
+	// Create values
+	nName := fmt.Sprintf("terraform_TestAccSumologicSCEMatchList_idempotent_%s", uuid.New())
+	nDefaultTtl := 10800
+	nDescription := "Match List Description"
+	nTargetColumn := "SrcIp"
+	liDescription := "Match List Item Description"
+	liExpiration := "2122-02-27T04:00:00"
+	liValue := "value"
+	liCount := 2
+	config := testCreateCSEMatchListConfig(nDefaultTtl, nDescription, nName, nTargetColumn, liDescription, liExpiration, liValue, liCount)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSEMatchListDestroy,
+		Steps: []resource.TestStep{
+			// Creates a match list with {liCount} total match list items
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testCheckCSEMatchListExists(resourceName, &matchList),
+					testCheckMatchListValues(&matchList, nDefaultTtl, nDescription, nName, nTargetColumn),
+					testCheckMatchListItemsValuesAndCount(resourceName, liDescription, liExpiration, liValue, liCount),
+				),
+			},
+			// plan with same config again - the plan should not have any changes to apply
+			{
+				Config:   config,
+				PlanOnly: true,
+			},
+		},
+	})
+
+}
+
 func testAccCSEMatchListDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*Client)
 
