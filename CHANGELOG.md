@@ -1,3 +1,10 @@
+## 3.2.10 (July 1, 2026)
+
+FEATURES:
+* **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
+* **New Data Source:** `sumologic_data_mask_rule` - Look up an existing data mask rule by its ID.
+* **New Data Source:** `sumologic_data_mask_rules` - List all data mask rules.
+
 ## 3.2.9 (Jun 30, 2026)
 
 FEATURES:
@@ -9,6 +16,7 @@ BUG FIXES:
 
 DOCS:
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
+* Added documentation for `sumologic_data_mask_rule` resource and data sources.
 
 ## 3.2.8 (May 11, 2026)
 
