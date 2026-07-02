@@ -322,12 +322,10 @@ func resourceSumologicCSEMatchListUpdate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Match List update items - to add: %d, to update: %d, to delete: %d", len(addItems), len(updateItems), len(deleteItemIds))
 
 	// Delete old items
-	for _, oldItem := range cseMatchListItemsAll.CSEMatchListItemsAllGetObjects {
-		if contains(deleteItemIds, oldItem.ID) {
-			err = c.DeleteCSEMatchListItem(oldItem.ID)
-			if err != nil {
-				return fmt.Errorf("[ERROR] An error occurred while deleting match list item with id %s, err: %v", oldItem.ID, err)
-			}
+	if len(deleteItemIds) > 0 {
+		err = c.DeleteCSEMatchListItems(deleteItemIds)
+		if err != nil {
+			return fmt.Errorf("[ERROR] An error occurred while deleting match list item with ids %v, err: %v", deleteItemIds, err)
 		}
 	}
 

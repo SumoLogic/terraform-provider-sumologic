@@ -117,6 +117,31 @@ func (s *Client) DeleteCSEMatchListItem(id string) error {
 	return err
 }
 
+func (s *Client) SendBulkDeleteCSEMatchListItemsRequest(ids []string) error {
+	request := CSEMatchListBulkDeleteRequestPost{
+		IDs: ids,
+	}
+
+	var response CSEMatchListBulkDeleteResponse
+
+	responseBody, err := s.Post("sec/v1/match-list-items/bulk-delete", request)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Data.ErrorResults) > 0 {
+		return fmt.Errorf("failed to delete match list items: %v", response.Data.ErrorResults)
+	}
+
+	return nil
+}
+
 func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
 	request := CSEMatchListItemRequestPost{
 		CSEMatchListItemPost: cseMatchListItemPost,
@@ -136,6 +161,23 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMa
 	}
 
 	return nil
+}
+
+func (s *Client) DeleteCSEMatchListItems(ids []string) error {
+	var start = 0
+	var end = 1000
+
+	//If there are more than 1000 items, batch delete
+	for end < len(ids) {
+		err := s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:end])
+		if err != nil {
+			return err
+		}
+		start += 1000
+		end += 1000
+	}
+
+	return s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:])
 }
 
 func (s *Client) CreateCSEMatchListItems(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
@@ -176,12 +218,22 @@ type CSEMatchListItemRequestPost struct {
 	CSEMatchListItemPost []CSEMatchListItemPost `json:"items"`
 }
 
+type CSEMatchListBulkDeleteRequestPost struct {
+	IDs []string `json:"ids"`
+}
+
 type CSEMatchListItemRequestUpdate struct {
 	CSEMatchListItemUpdate CSEMatchListItemUpdate `json:"fields"`
 }
 
 type CSEMatchListItemResponse struct {
 	CSEMatchListItemGet CSEMatchListItemGet `json:"data"`
+}
+
+type CSEMatchListBulkDeleteResponse struct {
+	Data struct {
+		ErrorResults []string `json:"errorResults"`
+	} `json:"data"`
 }
 
 type CSEMatchListItemsInMatchListResponse struct {
