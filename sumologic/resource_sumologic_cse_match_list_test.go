@@ -201,7 +201,7 @@ func TestSumologicSCEMatchListBulkDeleteSuccess(t *testing.T) {
 	client := newTestClient(response)
 	err := client.SendBulkDeleteCSEMatchListItemsRequest([]string{"id1", "id2"})
 	if err != nil {
-		t.Fatalf("Expected bulk delete to succeed, received: %s", err)
+		t.Fatalf("Expected bulk delete to succeed, received: %v", err)
 	}
 }
 
@@ -215,7 +215,7 @@ func TestSumologicSCEMatchListBulkDeletePartialSuccess(t *testing.T) {
 	client := newTestClient(response)
 	err := client.SendBulkDeleteCSEMatchListItemsRequest([]string{"id1", "id2"})
 	if err == nil {
-		t.Error("Expected bulk delete to fail for id1, but it was successful")
+		t.Fatal("Expected bulk delete to fail for id1, but it was successful")
 	}
 	if !strings.Contains(err.Error(), "id1") {
 		t.Errorf("Expected error to contain 'id1', got: %s", err.Error())
