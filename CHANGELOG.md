@@ -1,5 +1,14 @@
-## 3.2.9 (Jun 30, 2026)
+## X.Y.Z (Unreleased)
+* Fixed `sumologic_cse_match_list` producing a non-empty plan on every apply by excluding the computed `id` from the items set
+  hash.
 
+ENHANCEMENTS:
+* Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
+
+DOCS:
+* Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.
+
+## 3.2.9 (Jun 30, 2026)
 FEATURES:
 * **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.
 
@@ -7,11 +16,7 @@ BUG FIXES:
 * Fixed `sumologic_source_template` deletion failing with "Enabled source template cannot be deleted" by disabling the template before issuing the delete call.
 * Fixed `resource_sumologic_cse_aggregation_rule` and `resource_sumologic_cse_outlier_rule` so that they don't see a perpetual plan diff when Sumo internally updates a non-overridable field. The fix adjusts non-overrideable fields to be Optional & Computed, which allows those fields to be read from the API during an override instead of asserting a hardcoded value. Logic has been added to ensure these fields are still required during a create.
 
-ENHANCEMENTS:
-* Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
-
 DOCS:
-* Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.
 * Fixed documentation for `sumologic_s3_archive_source` to clarify it creates a source for ingesting from an S3 archive bucket (not an Archive Destination). Added a note pointing to the Archive Management UI for creating archive destinations. Fixed incorrect `content_type` value in example usage (`AwsS3Bucket` → `AwsS3ArchiveBucket`).
 
 ## 3.2.8 (May 11, 2026)
