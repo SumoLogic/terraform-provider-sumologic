@@ -2,6 +2,12 @@
 * Fixed `sumologic_cse_match_list` producing a non-empty plan on every apply by excluding the computed `id` from the items set
   hash.
 
+ENHANCEMENTS:
+* Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
+
+DOCS:
+* Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.
+
 ## 3.2.9 (Jun 30, 2026)
 FEATURES:
 * **New Resource:** `sumologic_lambda_invoke_action` - Invoke AWS Lambda functions for enabling S3 logging and auto-enable operations.

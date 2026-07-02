@@ -331,6 +331,50 @@ func TestAccSumologicDashboard_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicDashboard_collapsiblePanel(t *testing.T) {
+	testNameSuffix := acctest.RandString(16)
+	title := "terraform_test_dashboard_collapsible_" + testNameSuffix
+
+	var dashboard Dashboard
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDashboardDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: dashboardCollapsiblePanelConfig(title, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDashboardExists("sumologic_dashboard.tf_collapsible_test", &dashboard, t),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"title", title),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.#", "2"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.0.text_panel.0.key", "child-text-panel-001"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.key", "collapsible-panel-001"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.title", "Collapsible Section"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.collapsed", "false"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.collapsible_panel_child_keys.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.collapsible_panel_child_keys.0", "child-text-panel-001"),
+				),
+			},
+			{
+				Config: dashboardCollapsiblePanelConfig(title, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDashboardExists("sumologic_dashboard.tf_collapsible_test", &dashboard, t),
+					resource.TestCheckResourceAttr("sumologic_dashboard.tf_collapsible_test",
+						"panel.1.collapsible_panel.0.collapsed", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDashboardDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
@@ -650,5 +694,59 @@ func dashboardUpdateConfig(title string, description string, theme string, refre
 		layout.LayoutStructures[0].Key, layout.LayoutStructures[1].Key,
 		variables[0].Name, variables[0].DisplayName, variables[0].DefaultValue, csvSourceDef.Values,
 		variables[1].Name, variables[1].DisplayName, loqQuerySourceDef.Query, loqQuerySourceDef.Field,
+	)
+}
+
+func dashboardCollapsiblePanelConfig(title string, collapsed bool) string {
+	return fmt.Sprintf(`
+		data "sumologic_personal_folder" "personalFolder" {}
+		resource "sumologic_dashboard" "tf_collapsible_test" {
+			title = "%s"
+			description = "Test dashboard with collapsible panel"
+			folder_id = data.sumologic_personal_folder.personalFolder.id
+			refresh_interval = 120
+			theme = "Light"
+			time_range {
+				begin_bounded_time_range {
+					from {
+						literal_time_range {
+							range_name = "today"
+						}
+					}
+				}
+			}
+			panel {
+				text_panel {
+					key = "child-text-panel-001"
+					title = "Child Text Panel"
+					visual_settings = "{\"general\":{\"type\":\"column\"}}"
+					keep_visual_settings_consistent_with_parent = true
+					text = "This panel is inside a collapsible section"
+				}
+			}
+			panel {
+				collapsible_panel {
+					key = "collapsible-panel-001"
+					title = "Collapsible Section"
+					visual_settings = ""
+					keep_visual_settings_consistent_with_parent = true
+					collapsed = %t
+					collapsible_panel_child_keys = ["child-text-panel-001"]
+				}
+			}
+			layout {
+				grid {
+					layout_structure {
+						key = "child-text-panel-001"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":0}"
+					}
+					layout_structure {
+						key = "collapsible-panel-001"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":10}"
+					}
+				}
+			}
+		}`,
+		title, collapsed,
 	)
 }
