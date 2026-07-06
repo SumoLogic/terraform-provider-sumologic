@@ -164,20 +164,22 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMa
 }
 
 func (s *Client) DeleteCSEMatchListItems(ids []string) error {
-	var start = 0
-	var end = 1000
-
+	if len(ids) == 0 {
+		return nil
+	}
 	//If there are more than 1000 items, batch delete
-	for end < len(ids) {
-		err := s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:end])
-		if err != nil {
+	const batchSize = 1000
+	for start := 0; start < len(ids); start += batchSize {
+		end := start + batchSize
+		if end > len(ids) {
+			end = len(ids)
+		}
+		if err :=
+			s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:end]); err != nil {
 			return err
 		}
-		start += 1000
-		end += 1000
 	}
-
-	return s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:])
+	return nil
 }
 
 func (s *Client) CreateCSEMatchListItems(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
