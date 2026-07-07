@@ -69,6 +69,17 @@ resource "sumologic_dashboard" "api-dashboard" {
 		}
 	}
 
+	## collapsible panel
+	panel {
+		collapsible_panel {
+			key = "collapsible-panel-01"
+			title = "API Metrics"
+			collapsed = false
+			collapsible_panel_child_keys = ["search-panel-01", "metrics-panel-01"]
+			keep_visual_settings_consistent_with_parent = true
+		}
+	}
+
 	## search panel - log query
 	panel {
 		sumo_search_panel {
@@ -246,6 +257,10 @@ resource "sumologic_dashboard" "api-dashboard" {
 				key = "metrics-panel-02"
 				structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":25}"
 			}
+			layout_structure {
+				key = "collapsible-panel-01"
+				structure = "{\"height\":22,\"width\":24,\"x\":0,\"y\":5}"
+			}
 		}
 	}
 
@@ -337,6 +352,7 @@ schema for details.
 - `text_panel` - (Block List, Max: 1, Optional) A text panel. See [text_panel schema](#schema-for-text_panel) for details.
 - `sumo_search_panel` - (Block List, Max: 1, Optional) A search panel. See [sumo_search_panel schema](#schema-for-sumo_search_panel)
 for details.
+- `collapsible_panel` - (Block List, Max: 1, Optional) A collapsible panel that groups other panels. See [collapsible_panel schema](#schema-for-collapsible_panel) for details.
 
 ### Schema for `text_panel`
 - `key` - (Required) Key for the panel. Used to create searches for the queries in the panel and configure the layout
@@ -361,6 +377,16 @@ with the settings of the parent panel.
 for details.
 - `linked_dashboard` - (Block List, Optional) A list of linked dashboards. See
 [linked_dashboard schema](#schema-for-linked_dashboard) for details.
+
+### Schema for `collapsible_panel`
+- `key` - (Required) Key for the panel. Used to create searches for the queries in the panel and configure the layout
+of the panel in the dashboard.
+- `title` - (Optional) Title of the panel.
+- `visual_settings` - (Optional) Visual settings of the panel.
+- `keep_visual_settings_consistent_with_parent` - (Optional) Keeps the visual settings, like series colors, consistent
+with the settings of the parent panel.
+- `collapsed` - (Optional) Whether the panel starts in a collapsed state. Defaults to false.
+- `collapsible_panel_child_keys` - (Required) A list of panel keys that are contained inside this collapsible panel.
 
 ### Schema for `query`
 - `query_string` - (Required) The metrics or logs query.

@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"regexp"
@@ -60,6 +61,7 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 			"items": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Set:      matchListItemHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -86,6 +88,19 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 			},
 		},
 	}
+}
+
+func matchListItemHash(v interface{}) int {
+	var buf bytes.Buffer
+	m, ok := v.((map[string]interface{}))
+	if !ok {
+		log.Printf("[WARN] matchListItemHash: unexpected type %T, expected map[string]interface{}", v)
+		return 0
+	}
+	buf.WriteString(m["value"].(string))
+	buf.WriteString(m["description"].(string))
+	buf.WriteString(m["expiration"].(string))
+	return schema.HashString(buf.String())
 }
 
 func resourceSumologicCSEMatchListRead(d *schema.ResourceData, meta interface{}) error {
