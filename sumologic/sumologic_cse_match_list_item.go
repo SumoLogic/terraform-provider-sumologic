@@ -117,6 +117,31 @@ func (s *Client) DeleteCSEMatchListItem(id string) error {
 	return err
 }
 
+func (s *Client) SendBulkDeleteCSEMatchListItemsRequest(ids []string) error {
+	request := CSEMatchListBulkDeleteRequestPost{
+		IDs: ids,
+	}
+
+	var response CSEMatchListBulkDeleteResponse
+
+	responseBody, err := s.Post("sec/v1/match-list-items/bulk-delete", request)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Data.ErrorResults) > 0 {
+		return fmt.Errorf("failed to delete match list items: %v", response.Data.ErrorResults)
+	}
+
+	return nil
+}
+
 func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMatchListItemPost, matchListID string) error {
 	request := CSEMatchListItemRequestPost{
 		CSEMatchListItemPost: cseMatchListItemPost,
@@ -135,6 +160,25 @@ func (s *Client) SendCreateCSEMatchListItemsRequest(cseMatchListItemPost []CSEMa
 		return err
 	}
 
+	return nil
+}
+
+func (s *Client) DeleteCSEMatchListItems(ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	//If there are more than 1000 items, batch delete
+	const batchSize = 1000
+	for start := 0; start < len(ids); start += batchSize {
+		end := start + batchSize
+		if end > len(ids) {
+			end = len(ids)
+		}
+		if err :=
+			s.SendBulkDeleteCSEMatchListItemsRequest(ids[start:end]); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -176,12 +220,22 @@ type CSEMatchListItemRequestPost struct {
 	CSEMatchListItemPost []CSEMatchListItemPost `json:"items"`
 }
 
+type CSEMatchListBulkDeleteRequestPost struct {
+	IDs []string `json:"ids"`
+}
+
 type CSEMatchListItemRequestUpdate struct {
 	CSEMatchListItemUpdate CSEMatchListItemUpdate `json:"fields"`
 }
 
 type CSEMatchListItemResponse struct {
 	CSEMatchListItemGet CSEMatchListItemGet `json:"data"`
+}
+
+type CSEMatchListBulkDeleteResponse struct {
+	Data struct {
+		ErrorResults []string `json:"errorResults"`
+	} `json:"data"`
 }
 
 type CSEMatchListItemsInMatchListResponse struct {

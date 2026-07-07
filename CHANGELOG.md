@@ -11,6 +11,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
+* `sumologic_cse_match_list`: use bulk delete API for match list items instead of individual deletes, batching in groups of 1000.
 
 DOCS:
 * Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.

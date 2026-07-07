@@ -1,8 +1,11 @@
 package sumologic
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -186,6 +189,37 @@ func TestAccSumologicSCEMatchList_idempotent(t *testing.T) {
 		},
 	})
 
+}
+
+func TestSumologicSCEMatchListBulkDeleteSuccess(t *testing.T) {
+	responseBody := []byte(`{"data": {"errorResults": []}}`)
+	response := &http.Response{
+		Status:     http.StatusText(200),
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader(responseBody)),
+	}
+	client := newTestClient(response)
+	err := client.SendBulkDeleteCSEMatchListItemsRequest([]string{"id1", "id2"})
+	if err != nil {
+		t.Fatalf("Expected bulk delete to succeed, received: %v", err)
+	}
+}
+
+func TestSumologicSCEMatchListBulkDeletePartialSuccess(t *testing.T) {
+	responseBody := []byte(`{"data": {"errorResults": ["id1"]}}`)
+	response := &http.Response{
+		Status:     http.StatusText(200),
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader(responseBody)),
+	}
+	client := newTestClient(response)
+	err := client.SendBulkDeleteCSEMatchListItemsRequest([]string{"id1", "id2"})
+	if err == nil {
+		t.Fatal("Expected bulk delete to fail for id1, but it was successful")
+	}
+	if !strings.Contains(err.Error(), "id1") {
+		t.Errorf("Expected error to contain 'id1', got: %s", err.Error())
+	}
 }
 
 func testAccCSEMatchListDestroy(s *terraform.State) error {
