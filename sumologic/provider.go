@@ -91,6 +91,7 @@ func Provider() *schema.Provider {
 			"sumologic_folder":                                   resourceSumologicFolder(),
 			"sumologic_content":                                  resourceSumologicContent(),
 			"sumologic_scheduled_view":                           resourceSumologicScheduledView(),
+			"sumologic_data_archiving_destination":               resourceSumologicDataArchivingDestination(),
 			"sumologic_data_forwarding_destination":              resourceSumologicDataForwardingDestination(),
 			"sumologic_data_forwarding_rule":                     resourceSumologicDataForwardingRule(),
 			"sumologic_partition":                                resourceSumologicPartition(),
