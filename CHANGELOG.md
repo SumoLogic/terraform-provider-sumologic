@@ -1,17 +1,18 @@
 ## X.Y.Z (Unreleased)
 
+## 3.2.10 (Jul 15, 2026)
 FEATURES:
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
 * **New Data Source:** `sumologic_data_mask_rule` - Look up an existing data mask rule by its ID.
 * **New Data Source:** `sumologic_data_mask_rules` - List all data mask rules.
 
-## X.Y.Z (Unreleased)
-* Fixed `sumologic_cse_match_list` producing a non-empty plan on every apply by excluding the computed `id` from the items set
-  hash.
-
 ENHANCEMENTS:
 * Added `collapsible_panel` support to `sumologic_dashboard` resource, allowing panels to be grouped into collapsible sections with configurable `collapsed` state and `collapsible_panel_child_keys`.
 * `sumologic_cse_match_list`: use bulk delete API for match list items instead of individual deletes, batching in groups of 1000.
+
+BUG FIXES:
+* Fixed `sumologic_cse_match_list` producing a non-empty plan on every apply by excluding the computed `id` from the items set
+  hash.
 
 DOCS:
 * Added documentation for `collapsible_panel` block in `sumologic_dashboard` resource, including argument descriptions and example usage.
