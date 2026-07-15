@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -10,15 +11,40 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func skipDataArchivingTest(t *testing.T) {
+	if strings.ToLower(os.Getenv("SKIP_DATA_ARCHIVING_TESTS")) == "true" {
+		t.Skip("Skipping Data Archiving Test")
+	}
+}
+
+func testAccPreCheckDataArchivingWithAWS(t *testing.T) {
+	testAccPreCheck(t)
+	skipDataArchivingTest(t)
+	if v := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN"); v == "" {
+		t.Fatal("SUMOLOGIC_TEST_ROLE_ARN must be set for data archiving S3 acceptance tests")
+	}
+	if v := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME"); v == "" {
+		t.Fatal("SUMOLOGIC_TEST_BUCKET_NAME must be set for data archiving S3 acceptance tests")
+	}
+	if v := os.Getenv("SUMOLOGIC_TEST_REGION"); v == "" {
+		t.Fatal("SUMOLOGIC_TEST_REGION must be set for data archiving S3 acceptance tests")
+	}
+}
+
+func testAccPreCheckDataArchiving(t *testing.T) {
+	testAccPreCheck(t)
+	skipDataArchivingTest(t)
+}
+
 func TestAccSumologicDataArchivingDestination_createS3RoleBased(t *testing.T) {
 	name := "terraform_test_archive_" + acctest.RandString(10)
 	resourceName := "sumologic_data_archiving_destination.test"
 	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
 	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
-	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_AWS_REGION")
+	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_REGION")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckWithAWS(t) },
+		PreCheck:     func() { testAccPreCheckDataArchivingWithAWS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
 		Steps: []resource.TestStep{
@@ -52,7 +78,7 @@ func TestAccSumologicDataArchivingDestination_createSyslog(t *testing.T) {
 	resourceName := "sumologic_data_archiving_destination.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDataArchiving(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
 		Steps: []resource.TestStep{
@@ -77,7 +103,7 @@ func TestAccSumologicDataArchivingDestination_update(t *testing.T) {
 	resourceName := "sumologic_data_archiving_destination.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDataArchiving(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
 		Steps: []resource.TestStep{
