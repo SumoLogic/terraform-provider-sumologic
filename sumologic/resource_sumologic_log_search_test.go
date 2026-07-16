@@ -614,6 +614,137 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 		literalRangeName, tfSchedule)
 }
 
+func TestAccSumologicLogSearch_multi_notification(t *testing.T) {
+	var logSearch LogSearch
+	name := "TF Multi Notification Search Test"
+	description := "TF Multi Notification Search Test Description"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
+	}
+
+	tfResourceName := "tf_multi_notif_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLogSearchMultiNotification(tfResourceName, name, description,
+					queryString, parsingMode, runByReceiptTime, queryParameter, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "name", name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notifications.#", "2"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.0.email_search_notification.0.to_list.0",
+						"tf_multi_notif_1@sumologic.com"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.1.email_search_notification.0.to_list.0",
+						"tf_multi_notif_2@sumologic.com"),
+				),
+			},
+			{
+				ResourceName:      tfSearchResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccSumologicLogSearchMultiNotification(tfResourceName string, name string, description string,
+	queryString string, parsingMode string, runByReceiptTime bool, queryParameter LogSearchQueryParameter,
+	literalRangeName string) string {
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		schedule {
+			cron_expression = "0 0 6 ? * 3 *"
+			mute_error_emails = false
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = true
+					include_query = true
+					include_result_set = true
+					subject_template = "Alert 1: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_multi_notif_1@sumologic.com",
+					]
+				}
+			}
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = false
+					include_query = false
+					include_result_set = true
+					subject_template = "Alert 2: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_multi_notif_2@sumologic.com",
+					]
+				}
+			}
+			parameter {
+				name = "timeslice"
+				value = "15m"
+			}
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "-15m"
+						}
+					}
+				}
+			}
+			schedule_type = "Custom"
+			threshold {
+				count = 10
+				operator = "gt"
+				threshold_type = "group"
+			}
+			time_zone = "America/Los_Angeles"
+		}
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName)
+}
+
 func TestAccSumologicLogSearch_intervalTimeType(t *testing.T) {
 	var logSearch LogSearch
 	name := "TF IntervalTimeType Test"
