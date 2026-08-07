@@ -266,7 +266,7 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 		item.ID = itemObj["id"].(string)
 		item.Description = itemObj["description"].(string)
 		item.Active = true
-		item.Expiration = itemObj["expiration"].(string)
+		item.Expiration, _ = itemObj["expiration"].(string)
 		item.Value = itemObj["value"].(string)
 	}
 	return item
