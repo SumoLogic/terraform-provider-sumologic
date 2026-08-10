@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 
 FEATURES:
+* **New Resource:** `sumologic_data_archiving_destination` - Manage data archiving destinations for `S3`, `Syslog`, `Hitachi`, and `RestAPI` targets.
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
 * **New Data Source:** `sumologic_data_mask_rule` - Look up an existing data mask rule by its ID.
 * **New Data Source:** `sumologic_data_mask_rules` - List all data mask rules.

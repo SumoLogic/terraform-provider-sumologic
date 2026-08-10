@@ -1,18 +1,45 @@
 package sumologic
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 )
 
 func (s *Client) CreateDataArchivingDestination(dest DataArchivingDestination) (*DataArchivingDestination, error) {
-	data, err := s.Post("v1/dataarchiving/destinations", dest)
+	body, err := json.Marshal(dest)
 	if err != nil {
 		return nil, err
 	}
 
+	urlPath := "v1/dataarchiving/destinations"
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("[DEBUG] CreateDataArchivingDestination POST %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("POST %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
+	}
+
 	var created DataArchivingDestination
-	err = json.Unmarshal(data, &created)
+	err = json.Unmarshal(d, &created)
 	if err != nil {
 		return nil, err
 	}
@@ -21,16 +48,38 @@ func (s *Client) CreateDataArchivingDestination(dest DataArchivingDestination) (
 }
 
 func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestination, error) {
-	data, err := s.Get(fmt.Sprintf("v1/dataarchiving/destinations/%s", id))
+	urlPath := fmt.Sprintf("v1/dataarchiving/destinations/%s", id)
+	req, err := s.createSumoRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
 		return nil, err
 	}
-	if data == nil {
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("[DEBUG] GetDataArchivingDestination GET %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+
+	if resp.StatusCode == 404 {
 		return nil, nil
+	}
+	if resp.StatusCode == 400 {
+		// The API returns 400 with "destination_name_not_exists" when the resource is gone
+		return nil, nil
+	}
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("GET %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
 	}
 
 	var dest DataArchivingDestination
-	err = json.Unmarshal(data, &dest)
+	err = json.Unmarshal(d, &dest)
 	if err != nil {
 		return nil, err
 	}
@@ -39,13 +88,62 @@ func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestinati
 }
 
 func (s *Client) UpdateDataArchivingDestination(dest DataArchivingDestination) error {
-	_, err := s.Put(fmt.Sprintf("v1/dataarchiving/destinations/%s", dest.ID), dest)
-	return err
+	urlPath := fmt.Sprintf("v1/dataarchiving/destinations/%s", dest.ID)
+	body, err := json.Marshal(dest)
+	if err != nil {
+		return err
+	}
+
+	req, err := s.createSumoRequest(http.MethodPut, urlPath, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return err
+	}
+
+	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] UpdateDataArchivingDestination PUT %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("PUT %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
+	}
+
+	return nil
 }
 
 func (s *Client) DeleteDataArchivingDestination(id string) error {
-	_, err := s.Delete(fmt.Sprintf("v1/dataarchiving/destinations/%s", id))
-	return err
+	urlPath := fmt.Sprintf("v1/dataarchiving/destinations/%s", id)
+	req, err := s.createSumoRequest(http.MethodDelete, urlPath, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return err
+	}
+
+	d, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] DeleteDataArchivingDestination DELETE %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("DELETE %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
+	}
+
+	return nil
 }
 
 type DataArchivingDestination struct {

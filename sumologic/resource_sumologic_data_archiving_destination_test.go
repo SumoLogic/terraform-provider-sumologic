@@ -97,6 +97,54 @@ func TestAccSumologicDataArchivingDestination_createSyslog(t *testing.T) {
 	})
 }
 
+func TestAccSumologicDataArchivingDestination_createHitachi(t *testing.T) {
+	name := "terraform_test_archive_" + acctest.RandString(10)
+	resourceName := "sumologic_data_archiving_destination.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDataArchiving(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataArchivingDestinationHitachi(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataArchivingDestinationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "destination_name", name),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.destination_type", "Hitachi"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.url", "https://hitachi.example.com"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.object_id", "archive_path/logname_{day}_{hour}_{minute}_{second}_{uuid}.log"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.username", "testuser"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSumologicDataArchivingDestination_createRestAPI(t *testing.T) {
+	name := "terraform_test_archive_" + acctest.RandString(10)
+	resourceName := "sumologic_data_archiving_destination.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDataArchiving(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataArchivingDestinationRestAPI(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataArchivingDestinationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "destination_name", name),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.destination_type", "RestAPI"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.url", "https://example.com/receiver/v1/http/token"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.object_id", "archive_test"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.username", "testuser"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSumologicDataArchivingDestination_update(t *testing.T) {
 	name := "terraform_test_archive_" + acctest.RandString(10)
 	updatedName := name + "_updated"
@@ -198,6 +246,38 @@ resource "sumologic_data_archiving_destination" "test" {
     protocol         = "udp"
     host             = "10.20.30.40"
     port             = 514
+  }
+}
+`, name)
+}
+
+func testAccDataArchivingDestinationHitachi(name string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_archiving_destination" "test" {
+  destination_name = "%s"
+
+  destination_config {
+    destination_type = "Hitachi"
+    url              = "https://hitachi.example.com"
+    object_id        = "archive_path/logname_{day}_{hour}_{minute}_{second}_{uuid}.log"
+    username         = "testuser"
+    password         = "testpassword"
+  }
+}
+`, name)
+}
+
+func testAccDataArchivingDestinationRestAPI(name string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_archiving_destination" "test" {
+  destination_name = "%s"
+
+  destination_config {
+    destination_type = "RestAPI"
+    url              = "https://example.com/receiver/v1/http/token"
+    object_id        = "archive_test"
+    username         = "testuser"
+    password         = "testpassword"
   }
 }
 `, name)
