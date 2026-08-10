@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -77,11 +78,17 @@ func resourceSumologicCSEMatchList() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: false,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return old == "" && new == ""
+							},
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return strings.EqualFold(old, new)
+							},
 						},
 					},
 				},
@@ -97,9 +104,10 @@ func matchListItemHash(v interface{}) int {
 		log.Printf("[WARN] matchListItemHash: unexpected type %T, expected map[string]interface{}", v)
 		return 0
 	}
-	buf.WriteString(m["value"].(string))
+	buf.WriteString(strings.ToLower(m["value"].(string)))
 	buf.WriteString(m["description"].(string))
-	buf.WriteString(m["expiration"].(string))
+	expiration, _ := m["expiration"].(string)
+	buf.WriteString(expiration)
 	return schema.HashString(buf.String())
 }
 
@@ -258,7 +266,7 @@ func resourceToCSEMatchListItem(data interface{}) CSEMatchListItemPost {
 		item.ID = itemObj["id"].(string)
 		item.Description = itemObj["description"].(string)
 		item.Active = true
-		item.Expiration = itemObj["expiration"].(string)
+		item.Expiration, _ = itemObj["expiration"].(string)
 		item.Value = itemObj["value"].(string)
 	}
 	return item
@@ -375,7 +383,7 @@ func matches(oldItem CSEMatchListItemGet, newItem CSEMatchListItemPost) bool {
 	return oldItem.ID == newItem.ID &&
 		oldItem.Expiration == newItem.Expiration &&
 		oldItem.Active == newItem.Active &&
-		oldItem.Value == newItem.Value &&
+		strings.EqualFold(oldItem.Value, newItem.Value) &&
 		oldItem.Meta.Description == newItem.Description
 }
 

@@ -1,4 +1,6 @@
 ## X.Y.Z (Unreleased)
+BUG FIXES:
+* Updated `sumologic_cse_match_list` to handle cases where case differences in values and empty expirations resulted in plan diffs with no functional changes. These will no longer result in a plan diff.
 
 ## 3.2.10 (Jul 15, 2026)
 FEATURES:
