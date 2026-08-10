@@ -129,7 +129,8 @@ func Provider() *schema.Provider {
 			"sumologic_local_windows_event_log_source":           resourceSumologicLocalWindowsEventLogSource(),
 			"sumologic_event_extraction_rule":                    resourceSumologicEventExtractionRule(),
 			"sumologic_data_mask_rule":                           resourceSumologicDataMaskRule(),
-			"sumologic_lambda_invoke_action":                     resourceSumologicLambdaInvokeAction(),
+			"sumologic_async_aws_lambda_invocation":              resourceSumologicAsyncAwsLambdaInvocation(),
+			"sumologic_s3_logging_lambda_enable":                 resourceSumologicLambdaInvokeAction(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),

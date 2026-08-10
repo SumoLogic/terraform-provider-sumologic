@@ -1,4 +1,9 @@
 ## X.Y.Z (Unreleased)
+FEATURES:
+* **New Resource:** `sumologic_async_aws_lambda_invocation` - Asynchronously invoke an AWS Lambda function with support for AWS named profiles, enabling multi-account deployments.
+
+ENHANCEMENTS:
+* `sumologic_s3_logging_lambda_enable`: Added `region` and `aws_profile` arguments to support explicit AWS region configuration and named AWS credential profiles, enabling multi-account deployments.
 
 ## 3.2.10 (Jul 15, 2026)
 FEATURES:
