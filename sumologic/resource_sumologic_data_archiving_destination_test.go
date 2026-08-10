@@ -20,14 +20,14 @@ func skipDataArchivingTest(t *testing.T) {
 func testAccPreCheckDataArchivingWithAWS(t *testing.T) {
 	testAccPreCheck(t)
 	skipDataArchivingTest(t)
-	if v := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN"); v == "" {
-		t.Fatal("SUMOLOGIC_TEST_ROLE_ARN must be set for data archiving S3 acceptance tests")
+	if v := os.Getenv("SUMOLOGIC_DATA_FORWARDING_ROLE_ARN"); v == "" {
+		t.Fatal("SUMOLOGIC_DATA_FORWARDING_ROLE_ARN must be set for data archiving S3 acceptance tests")
 	}
-	if v := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME"); v == "" {
-		t.Fatal("SUMOLOGIC_TEST_BUCKET_NAME must be set for data archiving S3 acceptance tests")
+	if v := os.Getenv("SUMOLOGIC_DATA_FORWARDING_BUCKET"); v == "" {
+		t.Fatal("SUMOLOGIC_DATA_FORWARDING_BUCKET must be set for data archiving S3 acceptance tests")
 	}
-	if v := os.Getenv("SUMOLOGIC_TEST_REGION"); v == "" {
-		t.Fatal("SUMOLOGIC_TEST_REGION must be set for data archiving S3 acceptance tests")
+	if v := os.Getenv("SUMOLOGIC_DATA_FORWARDING_AWS_REGION"); v == "" {
+		t.Fatal("SUMOLOGIC_DATA_FORWARDING_AWS_REGION must be set for data archiving S3 acceptance tests")
 	}
 }
 
@@ -39,9 +39,9 @@ func testAccPreCheckDataArchiving(t *testing.T) {
 func TestAccSumologicDataArchivingDestination_createS3RoleBased(t *testing.T) {
 	name := "terraform_test_archive_" + acctest.RandString(10)
 	resourceName := "sumologic_data_archiving_destination.test"
-	testAwsRoleArn := os.Getenv("SUMOLOGIC_TEST_ROLE_ARN")
-	testAwsBucket := os.Getenv("SUMOLOGIC_TEST_BUCKET_NAME")
-	testAwsRegion := os.Getenv("SUMOLOGIC_TEST_REGION")
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_DATA_FORWARDING_ROLE_ARN")
+	testAwsBucket := os.Getenv("SUMOLOGIC_DATA_FORWARDING_BUCKET")
+	testAwsRegion := os.Getenv("SUMOLOGIC_DATA_FORWARDING_AWS_REGION")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDataArchivingWithAWS(t) },
