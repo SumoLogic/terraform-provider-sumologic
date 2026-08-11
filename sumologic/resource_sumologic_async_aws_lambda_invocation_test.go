@@ -12,9 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func newMockAsyncLambdaClient(handler http.HandlerFunc) *lambda.Client {
+func withMockAsyncLambdaClient(handler http.HandlerFunc, fn func()) {
 	server := httptest.NewServer(handler)
-	return lambda.New(lambda.Options{
+	defer server.Close()
+	client := lambda.New(lambda.Options{
 		Region:       "us-east-1",
 		BaseEndpoint: aws.String(server.URL),
 		Credentials: aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
@@ -25,10 +26,6 @@ func newMockAsyncLambdaClient(handler http.HandlerFunc) *lambda.Client {
 			}, nil
 		}),
 	})
-}
-
-func withMockAsyncLambdaClient(handler http.HandlerFunc, fn func()) {
-	client := newMockAsyncLambdaClient(handler)
 	original := newAsyncLambdaClientFunc
 	newAsyncLambdaClientFunc = func(ctx context.Context, region string, profile string) (*lambda.Client, error) {
 		return client, nil
@@ -75,10 +72,11 @@ func TestAsyncLambdaInvocationResourceSchema(t *testing.T) {
 	}{
 		"function_name": {typ: schema.TypeString, required: true, forceNew: true},
 		"region":        {typ: schema.TypeString, required: true, forceNew: true},
-		"input":         {typ: schema.TypeString, optional: true, forceNew: true},
-		"qualifier":     {typ: schema.TypeString, optional: true, forceNew: true},
-		"triggers":      {typ: schema.TypeMap, optional: true, forceNew: true},
-		"status_code":   {typ: schema.TypeInt, computed: true},
+		"input":       {typ: schema.TypeString, optional: true, forceNew: true},
+		"qualifier":   {typ: schema.TypeString, optional: true, forceNew: true},
+		"triggers":    {typ: schema.TypeMap, optional: true, forceNew: true},
+		"aws_profile": {typ: schema.TypeString, optional: true, forceNew: true},
+		"status_code": {typ: schema.TypeInt, computed: true},
 	}
 
 	for name, expected := range expectedAttrs {

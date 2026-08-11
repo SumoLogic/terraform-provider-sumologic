@@ -3,7 +3,7 @@ FEATURES:
 * **New Resource:** `sumologic_async_aws_lambda_invocation` - Asynchronously invoke an AWS Lambda function with support for AWS named profiles, enabling multi-account deployments.
 
 ENHANCEMENTS:
-* `sumologic_s3_logging_lambda_enable`: Added `region` and `aws_profile` arguments to support explicit AWS region configuration and named AWS credential profiles, enabling multi-account deployments.
+* `sumologic_s3_logging_lambda_enable` (renamed from `sumologic_lambda_invoke_action`): Added `region` and `aws_profile` arguments to support explicit AWS region configuration and named AWS credential profiles, enabling multi-account deployments.
 
 BUG FIXES:
 * Updated `sumologic_cse_match_list` to handle cases where case differences in values and empty expirations resulted in plan diffs with no functional changes. These will no longer result in a plan diff.
