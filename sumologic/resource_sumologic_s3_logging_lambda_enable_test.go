@@ -32,7 +32,7 @@ func newMockLambdaClient(handler http.HandlerFunc) *lambda.Client {
 func withMockLambdaClient(handler http.HandlerFunc, fn func()) {
 	client := newMockLambdaClient(handler)
 	original := newLambdaClientFunc
-	newLambdaClientFunc = func(ctx context.Context, region string) (*lambda.Client, error) {
+	newLambdaClientFunc = func(ctx context.Context, region string, profile string) (*lambda.Client, error) {
 		return client, nil
 	}
 	defer func() { newLambdaClientFunc = original }()
@@ -224,7 +224,7 @@ func TestLambdaInvokeResourceCreate_LambdaError(t *testing.T) {
 
 func TestLambdaInvokeResourceCreate_ClientError(t *testing.T) {
 	original := newLambdaClientFunc
-	newLambdaClientFunc = func(ctx context.Context, region string) (*lambda.Client, error) {
+	newLambdaClientFunc = func(ctx context.Context, region string, profile string) (*lambda.Client, error) {
 		return nil, fmt.Errorf("AWS credentials not configured")
 	}
 	defer func() { newLambdaClientFunc = original }()
@@ -333,7 +333,7 @@ func TestLambdaInvokeResourceDelete_LambdaError(t *testing.T) {
 
 func TestLambdaInvokeResourceDelete_ClientError(t *testing.T) {
 	original := newLambdaClientFunc
-	newLambdaClientFunc = func(ctx context.Context, region string) (*lambda.Client, error) {
+	newLambdaClientFunc = func(ctx context.Context, region string, profile string) (*lambda.Client, error) {
 		return nil, fmt.Errorf("AWS credentials not configured")
 	}
 	defer func() { newLambdaClientFunc = original }()

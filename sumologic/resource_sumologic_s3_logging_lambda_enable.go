@@ -63,6 +63,12 @@ func resourceSumologicLambdaInvokeAction() *schema.Resource {
 				Optional:    true,
 				Description: "AWS region where the Lambda function is deployed. If not set, uses AWS_REGION env var or SDK defaults.",
 			},
+			"aws_profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "AWS profile to use for Lambda invocation. If not set, uses the default credential chain.",
+			},
 			"last_lambda_output": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -79,10 +85,13 @@ func resourceSumologicLambdaInvokeAction() *schema.Resource {
 
 var newLambdaClientFunc = defaultNewLambdaClient
 
-func defaultNewLambdaClient(ctx context.Context, region string) (*lambda.Client, error) {
+func defaultNewLambdaClient(ctx context.Context, region string, profile string) (*lambda.Client, error) {
 	var opts []func(*awsconfig.LoadOptions) error
 	if region != "" {
 		opts = append(opts, awsconfig.WithRegion(region))
+	}
+	if profile != "" {
+		opts = append(opts, awsconfig.WithSharedConfigProfile(profile))
 	}
 	cfg, err := awsconfig.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
@@ -92,7 +101,7 @@ func defaultNewLambdaClient(ctx context.Context, region string) (*lambda.Client,
 }
 
 func resourceSumologicLambdaInvokeActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client, err := newLambdaClientFunc(ctx, d.Get("region").(string))
+	client, err := newLambdaClientFunc(ctx, d.Get("region").(string), d.Get("aws_profile").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -130,7 +139,7 @@ func resourceSumologicLambdaInvokeActionRead(ctx context.Context, d *schema.Reso
 }
 
 func resourceSumologicLambdaInvokeActionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client, err := newLambdaClientFunc(ctx, d.Get("region").(string))
+	client, err := newLambdaClientFunc(ctx, d.Get("region").(string), d.Get("aws_profile").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -170,7 +179,7 @@ func resourceSumologicLambdaInvokeActionUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceSumologicLambdaInvokeActionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client, err := newLambdaClientFunc(ctx, d.Get("region").(string))
+	client, err := newLambdaClientFunc(ctx, d.Get("region").(string), d.Get("aws_profile").(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
