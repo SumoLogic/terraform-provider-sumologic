@@ -5,6 +5,9 @@ FEATURES:
 ENHANCEMENTS:
 * `sumologic_s3_logging_lambda_enable`: Added `region` and `aws_profile` arguments to support explicit AWS region configuration and named AWS credential profiles, enabling multi-account deployments.
 
+BUG FIXES:
+* Updated `sumologic_cse_match_list` to handle cases where case differences in values and empty expirations resulted in plan diffs with no functional changes. These will no longer result in a plan diff.
+
 ## 3.2.10 (Jul 15, 2026)
 FEATURES:
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
