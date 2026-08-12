@@ -1,4 +1,4 @@
-## X.Y.Z (Unreleased)
+## 3.3.0 (Aug 11, 2026)
 FEATURES:
 * **New Resource:** `sumologic_async_aws_lambda_invocation` - Asynchronously invoke an AWS Lambda function with support for AWS named profiles, enabling multi-account deployments.
 
