@@ -209,6 +209,22 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 		if len(authConfigs) == 0 {
 			return fmt.Errorf("auth_config is required for S3 destination")
 		}
+		if auth, ok := authConfigs[0].(map[string]interface{}); ok {
+			switch auth["authentication_mode"].(string) {
+			case "AccessKey":
+				if auth["access_key_id"].(string) == "" {
+					return fmt.Errorf("access_key_id is required when authentication_mode is AccessKey")
+				}
+				// The API never returns access_key_secret, so it is absent after an import.
+				if d.Id() == "" && auth["access_key_secret"].(string) == "" {
+					return fmt.Errorf("access_key_secret is required when authentication_mode is AccessKey")
+				}
+			case "RoleBased":
+				if auth["role_arn"].(string) == "" {
+					return fmt.Errorf("role_arn is required when authentication_mode is RoleBased")
+				}
+			}
+		}
 	case "Syslog":
 		if cfg["protocol"].(string) == "" {
 			return fmt.Errorf("protocol is required for Syslog destination")

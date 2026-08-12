@@ -126,9 +126,9 @@ The following arguments are supported:
 ### auth_config
 
 - `authentication_mode` - (Required) AWS IAM authentication method used for access. Possible values are `AccessKey` and `RoleBased`.
-- `access_key_id` - (Optional) The AWS Access Key ID used to access the S3 bucket. Used when `authentication_mode` is `AccessKey`.
-- `access_key_secret` - (Optional, Sensitive) The AWS Secret Access Key used to access the S3 bucket. Used when `authentication_mode` is `AccessKey`.
-- `role_arn` - (Optional) The AWS Role ARN used to access the S3 bucket. Used when `authentication_mode` is `RoleBased`.
+- `access_key_id` - (Optional) The AWS Access Key ID used to access the S3 bucket. Required when `authentication_mode` is `AccessKey`.
+- `access_key_secret` - (Optional, Sensitive) The AWS Secret Access Key used to access the S3 bucket. Required when `authentication_mode` is `AccessKey`.
+- `role_arn` - (Optional) The AWS Role ARN used to access the S3 bucket. Required when `authentication_mode` is `RoleBased`.
 
 ## Attributes Reference
 
