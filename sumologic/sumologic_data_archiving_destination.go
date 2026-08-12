@@ -70,8 +70,7 @@ func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestinati
 	if resp.StatusCode == 404 {
 		return nil, nil
 	}
-	if resp.StatusCode == 400 {
-		// The API returns 400 with "destination_name_not_exists" when the resource is gone
+	if resp.StatusCode == 400 && bytes.Contains(d, []byte("destination_name_not_exists")) {
 		return nil, nil
 	}
 	if resp.StatusCode >= 400 {
