@@ -197,13 +197,11 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 
 	switch destType {
 	case "S3":
-		if d.Id() == "" {
-			if cfg["bucket_name"].(string) == "" {
-				return fmt.Errorf("bucket_name is required for S3 destination on create")
-			}
-			if cfg["region"].(string) == "" {
-				return fmt.Errorf("region is required for S3 destination on create")
-			}
+		if cfg["bucket_name"].(string) == "" {
+			return fmt.Errorf("bucket_name is required for S3 destination")
+		}
+		if cfg["region"].(string) == "" {
+			return fmt.Errorf("region is required for S3 destination")
 		}
 		if !destinationConfigAttrIsSet(d, "encrypted") {
 			return fmt.Errorf("encrypted is required for S3 destination")
