@@ -82,12 +82,10 @@ func dataArchivingDestinationConfigSchema() map[string]*schema.Schema {
 		"encrypted": {
 			Type:     schema.TypeBool,
 			Optional: true,
-			Computed: true,
 		},
 		"enabled": {
 			Type:     schema.TypeBool,
 			Optional: true,
-			Computed: true,
 		},
 		"invalidated_by_system": {
 			Type:     schema.TypeBool,
@@ -163,6 +161,26 @@ func s3ArchivingAuthConfigSchema() map[string]*schema.Schema {
 	}
 }
 
+// An omitted bool is indistinguishable from false through d.Get, so presence of the
+// S3 booleans has to be read from the raw config. Anything undeterminable (unknown
+// values, destroy plans) counts as set so that planning never fails spuriously.
+func destinationConfigAttrIsSet(d *schema.ResourceDiff, attr string) bool {
+	raw := d.GetRawConfig()
+	if !raw.IsKnown() || raw.IsNull() {
+		return true
+	}
+	blocks := raw.GetAttr("destination_config")
+	if !blocks.IsKnown() || blocks.IsNull() {
+		return true
+	}
+	items := blocks.AsValueSlice()
+	if len(items) == 0 || items[0].IsNull() {
+		return true
+	}
+	val := items[0].GetAttr(attr)
+	return !val.IsKnown() || !val.IsNull()
+}
+
 func validateDataArchivingDestinationConfig(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 	configs := d.Get("destination_config").([]interface{})
 	if len(configs) == 0 {
@@ -177,6 +195,12 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 			if cfg["bucket_name"].(string) == "" {
 				return fmt.Errorf("bucket_name is required for S3 destination on create")
 			}
+		}
+		if !destinationConfigAttrIsSet(d, "encrypted") {
+			return fmt.Errorf("encrypted is required for S3 destination")
+		}
+		if !destinationConfigAttrIsSet(d, "enabled") {
+			return fmt.Errorf("enabled is required for S3 destination")
 		}
 		authConfigs := cfg["auth_config"].([]interface{})
 		if len(authConfigs) == 0 {
@@ -284,12 +308,10 @@ func expandDataArchivingDestination(d *schema.ResourceData) DataArchivingDestina
 		config.Description = cfg["description"].(string)
 		config.BucketName = cfg["bucket_name"].(string)
 		config.Region = cfg["region"].(string)
-		if v, ok := cfg["encrypted"].(bool); ok {
-			config.Encrypted = &v
-		}
-		if v, ok := cfg["enabled"].(bool); ok {
-			config.Enabled = &v
-		}
+		encrypted := cfg["encrypted"].(bool)
+		enabled := cfg["enabled"].(bool)
+		config.Encrypted = &encrypted
+		config.Enabled = &enabled
 		if authConfigs := cfg["auth_config"].([]interface{}); len(authConfigs) > 0 {
 			auth := authConfigs[0].(map[string]interface{})
 			authConfig := &S3ArchivingAuthConfig{
