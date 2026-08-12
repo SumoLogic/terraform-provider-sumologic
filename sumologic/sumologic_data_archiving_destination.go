@@ -70,7 +70,15 @@ func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestinati
 	if resp.StatusCode == 404 {
 		return nil, nil
 	}
-	if resp.StatusCode == 400 && bytes.Contains(d, []byte("destination_name_not_exists")) {
+	// A destination that no longer exists reports itself as either
+	// destination_name_not_exists or unknown_error, depending on whether the server's
+	// sink-to-customer cache still holds an entry for the id. On a cache miss the
+	// customer lookup fails, the read permission check rejects the request, and the
+	// resulting exception is not in the error catalog. Every other failure mode of this
+	// endpoint has its own code (bad hex id, insufficient permission, ...), so treating
+	// unknown_error as absence does not mask a distinguishable error.
+	if resp.StatusCode == 400 &&
+		(bytes.Contains(d, []byte("destination_name_not_exists")) || bytes.Contains(d, []byte("unknown_error"))) {
 		return nil, nil
 	}
 	if resp.StatusCode >= 400 {
