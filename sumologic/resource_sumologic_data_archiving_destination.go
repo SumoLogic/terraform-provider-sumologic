@@ -258,9 +258,12 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 		if cfg["url"].(string) == "" {
 			return fmt.Errorf("url is required for RestAPI destination")
 		}
-		// Only the update contract requires a username, so a destination created
-		// without one cannot be updated afterwards.
-		if d.Id() != "" && cfg["username"].(string) == "" {
+		// Only the update contract requires a username, so a destination created without
+		// one can be kept as it is but not changed. Checking for a pending change matters:
+		// raising this on every plan would leave such a destination permanently
+		// un-plannable, including the refresh that precedes a destroy.
+		if d.Id() != "" && cfg["username"].(string) == "" &&
+			(d.HasChange("destination_name") || d.HasChange("destination_config")) {
 			return fmt.Errorf("username is required to update a RestAPI destination")
 		}
 	}
