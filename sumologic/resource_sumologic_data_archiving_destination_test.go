@@ -608,8 +608,9 @@ func TestAccSumologicDataArchivingDestination_invalidConfig(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.testName, func(t *testing.T) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:  func() { testAccPreCheckDataArchiving(t) },
-				Providers: testAccProviders,
+				PreCheck:     func() { testAccPreCheckDataArchiving(t) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
 				Steps: []resource.TestStep{
 					{
 						Config:      c.config,
