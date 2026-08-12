@@ -120,7 +120,7 @@ The following arguments are supported:
 - `token` - (Optional, Sensitive) Token used to authenticate with a `Syslog` destination.
 - `url` - (Optional) URL of the destination. Required when `destination_type` is `Hitachi` or `RestAPI`.
 - `object_id` - (Optional) Object identifier at the destination. Required when `destination_type` is `Hitachi`.
-- `username` - (Optional) Username used to authenticate with the destination. Required when `destination_type` is `Hitachi`.
+- `username` - (Optional) Username used to authenticate with the destination. Required when `destination_type` is `Hitachi`. For `RestAPI` it is optional on creation but required for any later update, so set it up front if the destination will ever change.
 - `password` - (Optional, Sensitive) Password used to authenticate with the destination. Required when `destination_type` is `Hitachi`.
 
 ### auth_config

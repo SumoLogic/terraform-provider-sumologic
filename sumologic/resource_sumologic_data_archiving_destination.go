@@ -233,6 +233,11 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 		if cfg["url"].(string) == "" {
 			return fmt.Errorf("url is required for RestAPI destination")
 		}
+		// Only the update contract requires a username, so a destination created
+		// without one cannot be updated afterwards.
+		if d.Id() != "" && cfg["username"].(string) == "" {
+			return fmt.Errorf("username is required to update a RestAPI destination")
+		}
 	}
 	return nil
 }
