@@ -110,7 +110,7 @@ The following arguments are supported:
 - `destination_type` - (Required, ForceNew) The type of destination. Possible values are `S3`, `Syslog`, `Hitachi`, and `RestAPI`. Cannot be changed after creation.
 - `description` - (Optional) Description of the destination.
 - `bucket_name` - (Optional, ForceNew) The name of the Amazon S3 bucket. Required when `destination_type` is `S3`. Cannot be changed after creation.
-- `region` - (Optional) The region where the S3 bucket is located.
+- `region` - (Optional) The region where the S3 bucket is located. Required when `destination_type` is `S3`.
 - `encrypted` - (Optional) Enable server-side encryption. Must be set explicitly when `destination_type` is `S3`.
 - `enabled` - (Optional) Whether the destination is enabled. Must be set explicitly when `destination_type` is `S3`.
 - `auth_config` - (Optional) Authentication settings for the destination. Only one block is allowed. Required when `destination_type` is `S3`. See [auth_config](#auth_config) below.
