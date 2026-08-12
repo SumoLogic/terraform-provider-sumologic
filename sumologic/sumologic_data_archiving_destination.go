@@ -32,7 +32,7 @@ func (s *Client) CreateDataArchivingDestination(dest DataArchivingDestination) (
 		return nil, err
 	}
 
-	log.Printf("[DEBUG] CreateDataArchivingDestination POST %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+	log.Printf("[DEBUG] CreateDataArchivingDestination POST %s - Status: %d", urlPath, resp.StatusCode)
 
 	if resp.StatusCode >= 400 {
 		return nil, fmt.Errorf("POST %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
@@ -65,7 +65,7 @@ func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestinati
 		return nil, err
 	}
 
-	log.Printf("[DEBUG] GetDataArchivingDestination GET %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+	log.Printf("[DEBUG] GetDataArchivingDestination GET %s - Status: %d", urlPath, resp.StatusCode)
 
 	if resp.StatusCode == 404 {
 		return nil, nil
@@ -117,7 +117,7 @@ func (s *Client) UpdateDataArchivingDestination(dest DataArchivingDestination) e
 		return err
 	}
 
-	log.Printf("[DEBUG] UpdateDataArchivingDestination PUT %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+	log.Printf("[DEBUG] UpdateDataArchivingDestination PUT %s - Status: %d", urlPath, resp.StatusCode)
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("PUT %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
@@ -144,7 +144,7 @@ func (s *Client) DeleteDataArchivingDestination(id string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] DeleteDataArchivingDestination DELETE %s - Status: %d, Response: %s", urlPath, resp.StatusCode, string(d))
+	log.Printf("[DEBUG] DeleteDataArchivingDestination DELETE %s - Status: %d", urlPath, resp.StatusCode)
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("DELETE %s failed with status %d: %s", urlPath, resp.StatusCode, string(d))
