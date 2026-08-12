@@ -245,14 +245,16 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 		if cfg["url"].(string) == "" {
 			return fmt.Errorf("url is required for Hitachi destination")
 		}
-		if cfg["object_id"].(string) == "" {
-			return fmt.Errorf("object_id is required for Hitachi destination")
-		}
 		if cfg["username"].(string) == "" {
 			return fmt.Errorf("username is required for Hitachi destination")
 		}
-		if d.Id() == "" && cfg["password"].(string) == "" {
-			return fmt.Errorf("password is required for Hitachi destination on create")
+		if d.Id() == "" {
+			if cfg["object_id"].(string) == "" {
+				return fmt.Errorf("object_id is required for Hitachi destination on create")
+			}
+			if cfg["password"].(string) == "" {
+				return fmt.Errorf("password is required for Hitachi destination on create")
+			}
 		}
 	case "RestAPI":
 		if cfg["url"].(string) == "" {
