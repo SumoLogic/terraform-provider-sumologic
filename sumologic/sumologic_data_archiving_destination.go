@@ -89,7 +89,15 @@ func (s *Client) GetDataArchivingDestination(id string) (*DataArchivingDestinati
 
 func (s *Client) UpdateDataArchivingDestination(dest DataArchivingDestination) error {
 	urlPath := fmt.Sprintf("v1/dataarchiving/destinations/%s", dest.ID)
-	body, err := json.Marshal(dest)
+
+	// The update contract accepts neither the id nor, for S3, the bucket name.
+	config := dest.DestinationConfig
+	config.BucketName = ""
+
+	body, err := json.Marshal(UpdateDataArchivingDestinationRequest{
+		DestinationName:   dest.DestinationName,
+		DestinationConfig: config,
+	})
 	if err != nil {
 		return err
 	}
@@ -154,6 +162,11 @@ type DataArchivingDestination struct {
 	CreatedBy         string                         `json:"createdBy,omitempty"`
 	ModifiedAt        string                         `json:"modifiedAt,omitempty"`
 	ModifiedBy        string                         `json:"modifiedBy,omitempty"`
+}
+
+type UpdateDataArchivingDestinationRequest struct {
+	DestinationName   string                         `json:"destinationName"`
+	DestinationConfig DataArchivingDestinationConfig `json:"destinationConfig"`
 }
 
 type DataArchivingDestinationConfig struct {
