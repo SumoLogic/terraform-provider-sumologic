@@ -189,6 +189,12 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 	cfg := configs[0].(map[string]interface{})
 	destType := cfg["destination_type"].(string)
 
+	// Only S3 accepts a description. Allowing it elsewhere would drop the value
+	// silently and leave a permanent diff, since the API never echoes it back.
+	if destType != "S3" && cfg["description"].(string) != "" {
+		return fmt.Errorf("description is only supported for S3 destinations")
+	}
+
 	switch destType {
 	case "S3":
 		if d.Id() == "" {
