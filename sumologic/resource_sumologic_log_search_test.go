@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,6 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func testAccPreCheckMultiNotification(t *testing.T) {
+	if os.Getenv("SUMOLOGIC_MULTI_NOTIFICATION_ENABLED") == "" {
+		t.Skip("Skipping multi-notification test: set SUMOLOGIC_MULTI_NOTIFICATION_ENABLED=true to run")
+	}
+}
 
 func TestAccSumologicLogSearch_basic(t *testing.T) {
 	var logSearch LogSearch
@@ -616,6 +623,7 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 }
 
 func TestAccSumologicLogSearch_multi_notification(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
 	var logSearch LogSearch
 	name := "TF Multi Notification Search Test"
 	description := "TF Multi Notification Search Test Description"
@@ -747,6 +755,7 @@ func testAccSumologicLogSearchMultiNotification(tfResourceName string, name stri
 }
 
 func TestAccSumologicLogSearch_multi_notification_email_and_webhook(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
 	var logSearch LogSearch
 	name := "TF Multi Notif Email+Webhook Test"
 	description := "TF Multi Notification with Email and Webhook"
@@ -1124,6 +1133,7 @@ func TestAccSumologicLogSearch_both_notification_fields_errors(t *testing.T) {
 }
 
 func TestAccSumologicLogSearch_single_notification_in_notifications_array(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
 	var logSearch LogSearch
 	name := "TF Single Notif In Array"
 	description := "Single notification using the notifications (plural) field"
