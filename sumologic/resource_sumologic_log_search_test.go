@@ -1054,9 +1054,11 @@ func testAccSumologicLogSearchSingularNotification(tfResourceName string, name s
 }
 
 func TestAccSumologicLogSearch_both_notification_fields_errors(t *testing.T) {
+	var logSearch LogSearch
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
 		Steps: []resource.TestStep{
 			{
 				Config: `
