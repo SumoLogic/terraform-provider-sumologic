@@ -94,6 +94,71 @@ resource "sumologic_log_search" "example_log_search" {
 }
 ```
 
+## Example Usage - Multiple Notifications
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
+resource "sumologic_log_search" "example_multi_notif" {
+    name = "Multi Notification Search"
+    description = "Search with multiple notifications"
+    parent_id = data.sumologic_personal_folder.personalFolder.id
+    query_string = "_sourceCategory=api | count by _sourceHost"
+    parsing_mode = "Manual"
+    run_by_receipt_time = false
+
+    time_range {
+        begin_bounded_time_range {
+            from {
+                relative_time_range {
+                    relative_time = "-30m"
+                }
+            }
+        }
+    }
+
+    schedule {
+        cron_expression = "0 0 * * * ? *"
+        mute_error_emails = false
+        notifications {
+            email_search_notification {
+                include_csv_attachment = false
+                include_histogram = false
+                include_query = true
+                include_result_set = true
+                subject_template = "Alert: {{TriggerCondition}} found for {{SearchName}}"
+                to_list = ["team-a@acme.com"]
+            }
+        }
+        notifications {
+            email_search_notification {
+                include_csv_attachment = true
+                include_histogram = true
+                include_query = true
+                include_result_set = true
+                subject_template = "Alert: {{TriggerCondition}} found for {{SearchName}}"
+                to_list = ["team-b@acme.com"]
+            }
+        }
+        parseable_time_range {
+            begin_bounded_time_range {
+                from {
+                    relative_time_range {
+                        relative_time = "-15m"
+                    }
+                }
+            }
+        }
+        schedule_type = "1Hour"
+        threshold {
+            count = 10
+            operator = "gt"
+            threshold_type = "group"
+        }
+        time_zone = "America/Los_Angeles"
+    }
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
@@ -147,8 +212,11 @@ The following arguments are supported:
     abbreviations is for JDK 1.1.x compatibility only and full names should be used.
 - `threshold` - (Block List, Max: 1, Optional) Threshold for when to send notification. See
     [threshold schema](#schema-threshold)
-- `notification` - (Block List, Max: 1, Required) Notification of the log search. See
-    [notification schema](#schema-for-notification)
+- `notification` - (Block List, Max: 1, Optional) Single notification for the log search. Exactly one of
+    `notification` or `notifications` must be specified. See [notification schema](#schema-for-notification)
+- `notifications` - (Block List, Optional) Multiple notifications for the log search. Each block defines one
+    notification. Exactly one of `notification` or `notifications` must be specified. See
+    [notification schema](#schema-for-notification) for the schema of each block.
 - `mute_error_emails` - (Optional) If enabled, emails are not sent out in case of errors with the search.
 - `parameters` - (Block List, Optional) A list of scheduled search parameters. See
     [parameter schema](#schema-for-parameter)
