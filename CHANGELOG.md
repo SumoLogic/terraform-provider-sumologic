@@ -1,3 +1,9 @@
+## X.Y.Z (Unreleased)
+
+## 3.3.1 (Aug 20, 2026)
+FEATURES:
+* **New Resource:** `sumologic_data_archiving_destination` - Manage data archiving destinations for `S3`, `Syslog`, `Hitachi`, and `RestAPI` targets.
+
 ## 3.3.0 (Aug 11, 2026)
 FEATURES:
 * **New Resource:** `sumologic_async_aws_lambda_invocation` - Asynchronously invoke an AWS Lambda function with support for AWS named profiles, enabling multi-account deployments.
@@ -10,7 +16,6 @@ BUG FIXES:
 
 ## 3.2.10 (Jul 15, 2026)
 FEATURES:
-* **New Resource:** `sumologic_data_archiving_destination` - Manage data archiving destinations for `S3`, `Syslog`, `Hitachi`, and `RestAPI` targets.
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.
 * **New Data Source:** `sumologic_data_mask_rule` - Look up an existing data mask rule by its ID.
 * **New Data Source:** `sumologic_data_mask_rules` - List all data mask rules.
