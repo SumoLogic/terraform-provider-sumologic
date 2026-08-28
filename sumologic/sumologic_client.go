@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -43,7 +44,7 @@ var endpoints = map[string]string{
 	"in":  "https://api.in.sumologic.com/api/",
 	"kr":  "https://api.kr.sumologic.com/api/",
 	"ch":  "https://api.ch.sumologic.com/api/",
-	"esc":  "https://api.esc.sumologic.com/api/",
+	"esc": "https://api.esc.sumologic.com/api/",
 }
 
 var rateLimiter = time.NewTicker(time.Minute / 240)
@@ -140,6 +141,35 @@ func (s *Client) PostRawPayload(urlPath string, payload string) ([]byte, error) 
 	if err != nil {
 		return nil, err
 	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.handleSumoResponse(resp)
+}
+
+// PostMultipartFile uploads content as a multipart/form-data file part named fieldName.
+func (s *Client) PostMultipartFile(urlPath, fieldName, fileName string, content []byte) ([]byte, error) {
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreateFormFile(fieldName, fileName)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := part.Write(content); err != nil {
+		return nil, err
+	}
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	req, err := s.createSumoRequest(http.MethodPost, urlPath, &body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	resp, err := s.doSumoRequest(req)
 	if err != nil {
