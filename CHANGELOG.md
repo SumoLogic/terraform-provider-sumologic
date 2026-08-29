@@ -1,4 +1,7 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.3.2 (Sep 2, 2026)
 ENHANCEMENTS:
 * `sumologic_lookup_table`: Added `content` argument to populate a lookup table's rows with CSV data (e.g. via `file()`), addressing [#202](https://github.com/SumoLogic/terraform-provider-sumologic/issues/202).
 
