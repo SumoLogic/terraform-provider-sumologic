@@ -11,7 +11,7 @@ import (
 
 func TestAccSumologicSourceTemplate_basic(t *testing.T) {
 	var sourceTemplate SourceTemplate
-	testSchemaRef := "type =     \"Mac\""
+	testSchemaRef := "type =     \"Mac\"\n    version = \"7.0.0\""
 
 	testSelector :=
 		"tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n] \n names = [\"TestCollector1\"]"
@@ -38,7 +38,7 @@ func TestAccSumologicSourceTemplate_basic(t *testing.T) {
 
 func TestAccSumologicSourceTemplate_create(t *testing.T) {
 	var sourceTemplate SourceTemplate
-	testSchemaRef := "type =     \"Mac\""
+	testSchemaRef := "type =     \"Mac\"\n    version = \"7.0.0\""
 	testSelector := "tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n]\n names = [\"TestCollector1\"]"
 
 	testInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/host\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
@@ -64,11 +64,11 @@ func TestAccSumologicSourceTemplate_create(t *testing.T) {
 func TestAccSumologicSourceTemplate_update(t *testing.T) {
 	var sourceTemplate SourceTemplate
 
-	testSchemaRef := "type =     \"Mac\""
+	testSchemaRef := "type =     \"Mac\"\n    version = \"7.0.0\""
 	testSelector := "tags =  [\n[\n{\n key = \"tag\"\n values= [\"Value\"]\n}\n]\n]"
 	testInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/host\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
 
-	testUpdatedSchemaRef := "type =     \"Mac\""
+	testUpdatedSchemaRef := "type =     \"Mac\"\n    version = \"7.0.0\""
 	testUpdatedSelector := "tags =  [\n[\n{\n key = \"updatedTag\"\n values= [\"Value\"]\n}\n]\n] \n names = [\"TestCollector1\"]"
 	testUpdatedInputJson := "jsonencode({\n\"name\": \"hostmetrics_test_source_template_acc\",\n\"description\": \"Host metric source\" ,\n\"receivers\": {\n\"hostmetrics\": {\n\"receiverType\": \"hostmetrics\",\n\"collection_interval\": \"5m\",\n\"cpu_scraper_enabled\": true,\n\"disk_scraper_enabled\": true,\n\"load_scraper_enabled\": true,\n\"filesystem_scraper_enabled\": true,\n\"memory_scraper_enabled\": true,\n\"network_scraper_enabled\": true,\n\"process_scraper_enabled\": true,\n\"paging_scraper_enabled\": true\n}\n},\n\"processors\": {\n\"resource\": {\n\"processorType\": \"resource\",\n\"user_attributes\": [\n{\n\"key\": \"_sourceCategory\",\n\"value\": \"otel/hostupdated\"\n}\n],\n\"default_attributes\": [\n{\n\"key\": \"sumo.datasource\",\n\"value\": \"apache\"\n},\n]\n}\n}\n})"
 
@@ -100,7 +100,8 @@ func TestAccSumologicSourceTemplate_update(t *testing.T) {
 func TestAccSumologicSourceTemplate_enableDisable(t *testing.T) {
 	var sourceTemplate SourceTemplate
 
-	testSchemaRef := `type = "Mac"`
+	testSchemaRef := `type = "Mac"
+    version = "7.0.0"`
 	testSelector := `tags = [
 	[
 	{
