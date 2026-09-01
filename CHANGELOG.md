@@ -2,6 +2,9 @@
 ENHANCEMENTS:
 * `sumologic_lookup_table`: Added `content` argument to populate a lookup table's rows with CSV data (e.g. via `file()`), addressing [#202](https://github.com/SumoLogic/terraform-provider-sumologic/issues/202).
 
+BUG FIXES:
+* Fixed `sumologic_source_template` acceptance tests failing with `SchemaBaseNotFoundException` by adding the required `version` field to `schema_ref` in test configurations.
+
 ## 3.3.1 (Aug 20, 2026)
 FEATURES:
 * **New Resource:** `sumologic_data_archiving_destination` - Manage data archiving destinations for `S3`, `Syslog`, `Hitachi`, and `RestAPI` targets.
