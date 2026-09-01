@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPermission_create(t *testing.T) {
 	var response PermissionsResponse
+	suffix := acctest.RandString(8)
+	otherResource := getOtherResource(suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -35,6 +38,8 @@ func TestAccPermission_create(t *testing.T) {
 
 func TestAccPermission_update(t *testing.T) {
 	var response PermissionsResponse
+	suffix := acctest.RandString(8)
+	otherResource := getOtherResource(suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -70,6 +75,8 @@ func TestAccPermission_update(t *testing.T) {
 
 func TestAccPermission_delete(t *testing.T) {
 	var response PermissionsResponse
+	suffix := acctest.RandString(8)
+	otherResource := getOtherResource(suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -88,7 +95,7 @@ func TestAccPermission_delete(t *testing.T) {
 						"sumologic_content_permission.content_permission_test", "notification_message", "create"),
 				),
 			}, {
-				Config: testAccSumologicPermissionDelete(),
+				Config: testAccSumologicPermissionDelete(suffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPermissionDelete("sumologic_content.permission_test_content"),
 				),
@@ -229,33 +236,35 @@ func testAccSumologicPermissionUpdate(resource string, notify_recipient bool,
 	)
 }
 
-func testAccSumologicPermissionDelete() string {
-	return otherResource
+func testAccSumologicPermissionDelete(suffix string) string {
+	return getOtherResource(suffix)
 }
 
-var otherResource = `
+func getOtherResource(suffix string) string {
+	return fmt.Sprintf(`
 	data "sumologic_personal_folder" "personalFolder" {}
 
 	resource "sumologic_content" "permission_test_content" {
 		parent_id = data.sumologic_personal_folder.personalFolder.id
 		config = jsonencode({
 			"type": "FolderSyncDefinition",
-			"name": "test_permission_resource_folder",
+			"name": "test_permission_resource_folder_%s",
 			"description": "",
 			"children": []
 		})
 	}
 
 	resource "sumologic_role" "permission_test_role" {
-		name        = "permission_test_role"
+		name        = "permission_test_role_%s"
 		description = "Testing content permission resource"
 	}
 
 	resource "sumologic_user" "permission_test_user" {
 		first_name   = "test"
 		last_name    = "permission"
-		email        = "testpermission@gmail.com"
+		email        = "testpermission_%s@gmail.com"
 		is_active    = true
 		role_ids     = [sumologic_role.permission_test_role.id]
 		transfer_to  = ""
-	}`
+	}`, suffix, suffix, suffix)
+}
