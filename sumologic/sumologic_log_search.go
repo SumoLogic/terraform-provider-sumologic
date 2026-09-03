@@ -105,7 +105,8 @@ type LogSearchSchedule struct {
 	Threshold          *SearchNotificationThreshold `json:"threshold,omitempty"`
 	Parameters         []ScheduleSearchParameter    `json:"parameters,omitempty"`
 	MuteErrorEmails    bool                         `json:"muteErrorEmails"`
-	Notification       interface{}                  `json:"notification"`
+	Notification       interface{}                  `json:"notification,omitempty"`
+	Notifications      []interface{}                `json:"notifications,omitempty"`
 	ScheduleType       string                       `json:"scheduleType"`
 }
 

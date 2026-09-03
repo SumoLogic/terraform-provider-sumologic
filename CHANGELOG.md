@@ -22,6 +22,9 @@ ENHANCEMENTS:
 BUG FIXES:
 * Updated `sumologic_cse_match_list` to handle cases where case differences in values and empty expirations resulted in plan diffs with no functional changes. These will no longer result in a plan diff.
 
+ENHANCEMENTS:
+* `sumologic_log_search`: Added support for multiple notifications in a schedule via the new `notifications` block. The existing singular `notification` block remains supported for backward compatibility.
+
 ## 3.2.10 (Jul 15, 2026)
 FEATURES:
 * **New Resource:** `sumologic_data_mask_rule` - Manage data mask rules for masking sensitive data in search results at query time using regex patterns.

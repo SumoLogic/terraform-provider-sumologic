@@ -2,6 +2,8 @@ package sumologic
 
 import (
 	"fmt"
+	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -9,6 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func testAccPreCheckMultiNotification(t *testing.T) {
+	if os.Getenv("SUMOLOGIC_MULTI_NOTIFICATION_ENABLED") == "" {
+		t.Skip("Skipping multi-notification test: set SUMOLOGIC_MULTI_NOTIFICATION_ENABLED=true to run")
+	}
+}
 
 func TestAccSumologicLogSearch_basic(t *testing.T) {
 	var logSearch LogSearch
@@ -612,6 +620,633 @@ func testAccSumologicUpdatedLogSearch(tfResourceName string, name string, descri
 		queryParameters[0].Name, queryParameters[0].Description, queryParameters[0].DataType, queryParameters[0].Value,
 		queryParameters[1].Name, queryParameters[1].Description, queryParameters[1].DataType, queryParameters[1].Value,
 		literalRangeName, tfSchedule)
+}
+
+func TestAccSumologicLogSearch_multi_notification(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
+	var logSearch LogSearch
+	name := "TF Multi Notification Search Test"
+	description := "TF Multi Notification Search Test Description"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
+	}
+
+	tfResourceName := "tf_multi_notif_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLogSearchMultiNotification(tfResourceName, name, description,
+					queryString, parsingMode, runByReceiptTime, queryParameter, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "name", name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notifications.#", "2"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.0.email_search_notification.0.to_list.0",
+						"tf_multi_notif_1@sumologic.com"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.1.email_search_notification.0.to_list.0",
+						"tf_multi_notif_2@sumologic.com"),
+				),
+			},
+			{
+				ResourceName:      tfSearchResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccSumologicLogSearchMultiNotification(tfResourceName string, name string, description string,
+	queryString string, parsingMode string, runByReceiptTime bool, queryParameter LogSearchQueryParameter,
+	literalRangeName string) string {
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		schedule {
+			cron_expression = "0 0 6 ? * 3 *"
+			mute_error_emails = false
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = true
+					include_query = true
+					include_result_set = true
+					subject_template = "Alert 1: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_multi_notif_1@sumologic.com",
+					]
+				}
+			}
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = false
+					include_query = false
+					include_result_set = true
+					subject_template = "Alert 2: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_multi_notif_2@sumologic.com",
+					]
+				}
+			}
+			parameter {
+				name = "timeslice"
+				value = "15m"
+			}
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "-15m"
+						}
+					}
+				}
+			}
+			schedule_type = "Custom"
+			threshold {
+				count = 10
+				operator = "gt"
+				threshold_type = "group"
+			}
+			time_zone = "America/Los_Angeles"
+		}
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName)
+}
+
+func TestAccSumologicLogSearch_multi_notification_email_and_webhook(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
+	var logSearch LogSearch
+	name := "TF Multi Notif Email+Webhook Test"
+	description := "TF Multi Notification with Email and Webhook"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
+	}
+
+	tfResourceName := "tf_multi_notif_email_webhook_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLogSearchMultiNotificationEmailAndWebhook(tfResourceName, name,
+					description, queryString, parsingMode, runByReceiptTime, queryParameter, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					testAccCheckLogSearchMultiNotifEmailAndWebhook(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "name", name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notifications.#", "2"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.0.email_search_notification.0.to_list.0",
+						"tf_multi_notif_email_webhook@sumologic.com"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.1.webhook_search_notification.#", "1"),
+				),
+			},
+			{
+				ResourceName:      tfSearchResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckLogSearchMultiNotifEmailAndWebhook(name string, logSearch *LogSearch, t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("LogSearch not found: %s", name)
+		}
+
+		id := rs.Primary.ID
+		client := testAccProvider.Meta().(*Client)
+		fetchedLogSearch, err := client.GetLogSearch(id)
+		if err != nil {
+			return fmt.Errorf("Error fetching LogSearch %s via API: %v", id, err)
+		}
+
+		if fetchedLogSearch.Schedule == nil {
+			return fmt.Errorf("LogSearch %s has no schedule", id)
+		}
+
+		notifications := fetchedLogSearch.Schedule.Notifications
+		if notifications == nil || len(notifications) == 0 {
+			return fmt.Errorf("API response missing 'notifications' field for LogSearch %s", id)
+		}
+
+		if len(notifications) != 2 {
+			return fmt.Errorf("Expected 2 notifications in API response, got %d", len(notifications))
+		}
+
+		foundEmail := false
+		foundWebhook := false
+		for _, n := range notifications {
+			notifMap, ok := n.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			taskType, _ := notifMap["taskType"].(string)
+			if taskType == "EmailSearchNotificationSyncDefinition" {
+				foundEmail = true
+			}
+			if taskType == "WebhookSearchNotificationSyncDefinition" {
+				foundWebhook = true
+			}
+		}
+
+		if !foundEmail {
+			return fmt.Errorf("API response notifications missing Email notification for LogSearch %s", id)
+		}
+		if !foundWebhook {
+			return fmt.Errorf("API response notifications missing Webhook notification for LogSearch %s", id)
+		}
+
+		t.Logf("API verification passed: LogSearch %s has 2 notifications (Email + Webhook)", id)
+		return nil
+	}
+}
+
+func testAccSumologicLogSearchMultiNotificationEmailAndWebhook(tfResourceName string, name string,
+	description string, queryString string, parsingMode string, runByReceiptTime bool,
+	queryParameter LogSearchQueryParameter, literalRangeName string) string {
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_connection" "tf_test_webhook" {
+		name        = "TF Test Webhook for Multi Notif"
+		type        = "WebhookConnection"
+		description = "Webhook connection for multi-notification test"
+		url         = "https://example.com"
+		webhook_type = "Webhook"
+		default_payload = <<JSON
+{"eventType": "{{Name}}"}
+JSON
+	}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		schedule {
+			cron_expression = "0 0 6 ? * 3 *"
+			mute_error_emails = false
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = true
+					include_query = true
+					include_result_set = true
+					subject_template = "Alert: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_multi_notif_email_webhook@sumologic.com",
+					]
+				}
+			}
+			notifications {
+				webhook_search_notification {
+					webhook_id = sumologic_connection.tf_test_webhook.id
+					payload    = "{\"alertName\": \"{{SearchName}}\"}"
+				}
+			}
+			parameter {
+				name = "timeslice"
+				value = "15m"
+			}
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "-15m"
+						}
+					}
+				}
+			}
+			schedule_type = "Custom"
+			threshold {
+				count = 10
+				operator = "gt"
+				threshold_type = "group"
+			}
+			time_zone = "America/Los_Angeles"
+		}
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName)
+}
+
+func TestAccSumologicLogSearch_singular_notification_backward_compat(t *testing.T) {
+	var logSearch LogSearch
+	name := "TF Singular Notification Backward Compat"
+	description := "Verifies singular notification still works"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
+	}
+
+	tfResourceName := "tf_singular_notif_compat_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLogSearchSingularNotification(tfResourceName, name, description,
+					queryString, parsingMode, runByReceiptTime, queryParameter, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "name", name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notification.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notification.0.email_search_notification.0.to_list.0",
+						"tf_singular_compat@sumologic.com"),
+				),
+			},
+			{
+				ResourceName:      tfSearchResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccSumologicLogSearchSingularNotification(tfResourceName string, name string, description string,
+	queryString string, parsingMode string, runByReceiptTime bool, queryParameter LogSearchQueryParameter,
+	literalRangeName string) string {
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		schedule {
+			cron_expression = "0 0 6 ? * 3 *"
+			mute_error_emails = false
+			notification {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = true
+					include_query = true
+					include_result_set = true
+					subject_template = "Alert: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_singular_compat@sumologic.com",
+					]
+				}
+			}
+			parameter {
+				name = "timeslice"
+				value = "15m"
+			}
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "-15m"
+						}
+					}
+				}
+			}
+			schedule_type = "Custom"
+			threshold {
+				count = 10
+				operator = "gt"
+				threshold_type = "group"
+			}
+			time_zone = "America/Los_Angeles"
+		}
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName)
+}
+
+func TestAccSumologicLogSearch_both_notification_fields_errors(t *testing.T) {
+	var logSearch LogSearch
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				data "sumologic_personal_folder" "personalFolder" {}
+
+				resource "sumologic_log_search" "tf_both_notif_test" {
+					name = "TF Both Notif Error Test"
+					description = "Should fail validation"
+					query_string = "error"
+					parsing_mode = "Manual"
+					parent_id = data.sumologic_personal_folder.personalFolder.id
+					run_by_receipt_time = false
+					time_range {
+						begin_bounded_time_range {
+							from {
+								relative_time_range {
+									relative_time = "-15m"
+								}
+							}
+						}
+					}
+					schedule {
+						cron_expression = "0 0 6 ? * 3 *"
+						mute_error_emails = false
+						notification {
+							email_search_notification {
+								include_csv_attachment = false
+								include_histogram = true
+								include_query = true
+								include_result_set = true
+								subject_template = "Alert"
+								to_list = ["a@sumologic.com"]
+							}
+						}
+						notifications {
+							email_search_notification {
+								include_csv_attachment = false
+								include_histogram = true
+								include_query = true
+								include_result_set = true
+								subject_template = "Alert"
+								to_list = ["b@sumologic.com"]
+							}
+						}
+						parseable_time_range {
+							begin_bounded_time_range {
+								from {
+									relative_time_range {
+										relative_time = "-15m"
+									}
+								}
+							}
+						}
+						schedule_type = "Custom"
+						time_zone = "America/Los_Angeles"
+					}
+				}
+				`,
+				ExpectError: regexp.MustCompile(`"schedule.0.notification": only one of`),
+			},
+		},
+	})
+}
+
+func TestAccSumologicLogSearch_single_notification_in_notifications_array(t *testing.T) {
+	testAccPreCheckMultiNotification(t)
+	var logSearch LogSearch
+	name := "TF Single Notif In Array"
+	description := "Single notification using the notifications (plural) field"
+	queryString := "error | timeslice {{timeslice}} | count by _timeslice"
+	parsingMode := "Manual"
+	literalRangeName := "today"
+	runByReceiptTime := false
+
+	queryParameter := LogSearchQueryParameter{
+		Name:        "timeslice",
+		Description: "timeslice query param",
+		DataType:    "ANY",
+		Value:       "1d",
+	}
+
+	tfResourceName := "tf_single_in_array_test"
+	tfSearchResource := fmt.Sprintf("sumologic_log_search.%s", tfResourceName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLogSearchDestroy(logSearch),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLogSearchSingleNotifInArray(tfResourceName, name, description,
+					queryString, parsingMode, runByReceiptTime, queryParameter, literalRangeName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLogSearchExists(tfSearchResource, &logSearch, t),
+					resource.TestCheckResourceAttr(tfSearchResource, "name", name),
+					resource.TestCheckResourceAttr(tfSearchResource, "schedule.0.notifications.#", "1"),
+					resource.TestCheckResourceAttr(tfSearchResource,
+						"schedule.0.notifications.0.email_search_notification.0.to_list.0",
+						"tf_single_in_array@sumologic.com"),
+				),
+			},
+			{
+				ResourceName:      tfSearchResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccSumologicLogSearchSingleNotifInArray(tfResourceName string, name string, description string,
+	queryString string, parsingMode string, runByReceiptTime bool, queryParameter LogSearchQueryParameter,
+	literalRangeName string) string {
+
+	return fmt.Sprintf(`
+	data "sumologic_personal_folder" "personalFolder" {}
+
+	resource "sumologic_log_search" "%s" {
+		name = "%s"
+		description = "%s"
+		query_string = "%s"
+		parsing_mode = "%s"
+		parent_id = data.sumologic_personal_folder.personalFolder.id
+		run_by_receipt_time = %t
+		query_parameter {
+			name = "%s"
+			description = "%s"
+			data_type = "%s"
+			value = "%s"
+		}
+		time_range {
+			begin_bounded_time_range {
+				from {
+					literal_time_range {
+						range_name = "%s"
+					}
+				}
+			}
+		}
+		schedule {
+			cron_expression = "0 0 6 ? * 3 *"
+			mute_error_emails = false
+			notifications {
+				email_search_notification {
+					include_csv_attachment = false
+					include_histogram = true
+					include_query = true
+					include_result_set = true
+					subject_template = "Alert: {{TriggerCondition}} for {{SearchName}}"
+					to_list = [
+						"tf_single_in_array@sumologic.com",
+					]
+				}
+			}
+			parameter {
+				name = "timeslice"
+				value = "15m"
+			}
+			parseable_time_range {
+				begin_bounded_time_range {
+					from {
+						relative_time_range {
+							relative_time = "-15m"
+						}
+					}
+				}
+			}
+			schedule_type = "Custom"
+			threshold {
+				count = 10
+				operator = "gt"
+				threshold_type = "group"
+			}
+			time_zone = "America/Los_Angeles"
+		}
+	}
+	`, tfResourceName, name, description, queryString, parsingMode, runByReceiptTime,
+		queryParameter.Name, queryParameter.Description, queryParameter.DataType, queryParameter.Value,
+		literalRangeName)
 }
 
 func TestAccSumologicLogSearch_intervalTimeType(t *testing.T) {

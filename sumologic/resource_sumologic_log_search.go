@@ -158,9 +158,20 @@ func resourceSumologicLogSearch() *schema.Resource {
 							Optional: true,
 						},
 						"notification": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							MaxItems:     1,
+							ExactlyOneOf: []string{"schedule.0.notification", "schedule.0.notifications"},
+							Elem: &schema.Resource{
+								Schema: getSearchNotificationSchema(),
+							},
+						},
+						"notifications": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							ExactlyOneOf: []string{"schedule.0.notification", "schedule.0.notifications"},
 							Elem: &schema.Resource{
 								Schema: getSearchNotificationSchema(),
 							},
@@ -457,7 +468,7 @@ func setLogSearch(d *schema.ResourceData, logSearch *LogSearch) error {
 	}
 
 	if logSearch.Schedule != nil {
-		searchSchedule := getTerraformLogSearchSchedule(logSearch.Schedule)
+		searchSchedule := getTerraformLogSearchSchedule(logSearch.Schedule, d)
 		if err := d.Set("schedule", searchSchedule); err != nil {
 			return err
 		}
@@ -476,7 +487,7 @@ func getTerraformLogSearchQueryParameter(parameter LogSearchQueryParameter) map[
 	return tfSearchQueryParameter
 }
 
-func getTerraformLogSearchSchedule(schedule *LogSearchSchedule) []map[string]interface{} {
+func getTerraformLogSearchSchedule(schedule *LogSearchSchedule, d *schema.ResourceData) []map[string]interface{} {
 	tfSearchSchedule := []map[string]interface{}{}
 	tfSearchSchedule = append(tfSearchSchedule, make(map[string]interface{}))
 
@@ -492,8 +503,31 @@ func getTerraformLogSearchSchedule(schedule *LogSearchSchedule) []map[string]int
 	tfSearchSchedule[0]["parseable_time_range"] =
 		GetTerraformTimeRange(schedule.ParseableTimeRange.(map[string]interface{}))
 
-	tfSearchSchedule[0]["notification"] =
-		getTerraformLogSearchNotification(schedule.Notification.(map[string]interface{}))
+	userUsesNotifications := len(d.Get("schedule.0.notifications").([]interface{})) > 0
+	userUsesNotification := len(d.Get("schedule.0.notification").([]interface{})) > 0
+
+	if schedule.Notifications != nil && len(schedule.Notifications) > 0 {
+		if userUsesNotification && !userUsesNotifications && len(schedule.Notifications) == 1 {
+			notifMap := schedule.Notifications[0].(map[string]interface{})
+			tfSearchSchedule[0]["notification"] = getTerraformLogSearchNotification(notifMap)
+		} else {
+			tfNotifications := make([]interface{}, len(schedule.Notifications))
+			for i, n := range schedule.Notifications {
+				notifMap := n.(map[string]interface{})
+				tfNotifications[i] = getTerraformLogSearchNotification(notifMap)[0]
+			}
+			tfSearchSchedule[0]["notifications"] = tfNotifications
+		}
+	} else if schedule.Notification != nil {
+		if userUsesNotifications && !userUsesNotification {
+			notifMap := schedule.Notification.(map[string]interface{})
+			tfNotifications := []interface{}{getTerraformLogSearchNotification(notifMap)[0]}
+			tfSearchSchedule[0]["notifications"] = tfNotifications
+		} else {
+			tfSearchSchedule[0]["notification"] =
+				getTerraformLogSearchNotification(schedule.Notification.(map[string]interface{}))
+		}
+	}
 
 	if schedule.Threshold != nil {
 		tfSearchSchedule[0]["threshold"] = getTerraformLogSearchNotificationThreshold(schedule.Threshold)
@@ -660,8 +694,24 @@ func resourceToLogSearchSchedule(data interface{}) *LogSearchSchedule {
 		schedule.TimeZone = scheduleObj["time_zone"].(string)
 		schedule.CronExpression = scheduleObj["cron_expression"].(string)
 		schedule.MuteErrorEmails = scheduleObj["mute_error_emails"].(bool)
-		schedule.Notification = resourceToScheduleSearchNotification(scheduleObj["notification"])
 		schedule.ScheduleType = scheduleObj["schedule_type"].(string)
+
+		notifData, _ := scheduleObj["notification"].([]interface{})
+		if len(notifData) > 0 && notifData[0] != nil {
+			schedule.Notification = resourceToScheduleSearchNotification(scheduleObj["notification"])
+		}
+
+		notifsData, _ := scheduleObj["notifications"].([]interface{})
+		if len(notifsData) > 0 {
+			notifications := make([]interface{}, 0, len(notifsData))
+			for _, n := range notifsData {
+				converted := resourceToScheduleSearchNotification([]interface{}{n})
+				if converted != nil {
+					notifications = append(notifications, converted)
+				}
+			}
+			schedule.Notifications = notifications
+		}
 	}
 
 	return &schedule
