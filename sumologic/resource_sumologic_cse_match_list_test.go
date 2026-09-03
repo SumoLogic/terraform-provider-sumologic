@@ -191,6 +191,86 @@ func TestAccSumologicSCEMatchList_idempotent(t *testing.T) {
 
 }
 
+func TestMatchListItemHash_CaseInsensitive(t *testing.T) {
+	item1 := map[string]interface{}{
+		"id":          "",
+		"value":       "Test Value",
+		"description": "desc",
+		"expiration":  "2122-02-27T04:00:00",
+	}
+	item2 := map[string]interface{}{
+		"id":          "some-id",
+		"value":       "test value",
+		"description": "desc",
+		"expiration":  "2122-02-27T04:00:00",
+	}
+	hash1 := matchListItemHash(item1)
+	hash2 := matchListItemHash(item2)
+	if hash1 != hash2 {
+		t.Errorf("Expected case-different values to hash equally, got %d != %d", hash1, hash2)
+	}
+}
+
+func TestMatchListItemHash_NilExpiration(t *testing.T) {
+	itemWithNilExpiration := map[string]interface{}{
+		"id":          "",
+		"value":       "test",
+		"description": "desc",
+		"expiration":  nil,
+	}
+	itemWithEmptyExpiration := map[string]interface{}{
+		"id":          "some-id",
+		"value":       "test",
+		"description": "desc",
+		"expiration":  "",
+	}
+	hash1 := matchListItemHash(itemWithNilExpiration)
+	hash2 := matchListItemHash(itemWithEmptyExpiration)
+	if hash1 != hash2 {
+		t.Errorf("Expected nil and empty expiration to hash equally, got %d != %d", hash1, hash2)
+	}
+}
+
+func TestMatchListItemHash_ExcludesId(t *testing.T) {
+	itemNoId := map[string]interface{}{
+		"id":          "",
+		"value":       "192.168.1.1",
+		"description": "test host",
+		"expiration":  "2122-02-27T04:00:00",
+	}
+	itemWithId := map[string]interface{}{
+		"id":          "abc-123-def",
+		"value":       "192.168.1.1",
+		"description": "test host",
+		"expiration":  "2122-02-27T04:00:00",
+	}
+	hash1 := matchListItemHash(itemNoId)
+	hash2 := matchListItemHash(itemWithId)
+	if hash1 != hash2 {
+		t.Errorf("Expected items with different ids to hash equally, got %d != %d", hash1, hash2)
+	}
+}
+
+func TestMatches_CaseInsensitiveValue(t *testing.T) {
+	oldItem := CSEMatchListItemGet{
+		ID:         "item-1",
+		Active:     true,
+		Expiration: "",
+		Value:      "test value",
+		Meta:       CSEMatchListItemMeta{Description: "desc"},
+	}
+	newItem := CSEMatchListItemPost{
+		ID:          "item-1",
+		Active:      true,
+		Expiration:  "",
+		Value:       "Test Value",
+		Description: "desc",
+	}
+	if !matches(oldItem, newItem) {
+		t.Error("Expected matches() to return true for case-different values")
+	}
+}
+
 func TestSumologicSCEMatchListBulkDeleteSuccess(t *testing.T) {
 	responseBody := []byte(`{"data": {"errorResults": []}}`)
 	response := &http.Response{

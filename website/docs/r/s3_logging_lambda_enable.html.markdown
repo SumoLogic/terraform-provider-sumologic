@@ -1,19 +1,19 @@
 ---
 layout: "sumologic"
-page_title: "SumoLogic: sumologic_lambda_invoke_action"
+page_title: "SumoLogic: sumologic_s3_logging_lambda_enable"
 description: |-
-  Provides a Sumologic Lambda Invoke Action resource
+  Provides a Sumologic S3 Logging Lambda Enable resource
 ---
 
-# sumologic_lambda_invoke_action
+# sumologic_s3_logging_lambda_enable
 Provides a resource to invoke an AWS Lambda function for enabling S3 logging and other auto-enable operations as part of AWS Observability setup.
 
-This resource creates its own AWS Lambda client using environment variables (`AWS_REGION`, `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`). It does not use the Sumo Logic provider credentials for AWS operations.
+This resource creates its own AWS Lambda client. It does not use the Sumo Logic provider credentials for AWS operations.
 
 ## Example Usage
 
 ```hcl
-resource "sumologic_lambda_invoke_action" "enable_s3_logging" {
+resource "sumologic_s3_logging_lambda_enable" "enable_s3_logging" {
   lambda_name            = "SumologicEnableExistingResources"
   aws_resource           = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-alb/abc123"
   bucket_name            = "my-access-logs-bucket"
@@ -34,6 +34,8 @@ The following arguments are supported:
 - `account_id` - (Required) The AWS account ID.
 - `filter` - (Optional) A filter expression to match specific resources. Defaults to `""`.
 - `bucket_prefix` - (Optional) The prefix path within the S3 bucket for log delivery. Defaults to `""`.
+- `region` - (Optional) The AWS region where the Lambda function is deployed. If not set, falls back to the `AWS_REGION` environment variable or the SDK default.
+- `aws_profile` - (Optional) The AWS credentials profile to use. If not set, uses the default credential chain (`AWS_PROFILE` env var, instance profile, etc.).
 - `remove_on_delete_stack` - (Optional) Whether to remove the logging configuration when the resource is destroyed. Defaults to `false`.
 
 ## Attributes Reference

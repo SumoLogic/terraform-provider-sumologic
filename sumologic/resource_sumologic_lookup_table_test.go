@@ -2,6 +2,8 @@ package sumologic
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -119,6 +121,95 @@ func TestAccSumologicLookupTable_update(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccSumologicLookupTable_content(t *testing.T) {
+	var lookupTable LookupTable
+	testName := "SampleLookupTable"
+	testFieldName := "FieldName1"
+	testFieldType := "string"
+	testTtl := 100
+	testPrimaryKeys := "FieldName1"
+	testSizeLimitAction := "StopIncomingMessages"
+	testDescription := "This is a sample lookup table description."
+
+	// Exercise the real-world path: content read from disk via the HCL
+	// file() function, not an inline string, since that's how the feature
+	// is actually meant to be used (see website/docs/r/lookup_table.html.markdown).
+	contentPath, err := filepath.Abs("testdata/lookup_table_content.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	updatedContentPath, err := filepath.Abs("testdata/lookup_table_content_updated.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	contentBytes, err := os.ReadFile(contentPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updatedContentBytes, err := os.ReadFile(updatedContentPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// content cannot be read back from the API, so state stores only its
+	// hash - assert against that rather than the raw CSV. Hash what's
+	// actually on disk so the expectation can't drift from the fixture.
+	testContentHash := hashLookupContent(string(contentBytes))
+	testUpdatedContentHash := hashLookupContent(string(updatedContentBytes))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLookupTableDestroy(lookupTable),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicLookupTableContent(testName, testFieldName, testFieldType, testTtl, testPrimaryKeys, testSizeLimitAction, testDescription, fmt.Sprintf("file(%q)", contentPath)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLookupTableExists("sumologic_lookup_table.test", &lookupTable, t),
+					resource.TestCheckResourceAttr("sumologic_lookup_table.test", "content", testContentHash),
+				),
+			},
+			{
+				Config: testAccSumologicLookupTableContent(testName, testFieldName, testFieldType, testTtl, testPrimaryKeys, testSizeLimitAction, testDescription, fmt.Sprintf("file(%q)", updatedContentPath)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_lookup_table.test", "content", testUpdatedContentHash),
+				),
+			},
+			{
+				// Removing the argument entirely must truncate the table
+				// rather than leaving it unmanaged.
+				Config: testAccSumologicLookupTable(testName, testFieldName, testFieldType, testTtl, testPrimaryKeys, testSizeLimitAction, testDescription),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_lookup_table.test", "content", ""),
+				),
+			},
+		},
+	})
+}
+
+// testAccSumologicLookupTableContent embeds contentExpr verbatim as the
+// "content" argument's value - callers pass a full HCL expression (e.g.
+// `file("/abs/path.csv")`), not a string to be quoted.
+func testAccSumologicLookupTableContent(name string, testFieldName string, testFieldType string, ttl int, primaryKeys string, sizeLimitAction string, description string, contentExpr string) string {
+	return fmt.Sprintf(`
+data "sumologic_personal_folder" "personalFolder" {}
+resource "sumologic_lookup_table" "test" {
+    name = "%s"
+    fields {
+      field_name = "%s"
+      field_type = "%s"
+    }
+    ttl = %d
+    primary_keys = ["%s"]
+    parent_folder_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    size_limit_action = "%s"
+    description = "%s"
+    content = %s
+}
+`, name, testFieldName, testFieldType, ttl, primaryKeys, sizeLimitAction, description, contentExpr)
 }
 
 func testAccCheckLookupTableDestroy(lookupTable LookupTable) resource.TestCheckFunc {

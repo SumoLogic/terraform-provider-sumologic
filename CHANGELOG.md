@@ -1,4 +1,26 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.3.2 (Sep 2, 2026)
+ENHANCEMENTS:
+* `sumologic_lookup_table`: Added `content` argument to populate a lookup table's rows with CSV data (e.g. via `file()`), addressing [#202](https://github.com/SumoLogic/terraform-provider-sumologic/issues/202).
+
+BUG FIXES:
+* Fixed `sumologic_source_template` acceptance tests failing with `SchemaBaseNotFoundException` by adding the required `version` field to `schema_ref` in test configurations.
+
+## 3.3.1 (Aug 20, 2026)
+FEATURES:
+* **New Resource:** `sumologic_data_archiving_destination` - Manage data archiving destinations for `S3`, `Syslog`, `Hitachi`, and `RestAPI` targets.
+
+## 3.3.0 (Aug 11, 2026)
+FEATURES:
+* **New Resource:** `sumologic_async_aws_lambda_invocation` - Asynchronously invoke an AWS Lambda function with support for AWS named profiles, enabling multi-account deployments.
+
+ENHANCEMENTS:
+* `sumologic_s3_logging_lambda_enable` (renamed from `sumologic_lambda_invoke_action`): Added `region` and `aws_profile` arguments to support explicit AWS region configuration and named AWS credential profiles, enabling multi-account deployments.
+
+BUG FIXES:
+* Updated `sumologic_cse_match_list` to handle cases where case differences in values and empty expirations resulted in plan diffs with no functional changes. These will no longer result in a plan diff.
 
 ENHANCEMENTS:
 * `sumologic_log_search`: Added support for multiple notifications in a schedule via the new `notifications` block. The existing singular `notification` block remains supported for backward compatibility.
