@@ -17,6 +17,7 @@ func TestAccPolicies_basic(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 70},
+		CheckDataIngestion:                 CheckDataIngestionPolicy{Enabled: true, NoDataThreshold: "24h"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -44,6 +45,7 @@ func TestAccPolicies_create(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 70},
+		CheckDataIngestion:                 CheckDataIngestionPolicy{Enabled: true, NoDataThreshold: "8h"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -70,6 +72,7 @@ func TestAccPolicies_update(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 80},
+		CheckDataIngestion:                 CheckDataIngestionPolicy{Enabled: true, NoDataThreshold: "4h"},
 	}
 
 	updatedPolicies := Policies{
@@ -79,6 +82,7 @@ func TestAccPolicies_update(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: false},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: false},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: false, MaxConcurrentSessions: 100},
+		CheckDataIngestion:                 CheckDataIngestionPolicy{Enabled: false, NoDataThreshold: "24h"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -145,6 +149,8 @@ func testPoliciesCheckResourceAttr(resourceName string, policies *Policies) reso
 			resource.TestCheckResourceAttr(resourceName, "share_dashboards_outside_organization", strconv.FormatBool(policies.ShareDashboardsOutsideOrganization.Enabled)),
 			resource.TestCheckResourceAttr(resourceName, "user_concurrent_sessions_limit.0.enabled", strconv.FormatBool(policies.UserConcurrentSessionsLimit.Enabled)),
 			resource.TestCheckResourceAttr(resourceName, "user_concurrent_sessions_limit.0.max_concurrent_sessions", strconv.Itoa(policies.UserConcurrentSessionsLimit.MaxConcurrentSessions)),
+			resource.TestCheckResourceAttr(resourceName, "check_data_ingestion.0.enabled", strconv.FormatBool(policies.CheckDataIngestion.Enabled)),
+			resource.TestCheckResourceAttr(resourceName, "check_data_ingestion.0.no_data_threshold", policies.CheckDataIngestion.NoDataThreshold),
 		)
 		return f(s)
 	}
@@ -162,6 +168,10 @@ resource "sumologic_policies" "%s" {
     enabled = %t
     max_concurrent_sessions = %d
   }
+  check_data_ingestion {
+    enabled = %t
+    no_data_threshold = "%s"
+  }
 }`, label,
 		policies.Audit.Enabled,
 		policies.DataAccessLevel.Enabled,
@@ -169,5 +179,7 @@ resource "sumologic_policies" "%s" {
 		policies.SearchAudit.Enabled,
 		policies.ShareDashboardsOutsideOrganization.Enabled,
 		policies.UserConcurrentSessionsLimit.Enabled,
-		policies.UserConcurrentSessionsLimit.MaxConcurrentSessions)
+		policies.UserConcurrentSessionsLimit.MaxConcurrentSessions,
+		policies.CheckDataIngestion.Enabled,
+		policies.CheckDataIngestion.NoDataThreshold)
 }
