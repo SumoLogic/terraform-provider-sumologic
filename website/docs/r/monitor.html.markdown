@@ -42,6 +42,7 @@ resource "sumologic_monitor" "tf_logs_monitor_1" {
   content_type = "Monitor"
   monitor_type = "Logs"
   evaluation_delay = "5m"
+  query_time_type = "searchableTime"
   tags = {
     "team" = "monitoring"
     "application" = "sumologic"
@@ -516,6 +517,9 @@ The following arguments are supported:
 
       Multiple pairs of `<number><time_unit>` may be provided. For example,
       `2m50s` means 2 minutes and 50 seconds.
+- `query_time_type` - (Optional) The time type for the monitor's log queries. Indicates whether the query uses message time or searchable time. Only applicable when `monitor_type` is `Logs`. Valid values:
+  - `searchableTime`: Use the time the log was indexed/searchable.
+  - `messageTime`: Use the timestamp parsed from the log message (default behavior when not specified).
 - `slo_id` - (Optional) Identifier of the SLO definition for the monitor. This is only applicable & required for Slo `monitor_type`.
 - `queries` - (Required if `monitor_type` is not `Slo`) All queries from the monitor.
 - `trigger_conditions` - (Required if not using `triggers`) Defines the conditions of when to send notifications. NOTE: `trigger_conditions` supplants the `triggers` argument.
