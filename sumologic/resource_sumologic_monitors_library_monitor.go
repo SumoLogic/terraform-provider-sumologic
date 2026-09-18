@@ -84,6 +84,7 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 		"query_time_type": {
 			Type:         schema.TypeString,
 			Optional:     true,
+			Computed:     true,
 			ValidateFunc: validation.StringInSlice([]string{"searchableTime", "messageTime"}, false),
 		},
 
