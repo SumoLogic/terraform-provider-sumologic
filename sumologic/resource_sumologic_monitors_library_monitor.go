@@ -222,6 +222,12 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 			Default:  "",
 		},
 
+		"query_time_type": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"messageTime", "searchableTime"}, false),
+		},
+
 		"version": {
 			Type:     schema.TypeInt,
 			Optional: true,
@@ -911,6 +917,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
 	d.Set("tags", monitor.Tags)
 	d.Set("time_zone", monitor.TimeZone)
+	d.Set("query_time_type", monitor.QueryTimeType)
 
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
@@ -1804,6 +1811,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		SloID:                   d.Get("slo_id").(string),
 		NotificationGroupFields: notificationGroupFields,
 		Tags:                    d.Get("tags").(map[string]interface{}),
+		QueryTimeType:           d.Get("query_time_type").(string),
 	}
 }
 

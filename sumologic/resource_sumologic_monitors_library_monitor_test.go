@@ -1847,3 +1847,69 @@ func invalidExampleWithEmptySloSliTriggerCondition(testName string) string {
 func invalidExampleWithEmptySloBurnRateTriggerCondition(testName string) string {
 	return exampleSloMonitorWithTriggerCondition(testName, `slo_burn_rate_condition {}`)
 }
+
+func TestAccSumologicMonitorsLibraryMonitor_create_with_query_time_type(t *testing.T) {
+	var monitorsLibraryMonitor MonitorsLibraryMonitor
+	testNameSuffix := acctest.RandString(16)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicMonitorWithQueryTimeType(testNameSuffix, "searchableTime"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "monitor_type", "Logs"),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "query_time_type", "searchableTime"),
+				),
+			},
+			{
+				Config: testAccSumologicMonitorWithQueryTimeType(testNameSuffix, "messageTime"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMonitorsLibraryMonitorExists("sumologic_monitor.test", &monitorsLibraryMonitor),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "query_time_type", "messageTime"),
+				),
+			},
+		},
+	})
+}
+
+func testAccSumologicMonitorWithQueryTimeType(testName string, queryTimeType string) string {
+	return fmt.Sprintf(`
+resource "sumologic_monitor" "test" {
+	name = "terraform_test_monitor_%s"
+	description = "terraform_test_monitor_description"
+	type = "MonitorsLibraryMonitor"
+	is_disabled = false
+	content_type = "Monitor"
+	monitor_type = "Logs"
+	query_time_type = "%s"
+	queries {
+		row_id = "A"
+		query = "_sourceCategory=monitor-manager error"
+	}
+	trigger_conditions {
+		logs_static_condition {
+			critical {
+				time_range = "15m"
+				alert {
+					threshold = 40.0
+					threshold_type = "GreaterThan"
+				}
+			}
+		}
+	}
+	notifications {
+		notification {
+			connection_type = "Email"
+			recipients = ["abc@example.com"]
+			subject = "test tf monitor"
+			time_zone = "PST"
+			message_body = "test"
+		}
+		run_for_trigger_types = ["Critical"]
+	}
+}`, testName, queryTimeType)
+}
