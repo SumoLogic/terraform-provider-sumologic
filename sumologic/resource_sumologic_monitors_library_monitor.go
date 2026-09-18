@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -18,6 +19,16 @@ func resourceSumologicMonitorsLibraryMonitor() *schema.Resource {
 		Delete: resourceSumologicMonitorsLibraryMonitorDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			queryTimeType, ok := d.GetOk("query_time_type")
+			if ok && queryTimeType.(string) != "" {
+				monitorType := d.Get("monitor_type").(string)
+				if monitorType != "Logs" {
+					return fmt.Errorf("query_time_type is only supported for Logs monitors, got monitor_type = %q", monitorType)
+				}
+			}
+			return nil
 		},
 
 		Schema: getMonitorSchema(),
@@ -68,6 +79,12 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 		"time_zone": {
 			Type:     schema.TypeString,
 			Optional: true,
+		},
+
+		"query_time_type": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice([]string{"searchableTime", "messageTime"}, false),
 		},
 
 		"alert_name": {
@@ -911,6 +928,7 @@ func resourceSumologicMonitorsLibraryMonitorRead(d *schema.ResourceData, meta in
 	d.Set("notification_group_fields", monitor.NotificationGroupFields)
 	d.Set("tags", monitor.Tags)
 	d.Set("time_zone", monitor.TimeZone)
+	d.Set("query_time_type", monitor.QueryTimeType)
 
 	// set notifications
 	notifications := make([]interface{}, len(monitor.Notifications))
@@ -1804,6 +1822,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		SloID:                   d.Get("slo_id").(string),
 		NotificationGroupFields: notificationGroupFields,
 		Tags:                    d.Get("tags").(map[string]interface{}),
+		QueryTimeType:           d.Get("query_time_type").(string),
 	}
 }
 
