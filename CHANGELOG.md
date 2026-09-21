@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* `sumologic_monitor`: Added `query_time_type` argument to support searchable time for Logs monitors. Valid values are `searchableTime` and `messageTime`. Only applicable when `monitor_type` is `Logs`.
+
 ## 3.3.2 (Sep 2, 2026)
 ENHANCEMENTS:
 * `sumologic_lookup_table`: Added `content` argument to populate a lookup table's rows with CSV data (e.g. via `file()`), addressing [#202](https://github.com/SumoLogic/terraform-provider-sumologic/issues/202).

@@ -152,6 +152,107 @@ func TestAccSumologicMonitorsLibraryMonitor_schemaTriggerConditionValidations(t 
 	}
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_schemaQueryTimeTypeValidation(t *testing.T) {
+	config := `
+       resource "sumologic_monitor" "test" {
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Logs"
+         query_time_type = "InvalidValue"
+         triggers {
+           time_range = "1h"
+         }
+       }`
+	expectedError := regexp.MustCompile(`expected query_time_type to be one of \["searchableTime" "messageTime"\], got InvalidValue`)
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_queryTimeTypeNotAllowedForMetrics(t *testing.T) {
+	config := `
+       resource "sumologic_monitor" "test" {
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Metrics"
+         query_time_type = "searchableTime"
+         queries {
+           row_id = "A"
+           query = "metric=cpu_idle"
+         }
+         triggers {
+           time_range = "15m"
+           threshold_type = "GreaterThan"
+           threshold = 90
+           occurrence_type = "Always"
+           trigger_source = "AnyTimeSeries"
+           trigger_type = "Critical"
+           detection_method = "StaticCondition"
+         }
+         triggers {
+           time_range = "15m"
+           threshold_type = "LessThanOrEqual"
+           threshold = 90
+           occurrence_type = "Always"
+           trigger_source = "AnyTimeSeries"
+           trigger_type = "ResolvedCritical"
+           detection_method = "StaticCondition"
+         }
+       }`
+	expectedError := regexp.MustCompile(`query_time_type is only supported for Logs monitors`)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
+func TestAccSumologicMonitorsLibraryMonitor_queryTimeTypeNotAllowedForSlo(t *testing.T) {
+	config := `
+       resource "sumologic_monitor" "test" {
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Slo"
+         slo_id = "0000000000000001"
+         query_time_type = "searchableTime"
+         trigger_conditions {
+           slo_sli_condition {
+             critical {
+               sli_threshold = 99.5
+             }
+           }
+         }
+       }`
+	expectedError := regexp.MustCompile(`query_time_type is only supported for Logs monitors`)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
 	canonicalTimeRange := "1h"
 
@@ -232,6 +333,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 	testIsDisabled := false
 	canonicalTestEvaluationDelay := "1h"
 	testTimeZone := "America/New_York"
+	testQueryTimeType := "searchableTime"
 	testQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -302,6 +404,7 @@ func TestAccSumologicMonitorsLibraryMonitor_create(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", canonicalTestEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "time_zone", testTimeZone),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "query_time_type", testQueryTimeType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testTriggers[0].TriggerType),
@@ -466,6 +569,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 	testUpdatedIsDisabled := true
 	testUpdatedEvaluationDelay := "8m"
 	testUpdatedTimeZone := "America/Chicago"
+	testUpdatedQueryTimeType := "messageTime"
 	testUpdatedQueries := []MonitorQuery{
 		{
 			RowID: "A",
@@ -561,6 +665,7 @@ func TestAccSumologicMonitorsLibraryMonitor_update(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "description", testUpdatedDescription),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "evaluation_delay", testUpdatedEvaluationDelay),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "time_zone", testUpdatedTimeZone),
+					resource.TestCheckResourceAttr("sumologic_monitor.test", "query_time_type", testUpdatedQueryTimeType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "content_type", testUpdatedContentType),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "queries.0.row_id", testUpdatedQueries[0].RowID),
 					resource.TestCheckResourceAttr("sumologic_monitor.test", "triggers.0.trigger_type", testUpdatedTriggers[0].TriggerType),
@@ -887,6 +992,7 @@ resource "sumologic_monitor" "test" {
 	monitor_type = "Logs"
 	evaluation_delay = "60m"
 	time_zone = "America/New_York"
+	query_time_type = "searchableTime"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager error"
@@ -1015,6 +1121,7 @@ resource "sumologic_monitor" "test" {
 	monitor_type = "Logs"
 	evaluation_delay = "8m"
 	time_zone = "America/Chicago"
+	query_time_type = "messageTime"
 	queries {
 		row_id = "A"
 		query = "_sourceCategory=monitor-manager info"
