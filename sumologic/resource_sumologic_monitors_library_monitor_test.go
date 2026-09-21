@@ -222,6 +222,37 @@ func TestAccSumologicMonitorsLibraryMonitor_queryTimeTypeNotAllowedForMetrics(t 
 	})
 }
 
+func TestAccSumologicMonitorsLibraryMonitor_queryTimeTypeNotAllowedForSlo(t *testing.T) {
+	config := `
+       resource "sumologic_monitor" "test" {
+         name = "test"
+         type = "MonitorsLibraryMonitor"
+         monitor_type = "Slo"
+         slo_id = "0000000000000001"
+         query_time_type = "searchableTime"
+         trigger_conditions {
+           slo_sli_condition {
+             critical {
+               sli_threshold = 99.5
+             }
+           }
+         }
+       }`
+	expectedError := regexp.MustCompile(`query_time_type is only supported for Logs monitors`)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      config,
+				PlanOnly:    true,
+				ExpectError: expectedError,
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_triggersTimeRangeDiffSuppression(t *testing.T) {
 	canonicalTimeRange := "1h"
 

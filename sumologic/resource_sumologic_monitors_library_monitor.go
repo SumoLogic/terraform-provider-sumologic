@@ -1793,6 +1793,11 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		automatedPlaybookIds[i] = rawPlaybookIds[i].(string)
 	}
 
+	queryTimeType := ""
+	if d.Get("monitor_type").(string) == "Logs" {
+		queryTimeType = d.Get("query_time_type").(string)
+	}
+
 	return MonitorsLibraryMonitor{
 		CreatedBy:               d.Get("created_by").(string),
 		Name:                    d.Get("name").(string),
@@ -1823,7 +1828,7 @@ func resourceToMonitorsLibraryMonitor(d *schema.ResourceData) MonitorsLibraryMon
 		SloID:                   d.Get("slo_id").(string),
 		NotificationGroupFields: notificationGroupFields,
 		Tags:                    d.Get("tags").(map[string]interface{}),
-		QueryTimeType:           d.Get("query_time_type").(string),
+		QueryTimeType:           queryTimeType,
 	}
 }
 
