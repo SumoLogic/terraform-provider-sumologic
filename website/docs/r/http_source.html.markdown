@@ -48,6 +48,19 @@ resource "sumologic_http_source" "http_otlp_source" {
   collector_id = "${sumologic_collector.test.id}"
 }
 
+resource "sumologic_http_source" "http_source_json_unroll" {
+  name           = "JSON Unroll"
+  description    = "My description"
+  category       = "my/source/category"
+  collector_id   = "${sumologic_collector.collector.id}"
+  multiline_processing_enabled = false
+  json_unrolling = true
+  json_unroll_settings {
+    path       = "$.Records"
+    field_name = "new_field_name"
+  }
+}
+
 resource "sumologic_collector" "collector" {
   name        = "my-collector"
   description = "Just testing this"
@@ -64,6 +77,10 @@ In addition to the [Common Source Properties](https://registry.terraform.io/prov
    - When configuring a Kinesis Logs Source, set this property to `KinesisLog`. 
    - When configuring a HTTP OTLP Source, set this property to `Otlp`.
    - When configuring a RUM Source, set this property to `Rum`. 
+- `json_unrolling` - (Optional) When set to `true`, enables JSON array unrolling. Each element of the JSON array found at `json_unroll_settings.path` is ingested as a separate log message.
+- `json_unroll_settings` - (Optional) Configuration block for JSON array unrolling. When omitted, `path` defaults to `$` (root array).
+  - `path` - (Required) JSONPath expression identifying the array to unroll (e.g. `$.Records`). Defaults to `$` when the block is omitted.
+  - `field_name` - (Optional) Key under which each unrolled array element is nested in the output message. Defaults to the top-level field name extracted from `path` (e.g. `$.Records` → `Records`).
 
 ### See also
   * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)

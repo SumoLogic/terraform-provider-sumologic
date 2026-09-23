@@ -54,6 +54,20 @@ func dataSourceSumologicHTTPSource() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"json_unrolling": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"json_unroll_settings": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"path":       {Type: schema.TypeString, Computed: true},
+						"field_name": {Type: schema.TypeString, Computed: true},
+					},
+				},
+			},
 		},
 	}
 
@@ -113,6 +127,21 @@ func dataSourceSumologicHTTPSourceRead(d *schema.ResourceData, meta interface{})
 	d.Set("url", source.Url)
 	d.Set("token", source.Token)
 	d.Set("base_url", source.BaseUrl)
+	d.Set("json_unrolling", source.JsonUnrolling)
+	settings := []map[string]interface{}{}
+	if source.JsonUnrollSettings != nil {
+		fieldName := ""
+		if source.JsonUnrollSettings.FieldName != nil {
+			fieldName = *source.JsonUnrollSettings.FieldName
+		}
+		settings = []map[string]interface{}{
+			{
+				"path":       source.JsonUnrollSettings.Path,
+				"field_name": fieldName,
+			},
+		}
+	}
+	d.Set("json_unroll_settings", settings)
 
 	return nil
 }

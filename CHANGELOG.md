@@ -3,6 +3,7 @@
 
 ENHANCEMENTS:
 * `sumologic_monitor`: Added `query_time_type` argument to support searchable time for Logs monitors. Valid values are `searchableTime` and `messageTime`. Only applicable when `monitor_type` is `Logs`.
+* `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
 
 ## 3.3.2 (Sep 2, 2026)
 ENHANCEMENTS:
