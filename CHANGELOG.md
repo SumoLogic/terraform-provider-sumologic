@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.3.3 (September 23, 2026)
 ENHANCEMENTS:
 * `sumologic_monitor`: Added `query_time_type` argument to support searchable time for Logs monitors. Valid values are `searchableTime` and `messageTime`. Only applicable when `monitor_type` is `Logs`.
 
