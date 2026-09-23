@@ -34,5 +34,9 @@ The following attributes are exported:
 - `url` - The HTTP endpoint which will be used for sending data to this source.
 - `token` - The token to use for sending data to this source.
 - `base_url` - The base URL for the HTTP source endpoint.
+- `json_unrolling` - Whether JSON array unrolling is enabled on this source.
+- `json_unroll_settings` - Configuration block for JSON array unrolling, when enabled.
+  - `path` - JSONPath expression identifying the array being unrolled.
+  - `field_name` - Key under which each unrolled element is nested, if configured.
 
 

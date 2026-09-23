@@ -363,10 +363,12 @@ func testAccSumologicHTTPSourceJsonUnrollConfig(cName, cDescription, cCategory, 
   }
 
   resource "sumologic_http_source" "json_unroll" {
-      name           = "%s"
-      category       = "%s"
-      collector_id   = "${sumologic_collector.test.id}"
-      json_unrolling = true
+      name                         = "%s"
+      category                     = "%s"
+      collector_id                 = "${sumologic_collector.test.id}"
+      multiline_processing_enabled = false
+      use_autoline_matching        = false
+      json_unrolling               = true
       json_unroll_settings {
           path = "%s"
           %s
