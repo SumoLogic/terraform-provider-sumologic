@@ -7,11 +7,13 @@ import (
 
 type HTTPSource struct {
 	Source
-	MessagePerRequest bool               `json:"messagePerRequest"`
-	URL               string             `json:"url,omitempty"`
-	Token             string             `json:"token,omitempty"`
-	BaseUrl           string             `json:"baseUrl,omitempty"`
-	ThirdPartyRef     *HTTPThirdPartyRef `json:"thirdPartyRef,omitempty"`
+	MessagePerRequest  bool                `json:"messagePerRequest"`
+	URL                string              `json:"url,omitempty"`
+	Token              string              `json:"token,omitempty"`
+	BaseUrl            string              `json:"baseUrl,omitempty"`
+	ThirdPartyRef      *HTTPThirdPartyRef  `json:"thirdPartyRef,omitempty"`
+	JsonUnrolling      bool                `json:"jsonUnrolling,omitempty"`
+	JsonUnrollSettings *JsonUnrollSettings `json:"jsonUnrollSettings,omitempty"`
 }
 
 type HTTPThirdPartyRef struct {
@@ -35,6 +37,11 @@ type HTTPAuthentication struct {
 	TenantId     string `json:"tenantId,omitempty"`
 	ClientId     string `json:"clientId,omitempty"`
 	ClientSecret string `json:"clientSecret,omitempty"`
+}
+
+type JsonUnrollSettings struct {
+	Path      string  `json:"path"`
+	FieldName *string `json:"fieldName,omitempty"`
 }
 
 func (s *Client) CreateHTTPSource(httpSource HTTPSource, collectorID int) (int, error) {
