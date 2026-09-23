@@ -311,3 +311,66 @@ resource "sumologic_http_source" "otlp" {
 }
 `, cName, cDescription, cCategory, sName, sDescription, sCategory, tName, tDescription, tCategory, kName, kDescription, kCategory, oName, oDescription, oCategory)
 }
+
+func TestAccSumologicHTTPSource_jsonUnroll(t *testing.T) {
+	var httpSource HTTPSource
+	var collector Collector
+	cName := acctest.RandomWithPrefix("tf-acc-test")
+	cDescription := acctest.RandomWithPrefix("tf-acc-test")
+	cCategory := acctest.RandomWithPrefix("tf-acc-test")
+	sName := acctest.RandomWithPrefix("tf-acc-test")
+	sCategory := acctest.RandomWithPrefix("tf-acc-test")
+	resourceName := "sumologic_http_source.json_unroll"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckHTTPSourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicHTTPSourceJsonUnrollConfig(cName, cDescription, cCategory, sName, sCategory, "$.Records", ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckHTTPSourceExists(resourceName, &httpSource),
+					testAccCheckCollectorExists("sumologic_collector.test", &collector),
+					resource.TestCheckResourceAttr(resourceName, "json_unrolling", "true"),
+					resource.TestCheckResourceAttr(resourceName, "json_unroll_settings.0.path", "$.Records"),
+					resource.TestCheckResourceAttr(resourceName, "json_unroll_settings.0.field_name", ""),
+				),
+			},
+			{
+				Config: testAccSumologicHTTPSourceJsonUnrollConfig(cName, cDescription, cCategory, sName, sCategory, "$.Records", "record"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckHTTPSourceExists(resourceName, &httpSource),
+					resource.TestCheckResourceAttr(resourceName, "json_unrolling", "true"),
+					resource.TestCheckResourceAttr(resourceName, "json_unroll_settings.0.path", "$.Records"),
+					resource.TestCheckResourceAttr(resourceName, "json_unroll_settings.0.field_name", "record"),
+				),
+			},
+		},
+	})
+}
+
+func testAccSumologicHTTPSourceJsonUnrollConfig(cName, cDescription, cCategory, sName, sCategory, path, fieldName string) string {
+	fieldNameBlock := ""
+	if fieldName != "" {
+		fieldNameBlock = fmt.Sprintf(`field_name = "%s"`, fieldName)
+	}
+	return fmt.Sprintf(`
+  resource "sumologic_collector" "test" {
+      name        = "%s"
+      description = "%s"
+      category    = "%s"
+  }
+
+  resource "sumologic_http_source" "json_unroll" {
+      name           = "%s"
+      category       = "%s"
+      collector_id   = "${sumologic_collector.test.id}"
+      json_unrolling = true
+      json_unroll_settings {
+          path = "%s"
+          %s
+      }
+  }
+  `, cName, cDescription, cCategory, sName, sCategory, path, fieldNameBlock)
+}
