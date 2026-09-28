@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
 
+FEATURES:
+* **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
+
 ## 3.3.3 (September 23, 2026)
 ENHANCEMENTS:
 * `sumologic_monitor`: Added `query_time_type` argument to support searchable time for Logs monitors. Valid values are `searchableTime` and `messageTime`. Only applicable when `monitor_type` is `Logs`.
