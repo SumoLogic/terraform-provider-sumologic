@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
 
 ## 3.3.3 (September 23, 2026)
 ENHANCEMENTS:
