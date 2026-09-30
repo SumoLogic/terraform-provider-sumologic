@@ -229,8 +229,16 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 				}
 			case "Ec2Credential":
 				// The Installed Collector reads temporary credentials from the IAM
-				// instance profile of its EC2 host, so Sumo Logic stores none and there
-				// is nothing to validate.
+				// instance profile of its EC2 host, so Sumo Logic stores none. A
+				// credential given here would be dropped from the request and then read
+				// back empty, leaving a diff that never converges, so reject it at plan
+				// time instead. access_key_secret is worse than a diff: the flatten keeps
+				// it from state, so it would sit in the state file having never been sent.
+				for _, unsupported := range []string{"access_key_id", "access_key_secret", "role_arn"} {
+					if auth[unsupported].(string) != "" {
+						return fmt.Errorf("%s is not supported when authentication_mode is Ec2Credential", unsupported)
+					}
+				}
 			}
 		}
 	case "Syslog":

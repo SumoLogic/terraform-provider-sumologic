@@ -585,6 +585,51 @@ func TestAccSumologicDataArchivingDestination_invalidConfig(t *testing.T) {
 			expectError: regexp.MustCompile(`role_arn is required when authentication_mode is RoleBased`),
 		},
 		{
+			testName: "s3Ec2CredentialWithAccessKeyID",
+			config: testAccDataArchivingDestinationConfig(name, `
+    destination_type = "S3"
+    bucket_name      = "terraform-test-bucket"
+    region           = "us-east-1"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "Ec2Credential"
+      access_key_id       = "AKIAIOSFODNN7EXAMPLE"
+    }`),
+			expectError: regexp.MustCompile(`access_key_id is not supported when authentication_mode is Ec2Credential`),
+		},
+		{
+			testName: "s3Ec2CredentialWithAccessKeySecret",
+			config: testAccDataArchivingDestinationConfig(name, `
+    destination_type = "S3"
+    bucket_name      = "terraform-test-bucket"
+    region           = "us-east-1"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "Ec2Credential"
+      access_key_secret   = "test-secret"
+    }`),
+			expectError: regexp.MustCompile(`access_key_secret is not supported when authentication_mode is Ec2Credential`),
+		},
+		{
+			testName: "s3Ec2CredentialWithRoleArn",
+			config: testAccDataArchivingDestinationConfig(name, `
+    destination_type = "S3"
+    bucket_name      = "terraform-test-bucket"
+    region           = "us-east-1"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "Ec2Credential"
+      role_arn            = "arn:aws:iam::123456789012:role/terraform-test"
+    }`),
+			expectError: regexp.MustCompile(`role_arn is not supported when authentication_mode is Ec2Credential`),
+		},
+		{
 			testName: "s3UnsupportedAuthenticationMode",
 			config: testAccDataArchivingDestinationConfig(name, `
     destination_type = "S3"

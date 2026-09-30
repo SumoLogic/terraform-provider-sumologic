@@ -149,10 +149,11 @@ The following arguments are supported:
 - `access_key_secret` - (Optional, Sensitive) The AWS Secret Access Key used to access the S3 bucket. Required when `authentication_mode` is `AccessKey`.
 - `role_arn` - (Optional) The AWS Role ARN used to access the S3 bucket. Required when `authentication_mode` is `RoleBased`.
 
-With `Ec2Credential`, no credential arguments are supported. The Installed Collector gets
-temporary credentials from the IAM instance profile of the EC2 instance that it runs on, so
-Sumo Logic stores no credentials. The instance profile must permit `s3:PutObject` on the
-target bucket.
+With `Ec2Credential`, the Installed Collector gets temporary credentials from the IAM
+instance profile of the EC2 instance that it runs on, so Sumo Logic stores no credentials.
+The instance profile must permit `s3:PutObject` on the target bucket. Setting
+`access_key_id`, `access_key_secret`, or `role_arn` in this mode fails at plan time,
+because the value would never be sent to the API.
 
 ## Attributes Reference
 
