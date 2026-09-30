@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+ENHANCEMENTS:
+* `sumologic_data_archiving_destination`: Added `Ec2Credential` as an `authentication_mode` for `S3` destinations. The Installed Collector uses the IAM instance profile of its EC2 host, so no credential arguments are needed.
+
 ## 3.3.3 (September 23, 2026)
 ENHANCEMENTS:
 * `sumologic_monitor`: Added `query_time_type` argument to support searchable time for Logs monitors. Valid values are `searchableTime` and `messageTime`. Only applicable when `monitor_type` is `Logs`.

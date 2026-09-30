@@ -54,6 +54,25 @@ resource "sumologic_data_archiving_destination" "s3_access_key" {
 }
 ```
 
+### S3 destination with EC2 instance profile authentication
+```hcl
+resource "sumologic_data_archiving_destination" "s3_ec2_credential" {
+  destination_name = "archive-s3-ec2-credential"
+
+  destination_config {
+    destination_type = "S3"
+    bucket_name      = "my-archive-bucket"
+    region           = "us-east-1"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "Ec2Credential"
+    }
+  }
+}
+```
+
 ### Syslog destination
 ```hcl
 resource "sumologic_data_archiving_destination" "syslog" {
@@ -125,10 +144,15 @@ The following arguments are supported:
 
 ### auth_config
 
-- `authentication_mode` - (Required) AWS IAM authentication method used for access. Possible values are `AccessKey` and `RoleBased`.
+- `authentication_mode` - (Required) AWS IAM authentication method used for access. Possible values are `AccessKey`, `RoleBased`, and `Ec2Credential`.
 - `access_key_id` - (Optional) The AWS Access Key ID used to access the S3 bucket. Required when `authentication_mode` is `AccessKey`.
 - `access_key_secret` - (Optional, Sensitive) The AWS Secret Access Key used to access the S3 bucket. Required when `authentication_mode` is `AccessKey`.
 - `role_arn` - (Optional) The AWS Role ARN used to access the S3 bucket. Required when `authentication_mode` is `RoleBased`.
+
+With `Ec2Credential`, no credential arguments are supported. The Installed Collector gets
+temporary credentials from the IAM instance profile of the EC2 instance that it runs on, so
+Sumo Logic stores no credentials. The instance profile must permit `s3:PutObject` on the
+target bucket.
 
 ## Attributes Reference
 

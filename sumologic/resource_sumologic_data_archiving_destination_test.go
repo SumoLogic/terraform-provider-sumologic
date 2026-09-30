@@ -32,6 +32,18 @@ func testAccPreCheckDataArchivingWithAWS(t *testing.T) {
 	}
 }
 
+// Ec2Credential carries no credentials, so only the bucket and its region are needed.
+func testAccPreCheckDataArchivingWithBucket(t *testing.T) {
+	testAccPreCheck(t)
+	skipDataArchivingTest(t)
+	if v := os.Getenv("SUMOLOGIC_DATA_FORWARDING_BUCKET"); v == "" {
+		t.Fatal("SUMOLOGIC_DATA_FORWARDING_BUCKET must be set for data archiving S3 acceptance tests")
+	}
+	if v := os.Getenv("SUMOLOGIC_DATA_FORWARDING_AWS_REGION"); v == "" {
+		t.Fatal("SUMOLOGIC_DATA_FORWARDING_AWS_REGION must be set for data archiving S3 acceptance tests")
+	}
+}
+
 func testAccPreCheckDataArchiving(t *testing.T) {
 	testAccPreCheck(t)
 	skipDataArchivingTest(t)
@@ -63,6 +75,43 @@ func TestAccSumologicDataArchivingDestination_createS3RoleBased(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.role_arn", testAwsRoleArn),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_by"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// Ec2Credential stores no credentials, so the API returns the mode alone and the three
+// credential attributes stay empty on read and after an import.
+func TestAccSumologicDataArchivingDestination_createS3Ec2Credential(t *testing.T) {
+	name := "terraform_test_archive_" + acctest.RandString(10)
+	resourceName := "sumologic_data_archiving_destination.test"
+	testAwsBucket := os.Getenv("SUMOLOGIC_DATA_FORWARDING_BUCKET")
+	testAwsRegion := os.Getenv("SUMOLOGIC_DATA_FORWARDING_AWS_REGION")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDataArchivingWithBucket(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataArchivingDestinationS3Ec2Credential(name, testAwsBucket, testAwsRegion),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataArchivingDestinationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "destination_name", name),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.destination_type", "S3"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.bucket_name", testAwsBucket),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.region", testAwsRegion),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.authentication_mode", "Ec2Credential"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.access_key_id", ""),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.access_key_secret", ""),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.role_arn", ""),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
@@ -120,6 +169,40 @@ func TestAccSumologicDataArchivingDestination_updateS3RoleBased(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+// Switching the authentication mode is an in-place update, so the role ARN of the first
+// step must not survive into the Ec2Credential destination.
+func TestAccSumologicDataArchivingDestination_updateS3AuthModeToEc2Credential(t *testing.T) {
+	name := "terraform_test_archive_" + acctest.RandString(10)
+	resourceName := "sumologic_data_archiving_destination.test"
+	testAwsRoleArn := os.Getenv("SUMOLOGIC_DATA_FORWARDING_ROLE_ARN")
+	testAwsBucket := os.Getenv("SUMOLOGIC_DATA_FORWARDING_BUCKET")
+	testAwsRegion := os.Getenv("SUMOLOGIC_DATA_FORWARDING_AWS_REGION")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDataArchivingWithAWS(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataArchivingDestinationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataArchivingDestinationS3RoleBased(name, testAwsBucket, testAwsRegion, testAwsRoleArn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataArchivingDestinationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.role_arn", testAwsRoleArn),
+				),
+			},
+			{
+				Config: testAccDataArchivingDestinationS3Ec2Credential(name, testAwsBucket, testAwsRegion),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataArchivingDestinationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.authentication_mode", "Ec2Credential"),
+					resource.TestCheckResourceAttr(resourceName, "destination_config.0.auth_config.0.role_arn", ""),
+					resource.TestCheckResourceAttrSet(resourceName, "modified_at"),
+				),
 			},
 		},
 	})
@@ -502,6 +585,20 @@ func TestAccSumologicDataArchivingDestination_invalidConfig(t *testing.T) {
 			expectError: regexp.MustCompile(`role_arn is required when authentication_mode is RoleBased`),
 		},
 		{
+			testName: "s3UnsupportedAuthenticationMode",
+			config: testAccDataArchivingDestinationConfig(name, `
+    destination_type = "S3"
+    bucket_name      = "terraform-test-bucket"
+    region           = "us-east-1"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "InstanceProfile"
+    }`),
+			expectError: regexp.MustCompile(`to be one of.*got InstanceProfile`),
+		},
+		{
 			testName: "syslogMissingProtocol",
 			config: testAccDataArchivingDestinationConfig(name, `
     destination_type = "Syslog"
@@ -705,6 +802,26 @@ resource "sumologic_data_archiving_destination" "test" {
   }
 }
 `, name, bucket, region, roleArn)
+}
+
+func testAccDataArchivingDestinationS3Ec2Credential(name, bucket, region string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_archiving_destination" "test" {
+  destination_name = "%s"
+
+  destination_config {
+    destination_type = "S3"
+    bucket_name      = "%s"
+    region           = "%s"
+    encrypted        = true
+    enabled          = true
+
+    auth_config {
+      authentication_mode = "Ec2Credential"
+    }
+  }
+}
+`, name, bucket, region)
 }
 
 func testAccDataArchivingDestinationSyslog(name string) string {
