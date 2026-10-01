@@ -210,4 +210,7 @@ type S3ArchivingAuthConfig struct {
 
 	// RoleBased fields
 	RoleArn string `json:"roleArn,omitempty"`
+
+	// Ec2Credential carries no fields. The Installed Collector uses the IAM instance
+	// profile of its EC2 host, so the request is the authenticationMode alone.
 }

@@ -143,7 +143,7 @@ func s3ArchivingAuthConfigSchema() map[string]*schema.Schema {
 		"authentication_mode": {
 			Type:         schema.TypeString,
 			Required:     true,
-			ValidateFunc: validation.StringInSlice([]string{"AccessKey", "RoleBased"}, false),
+			ValidateFunc: validation.StringInSlice([]string{"AccessKey", "RoleBased", "Ec2Credential"}, false),
 		},
 		"access_key_id": {
 			Type:     schema.TypeString,
@@ -226,6 +226,18 @@ func validateDataArchivingDestinationConfig(_ context.Context, d *schema.Resourc
 			case "RoleBased":
 				if auth["role_arn"].(string) == "" {
 					return fmt.Errorf("role_arn is required when authentication_mode is RoleBased")
+				}
+			case "Ec2Credential":
+				// The Installed Collector reads temporary credentials from the IAM
+				// instance profile of its EC2 host, so Sumo Logic stores none. A
+				// credential given here would be dropped from the request and then read
+				// back empty, leaving a diff that never converges, so reject it at plan
+				// time instead. access_key_secret is worse than a diff: the flatten keeps
+				// it from state, so it would sit in the state file having never been sent.
+				for _, unsupported := range []string{"access_key_id", "access_key_secret", "role_arn"} {
+					if auth[unsupported].(string) != "" {
+						return fmt.Errorf("%s is not supported when authentication_mode is Ec2Credential", unsupported)
+					}
 				}
 			}
 		}
@@ -356,6 +368,8 @@ func expandDataArchivingDestination(d *schema.ResourceData) DataArchivingDestina
 				authConfig.AccessKeySecret = auth["access_key_secret"].(string)
 			case "RoleBased":
 				authConfig.RoleArn = auth["role_arn"].(string)
+			case "Ec2Credential":
+				// Nothing to send: the request carries the mode alone.
 			}
 			config.AuthConfig = authConfig
 		}
