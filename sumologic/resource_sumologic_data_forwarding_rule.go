@@ -50,7 +50,6 @@ func resourceSumologicDataForwardingRule() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func resourceSumologicDataForwardingRuleCreate(d *schema.ResourceData, meta interface{}) error {
@@ -85,16 +84,19 @@ func resourceSumologicDataForwardingRuleUpdate(d *schema.ResourceData, meta inte
 
 func resourceSumologicDataForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-
-	return c.DeleteDataForwardingRule(d.Get("index_id").(string))
+	return c.DeleteDataForwardingRule(d.Id())
 }
+
 
 func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	indexId := d.Get("index_id").(string)
-	dataForwardingRule, err := c.getDataForwardingRule(indexId)
+	indexId := d.Id()
+	if indexId == "" {
+		return nil
+	}
 
+	dataForwardingRule, err := c.getDataForwardingRule(indexId)
 	if err != nil {
 		return err
 	}
@@ -102,12 +104,11 @@ func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interf
 	if dataForwardingRule == nil {
 		log.Printf("[WARN] DataForwarding Rule (%s) not found, removing from state", indexId)
 		d.SetId("")
-
 		return nil
 	}
 
 	d.SetId(dataForwardingRule.IndexId)
-	d.Set("index_id", indexId)
+	d.Set("index_id", dataForwardingRule.IndexId)
 	d.Set("destination_id", dataForwardingRule.DestinationId)
 	d.Set("enabled", dataForwardingRule.Enabled)
 	d.Set("file_format", dataForwardingRule.FileFormat)
@@ -116,6 +117,7 @@ func resourceSumologicDataForwardingRuleRead(d *schema.ResourceData, meta interf
 
 	return nil
 }
+
 
 func validatePayloadSchema(val interface{}, key string) (warns []string, errs []error) {
 	allowedValues := map[string]struct{}{
