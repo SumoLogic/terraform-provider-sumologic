@@ -84,11 +84,9 @@ resource "sumologic_data_pipeline" "example" {
 
 The following arguments are supported:
 
-- `name` - (Required, ForceNew) The name of the data pipeline. Must be between 1 and 128
-  characters. Renaming is not currently supported by this resource, so a change here destroys
-  and recreates the pipeline.
-- `description` - (Optional, ForceNew) The description of the data pipeline. Must be between 0
-  and 1024 characters. Not currently updatable in place, for the same reason as `name`.
+- `name` - (Required) The name of the data pipeline. Must be between 1 and 128 characters.
+- `description` - (Optional) The description of the data pipeline. Must be between 0 and 1024
+  characters.
 - `pipeline_type` - (Optional, ForceNew) The type of the data pipeline. Currently only
   `route_based` is supported. Defaults to `route_based`.
 - `route_expression` - (Required) The Sumo Logic query expression that determines which

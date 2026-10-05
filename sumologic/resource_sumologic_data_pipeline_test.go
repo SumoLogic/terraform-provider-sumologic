@@ -13,8 +13,10 @@ import (
 func TestAccSumologicDataPipeline_createAndUpdate(t *testing.T) {
 	skipDataPipelineTest(t)
 	var pipeline DataPipeline
+	var pipelineID string
 	resourceName := "sumologic_data_pipeline.test"
 	name := acctest.RandomWithPrefix("tf-data-pipeline-test")
+	renamedName := name + "-renamed"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +24,7 @@ func TestAccSumologicDataPipeline_createAndUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckDataPipelineDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataPipelineConfig(name, "_sourceCategory=tf-provider-test", true),
+				Config: testAccDataPipelineConfig(name, "", "_sourceCategory=tf-provider-test", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataPipelineExists(resourceName, &pipeline),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -39,12 +41,30 @@ func TestAccSumologicDataPipeline_createAndUpdate(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataPipelineConfig(name, "_sourceCategory=tf-provider-test-updated", false),
+				Config: testAccDataPipelineConfig(name, "", "_sourceCategory=tf-provider-test-updated", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataPipelineExists(resourceName, &pipeline),
 					resource.TestCheckResourceAttr(resourceName, "state", "published"),
 					resource.TestCheckResourceAttr(resourceName, "route_expression", "_sourceCategory=tf-provider-test-updated"),
 					resource.TestCheckResourceAttr(resourceName, "is_enabled", "false"),
+					func(s *terraform.State) error {
+						pipelineID = pipeline.ID
+						return nil
+					},
+				),
+			},
+			{
+				Config: testAccDataPipelineConfig(renamedName, "renamed via updatePipelineMetadata", "_sourceCategory=tf-provider-test-updated", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataPipelineExists(resourceName, &pipeline),
+					resource.TestCheckResourceAttr(resourceName, "name", renamedName),
+					resource.TestCheckResourceAttr(resourceName, "description", "renamed via updatePipelineMetadata"),
+					func(s *terraform.State) error {
+						if pipeline.ID != pipelineID {
+							return fmt.Errorf("expected rename to update the pipeline in place, but id changed from %s to %s", pipelineID, pipeline.ID)
+						}
+						return nil
+					},
 				),
 			},
 		},
@@ -288,10 +308,11 @@ func testAccCheckDataPipelineDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccDataPipelineConfig(name, routeExpression string, isEnabled bool) string {
+func testAccDataPipelineConfig(name, description, routeExpression string, isEnabled bool) string {
 	return fmt.Sprintf(`
 resource "sumologic_data_pipeline" "test" {
   name             = "%s"
+  description      = "%s"
   route_expression = "%s"
   is_enabled       = %t
 
@@ -309,5 +330,5 @@ resource "sumologic_data_pipeline" "test" {
     node_type = "destination"
   }
 }
-`, name, routeExpression, isEnabled)
+`, name, description, routeExpression, isEnabled)
 }
