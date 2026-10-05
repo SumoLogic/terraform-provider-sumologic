@@ -190,6 +190,42 @@ func TestReorderDataPipelineNodesAppendsUnreferencedNodes(t *testing.T) {
 	}
 }
 
+func TestReorderDataPipelineProcessorsMatchesReferenceOrder(t *testing.T) {
+	apiOrder := []DataPipelineProcessor{
+		{ID: "P1", Name: "Add Fields", Order: 1},
+		{ID: "P3", Name: "Filter by Condition", Order: 3},
+		{ID: "P2", Name: "JSON Parse", Order: 2},
+	}
+
+	got := reorderDataPipelineProcessors(apiOrder, []string{"Add Fields", "JSON Parse", "Filter by Condition"})
+
+	want := []string{"Add Fields", "JSON Parse", "Filter by Condition"}
+	if len(got) != len(want) {
+		t.Fatalf("len(got) = %d, want %d", len(got), len(want))
+	}
+	for i, name := range want {
+		if got[i].Name != name {
+			t.Errorf("got[%d].Name = %q, want %q", i, got[i].Name, name)
+		}
+	}
+}
+
+func TestReorderDataPipelineProcessorsAppendsUnreferencedProcessors(t *testing.T) {
+	apiOrder := []DataPipelineProcessor{
+		{Name: "Add Fields"},
+		{Name: "JSON Parse"},
+	}
+
+	got := reorderDataPipelineProcessors(apiOrder, nil)
+
+	if len(got) != 2 {
+		t.Fatalf("len(got) = %d, want 2", len(got))
+	}
+	if got[0].Name != "Add Fields" || got[1].Name != "JSON Parse" {
+		t.Errorf("got = %v, want original API order preserved", got)
+	}
+}
+
 func TestTopologicalDataPipelineNodeOrderLinear(t *testing.T) {
 	apiOrder := []DataPipelineNode{
 		{Name: "Routing Expression", NodeType: "source", Outputs: []DataPipelineOutput{{Target: "Triage"}}},
@@ -257,14 +293,35 @@ func TestTopologicalDataPipelineNodeOrderUnreachableNodeAppended(t *testing.T) {
 
 func TestExpandDataPipelineNodesRoundTrip(t *testing.T) {
 	order := 1
+	isEnabled := true
 	nodes := []DataPipelineNode{
 		{
-			ID:       "NODE2",
-			Name:     "Triage",
-			NodeType: "router",
+			ID:        "NODE2",
+			Name:      "Triage",
+			NodeType:  "router",
+			IsEnabled: &isEnabled,
 			Outputs: []DataPipelineOutput{
 				{Target: "Security Processing", Condition: "event_category=security", Order: &order},
 				{Target: "Sumo Logic"},
+			},
+			Processors: []DataPipelineProcessor{},
+		},
+		{
+			ID:               "NODE3",
+			Name:             "Log Normalization",
+			NodeType:         "processing_group",
+			FilterExpression: "_sourceCategory=prod/app/*",
+			IsEnabled:        &isEnabled,
+			Outputs:          []DataPipelineOutput{{Target: "Sumo Logic"}},
+			Processors: []DataPipelineProcessor{
+				{
+					ID:            "PROC1",
+					Name:          "json-parser-1",
+					ProcessorType: "parsejson",
+					Order:         1,
+					IsEnabled:     true,
+					Config:        json.RawMessage(`{"field":"_raw"}`),
+				},
 			},
 		},
 	}
