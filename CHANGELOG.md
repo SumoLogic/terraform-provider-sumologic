@@ -1,7 +1,9 @@
 ## X.Y.Z (Unreleased)
-* `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
+* Add new change notes here
 
+## 3.3.4 (October 6, 2026)
 ENHANCEMENTS:
+* `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
 * `sumologic_data_archiving_destination`: Added `Ec2Credential` as an `authentication_mode` for `S3` destinations. The Installed Collector uses the IAM instance profile of its EC2 host, so no credential arguments are needed.
 
 ## 3.3.3 (September 23, 2026)
