@@ -93,6 +93,36 @@ func TestSetDataPipelineEnabledSuccess(t *testing.T) {
 	}
 }
 
+func TestUpdateDataPipelineMetadataSuccess(t *testing.T) {
+	response := &http.Response{
+		Status:     http.StatusText(200),
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader([]byte(publishedPipelineJSON))),
+	}
+	client := newTestClient(response)
+
+	pipeline, err := client.UpdateDataPipelineMetadata("00000000HX546", DataPipelineMetadataRequest{
+		Name:        "renamed-pipeline",
+		Description: "",
+	})
+	if err != nil {
+		t.Fatalf("Expected UpdateDataPipelineMetadata to succeed, received: %s", err)
+	}
+	if pipeline.ID != "00000000HX546" {
+		t.Errorf("ID = %q, want %q", pipeline.ID, "00000000HX546")
+	}
+}
+
+func TestDataPipelineMetadataRequestEmptyDescriptionSerialized(t *testing.T) {
+	body, err := json.Marshal(DataPipelineMetadataRequest{Name: "renamed-pipeline", Description: ""})
+	if err != nil {
+		t.Fatalf("Marshal failed: %s", err)
+	}
+	if !bytes.Contains(body, []byte(`"description":""`)) {
+		t.Errorf("marshaled request = %s, want it to contain \"description\":\"\"", body)
+	}
+}
+
 func TestDeleteDataPipelineSuccess(t *testing.T) {
 	response := &http.Response{
 		Status:     http.StatusText(200),
