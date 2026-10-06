@@ -11,13 +11,10 @@ Provides a Sumo Logic [data pipeline][1]. A data pipeline routes messages matchi
 expression through a graph of nodes - exactly one source node, any number of router nodes,
 and a single destination node.
 
-This resource manages the pipeline shell and its routing graph only: `source`, `router`, and
-`destination` nodes with their outputs. `processing_group` nodes/processors are not yet
-supported - see [`sumologic_data_pipeline` data source][2] if you need to read a pipeline that
-has them.
+This resource manages the pipeline's full node graph: `source`, `router`, and `destination`
+nodes with their outputs, and `processing_group` nodes with their ordered list of processors.
 
 [1]: https://help.sumologic.com/docs/send-data/hosted-collectors/data-pipeline/
-[2]: /docs/providers/sumologic/d/data_pipeline.html
 
 ## Example Usage
 
@@ -80,6 +77,48 @@ resource "sumologic_data_pipeline" "example" {
 }
 ```
 
+### With a processing_group node
+
+```hcl
+resource "sumologic_data_pipeline" "example" {
+  name             = "Normalized Logs Pipeline"
+  route_expression = "_sourceCategory=prod/*"
+
+  node {
+    name      = "Routing Expression"
+    node_type = "source"
+
+    output {
+      target = "Log Normalization"
+    }
+  }
+
+  node {
+    name              = "Log Normalization"
+    node_type         = "processing_group"
+    filter_expression = "_sourceCategory=prod/app/*"
+
+    processor {
+      name           = "Extract Client IP"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "(?<clientip>[\\d.]+)"
+      })
+    }
+
+    output {
+      target = "Sumo Logic"
+    }
+  }
+
+  node {
+    name      = "Sumo Logic"
+    node_type = "destination"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -100,9 +139,16 @@ The following arguments are supported:
 
 - `name` - (Required) The name of the node. The source node's name must be the literal string
   `Routing Expression`.
-- `node_type` - (Required) The type of the node. One of `source`, `router`, or `destination`.
+- `node_type` - (Required) The type of the node. One of `source`, `router`, `destination`, or
+  `processing_group`.
+- `filter_expression` - (Optional) For `processing_group` nodes, a Sumo Logic query expression
+  that scopes which messages this group processes. Not applicable to other node types.
+- `is_enabled` - (Optional) Whether this node is active. Defaults to `true`. Only meaningful for
+  `processing_group` nodes.
 - `output` - (Optional) The list of outgoing edges from this node. See [output](#output)
   below.
+- `processor` - (Optional) For `processing_group` nodes, the ordered list of processors applied
+  to matching messages. See [processor](#processor) below.
 
 ### output
 
@@ -111,6 +157,21 @@ The following arguments are supported:
   be taken. An output with no condition acts as a catch-all, and should be declared last.
 - `order` - (Optional) The priority of this output relative to the node's other outputs; lower
   values are evaluated first.
+
+### processor
+
+- `name` - (Required) The display name of this processor.
+- `processor_type` - (Required) The processor type identifier (e.g. `REGEX_PARSE`).
+  This provider does not validate processor types or their `config` contents against a fixed
+  list - Sumo Logic's processor catalog is still growing, so any type the API accepts is
+  accepted here too; invalid combinations surface as an error from Sumo Logic at publish time.
+- `is_enabled` - (Optional) Whether this processor is active. Defaults to `true`.
+- `config` - (Required) A JSON string holding this processor's type-specific configuration.
+  The shape of this JSON is entirely determined by `processor_type` and is not validated by
+  this provider beyond being well-formed JSON.
+
+A processor's execution order is its position in the `processor` list - there is no separate
+`order` argument.
 
 ## Attributes Reference
 
@@ -125,6 +186,8 @@ The following attributes are exported:
 - `node.id` - The internal ID of the node. Not a stable identity across updates: the API
   assigns every node a fresh ID whenever an update touches the node list at all, even for a
   node whose ID and content are otherwise unchanged. Only stable at rest, between updates.
+- `node.processor.id` - The internal ID of the processor. Carries the same caveat as `node.id`:
+  not a stable identity across updates, only stable at rest.
 
 ## Import
 

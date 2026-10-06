@@ -132,6 +132,238 @@ func TestAccSumologicDataPipeline_nodeDiffing(t *testing.T) {
 	})
 }
 
+func TestAccSumologicDataPipeline_processingGroup(t *testing.T) {
+	skipDataPipelineTest(t)
+	var pipeline DataPipeline
+	resourceName := "sumologic_data_pipeline.test"
+	name := acctest.RandomWithPrefix("tf-data-pipeline-processinggroup-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataPipelineDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataPipelineProcessingGroupConfigBaseline(name),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDataPipelineExists(resourceName, &pipeline),
+					testAccCheckDataPipelineHasNode(resourceName, "Log Normalization", "processing_group"),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Client IP", "REGEX_PARSE"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataPipelineProcessingGroupConfigProcessorAdded(name),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDataPipelineExists(resourceName, &pipeline),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Client IP", "REGEX_PARSE"),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Timestamp", "REGEX_PARSE"),
+				),
+			},
+			{
+				Config: testAccDataPipelineProcessingGroupConfigBaseline(name),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDataPipelineExists(resourceName, &pipeline),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Client IP", "REGEX_PARSE"),
+				),
+			},
+			{
+				Config: testAccDataPipelineProcessingGroupConfigReordered(name),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDataPipelineExists(resourceName, &pipeline),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Client IP", "REGEX_PARSE"),
+					testAccCheckDataPipelineHasProcessor(resourceName, "Log Normalization", "Extract Timestamp", "REGEX_PARSE"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckDataPipelineHasProcessor(resourceName, nodeName, processorName, processorType string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		nodeCount, err := strconv.Atoi(rs.Primary.Attributes["node.#"])
+		if err != nil {
+			return fmt.Errorf("node.# is not a number: %w", err)
+		}
+
+		for i := 0; i < nodeCount; i++ {
+			if rs.Primary.Attributes[fmt.Sprintf("node.%d.name", i)] != nodeName {
+				continue
+			}
+
+			processorCount, err := strconv.Atoi(rs.Primary.Attributes[fmt.Sprintf("node.%d.processor.#", i)])
+			if err != nil {
+				return fmt.Errorf("node.%d.processor.# is not a number: %w", i, err)
+			}
+
+			for j := 0; j < processorCount; j++ {
+				if rs.Primary.Attributes[fmt.Sprintf("node.%d.processor.%d.name", i, j)] != processorName {
+					continue
+				}
+				if got := rs.Primary.Attributes[fmt.Sprintf("node.%d.processor.%d.processor_type", i, j)]; got != processorType {
+					return fmt.Errorf("processor %q processor_type = %q, want %q", processorName, got, processorType)
+				}
+				if rs.Primary.Attributes[fmt.Sprintf("node.%d.processor.%d.id", i, j)] == "" {
+					return fmt.Errorf("processor %q has an empty id", processorName)
+				}
+				return nil
+			}
+			return fmt.Errorf("processor %q not found on node %q among %d processors", processorName, nodeName, processorCount)
+		}
+		return fmt.Errorf("node %q not found among %d nodes", nodeName, nodeCount)
+	}
+}
+
+func testAccDataPipelineProcessingGroupConfigBaseline(name string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_pipeline" "test" {
+  name             = %[1]q
+  route_expression = "_sourceCategory=tf-provider-processinggroup-test"
+
+  node {
+    name      = "Routing Expression"
+    node_type = "source"
+
+    output {
+      target = "Log Normalization"
+    }
+  }
+
+  node {
+    name      = "Log Normalization"
+    node_type = "processing_group"
+
+    processor {
+      name           = "Extract Client IP"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "(?<clientip>[\\d.]+)"
+      })
+    }
+
+    output {
+      target = "Sumo Logic"
+    }
+  }
+
+  node {
+    name      = "Sumo Logic"
+    node_type = "destination"
+  }
+}
+`, name)
+}
+
+func testAccDataPipelineProcessingGroupConfigProcessorAdded(name string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_pipeline" "test" {
+  name             = %[1]q
+  route_expression = "_sourceCategory=tf-provider-processinggroup-test"
+
+  node {
+    name      = "Routing Expression"
+    node_type = "source"
+
+    output {
+      target = "Log Normalization"
+    }
+  }
+
+  node {
+    name      = "Log Normalization"
+    node_type = "processing_group"
+
+    processor {
+      name           = "Extract Client IP"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "(?<clientip>[\\d.]+)"
+      })
+    }
+
+    processor {
+      name           = "Extract Timestamp"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "\\[(?<timestamp>[^\\]]+)\\]"
+      })
+    }
+
+    output {
+      target = "Sumo Logic"
+    }
+  }
+
+  node {
+    name      = "Sumo Logic"
+    node_type = "destination"
+  }
+}
+`, name)
+}
+
+func testAccDataPipelineProcessingGroupConfigReordered(name string) string {
+	return fmt.Sprintf(`
+resource "sumologic_data_pipeline" "test" {
+  name             = %[1]q
+  route_expression = "_sourceCategory=tf-provider-processinggroup-test"
+
+  node {
+    name      = "Routing Expression"
+    node_type = "source"
+
+    output {
+      target = "Log Normalization"
+    }
+  }
+
+  node {
+    name      = "Log Normalization"
+    node_type = "processing_group"
+
+    processor {
+      name           = "Extract Timestamp"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "\\[(?<timestamp>[^\\]]+)\\]"
+      })
+    }
+
+    processor {
+      name           = "Extract Client IP"
+      processor_type = "REGEX_PARSE"
+      config = jsonencode({
+        fieldToParseFrom = "_raw"
+        regexPattern     = "(?<clientip>[\\d.]+)"
+      })
+    }
+
+    output {
+      target = "Sumo Logic"
+    }
+  }
+
+  node {
+    name      = "Sumo Logic"
+    node_type = "destination"
+  }
+}
+`, name)
+}
+
 func testAccCheckDataPipelineHasNode(resourceName, nodeName, nodeType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
