@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * `sumologic_http_source`: Added `json_unrolling` and `json_unroll_settings` fields. When enabled, log messages containing a JSON array at the specified `path` are split into individual log messages per array element, with each element optionally nested under a `field_name` key.
 
+FEATURES:
+* **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
+
 ENHANCEMENTS:
 * `sumologic_data_archiving_destination`: Added `Ec2Credential` as an `authentication_mode` for `S3` destinations. The Installed Collector uses the IAM instance profile of its EC2 host, so no credential arguments are needed.
 
