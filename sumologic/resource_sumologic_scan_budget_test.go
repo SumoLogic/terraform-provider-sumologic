@@ -163,6 +163,53 @@ func TestAccSumologicScanBudget_update(t *testing.T) {
 	})
 }
 
+func TestAccSumologicScanBudget_callerModules(t *testing.T) {
+	var scanBudget ScanBudget
+
+	testScope := ScanBudgetScope{
+		IncludedUsers: []string{"000000000000011C"},
+		ExcludedUsers: []string{},
+		IncludedRoles: []string{},
+		ExcludedRoles: []string{"0000000000000196"},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScanBudgetDestroy(scanBudget),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicScanBudget("Test Budget CallerModules", 10, "GB", "ScanBudget", "Query", "PerEntity", "User", "StopScan", testScope, "active"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScanBudgetExists("sumologic_scan_budget.test", &scanBudget, t),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.#", "0"),
+				),
+			},
+			{
+				Config: testAccSumologicScanBudgetWithCallerModules("Test Budget CallerModules", 10, "GB", "ScanBudget", "Query", "PerEntity", "User", "StopScan", testScope, []string{"api"}, "active"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.#", "1"),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.0", "api"),
+				),
+			},
+			{
+				Config: testAccSumologicScanBudgetWithCallerModules("Test Budget CallerModules", 10, "GB", "ScanBudget", "Query", "PerEntity", "User", "StopScan", testScope, []string{"api", "mcp"}, "active"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.#", "2"),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.0", "api"),
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.1", "mcp"),
+				),
+			},
+			{
+				Config: testAccSumologicScanBudget("Test Budget CallerModules", 10, "GB", "ScanBudget", "Query", "PerEntity", "User", "StopScan", testScope, "active"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("sumologic_scan_budget.test", "caller_modules.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScanBudgetDestroy(scanBudget ScanBudget) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*Client)
@@ -264,6 +311,30 @@ resource "sumologic_scan_budget" "test" {
       status = "%s"
 }
 `, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope.IncludedUsers[0], scope.ExcludedRoles[0], status)
+}
+
+func testAccSumologicScanBudgetWithCallerModules(name string, capacity int, unit string, budgetType string, window string, applicableOn string, groupBy string, action string, scope ScanBudgetScope, callerModules []string, status string) string {
+	callerModulesStr := `"` + strings.Join(callerModules, `","`) + `"`
+	return fmt.Sprintf(`
+resource "sumologic_scan_budget" "test" {
+    name = "%s"
+    capacity = %d
+    unit = "%s"
+    budget_type = "%s"
+    window = "%s"
+    applicable_on = "%s"
+	group_by = "%s"
+    action = "%s"
+    scope {
+		included_users = ["%s"]
+	  	excluded_users = []
+	  	included_roles = []
+	  	excluded_roles = ["%s"]
+	}
+	caller_modules = [%s]
+	status = "%s"
+}
+`, name, capacity, unit, budgetType, window, applicableOn, groupBy, action, scope.IncludedUsers[0], scope.ExcludedRoles[0], callerModulesStr, status)
 }
 
 func testAccCheckScanBudgetAttributes(name string) resource.TestCheckFunc {
