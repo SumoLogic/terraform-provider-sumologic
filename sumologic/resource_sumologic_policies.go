@@ -11,6 +11,7 @@ var DefaultPolicies = Policies{
 	SearchAudit:                        SearchAuditPolicy{Enabled: false},
 	ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: false},
 	UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: false, MaxConcurrentSessions: 100},
+	CheckDataIngestion:                 CheckDataIngestionPolicy{Enabled: true, NoDataThreshold: "24h"},
 }
 
 func resourceSumologicPolicies() *schema.Resource {
@@ -58,6 +59,24 @@ func resourceSumologicPolicies() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  DefaultPolicies.UserConcurrentSessionsLimit.MaxConcurrentSessions,
+						},
+					},
+				},
+			},
+			"check_data_ingestion": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"no_data_threshold": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  DefaultPolicies.CheckDataIngestion.NoDataThreshold,
 						},
 					},
 				},
@@ -117,6 +136,7 @@ func setPoliciesResource(d *schema.ResourceData, policies *Policies) {
 	d.Set("search_audit", policies.SearchAudit.Enabled)
 	d.Set("share_dashboards_outside_organization", policies.ShareDashboardsOutsideOrganization.Enabled)
 	setUserConcurrentSessionsLimitPolicy(d, &policies.UserConcurrentSessionsLimit)
+	setCheckDataIngestionPolicy(d, &policies.CheckDataIngestion)
 }
 
 func resourceToPolicies(d *schema.ResourceData) Policies {
@@ -127,6 +147,7 @@ func resourceToPolicies(d *schema.ResourceData) Policies {
 	policies.SearchAudit = SearchAuditPolicy{d.Get("search_audit").(bool)}
 	policies.ShareDashboardsOutsideOrganization = ShareDashboardsOutsideOrganizationPolicy{d.Get("share_dashboards_outside_organization").(bool)}
 	policies.UserConcurrentSessionsLimit = getUserConcurrentSessionsLimitPolicy(d)
+	policies.CheckDataIngestion = getCheckDataIngestionPolicy(d)
 	return policies
 }
 
@@ -147,4 +168,23 @@ func getUserConcurrentSessionsLimitPolicy(d *schema.ResourceData) UserConcurrent
 	userConcurrentSessionsLimitPolicy.Enabled = resourceAsMap["enabled"].(bool)
 	userConcurrentSessionsLimitPolicy.MaxConcurrentSessions = resourceAsMap["max_concurrent_sessions"].(int)
 	return userConcurrentSessionsLimitPolicy
+}
+
+func setCheckDataIngestionPolicy(d *schema.ResourceData, policy *CheckDataIngestionPolicy) {
+	checkDataIngestionPolicyMap := make(map[string]interface{})
+	checkDataIngestionPolicyMap["enabled"] = policy.Enabled
+	checkDataIngestionPolicyMap["no_data_threshold"] = policy.NoDataThreshold
+
+	checkDataIngestionPolicy := make([]map[string]interface{}, 1)
+	checkDataIngestionPolicy[0] = checkDataIngestionPolicyMap
+
+	d.Set("check_data_ingestion", checkDataIngestionPolicy)
+}
+
+func getCheckDataIngestionPolicy(d *schema.ResourceData) CheckDataIngestionPolicy {
+	resourceAsMap := d.Get("check_data_ingestion").([]interface{})[0].(map[string]interface{})
+	var checkDataIngestionPolicy CheckDataIngestionPolicy
+	checkDataIngestionPolicy.Enabled = resourceAsMap["enabled"].(bool)
+	checkDataIngestionPolicy.NoDataThreshold = resourceAsMap["no_data_threshold"].(string)
+	return checkDataIngestionPolicy
 }

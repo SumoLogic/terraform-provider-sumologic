@@ -12,6 +12,7 @@ func (s *Client) GetPolicies() (*Policies, error) {
 	var searchAuditPolicy SearchAuditPolicy
 	var shareDashboardsOutsideOrganizationPolicy ShareDashboardsOutsideOrganizationPolicy
 	var userConcurrentSessionsLimitPolicy UserConcurrentSessionsLimitPolicy
+	var checkDataIngestionPolicy CheckDataIngestionPolicy
 
 	policyRequests := []PolicyRequest{
 		PolicyRequest{"audit", nil, &auditPolicy},
@@ -20,6 +21,7 @@ func (s *Client) GetPolicies() (*Policies, error) {
 		PolicyRequest{"searchAudit", nil, &searchAuditPolicy},
 		PolicyRequest{"shareDashboardsOutsideOrganization", nil, &shareDashboardsOutsideOrganizationPolicy},
 		PolicyRequest{"userConcurrentSessionsLimit", nil, &userConcurrentSessionsLimitPolicy},
+		PolicyRequest{"checkDataIngestion", nil, &checkDataIngestionPolicy},
 	}
 
 	var err error
@@ -37,6 +39,7 @@ func (s *Client) GetPolicies() (*Policies, error) {
 		SearchAudit:                        searchAuditPolicy,
 		ShareDashboardsOutsideOrganization: shareDashboardsOutsideOrganizationPolicy,
 		UserConcurrentSessionsLimit:        userConcurrentSessionsLimitPolicy,
+		CheckDataIngestion:                 checkDataIngestionPolicy,
 	}, nil
 }
 
@@ -47,6 +50,7 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 	var searchAuditPolicy SearchAuditPolicy
 	var shareDashboardsOutsideOrganizationPolicy ShareDashboardsOutsideOrganizationPolicy
 	var userConcurrentSessionsLimitPolicy UserConcurrentSessionsLimitPolicy
+	var checkDataIngestionPolicy CheckDataIngestionPolicy
 
 	policyRequests := []PolicyRequest{
 		PolicyRequest{"audit", &policies.Audit, &auditPolicy},
@@ -55,6 +59,7 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 		PolicyRequest{"searchAudit", &policies.SearchAudit, &searchAuditPolicy},
 		PolicyRequest{"shareDashboardsOutsideOrganization", &policies.ShareDashboardsOutsideOrganization, &shareDashboardsOutsideOrganizationPolicy},
 		PolicyRequest{"userConcurrentSessionsLimit", &policies.UserConcurrentSessionsLimit, &userConcurrentSessionsLimitPolicy},
+		PolicyRequest{"checkDataIngestion", &policies.CheckDataIngestion, &checkDataIngestionPolicy},
 	}
 
 	var err error
@@ -72,6 +77,7 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 		SearchAudit:                        searchAuditPolicy,
 		ShareDashboardsOutsideOrganization: shareDashboardsOutsideOrganizationPolicy,
 		UserConcurrentSessionsLimit:        userConcurrentSessionsLimitPolicy,
+		CheckDataIngestion:                 checkDataIngestionPolicy,
 	}, nil
 }
 
@@ -128,6 +134,11 @@ type UserConcurrentSessionsLimitPolicy struct {
 	MaxConcurrentSessions int  `json:"maxConcurrentSessions"`
 }
 
+type CheckDataIngestionPolicy struct {
+	Enabled         bool   `json:"enabled"`
+	NoDataThreshold string `json:"noDataThreshold"`
+}
+
 type Policies struct {
 	Audit                              AuditPolicy
 	DataAccessLevel                    DataAccessLevelPolicy
@@ -135,4 +146,5 @@ type Policies struct {
 	SearchAudit                        SearchAuditPolicy
 	ShareDashboardsOutsideOrganization ShareDashboardsOutsideOrganizationPolicy
 	UserConcurrentSessionsLimit        UserConcurrentSessionsLimitPolicy
+	CheckDataIngestion                 CheckDataIngestionPolicy
 }
