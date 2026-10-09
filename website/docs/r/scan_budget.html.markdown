@@ -26,6 +26,7 @@ resource "sumologic_scan_budget" "budget" {
       included_roles = []
       excluded_roles = ["0000000000000196"]
   }
+  caller_modules = ["api", "mcp"]
 }
 ```
 
@@ -42,6 +43,7 @@ The following arguments are supported:
 * `group_by` - (Required) Grouping Entity of the budget. Supported values are: `User`.
 * `action` - (Required) Action to be taken if the budget is breached. Supported values are: `StopForeGroundScan` and `Warn`.
 * `scope` - (Required) Scope of the budget.
+* `caller_modules` - (Optional) List of caller modules this budget applies to. An empty list means the budget applies to all callers. Supported values include: `api`, `mcp`, `asksumo`.
 * `status` - (Required) Signifies the state of the budget. Supported values are: `active` and `inactive`.
 
 The following attributes are exported:
