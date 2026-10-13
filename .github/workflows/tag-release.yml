@@ -22,7 +22,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const actor = '${{ github.event.pull_request.merged_by.login }}';
+            // merged_by is available when PR is merged; fall back to triggering actor
+            const actor = '${{ github.event.pull_request.merged_by.login }}' || context.actor;
             try {
               await github.rest.teams.getMembershipForUserInOrg({
                 org: 'SumoLogic',

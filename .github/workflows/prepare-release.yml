@@ -220,6 +220,8 @@ jobs:
       - name: Update CHANGELOG and create PR
         if: "!inputs.dry_run"
         uses: actions/github-script@v7
+        env:
+          DRAFT_ENTRIES: ${{ steps.audit.outputs.draft_entries }}
         with:
           script: |
             const fs = require('fs');
@@ -240,8 +242,8 @@ jobs:
               .filter(l => l.trim() && !l.match(/^\* Add new change notes here$/));
 
             // Inject any draft entries for missing PRs
-            const draftEntries = `${{ steps.audit.outputs.draft_entries }}`;
-            if (draftEntries) {
+            const draftEntries = process.env.DRAFT_ENTRIES || '';
+            if (draftEntries.trim()) {
               unreleasedItems.push(...draftEntries.split('\n'));
             }
 
