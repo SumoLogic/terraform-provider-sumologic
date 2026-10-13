@@ -46,6 +46,13 @@ if [[ ! -f CHANGELOG.md ]]; then
   fail "CHANGELOG.md not found. Run this script from the repo root."
 fi
 
+# ── Verify team membership ────────────────────────────────────────────────
+gh_user=$(gh api user --jq '.login' 2>/dev/null) || fail "Not authenticated with gh CLI. Run: gh auth login"
+if ! gh api "orgs/SumoLogic/teams/tf-platform-team/members" --jq '.[].login' 2>/dev/null | grep -qx "$gh_user"; then
+  fail "${gh_user} is not a member of @SumoLogic/tf-platform-team. Only tf-platform-team members can run releases."
+fi
+success "Authenticated as ${gh_user} (tf-platform-team member)"
+
 # ── Gather context ─────────────────────────────────────────────────────────
 last_tag=$(gh api "repos/${REPO}/releases/latest" --jq '.tag_name' 2>/dev/null) || fail "Could not fetch latest release."
 last_version="${last_tag#v}"
