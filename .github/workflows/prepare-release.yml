@@ -1,0 +1,309 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g. 3.3.5, without 'v' prefix). Leave blank to auto-detect from CHANGELOG."
+        required: false
+        type: string
+      confirm_major:
+        description: "Required 'true' for major version bumps. Ignored otherwise."
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Audit only — no branch, PR, or changes."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify team membership
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const actor = context.actor;
+            try {
+              const { status } = await github.rest.teams.getMembershipForUserInOrg({
+                org: 'SumoLogic',
+                team_slug: 'tf-platform-team',
+                username: actor,
+              });
+              core.info(`${actor} is a member of tf-platform-team`);
+            } catch (e) {
+              core.setFailed(
+                `${actor} is not a member of @SumoLogic/tf-platform-team. ` +
+                `Only tf-platform-team members can trigger releases.`
+              );
+            }
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather release context
+        id: context
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: latest } = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const lastVersion = latest.tag_name.replace(/^v/, '');
+            const lastDate = latest.published_at.slice(0, 10);
+            core.setOutput('last_version', lastVersion);
+            core.setOutput('last_tag', latest.tag_name);
+            core.setOutput('last_date', lastDate);
+            core.info(`Latest release: ${latest.tag_name} (${lastDate})`);
+
+      - name: Audit changelog completeness
+        id: audit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const lastDate = '${{ steps.context.outputs.last_date }}';
+
+            // Extract Unreleased section
+            const unreleasedMatch = changelog.match(/^## X\.Y\.Z[\s\S]*?(?=\n## \d)/m);
+            const unreleased = unreleasedMatch ? unreleasedMatch[0] : '';
+            core.info('=== Unreleased section ===');
+            core.info(unreleased);
+
+            // Get merged PRs since last release
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              base: 'master',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 100,
+            });
+            const merged = prs.filter(pr =>
+              pr.merged_at &&
+              pr.merged_at >= lastDate &&
+              !pr.labels.some(l => l.name === 'changelog/no-changelog') &&
+              !pr.title.match(/^(Release|Releasing) \d/)
+            );
+
+            // Check which PRs are missing from changelog
+            const missing = merged.filter(pr => {
+              if (unreleased.includes(`#${pr.number}`)) return false;
+              // Keyword match: extract meaningful words from title
+              const words = pr.title.match(/[a-zA-Z_][a-zA-Z0-9_]{2,}/g) || [];
+              const skipWords = /^(Add|Added|Fix|Fixed|Update|Updated|Support|Remove|New|Set|Run|Get|Use)$/i;
+              const keywords = words.filter(w => !skipWords.test(w));
+              return keywords.length === 0 || !keywords.some(w => unreleased.toLowerCase().includes(w.toLowerCase()));
+            });
+
+            if (missing.length > 0) {
+              core.warning(`${missing.length} merged PR(s) may be missing from CHANGELOG:`);
+              const lines = missing.map(pr =>
+                `  #${pr.number} ${pr.title} (@${pr.user.login})`
+              );
+              lines.forEach(l => core.warning(l));
+
+              // Generate draft entries
+              const categorize = (pr) => {
+                const labels = pr.labels.map(l => l.name);
+                if (labels.includes('breaking-change')) return 'BREAKING CHANGES';
+                if (labels.includes('new-resource') || labels.includes('new-data-source')) return 'FEATURES';
+                if (labels.includes('bug')) return 'BUG FIXES';
+                if (labels.includes('documentation')) return 'DOCS';
+                return 'ENHANCEMENTS';
+              };
+              const groups = {};
+              missing.forEach(pr => {
+                const cat = categorize(pr);
+                if (!groups[cat]) groups[cat] = [];
+                groups[cat].push(`* ${pr.title} ([#${pr.number}](${pr.html_url}))`);
+              });
+              const draft = Object.entries(groups)
+                .map(([cat, items]) => `${cat}:\n${items.join('\n')}`)
+                .join('\n\n');
+              core.setOutput('draft_entries', draft);
+              core.setOutput('has_missing', 'true');
+              core.info('Draft entries:\n' + draft);
+            } else {
+              core.info('All merged PRs appear referenced in the changelog.');
+              core.setOutput('has_missing', 'false');
+              core.setOutput('draft_entries', '');
+            }
+
+            // Detect categories for version recommendation
+            core.setOutput('has_breaking', unreleased.match(/BREAKING CHANGE/i) ? 'true' : 'false');
+            core.setOutput('has_features', unreleased.match(/^FEATURES:/m) ? 'true' : 'false');
+
+      - name: Determine version
+        id: version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const lastVersion = '${{ steps.context.outputs.last_version }}';
+            const [major, minor, patch] = lastVersion.split('.').map(Number);
+            const hasBreaking = '${{ steps.audit.outputs.has_breaking }}' === 'true';
+            const hasFeatures = '${{ steps.audit.outputs.has_features }}' === 'true';
+            const inputVersion = '${{ inputs.version }}';
+            const confirmMajor = ${{ inputs.confirm_major }};
+
+            let recommended, suggested, reason;
+            if (hasBreaking) {
+              recommended = 'major';
+              suggested = `${major + 1}.0.0`;
+              reason = 'BREAKING CHANGES detected';
+            } else if (hasFeatures) {
+              recommended = 'minor';
+              suggested = `${major}.${minor + 1}.0`;
+              reason = 'New FEATURES detected';
+            } else {
+              recommended = 'patch';
+              suggested = `${major}.${minor}.${patch + 1}`;
+              reason = 'Bug fixes / enhancements only';
+            }
+
+            const version = inputVersion || suggested;
+            const [newMajor] = version.split('.').map(Number);
+            const isMajorBump = newMajor > major;
+
+            core.info(`Last version: ${lastVersion}`);
+            core.info(`Detected: ${reason}`);
+            core.info(`Recommended: ${suggested} (${recommended})`);
+            core.info(`Using: ${version}`);
+
+            if (isMajorBump && !confirmMajor) {
+              core.setFailed(
+                `Major version bump (${lastVersion} → ${version}) requires confirm_major: true.\n` +
+                `Re-run this workflow with confirm_major checked after verifying:\n` +
+                `  1. Breaking changes communicated via deprecation notices\n` +
+                `  2. Migration guide documented\n` +
+                `  3. Team lead approval obtained`
+              );
+              return;
+            }
+
+            if (!/^\d+\.\d+\.\d+$/.test(version)) {
+              core.setFailed(`Invalid version format: ${version}. Expected: X.Y.Z`);
+              return;
+            }
+
+            core.setOutput('version', version);
+            core.setOutput('tag', `v${version}`);
+            core.setOutput('recommended', recommended);
+            core.setOutput('reason', reason);
+
+      - name: Dry-run summary
+        if: inputs.dry_run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.version.outputs.version }}';
+            const recommended = '${{ steps.version.outputs.recommended }}';
+            const hasMissing = '${{ steps.audit.outputs.has_missing }}';
+            const draft = `${{ steps.audit.outputs.draft_entries }}`;
+            core.notice(`Dry run complete — would release v${version} (${recommended} bump)`);
+            if (hasMissing === 'true') {
+              core.warning('Missing changelog entries detected. Draft entries shown in audit step.');
+            }
+
+      - name: Update CHANGELOG and create PR
+        if: "!inputs.dry_run"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = '${{ steps.version.outputs.version }}';
+            const branch = `release-${version}`;
+            const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+            // Read current changelog
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+
+            // Split at the Unreleased header
+            const lines = changelog.split('\n');
+            const unreleasedIdx = lines.findIndex(l => l.match(/^## X\.Y\.Z/));
+            const nextVersionIdx = lines.findIndex((l, i) => i > unreleasedIdx && l.match(/^## \d/));
+
+            // Extract unreleased items (skip header and placeholder)
+            const unreleasedItems = lines.slice(unreleasedIdx + 1, nextVersionIdx)
+              .filter(l => l.trim() && !l.match(/^\* Add new change notes here$/));
+
+            // Inject any draft entries for missing PRs
+            const draftEntries = `${{ steps.audit.outputs.draft_entries }}`;
+            if (draftEntries) {
+              unreleasedItems.push(...draftEntries.split('\n'));
+            }
+
+            // Build new changelog
+            const newLines = [
+              '## X.Y.Z (Unreleased)',
+              '* Add new change notes here',
+              '',
+              `## ${version} (${today})`,
+              ...unreleasedItems,
+              '',
+              ...lines.slice(nextVersionIdx),
+            ];
+            const newChangelog = newLines.join('\n');
+
+            // Create branch via API
+            const { data: master } = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/master',
+            });
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branch}`,
+              sha: master.object.sha,
+            });
+
+            // Get current file SHA for update
+            const { data: file } = await github.rest.repos.getContent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'CHANGELOG.md',
+              ref: branch,
+            });
+
+            // Update CHANGELOG on branch
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'CHANGELOG.md',
+              message: `Release ${version}`,
+              content: Buffer.from(newChangelog).toString('base64'),
+              sha: file.sha,
+              branch: branch,
+            });
+
+            // Create PR
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: branch,
+              base: 'master',
+              title: `Release ${version}`,
+              body: `Updates CHANGELOG.md for release ${version}.\n\nTriggered by @${context.actor} via workflow_dispatch.`,
+            });
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['changelog/no-changelog'],
+            });
+
+            core.notice(`Release PR created: ${pr.html_url}`);

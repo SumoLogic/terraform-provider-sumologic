@@ -1,0 +1,172 @@
+name: Tag release after merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release-')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.tag-step.outputs.version }}
+      tag: ${{ steps.tag-step.outputs.tag }}
+    steps:
+      - name: Verify team membership
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const actor = '${{ github.event.pull_request.merged_by.login }}';
+            try {
+              await github.rest.teams.getMembershipForUserInOrg({
+                org: 'SumoLogic',
+                team_slug: 'tf-platform-team',
+                username: actor,
+              });
+              core.info(`${actor} is a member of tf-platform-team`);
+            } catch (e) {
+              core.setFailed(
+                `${actor} is not a member of @SumoLogic/tf-platform-team. ` +
+                `Only tf-platform-team members can merge release PRs to trigger tagging.`
+              );
+            }
+
+      - uses: actions/checkout@v4
+
+      - name: Extract version and tag
+        id: tag-step
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = '${{ github.event.pull_request.head.ref }}';
+            const version = branch.replace('release-', '');
+            const tag = `v${version}`;
+
+            if (!/^\d+\.\d+\.\d+$/.test(version)) {
+              core.setFailed(`Branch ${branch} does not contain a valid version.`);
+              return;
+            }
+
+            // Verify version appears in CHANGELOG
+            const fs = require('fs');
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+            if (!changelog.includes(`## ${version}`)) {
+              core.setFailed(`Version ${version} not found in CHANGELOG.md. Aborting tag.`);
+              return;
+            }
+
+            // Check tag doesn't already exist
+            try {
+              await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${tag}`,
+              });
+              core.setFailed(`Tag ${tag} already exists.`);
+              return;
+            } catch (e) {
+              // 404 = tag doesn't exist = good
+            }
+
+            // Create tag on the merge commit
+            const sha = '${{ github.event.pull_request.merge_commit_sha }}';
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${tag}`,
+              sha: sha,
+            });
+
+            core.notice(`Tagged ${tag} at ${sha.slice(0, 12)}. Goreleaser will start automatically.`);
+            core.setOutput('version', version);
+            core.setOutput('tag', tag);
+
+  publish:
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for goreleaser
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ needs.tag.outputs.tag }}';
+            core.info(`Waiting for goreleaser run for ${tag}...`);
+
+            // Poll for the workflow run to appear and complete (up to 15 min)
+            let runId = null;
+            for (let i = 0; i < 30; i++) {
+              const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'release.yml',
+                per_page: 5,
+              });
+              const run = runs.workflow_runs.find(r => r.head_branch === tag);
+              if (run) {
+                if (run.status === 'completed') {
+                  if (run.conclusion === 'success') {
+                    core.info(`Goreleaser completed: ${run.html_url}`);
+                    runId = run.id;
+                    break;
+                  } else {
+                    core.setFailed(`Goreleaser failed: ${run.html_url}`);
+                    return;
+                  }
+                }
+                core.info(`Goreleaser status: ${run.status} (attempt ${i + 1}/30)`);
+              }
+              await new Promise(r => setTimeout(r, 30000));
+            }
+            if (!runId) {
+              core.setFailed('Goreleaser did not complete within 15 minutes.');
+            }
+
+      - name: Publish draft release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = '${{ needs.tag.outputs.version }}';
+            const tag = '${{ needs.tag.outputs.tag }}';
+
+            // Find the draft release
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 5,
+            });
+            const draft = releases.find(r => r.tag_name === tag && r.draft);
+            if (!draft) {
+              core.setFailed(`No draft release found for ${tag}. Publish manually.`);
+              return;
+            }
+
+            // Extract release notes from CHANGELOG
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const versionHeader = `## ${version}`;
+            const start = changelog.indexOf(versionHeader);
+            const nextHeader = changelog.indexOf('\n## ', start + 1);
+            const notes = changelog.slice(start, nextHeader > -1 ? nextHeader : undefined)
+              .split('\n').slice(1)
+              .filter(l => l.trim())
+              .join('\n');
+
+            // Publish
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: draft.id,
+              body: notes,
+              draft: false,
+              make_latest: 'true',
+            });
+
+            core.notice(`Published release ${tag}: https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/${tag}`);
