@@ -80,17 +80,18 @@ func (s *Client) UpdateScanBudget(scanBudget ScanBudget) error {
 }
 
 type ScanBudget struct {
-	ID           string          `json:"id,omitempty"`
-	Name         string          `json:"name"`
-	Capacity     int             `json:"capacity"`
-	Unit         string          `json:"unit"`
-	BudgetType   string          `json:"budgetType,omitempty"`
-	Window       string          `json:"window"`
-	ApplicableOn string          `json:"applicableOn"`
-	GroupBy      string          `json:"groupBy"`
-	Action       string          `json:"action"`
-	Scope        ScanBudgetScope `json:"scope"`
-	Status       string          `json:"status"`
+	ID            string          `json:"id,omitempty"`
+	Name          string          `json:"name"`
+	Capacity      int             `json:"capacity"`
+	Unit          string          `json:"unit"`
+	BudgetType    string          `json:"budgetType,omitempty"`
+	Window        string          `json:"window"`
+	ApplicableOn  string          `json:"applicableOn"`
+	GroupBy       string          `json:"groupBy"`
+	Action        string          `json:"action"`
+	CallerModules []string        `json:"callerModules,omitempty"`
+	Scope         ScanBudgetScope `json:"scope"`
+	Status        string          `json:"status"`
 }
 
 type ScanBudgetScope struct {

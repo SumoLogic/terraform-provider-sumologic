@@ -105,6 +105,14 @@ func resourceSumologicScanBudget() *schema.Resource {
 				ForceNew: false,
 			},
 
+			"caller_modules": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
 			"status": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -153,6 +161,7 @@ func resourceSumologicScanBudgetRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("applicable_on", scanBudget.ApplicableOn)
 	d.Set("group_by", scanBudget.GroupBy)
 	d.Set("action", scanBudget.Action)
+	d.Set("caller_modules", scanBudget.CallerModules)
 	d.Set("scope", scanBudgetScopeToResource(scanBudget.Scope))
 	d.Set("status", scanBudget.Status)
 
@@ -179,17 +188,18 @@ func resourceSumologicScanBudgetUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceToScanBudget(d *schema.ResourceData) ScanBudget {
 	return ScanBudget{
-		ID:           d.Id(),
-		Name:         d.Get("name").(string),
-		Capacity:     d.Get("capacity").(int),
-		Unit:         d.Get("unit").(string),
-		BudgetType:   d.Get("budget_type").(string),
-		Window:       d.Get("window").(string),
-		ApplicableOn: d.Get("applicable_on").(string),
-		GroupBy:      d.Get("group_by").(string),
-		Action:       d.Get("action").(string),
-		Scope:        resourceToScanBudgetScope(d.Get("scope")),
-		Status:       d.Get("status").(string),
+		ID:            d.Id(),
+		Name:          d.Get("name").(string),
+		Capacity:      d.Get("capacity").(int),
+		Unit:          d.Get("unit").(string),
+		BudgetType:    d.Get("budget_type").(string),
+		Window:        d.Get("window").(string),
+		ApplicableOn:  d.Get("applicable_on").(string),
+		GroupBy:       d.Get("group_by").(string),
+		Action:        d.Get("action").(string),
+		CallerModules: convertToStringSlice(d.Get("caller_modules")),
+		Scope:         resourceToScanBudgetScope(d.Get("scope")),
+		Status:        d.Get("status").(string),
 	}
 }
 
