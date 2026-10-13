@@ -1,0 +1,42 @@
+name: Changelog label check
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize, reopened, ready_for_review]
+
+jobs:
+  changelog-label:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for changelog label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            const changelogLabels = [
+              'bug',
+              'enhancement',
+              'new-resource',
+              'new-data-source',
+              'breaking-change',
+              'documentation',
+              'changelog/no-changelog',
+            ];
+
+            const hasChangelogLabel = labels.some(l => changelogLabels.includes(l));
+
+            if (!hasChangelogLabel) {
+              core.setFailed(
+                `Missing changelog label. Add one of: ${changelogLabels.join(', ')}\n\n` +
+                `These labels determine which CHANGELOG.md category your change falls under:\n` +
+                `  bug              → BUG FIXES\n` +
+                `  enhancement      → ENHANCEMENTS\n` +
+                `  new-resource     → FEATURES\n` +
+                `  new-data-source  → FEATURES\n` +
+                `  breaking-change  → BREAKING CHANGES\n` +
+                `  documentation    → DOCS\n` +
+                `  changelog/no-changelog → No entry needed (CI, infra, refactoring)\n`
+              );
+            }
