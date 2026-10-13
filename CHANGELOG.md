@@ -1,4 +1,7 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
+
+## 3.3.5 (October 13, 2026)
 ENHANCEMENTS:
 * `sumologic_scan_budget`: Added `caller_modules` field to specify which caller modules the budget applies to.
 
