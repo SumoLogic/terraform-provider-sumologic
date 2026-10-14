@@ -57,11 +57,14 @@ jobs:
       - name: Extract version and tag
         id: tag-step
         uses: actions/github-script@v7
+        env:
+          # via env, not inline ${{ }}: branch names are attacker-controlled
+          BRANCH: ${{ github.event.pull_request.head.ref }}
         with:
           # App token so the tag push triggers release.yml (GITHUB_TOKEN events do not)
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            const branch = '${{ github.event.pull_request.head.ref }}';
+            const branch = process.env.BRANCH;
             const version = branch.replace('release-', '');
             const tag = `v${version}`;
 

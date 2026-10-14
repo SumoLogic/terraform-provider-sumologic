@@ -162,13 +162,15 @@ jobs:
       - name: Determine version
         id: version
         uses: actions/github-script@v7
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         with:
           script: |
             const lastVersion = '${{ steps.context.outputs.last_version }}';
             const [major, minor, patch] = lastVersion.split('.').map(Number);
             const hasBreaking = '${{ steps.audit.outputs.has_breaking }}' === 'true';
             const hasFeatures = '${{ steps.audit.outputs.has_features }}' === 'true';
-            const inputVersion = '${{ inputs.version }}';
+            const inputVersion = process.env.INPUT_VERSION || '';
             const confirmMajor = ${{ inputs.confirm_major }};
 
             let recommended, suggested, reason;

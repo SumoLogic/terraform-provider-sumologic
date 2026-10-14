@@ -204,7 +204,6 @@ IFS='.' read -r major minor patch <<< "$last_version"
 # Auto-detect recommended bump from Unreleased section categories
 has_breaking=$(echo "$unreleased_section" | grep -ci "BREAKING CHANGE" || true)
 has_features=$(echo "$unreleased_section" | grep -ci "^FEATURES:" || true)
-has_enhancements=$(echo "$unreleased_section" | grep -ci "^ENHANCEMENTS:\|^BUG FIXES:\|^DOCS:" || true)
 
 if [[ "$has_breaking" -gt 0 ]]; then
   recommended="major"
@@ -254,7 +253,7 @@ if [[ ! "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 # Guard: block major bumps that weren't already approved above
-IFS='.' read -r new_major new_minor new_patch <<< "$new_version"
+IFS='.' read -r new_major _ _ <<< "$new_version"
 if [[ "$new_major" -gt "$major" && "$recommended" != "major" ]]; then
   echo ""
   echo -e "${RED}${BOLD}⚠ You entered a major version bump (${last_version} → ${new_version}) but no BREAKING CHANGES were detected.${NC}"
