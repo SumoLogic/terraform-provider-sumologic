@@ -291,7 +291,7 @@ confirm "Proceed with this version?"
 print_step "Update CHANGELOG.md and create PR"
 
 git fetch origin master
-git checkout -b "release-${new_version}" origin/master
+git checkout --no-track -b "release-${new_version}" origin/master
 
 # Rewrite CHANGELOG to match the established pattern:
 #   1. Fresh Unreleased header with placeholder
@@ -307,7 +307,9 @@ git checkout -b "release-${new_version}" origin/master
 #   * ...
 
 # Extract everything between Unreleased header and next version header
-unreleased_body=$(sed -n '1,/^## X\.Y\.Z/d; /^## [0-9]/,$d; p' CHANGELOG.md | sed '/^[[:space:]]*$/d; /^\* Add new change notes here$/d')
+# awk (not sed) so this behaves the same on BSD and GNU: the Unreleased header is line 1,
+# so a sed range starting at line 1 never sees its end pattern.
+unreleased_body=$(awk '/^## X\.Y\.Z/{f=1; next} /^## [0-9]/{f=0} f' CHANGELOG.md | sed '/^[[:space:]]*$/d; /^\* Add new change notes here$/d')
 rest_of_file=$(sed -n '/^## [0-9]/,$p' CHANGELOG.md)
 
 {
@@ -331,7 +333,7 @@ confirm "Create PR with this CHANGELOG update?"
 
 git add CHANGELOG.md
 git commit -m "Release ${new_version}"
-git push origin "release-${new_version}"
+git push -u origin "release-${new_version}:release-${new_version}"
 
 pr_url=$(gh pr create \
   --repo "$REPO" \
