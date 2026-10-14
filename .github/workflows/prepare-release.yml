@@ -26,11 +26,19 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.TF_APP_ID }}
+          private-key: ${{ secrets.TF_APP_PRIVATE_KEY }}
+          owner: SumoLogic
+
       - name: Verify team membership
         uses: actions/github-script@v7
         with:
-          # GITHUB_TOKEN cannot read org team membership; needs read:org / Members: read
-          github-token: ${{ secrets.TF_TEAM_READ_TOKEN }}
+          # App token (not GITHUB_TOKEN): can read org team membership
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const actor = context.actor;
             try {
@@ -42,7 +50,7 @@ jobs:
               core.info(`${actor} is a member of tf-platform-team`);
             } catch (e) {
               if (e.status !== 404) {
-                core.setFailed(`Could not verify team membership for ${actor}: ${e.status} ${e.message}. Check that TF_TEAM_READ_TOKEN is set and has read:org.`);
+                core.setFailed(`Could not verify team membership for ${actor}: ${e.status} ${e.message}. Check the GitHub App token (TF_APP_ID / TF_APP_PRIVATE_KEY) has Members: read.`);
                 return;
               }
               core.setFailed(
@@ -228,6 +236,8 @@ jobs:
         env:
           DRAFT_ENTRIES: ${{ steps.audit.outputs.draft_entries }}
         with:
+          # App token so the PR/branch events trigger CI (GITHUB_TOKEN events do not)
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const fs = require('fs');
             const version = '${{ steps.version.outputs.version }}';
