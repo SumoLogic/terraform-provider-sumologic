@@ -46,6 +46,13 @@ if [[ ! -f CHANGELOG.md ]]; then
   fail "CHANGELOG.md not found. Run this script from the repo root."
 fi
 
+# Work on a copy of origin/master's CHANGELOG so the audit, version detection and the
+# release PR all see the same content, regardless of the local checkout's state.
+git fetch -q origin master || fail "Could not fetch origin/master."
+WORK_CL=$(mktemp)
+trap 'rm -f "$WORK_CL"' EXIT
+git show origin/master:CHANGELOG.md > "$WORK_CL" || fail "CHANGELOG.md not found on origin/master."
+
 # ── Verify team membership ────────────────────────────────────────────────
 gh_user=$(gh api user --jq '.login' 2>/dev/null) || fail "Not authenticated with gh CLI. Run: gh auth login"
 if ! gh api "orgs/SumoLogic/teams/tf-platform-team/members" --jq '.[].login' 2>/dev/null | grep -qx "$gh_user"; then
@@ -72,7 +79,7 @@ echo ""
 print_step "Audit changelog completeness"
 info "Checking merged PRs since ${last_tag} against CHANGELOG.md..."
 
-unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
 
 echo ""
 echo -e "${BOLD}Current Unreleased section:${NC}"
@@ -159,28 +166,24 @@ if [[ -n "$merged_prs" && "$merged_prs" != "[]" ]]; then
     warn "These are best-guess entries based on PR titles and labels."
     warn "Some PRs may be infra/CI and don't need entries — edit as needed."
     echo ""
-    echo -en "${YELLOW}Add these entries to CHANGELOG.md? [y/n/e(dit manually)] ${NC}"
+    echo -en "${YELLOW}Add these entries to the release changelog? [y/n/e(dit manually)] ${NC}"
     read -r add_answer
 
     if [[ "$add_answer" =~ ^[Yy]$ ]]; then
-      # Insert draft entries after the Unreleased header line
-      changelog_insert=$(echo "$draft_entries" | sed 's/$/\\/')
-      if [[ "$(uname)" == "Darwin" ]]; then
-        sed -i '' "/^## X\.Y\.Z (Unreleased)/a\\
-${draft_entries}
-" CHANGELOG.md
-      else
-        sed -i "/^## X\.Y\.Z (Unreleased)/a\\${draft_entries}" CHANGELOG.md
-      fi
-      success "Draft entries added to CHANGELOG.md."
-      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+      # Insert draft entries after the Unreleased header line.
+      # awk + temp file (not sed -i) so this behaves the same with BSD and GNU sed.
+      cl_tmp=$(mktemp)
+      DRAFT="$draft_entries" awk '{print} /^## X\.Y\.Z \(Unreleased\)/{print ENVIRON["DRAFT"]}' "$WORK_CL" > "$cl_tmp"
+      mv "$cl_tmp" "$WORK_CL"
+      success "Draft entries added."
+      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
       echo ""
       echo -e "${BOLD}Updated Unreleased section:${NC}"
       echo "$unreleased_section"
     elif [[ "$add_answer" =~ ^[Ee]$ ]]; then
-      info "Opening CHANGELOG.md for manual editing..."
-      ${EDITOR:-vim} CHANGELOG.md
-      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+      info "Opening the Unreleased changelog copy for manual editing (applied to the release PR)..."
+      ${EDITOR:-vim} "$WORK_CL"
+      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
     else
       info "Skipping — proceeding with existing changelog."
     fi
@@ -290,8 +293,8 @@ confirm "Proceed with this version?"
 # ── Step 3: Update CHANGELOG.md and create PR ─────────────────────────────
 print_step "Update CHANGELOG.md and create PR"
 
-git fetch origin master
 git checkout --no-track -b "release-${new_version}" origin/master
+cp "$WORK_CL" CHANGELOG.md
 
 # Rewrite CHANGELOG to match the established pattern:
 #   1. Fresh Unreleased header with placeholder
