@@ -94,6 +94,16 @@ jobs:
             core.info('=== Unreleased section ===');
             core.info(unreleased);
 
+            // Guard: refuse to cut an empty release (bullets under any category, or headerless
+            // older-style bullets, ignoring the placeholder line).
+            const entryCount = unreleased.split('\n')
+              .filter(l => /^\s*[*-]\s/.test(l) && !l.includes('Add new change notes here')).length;
+            if (entryCount === 0) {
+              core.setFailed('The Unreleased section of CHANGELOG.md has no entries — nothing to release.');
+              return;
+            }
+            core.info(`Unreleased entries: ${entryCount}`);
+
             // Get merged PRs since last release
             const { data: prs } = await github.rest.pulls.list({
               owner: context.repo.owner,

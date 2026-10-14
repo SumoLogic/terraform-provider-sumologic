@@ -199,6 +199,14 @@ fi
 # ── Step 2: Determine version ──────────────────────────────────────────────
 print_step "Determine version number"
 
+# Guard: refuse to cut an empty release. Count bullet entries (any category, or headerless
+# older-style bullets), ignoring the placeholder line.
+entry_count=$(echo "$unreleased_section" | grep -E '^[[:space:]]*[*-][[:space:]]' | grep -vc 'Add new change notes here' || true)
+if [[ "$entry_count" -eq 0 ]]; then
+  fail "The Unreleased section of CHANGELOG.md has no entries — nothing to release."
+fi
+info "Unreleased entries: ${entry_count}"
+
 IFS='.' read -r major minor patch <<< "$last_version"
 
 # Auto-detect recommended bump from Unreleased section categories
