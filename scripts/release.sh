@@ -46,6 +46,13 @@ if [[ ! -f CHANGELOG.md ]]; then
   fail "CHANGELOG.md not found. Run this script from the repo root."
 fi
 
+# Work on a copy of origin/master's CHANGELOG so the audit, version detection and the
+# release PR all see the same content, regardless of the local checkout's state.
+git fetch -q origin master || fail "Could not fetch origin/master."
+WORK_CL=$(mktemp)
+trap 'rm -f "$WORK_CL"' EXIT
+git show origin/master:CHANGELOG.md > "$WORK_CL" || fail "CHANGELOG.md not found on origin/master."
+
 # ── Verify team membership ────────────────────────────────────────────────
 gh_user=$(gh api user --jq '.login' 2>/dev/null) || fail "Not authenticated with gh CLI. Run: gh auth login"
 if ! gh api "orgs/SumoLogic/teams/tf-platform-team/members" --jq '.[].login' 2>/dev/null | grep -qx "$gh_user"; then
@@ -72,7 +79,7 @@ echo ""
 print_step "Audit changelog completeness"
 info "Checking merged PRs since ${last_tag} against CHANGELOG.md..."
 
-unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
 
 echo ""
 echo -e "${BOLD}Current Unreleased section:${NC}"
@@ -159,28 +166,24 @@ if [[ -n "$merged_prs" && "$merged_prs" != "[]" ]]; then
     warn "These are best-guess entries based on PR titles and labels."
     warn "Some PRs may be infra/CI and don't need entries — edit as needed."
     echo ""
-    echo -en "${YELLOW}Add these entries to CHANGELOG.md? [y/n/e(dit manually)] ${NC}"
+    echo -en "${YELLOW}Add these entries to the release changelog? [y/n/e(dit manually)] ${NC}"
     read -r add_answer
 
     if [[ "$add_answer" =~ ^[Yy]$ ]]; then
-      # Insert draft entries after the Unreleased header line
-      changelog_insert=$(echo "$draft_entries" | sed 's/$/\\/')
-      if [[ "$(uname)" == "Darwin" ]]; then
-        sed -i '' "/^## X\.Y\.Z (Unreleased)/a\\
-${draft_entries}
-" CHANGELOG.md
-      else
-        sed -i "/^## X\.Y\.Z (Unreleased)/a\\${draft_entries}" CHANGELOG.md
-      fi
-      success "Draft entries added to CHANGELOG.md."
-      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+      # Insert draft entries after the Unreleased header line.
+      # awk + temp file (not sed -i) so this behaves the same with BSD and GNU sed.
+      cl_tmp=$(mktemp)
+      DRAFT="$draft_entries" awk '{print} /^## X\.Y\.Z \(Unreleased\)/{print ENVIRON["DRAFT"]}' "$WORK_CL" > "$cl_tmp"
+      mv "$cl_tmp" "$WORK_CL"
+      success "Draft entries added."
+      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
       echo ""
       echo -e "${BOLD}Updated Unreleased section:${NC}"
       echo "$unreleased_section"
     elif [[ "$add_answer" =~ ^[Ee]$ ]]; then
-      info "Opening CHANGELOG.md for manual editing..."
-      ${EDITOR:-vim} CHANGELOG.md
-      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' CHANGELOG.md | sed '$d')
+      info "Opening the Unreleased changelog copy for manual editing (applied to the release PR)..."
+      ${EDITOR:-vim} "$WORK_CL"
+      unreleased_section=$(sed -n '/^## X\.Y\.Z/,/^## [0-9]/p' "$WORK_CL" | sed '$d')
     else
       info "Skipping — proceeding with existing changelog."
     fi
@@ -196,12 +199,19 @@ fi
 # ── Step 2: Determine version ──────────────────────────────────────────────
 print_step "Determine version number"
 
+# Guard: refuse to cut an empty release. Count bullet entries (any category, or headerless
+# older-style bullets), ignoring the placeholder line.
+entry_count=$(echo "$unreleased_section" | grep -E '^[[:space:]]*[*-][[:space:]]' | grep -vc 'Add new change notes here' || true)
+if [[ "$entry_count" -eq 0 ]]; then
+  fail "The Unreleased section of CHANGELOG.md has no entries — nothing to release."
+fi
+info "Unreleased entries: ${entry_count}"
+
 IFS='.' read -r major minor patch <<< "$last_version"
 
 # Auto-detect recommended bump from Unreleased section categories
 has_breaking=$(echo "$unreleased_section" | grep -ci "BREAKING CHANGE" || true)
 has_features=$(echo "$unreleased_section" | grep -ci "^FEATURES:" || true)
-has_enhancements=$(echo "$unreleased_section" | grep -ci "^ENHANCEMENTS:\|^BUG FIXES:\|^DOCS:" || true)
 
 if [[ "$has_breaking" -gt 0 ]]; then
   recommended="major"
@@ -251,7 +261,7 @@ if [[ ! "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 # Guard: block major bumps that weren't already approved above
-IFS='.' read -r new_major new_minor new_patch <<< "$new_version"
+IFS='.' read -r new_major _ _ <<< "$new_version"
 if [[ "$new_major" -gt "$major" && "$recommended" != "major" ]]; then
   echo ""
   echo -e "${RED}${BOLD}⚠ You entered a major version bump (${last_version} → ${new_version}) but no BREAKING CHANGES were detected.${NC}"
@@ -290,8 +300,8 @@ confirm "Proceed with this version?"
 # ── Step 3: Update CHANGELOG.md and create PR ─────────────────────────────
 print_step "Update CHANGELOG.md and create PR"
 
-git fetch origin master
-git checkout -b "release-${new_version}" origin/master
+git checkout --no-track -b "release-${new_version}" origin/master
+cp "$WORK_CL" CHANGELOG.md
 
 # Rewrite CHANGELOG to match the established pattern:
 #   1. Fresh Unreleased header with placeholder
@@ -307,7 +317,9 @@ git checkout -b "release-${new_version}" origin/master
 #   * ...
 
 # Extract everything between Unreleased header and next version header
-unreleased_body=$(sed -n '1,/^## X\.Y\.Z/d; /^## [0-9]/,$d; p' CHANGELOG.md | sed '/^[[:space:]]*$/d; /^\* Add new change notes here$/d')
+# awk (not sed) so this behaves the same on BSD and GNU: the Unreleased header is line 1,
+# so a sed range starting at line 1 never sees its end pattern.
+unreleased_body=$(awk '/^## X\.Y\.Z/{f=1; next} /^## [0-9]/{f=0} f' CHANGELOG.md | sed '/^[[:space:]]*$/d; /^\* Add new change notes here$/d')
 rest_of_file=$(sed -n '/^## [0-9]/,$p' CHANGELOG.md)
 
 {
@@ -331,7 +343,7 @@ confirm "Create PR with this CHANGELOG update?"
 
 git add CHANGELOG.md
 git commit -m "Release ${new_version}"
-git push origin "release-${new_version}"
+git push -u origin "release-${new_version}:release-${new_version}"
 
 pr_url=$(gh pr create \
   --repo "$REPO" \
