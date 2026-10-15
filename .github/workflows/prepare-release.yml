@@ -99,9 +99,12 @@ jobs:
             const entryCount = unreleased.split('\n')
               .filter(l => /^\s*[*-]\s/.test(l) && !l.includes('Add new change notes here')).length;
             if (entryCount === 0) {
-              core.setFailed('The Unreleased section of CHANGELOG.md has no entries — nothing to release.');
+              // Not an error: nothing to release. Skip the remaining steps and finish green.
+              core.notice('The Unreleased section of CHANGELOG.md has no entries — nothing to release.');
+              core.setOutput('has_entries', 'false');
               return;
             }
+            core.setOutput('has_entries', 'true');
             core.info(`Unreleased entries: ${entryCount}`);
 
             // Get merged PRs since last release
@@ -171,6 +174,7 @@ jobs:
 
       - name: Determine version
         id: version
+        if: steps.audit.outputs.has_entries == 'true'
         uses: actions/github-script@v7
         env:
           INPUT_VERSION: ${{ inputs.version }}
@@ -229,7 +233,7 @@ jobs:
             core.setOutput('reason', reason);
 
       - name: Dry-run summary
-        if: inputs.dry_run
+        if: inputs.dry_run && steps.audit.outputs.has_entries == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -243,7 +247,7 @@ jobs:
             }
 
       - name: Update CHANGELOG and create PR
-        if: "!inputs.dry_run"
+        if: "!inputs.dry_run && steps.audit.outputs.has_entries == 'true'"
         uses: actions/github-script@v7
         env:
           DRAFT_ENTRIES: ${{ steps.audit.outputs.draft_entries }}

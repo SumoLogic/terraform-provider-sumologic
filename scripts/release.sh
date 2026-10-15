@@ -203,7 +203,8 @@ print_step "Determine version number"
 # older-style bullets), ignoring the placeholder line.
 entry_count=$(echo "$unreleased_section" | grep -E '^[[:space:]]*[*-][[:space:]]' | grep -vc 'Add new change notes here' || true)
 if [[ "$entry_count" -eq 0 ]]; then
-  fail "The Unreleased section of CHANGELOG.md has no entries — nothing to release."
+  info "The Unreleased section of CHANGELOG.md has no entries — nothing to release."
+  exit 0
 fi
 info "Unreleased entries: ${entry_count}"
 
