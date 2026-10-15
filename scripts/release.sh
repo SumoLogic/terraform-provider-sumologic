@@ -261,6 +261,12 @@ if [[ ! "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   fail "Invalid version format. Expected: X.Y.Z"
 fi
 
+# Guard: must be strictly greater than the latest release (numeric compare; portable, no sort -V)
+IFS='.' read -r nv_major nv_minor nv_patch <<< "$new_version"
+if (( nv_major * 1000000 + nv_minor * 1000 + nv_patch <= major * 1000000 + minor * 1000 + patch )); then
+  fail "Version ${new_version} must be greater than the latest release (${last_version})."
+fi
+
 # Guard: block major bumps that weren't already approved above
 IFS='.' read -r new_major _ _ <<< "$new_version"
 if [[ "$new_major" -gt "$major" && "$recommended" != "major" ]]; then

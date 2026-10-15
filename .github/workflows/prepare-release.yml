@@ -19,8 +19,8 @@ on:
         default: false
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 jobs:
   prepare:
@@ -224,6 +224,13 @@ jobs:
 
             if (!/^\d+\.\d+\.\d+$/.test(version)) {
               core.setFailed(`Invalid version format: ${version}. Expected: X.Y.Z`);
+              return;
+            }
+
+            // Must be strictly greater than the latest release
+            const [nMaj, nMin, nPat] = version.split('.').map(Number);
+            if (nMaj * 1e6 + nMin * 1e3 + nPat <= major * 1e6 + minor * 1e3 + patch) {
+              core.setFailed(`Version ${version} must be greater than the latest release (${lastVersion}).`);
               return;
             }
 
