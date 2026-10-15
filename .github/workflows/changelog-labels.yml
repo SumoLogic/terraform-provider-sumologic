@@ -6,7 +6,7 @@ on:
 
 jobs:
   changelog-label:
-    if: github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false && github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
     steps:
       - name: Check for changelog label
@@ -22,6 +22,7 @@ jobs:
               'new-data-source',
               'breaking-change',
               'documentation',
+              'dependencies',
               'changelog/no-changelog',
             ];
 
@@ -37,6 +38,7 @@ jobs:
                 `  new-data-source  → FEATURES\n` +
                 `  breaking-change  → BREAKING CHANGES\n` +
                 `  documentation    → DOCS\n` +
+                `  dependencies     → No entry needed (dependency bumps)\n` +
                 `  changelog/no-changelog → No entry needed (CI, infra, refactoring)\n`
               );
             }
