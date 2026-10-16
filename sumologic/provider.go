@@ -94,6 +94,7 @@ func Provider() *schema.Provider {
 			"sumologic_data_archiving_destination":               resourceSumologicDataArchivingDestination(),
 			"sumologic_data_forwarding_destination":              resourceSumologicDataForwardingDestination(),
 			"sumologic_data_forwarding_rule":                     resourceSumologicDataForwardingRule(),
+			"sumologic_data_pipeline":                            resourceSumologicDataPipeline(),
 			"sumologic_partition":                                resourceSumologicPartition(),
 			"sumologic_field_extraction_rule":                    resourceSumologicFieldExtractionRule(),
 			"sumologic_connection":                               resourceSumologicConnection(),

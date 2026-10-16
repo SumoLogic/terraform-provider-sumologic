@@ -414,7 +414,7 @@ type dataPipelineRoutingHttpClient struct {
 
 func (c *dataPipelineRoutingHttpClient) Do(req *http.Request) (*http.Response, error) {
 	path := strings.TrimPrefix(req.URL.Path, "/api/")
-	c.requested = append(c.requested, path)
+	c.requested = append(c.requested, req.Method+" "+path)
 
 	body, ok := c.responses[path]
 	if !ok {
@@ -501,7 +501,7 @@ func TestDataSourceDataPipelineReadByID(t *testing.T) {
 	}
 
 	assertDataPipelineReadState(t, d)
-	if want := []string{"v1/pipelines/00000000HX546"}; !reflect.DeepEqual(httpClient.requested, want) {
+	if want := []string{"GET v1/pipelines/00000000HX546"}; !reflect.DeepEqual(httpClient.requested, want) {
 		t.Errorf("requested = %v, want %v", httpClient.requested, want)
 	}
 }
@@ -525,7 +525,7 @@ func TestDataSourceDataPipelineReadByName(t *testing.T) {
 	}
 
 	assertDataPipelineReadState(t, d)
-	if want := []string{"v1/pipelines", "v1/pipelines/00000000HX546"}; !reflect.DeepEqual(httpClient.requested, want) {
+	if want := []string{"GET v1/pipelines", "GET v1/pipelines/00000000HX546"}; !reflect.DeepEqual(httpClient.requested, want) {
 		t.Errorf("requested = %v, want %v", httpClient.requested, want)
 	}
 }
