@@ -802,11 +802,11 @@ func getSloBurnRateTimeRangeSchema(triggerType string) *schema.Schema {
 }
 
 var allowedTimeRanges = []string{
-	"2m", "5m", "10m", "15m", "30m", "60m", "180m", "360m", "720m", "1440m",
-	"-2m", "-5m", "-10m", "-15m", "-30m", "-60m", "-180m", "-360m", "-720m", "-1440m",
-	"1h", "3h", "6h", "12h", "24h",
-	"-1h", "-3h", "-6h", "-12h", "-24h",
-	"-1d", "1d",
+	"2m", "5m", "10m", "15m", "30m", "60m", "180m", "360m", "720m", "1440m", "4320m",
+	"-2m", "-5m", "-10m", "-15m", "-30m", "-60m", "-180m", "-360m", "-720m", "-1440m", "-4320m",
+	"1h", "3h", "6h", "12h", "24h", "72h",
+	"-1h", "-3h", "-6h", "-12h", "-24h", "-72h",
+	"-1d", "-3d", "1d", "3d",
 }
 var timeRangeAllowedValuesValidation = validation.StringInSlice(allowedTimeRanges, false)
 var timeRangeFormatValidation = validation.StringMatch(regexp.MustCompile(`^-?(\d)+[smhd]$`),
