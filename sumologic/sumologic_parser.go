@@ -10,6 +10,9 @@ import (
 const parsersLibraryBaseApiUrl = "v1/parsers"
 const parsersLibraryParserType = "ParsersLibraryParser"
 
+// The PUT body uses a different discriminator value than the POST body.
+const parsersLibraryParserUpdateType = "ParsersLibraryParserUpdate"
+
 // ---------- ENDPOINTS ----------
 
 // GetParsersLibraryRootID returns the identifier of the root folder of the Parsers library.
@@ -152,7 +155,7 @@ func (p ParsersLibraryParser) toUpdateRequest() parsersLibraryParserUpdateReques
 		Name:           p.Name,
 		Description:    p.Description,
 		Version:        p.Version,
-		Type:           parsersLibraryParserType,
+		Type:           parsersLibraryParserUpdateType,
 		Stanzas:        p.Stanzas,
 		ModelPath:      p.ModelPath,
 		SourcetypePath: p.SourcetypePath,
