@@ -1,7 +1,7 @@
 ## X.Y.Z (Unreleased)
 FEATURES:
 * **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
-* **New Data Source:** `sumologic_parser_folder` - Look up a Parsers library folder by name or ID.
+* **New Resource:** `sumologic_parser_folder` - Manage folders in the Parsers library, for organizing `sumologic_parser` resources.
 
 ## 3.3.5 (October 13, 2026)
 ENHANCEMENTS:
