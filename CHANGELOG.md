@@ -1,4 +1,5 @@
 ## X.Y.Z (Unreleased)
+* Add new change notes here
 FEATURES:
 * **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
 * **New Resource:** `sumologic_parser_folder` - Manage folders in the Parsers library, for organizing `sumologic_parser` resources.
