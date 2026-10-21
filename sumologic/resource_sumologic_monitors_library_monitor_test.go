@@ -292,6 +292,49 @@ func TestAccSumologicMonitorsLibraryMonitor_basic(t *testing.T) {
 	})
 }
 
+// Regression for #917: server-managed fields are Computed-only, so pinning one in
+// config is rejected at validation, and back-to-back updates of a mutable field
+// succeed without stale_version errors and leave an empty plan.
+func TestAccSumologicMonitorsLibraryMonitor_serverManagedFieldsRegression(t *testing.T) {
+	testName := "terraform_test_monitor_" + acctest.RandString(16)
+	config := func(description, extra string) string {
+		return strings.Replace(exampleLogsStaticMonitor(testName),
+			`description = "terraform_test_monitor_description"`,
+			fmt.Sprintf("description = %q\n\t%s", description, extra), 1)
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitorsLibraryMonitorDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: config("desc_0", ""),
+			},
+			{
+				Config:      config("desc_0", "version = 1"),
+				ExpectError: regexp.MustCompile(`Can't configure a value for "?version"?`),
+			},
+			{
+				Config:      config("desc_0", `modified_at = "2020-01-01T00:00:00Z"`),
+				ExpectError: regexp.MustCompile(`Can't configure a value for "?modified_at"?`),
+			},
+			{
+				Config: config("desc_1", ""),
+				Check:  resource.TestCheckResourceAttr("sumologic_monitor.test", "description", "desc_1"),
+			},
+			{
+				Config: config("desc_2", ""),
+				Check:  resource.TestCheckResourceAttr("sumologic_monitor.test", "description", "desc_2"),
+			},
+			{
+				Config:   config("desc_2", ""),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
 func TestAccSumologicMonitorsLibraryMonitor_create_monitor_with_linked_playbook(t *testing.T) {
 	var monitorsLibraryMonitor MonitorsLibraryMonitor
 	testNameSuffix := acctest.RandString(16)
