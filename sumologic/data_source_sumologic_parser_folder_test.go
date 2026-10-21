@@ -85,6 +85,43 @@ data "sumologic_parser_folder" "test" {
 	})
 }
 
+func TestAccDataSourceParserFolder_pathDoesNotExist(t *testing.T) {
+	path := "/Parsers/terraform_test_missing_folder_" + acctest.RandString(16)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+data "sumologic_parser_folder" "test" {
+  path = "%s"
+}
+`, path),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`parser folder with path '%s' does not exist`, path)),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceParserFolder_pathConflictsWithName(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+data "sumologic_parser_folder" "test" {
+  path = "/Parsers/Firewalls"
+  name = "Firewalls"
+}
+`,
+				ExpectError: regexp.MustCompile(`only one of .*id,name,path.* can be specified`),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceParserFolder_requiresIDOrName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -95,7 +132,7 @@ func TestAccDataSourceParserFolder_requiresIDOrName(t *testing.T) {
 data "sumologic_parser_folder" "test" {
 }
 `,
-				ExpectError: regexp.MustCompile(`one of .*id,name.* must be specified`),
+				ExpectError: regexp.MustCompile(`one of .*id,name,path.* must be specified`),
 			},
 		},
 	})
