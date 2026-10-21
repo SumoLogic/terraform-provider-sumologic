@@ -6,13 +6,18 @@ description: |-
 ---
 
 # sumologic_parser_folder
-Provides an easy way to retrieve a folder in the Parsers library by its name or ID. Use the `id` to
+Provides an easy way to retrieve a folder in the Parsers library by its path, name or ID. Use the `id` to
 reference the folder as the `parent_id` of a [`sumologic_parser`](../r/parser.html).
 
-Exactly one of `id` or `name` must be specified.
+Exactly one of `path`, `id` or `name` must be specified.
 
 ## Example Usage
 ```hcl
+# Look up by path
+data "sumologic_parser_folder" "firewalls_by_path" {
+  path = "/Parsers/Firewalls"
+}
+
 # Look up by name
 data "sumologic_parser_folder" "firewalls" {
   name = "Firewalls"
@@ -40,8 +45,9 @@ resource "sumologic_parser" "pan_firewall" {
 
 The following arguments are supported:
 
-- `id` - (Optional) The ID of the folder. Conflicts with `name`.
-- `name` - (Optional) The exact name of the folder. The lookup fails if no folder, or more than one folder, has this name. Conflicts with `id`.
+- `path` - (Optional) The absolute path of the folder in the Parsers library, for example `/Parsers/Firewalls`. The path is passed to the API as given. Conflicts with `id` and `name`.
+- `id` - (Optional) The ID of the folder. Conflicts with `path` and `name`.
+- `name` - (Optional) The exact name of the folder. The lookup fails if no folder, or more than one folder, has this name. Conflicts with `path` and `id`.
 - `parent_id` - (Optional) When looking up by `name`, only consider folders directly under this parent folder.
 
 ## Attributes reference
@@ -50,6 +56,7 @@ In addition to the arguments above, the following attributes are exported:
 
 - `id` - The ID of the folder.
 - `name` - The name of the folder.
+- `path` - The path of the folder, when looked up by `path`.
 - `parent_id` - The ID of the parent folder.
 - `description` - The description of the folder.
 - `is_locked` - Whether the folder is locked.
