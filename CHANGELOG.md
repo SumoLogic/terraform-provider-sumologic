@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.3.7 (October 23, 2026)
+ENHANCEMENTS:
+* `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
+
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:
 * `sumologic_monitor`, `sumologic_monitor_folder`, `sumologic_slo`, `sumologic_slo_folder`, `sumologic_muting_schedule`, `sumologic_token`: Server-managed fields (`version`, `created_at`, `created_by`, `modified_at`, `modified_by`, `is_mutable`, `is_system`, plus `is_locked` on monitors and monitor folders) are now `Computed` only instead of `Optional` and `Computed`. Setting them in configuration was never meaningful and is now rejected.
