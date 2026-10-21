@@ -19,13 +19,19 @@ func dataSourceSumologicParserFolder() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ExactlyOneOf: []string{"id", "name"},
+				ExactlyOneOf: []string{"id", "name", "path"},
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ExactlyOneOf: []string{"id", "name"},
+				ExactlyOneOf: []string{"id", "name", "path"},
+			},
+			"path": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"id", "name", "path"},
 			},
 			// Only used to disambiguate when looking up by name.
 			"parent_id": {
@@ -55,7 +61,12 @@ func dataSourceSumologicParserFolderRead(d *schema.ResourceData, meta interface{
 	var folder *ParsersLibraryFolder
 	var err error
 
-	if id, ok := d.GetOk("id"); ok {
+	if path, ok := d.GetOk("path"); ok {
+		folder, err = c.GetParsersLibraryFolderByPath(path.(string))
+		if err != nil {
+			return err
+		}
+	} else if id, ok := d.GetOk("id"); ok {
 		folder, err = c.GetParsersLibraryFolder(id.(string))
 		if err != nil {
 			return err
@@ -108,6 +119,30 @@ func (s *Client) GetParsersLibraryFolder(id string) (*ParsersLibraryFolder, erro
 	}
 	if folder.ContentType != parsersLibraryFolderContentType {
 		return nil, fmt.Errorf("parsers library item '%s' is not a folder (contentType: %s)", id, folder.ContentType)
+	}
+	return &folder, nil
+}
+
+// GetParsersLibraryFolderByPath reads a folder by its path, e.g. /Parsers/Firewalls.
+// An error is returned if nothing exists at the path or the item is not a folder.
+func (s *Client) GetParsersLibraryFolderByPath(path string) (*ParsersLibraryFolder, error) {
+	data, err := s.Get(fmt.Sprintf("%s/path?path=%s", parsersLibraryBaseApiUrl, url.QueryEscape(path)))
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, fmt.Errorf("parser folder with path '%s' does not exist", path)
+	}
+
+	var folder ParsersLibraryFolder
+	if err := json.Unmarshal(data, &folder); err != nil {
+		return nil, err
+	}
+	if folder.ID == "" {
+		return nil, fmt.Errorf("parser folder with path '%s' does not exist", path)
+	}
+	if folder.ContentType != parsersLibraryFolderContentType {
+		return nil, fmt.Errorf("parsers library item at path '%s' is not a folder (contentType: %s)", path, folder.ContentType)
 	}
 	return &folder, nil
 }
