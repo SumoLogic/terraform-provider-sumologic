@@ -175,27 +175,22 @@ func resourceSumologicSLO() *schema.Resource {
 			},
 			"version": {
 				Type:     schema.TypeInt,
-				Optional: true,
 				Computed: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"created_by": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"modified_at": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"modified_by": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"parent_id": {
@@ -210,7 +205,6 @@ func resourceSumologicSLO() *schema.Resource {
 			},
 			"is_system": {
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 			"signal_type": {
@@ -292,7 +286,6 @@ func resourceSumologicSLO() *schema.Resource {
 			},
 			"is_mutable": {
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 			"is_locked": {

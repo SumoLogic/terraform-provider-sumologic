@@ -20,7 +20,6 @@ func resourceSumologicToken() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"version": {
 				Type:     schema.TypeInt,
-				Optional: true,
 				Computed: true,
 			},
 

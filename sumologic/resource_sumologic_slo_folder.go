@@ -21,19 +21,16 @@ func resourceSumologicSLOLibraryFolder() *schema.Resource {
 
 			"version": {
 				Type:     schema.TypeInt,
-				Optional: true,
 				Computed: true,
 			},
 
 			"modified_at": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 
 			"is_system": {
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 
@@ -45,7 +42,6 @@ func resourceSumologicSLOLibraryFolder() *schema.Resource {
 
 			"created_by": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 
@@ -57,7 +53,6 @@ func resourceSumologicSLOLibraryFolder() *schema.Resource {
 
 			"is_mutable": {
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 
@@ -68,7 +63,6 @@ func resourceSumologicSLOLibraryFolder() *schema.Resource {
 
 			"created_at": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 
@@ -85,7 +79,6 @@ func resourceSumologicSLOLibraryFolder() *schema.Resource {
 
 			"modified_by": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 
