@@ -121,24 +121,41 @@ func resourceSumologicParserFolderRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	values := map[string]interface{}{
-		"name":         folder.Name,
-		"description":  folder.Description,
-		"parent_id":    folder.ParentID,
-		"version":      int(folder.Version),
-		"content_type": folder.ContentType,
-		"created_at":   folder.CreatedAt,
-		"created_by":   folder.CreatedBy,
-		"modified_at":  folder.ModifiedAt,
-		"modified_by":  folder.ModifiedBy,
-		"is_locked":    folder.IsLocked,
-		"is_system":    folder.IsSystem,
-		"is_mutable":   folder.IsMutable,
+	if err := d.Set("name", folder.Name); err != nil {
+		return err
 	}
-	for k, v := range values {
-		if err := d.Set(k, v); err != nil {
-			return err
-		}
+	if err := d.Set("description", folder.Description); err != nil {
+		return err
+	}
+	if err := d.Set("parent_id", folder.ParentID); err != nil {
+		return err
+	}
+	if err := d.Set("version", int(folder.Version)); err != nil {
+		return err
+	}
+	if err := d.Set("content_type", folder.ContentType); err != nil {
+		return err
+	}
+	if err := d.Set("created_at", folder.CreatedAt); err != nil {
+		return err
+	}
+	if err := d.Set("created_by", folder.CreatedBy); err != nil {
+		return err
+	}
+	if err := d.Set("modified_at", folder.ModifiedAt); err != nil {
+		return err
+	}
+	if err := d.Set("modified_by", folder.ModifiedBy); err != nil {
+		return err
+	}
+	if err := d.Set("is_locked", folder.IsLocked); err != nil {
+		return err
+	}
+	if err := d.Set("is_system", folder.IsSystem); err != nil {
+		return err
+	}
+	if err := d.Set("is_mutable", folder.IsMutable); err != nil {
+		return err
 	}
 	return nil
 }
