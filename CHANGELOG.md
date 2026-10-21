@@ -1,5 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+BUG FIXES:
+* `sumologic_monitor`, `sumologic_monitor_folder`: Server-managed fields (`version`, `created_at`, `created_by`, `modified_at`, `modified_by`, `is_mutable`, `is_system`, `is_locked`) are now `Computed` only instead of `Optional` and `Computed`. Setting them in configuration was never meaningful and is now rejected.
 
 ## 3.3.5 (October 13, 2026)
 ENHANCEMENTS:
