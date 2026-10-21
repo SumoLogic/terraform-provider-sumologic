@@ -22,13 +22,17 @@ resource "sumologic_parser" "pan_firewall" {
 }
 ```
 
-Parser in a specific folder, with local stanzas:
+Parser in a folder managed with [sumologic_parser_folder](parser_folder.html), with local stanzas:
 
 ```hcl
+resource "sumologic_parser_folder" "firewalls" {
+  name = "Firewalls"
+}
+
 resource "sumologic_parser" "custom" {
   name          = "custom-parser"
   description   = "Custom parser"
-  parent_id     = "0000000000000001"
+  parent_id     = sumologic_parser_folder.firewalls.id
   stanzas       = "[sourcetype:custom]\nFORMAT = CSV"
   local_stanzas = "[sourcetype:custom]\nWRAPPER = BSD_SYSLOG"
 }
@@ -46,7 +50,7 @@ The following arguments are supported:
 - `sourcetype_path` - (Optional) The path to the sourcetype a Model-Connector is associated with.
 - `families` - (Optional) Comma-separated list of model families this parser belongs to or applies to.
 - `is_partial` - (Optional) Whether this is only a config fragment rather than a complete parser or Model-Connector. Defaults to `false`.
-- `parent_id` - (Optional) Identifier of the parent folder in the Parsers library. Defaults to the root folder. Changing it moves the parser.
+- `parent_id` - (Optional) Identifier of the parent folder in the Parsers library, typically the `id` of a [sumologic_parser_folder](parser_folder.html). Defaults to the root folder. Changing it moves the parser.
 
 ~> **NOTE:** Locked parsers cannot be updated or moved. This resource does not lock or unlock parsers.
 
