@@ -160,30 +160,59 @@ func resourceSumologicParserRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
-	values := map[string]interface{}{
-		"name":            parser.Name,
-		"description":     parser.Description,
-		"stanzas":         parser.Stanzas,
-		"local_stanzas":   parser.LocalStanzas,
-		"model_path":      parser.ModelPath,
-		"sourcetype_path": parser.SourcetypePath,
-		"families":        parser.Families,
-		"is_partial":      parser.IsPartial,
-		"parent_id":       parser.ParentID,
-		"version":         int(parser.Version),
-		"content_type":    parser.ContentType,
-		"created_at":      parser.CreatedAt,
-		"created_by":      parser.CreatedBy,
-		"modified_at":     parser.ModifiedAt,
-		"modified_by":     parser.ModifiedBy,
-		"is_locked":       parser.IsLocked,
-		"is_system":       parser.IsSystem,
-		"is_mutable":      parser.IsMutable,
+	if err := d.Set("name", parser.Name); err != nil {
+		return err
 	}
-	for k, v := range values {
-		if err := d.Set(k, v); err != nil {
-			return err
-		}
+	if err := d.Set("description", parser.Description); err != nil {
+		return err
+	}
+	if err := d.Set("stanzas", parser.Stanzas); err != nil {
+		return err
+	}
+	if err := d.Set("local_stanzas", parser.LocalStanzas); err != nil {
+		return err
+	}
+	if err := d.Set("model_path", parser.ModelPath); err != nil {
+		return err
+	}
+	if err := d.Set("sourcetype_path", parser.SourcetypePath); err != nil {
+		return err
+	}
+	if err := d.Set("families", parser.Families); err != nil {
+		return err
+	}
+	if err := d.Set("is_partial", parser.IsPartial); err != nil {
+		return err
+	}
+	if err := d.Set("parent_id", parser.ParentID); err != nil {
+		return err
+	}
+	if err := d.Set("version", int(parser.Version)); err != nil {
+		return err
+	}
+	if err := d.Set("content_type", parser.ContentType); err != nil {
+		return err
+	}
+	if err := d.Set("created_at", parser.CreatedAt); err != nil {
+		return err
+	}
+	if err := d.Set("created_by", parser.CreatedBy); err != nil {
+		return err
+	}
+	if err := d.Set("modified_at", parser.ModifiedAt); err != nil {
+		return err
+	}
+	if err := d.Set("modified_by", parser.ModifiedBy); err != nil {
+		return err
+	}
+	if err := d.Set("is_locked", parser.IsLocked); err != nil {
+		return err
+	}
+	if err := d.Set("is_system", parser.IsSystem); err != nil {
+		return err
+	}
+	if err := d.Set("is_mutable", parser.IsMutable); err != nil {
+		return err
 	}
 	return nil
 }
