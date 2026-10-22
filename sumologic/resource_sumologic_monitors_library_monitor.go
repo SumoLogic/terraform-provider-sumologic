@@ -242,7 +242,6 @@ func getMonitorBaseSchema() map[string]*schema.Schema {
 
 		"version": {
 			Type:     schema.TypeInt,
-			Optional: true,
 			Computed: true,
 		},
 	}
@@ -402,43 +401,36 @@ func getMonitorSchema() map[string]*schema.Schema {
 
 		"is_system": {
 			Type:     schema.TypeBool,
-			Optional: true,
 			Computed: true,
 		},
 
 		"is_locked": {
 			Type:     schema.TypeBool,
-			Optional: true,
 			Computed: true,
 		},
 
 		"is_mutable": {
 			Type:     schema.TypeBool,
-			Optional: true,
 			Computed: true,
 		},
 
 		"created_by": {
 			Type:     schema.TypeString,
-			Optional: true,
 			Computed: true,
 		},
 
 		"created_at": {
 			Type:     schema.TypeString,
-			Optional: true,
 			Computed: true,
 		},
 
 		"modified_by": {
 			Type:     schema.TypeString,
-			Optional: true,
 			Computed: true,
 		},
 
 		"modified_at": {
 			Type:     schema.TypeString,
-			Optional: true,
 			Computed: true,
 		},
 
