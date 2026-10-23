@@ -1,7 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-## 3.3.7 (October 23, 2026)
 ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 

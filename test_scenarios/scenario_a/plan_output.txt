@@ -1,0 +1,41 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mProvider development overrides are in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe following provider development overrides are set in the CLI
+[33m│[0m [0mconfiguration:
+[33m│[0m [0m - sumologic/sumologic in /Users/ashutosh.kumbhaj/terraform-provider-sumologic
+[33m│[0m [0m
+[33m│[0m [0mThe behavior may therefore not match any released version of the provider
+[33m│[0m [0mand applying changes may cause the state to become incompatible with
+[33m│[0m [0mpublished releases.
+[33m╵[0m[0m
+[0m[1mdata.sumologic_personal_folder.personalFolder: Reading...[0m[0m
+
+Changes to Outputs:
+  [32m+[0m[0m test_result = "Scenario A: Created successfully with singular notification (FF ON)"
+
+You can apply this plan to save these new output values to the Terraform
+state, without changing any real infrastructure.
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1m<html>
+[31m│[0m [0m<head>
+[31m│[0m [0m<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+[31m│[0m [0m<title>Error 401 Unauthorized</title>
+[31m│[0m [0m</head>
+[31m│[0m [0m<body><h2>HTTP ERROR 401 Unauthorized</h2>
+[31m│[0m [0m<table>
+[31m│[0m [0m<tr><th>URI:</th><td>/api/v2/content/folders/personal</td></tr>
+[31m│[0m [0m<tr><th>STATUS:</th><td>401</td></tr>
+[31m│[0m [0m<tr><th>MESSAGE:</th><td>Unauthorized</td></tr>
+[31m│[0m [0m<tr><th>SERVLET:</th><td>swagger</td></tr>
+[31m│[0m [0m</table>
+[31m│[0m [0m
+[31m│[0m [0m</body>
+[31m│[0m [0m</html>
+[31m│[0m [0m[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with data.sumologic_personal_folder.personalFolder,
+[31m│[0m [0m  on main.tf line 16, in data "sumologic_personal_folder" "personalFolder":
+[31m│[0m [0m  16: data "sumologic_personal_folder" "personalFolder" [4m{[0m}[0m
+[31m│[0m [0m
+[31m╵[0m[0m
