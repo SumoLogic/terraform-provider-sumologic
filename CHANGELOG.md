@@ -3,6 +3,7 @@ FEATURES:
 * **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
 * **New Resource:** `sumologic_data_pipeline` - Manage a Sumo Logic data pipeline's metadata, routing/processing node graph, and enabled state.
 * `sumologic_data_pipeline`: `name` and `description` can now be updated in place instead of forcing a destroy and recreate.
+* `sumologic_data_pipeline`: Added support for `processing_group` nodes and their `processor` list, including a `filter_expression` and `is_enabled` on `node`.
 
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:
