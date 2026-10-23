@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 FEATURES:
 * **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
+* **New Resource:** `sumologic_data_pipeline` - Manage a Sumo Logic data pipeline's metadata, routing/processing node graph, and enabled state.
 
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:
