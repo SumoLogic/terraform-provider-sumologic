@@ -58,8 +58,9 @@ func TestAccSumologicCSESigmaRule_invalidSigmaID(t *testing.T) {
 	SkipCseTest(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCSESigmaRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: `
