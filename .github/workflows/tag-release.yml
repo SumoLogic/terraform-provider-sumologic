@@ -201,6 +201,7 @@ jobs:
         with:
           script: |
             const version = '${{ needs.tag.outputs.version }}';
+            const tag = '${{ needs.tag.outputs.tag }}';
             const url = 'https://registry.terraform.io/v1/providers/SumoLogic/sumologic';
             const maxAttempts = 20;
             const intervalMs = 90000; // 90 seconds
@@ -222,11 +223,15 @@ jobs:
               if (i < maxAttempts) await new Promise(r => setTimeout(r, intervalMs));
             }
 
-            core.warning(
-              `Registry has not updated to ${version} after ${maxAttempts} attempts.\n` +
-              `Try redelivering webhooks:\n` +
-              `  1. Open https://github.com/SumoLogic/terraform-provider-sumologic/settings/hooks\n` +
-              `  2. Edit the Terraform Registry webhook\n` +
-              `  3. Go to Recent Deliveries tab\n` +
-              `  4. Redeliver the recent messages`
+            // Fail (not warn): the release is published on GitHub but not installable from the
+            // registry, so the run must not look successful.
+            core.setFailed(
+              `Terraform Registry still shows an older version; ${version} was not listed after ` +
+              `${maxAttempts} checks (~${Math.round(maxAttempts * intervalMs / 60000)} min).\n` +
+              `The GitHub release ${tag} IS published; only registry ingestion is missing.\n` +
+              `1. Check recent webhook deliveries (all should be 200):\n` +
+              `   https://github.com/SumoLogic/terraform-provider-sumologic/settings/hooks\n` +
+              `   Edit the Terraform Registry webhook > Recent Deliveries > Redeliver.\n` +
+              `2. If deliveries are 200 but ${version} is still missing, the registry import failed.\n` +
+              `   Check the provider's page/email for import errors or contact HashiCorp registry support.`
             );
