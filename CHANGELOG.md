@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+NEW RESOURCES:
+* `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
+
 ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 

@@ -132,6 +132,8 @@ type CSEMatchRule struct {
 	SummaryExpression     string           `json:"summaryExpression"`
 	Tags                  []string         `json:"tags"`
 	SuppressionWindowSize *int             `json:"suppressionWindowSize,omitempty"`
+	OriginalSource        string           `json:"originalSource,omitempty"`
+	Category              string           `json:"category,omitempty"`
 }
 
 type CSEMatchRuleOverride struct {
