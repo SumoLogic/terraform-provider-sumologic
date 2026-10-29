@@ -2,7 +2,7 @@
 layout: "sumologic"
 page_title: "SumoLogic: sumologic_cse_sigma_rule"
 description: |-
-  Provides a CSE Match Rule imported from a Sigma rule
+  Provides a CSE Match Rule created from a Sigma rule
 ---
 
 # sumologic_cse_sigma_rule
@@ -18,7 +18,9 @@ resource "sumologic_cse_sigma_rule" "sigma_rule" {
 }
 ```
 
-Any converted field can be overridden:
+Any converted field can be overridden. Note that an empty list (for example `tags = []` or no `entity_selectors` blocks) is treated as unset, so it keeps the converted Sigma value rather than clearing it.
+
+Example of overriding fields:
 ```hcl
 resource "sumologic_cse_sigma_rule" "sigma_rule" {
   sigma_id     = "637f689e-b4a5-4a86-be0e-0100a0a33ba2"
@@ -53,7 +55,7 @@ The following arguments are supported:
       - `from` - (Required) The record value to map from
       - `to` - (Required) The severity value to map to
 - `tags` - (Optional) The tags of the generated Signals. Defaults to the converted Sigma value.
-- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be greater than 0 and less than the global limit of 7 days.
+- `suppression_window_size` - (Optional) For how long to suppress Signal generation, in milliseconds. Must be between 0 and the global limit of 7 days.
 
 The following attributes are exported:
 
