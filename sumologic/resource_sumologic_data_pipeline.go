@@ -65,80 +65,84 @@ func resourceSumologicDataPipeline() *schema.Resource {
 				Required: true,
 				MinItems: 1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"node_type": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"source", "router", "destination", "processing_group"}, false),
-						},
-						"filter_expression": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"is_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-						},
-						"output": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"target": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"condition": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"order": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"processor": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"id": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"processor_type": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"is_enabled": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  true,
-									},
-									"config": {
-										Type:             schema.TypeString,
-										Required:         true,
-										ValidateFunc:     validation.StringIsJSON,
-										DiffSuppressFunc: structure.SuppressJsonDiff,
-									},
-								},
-							},
-						},
+					Schema: dataPipelineNodeResourceSchema(),
+				},
+			},
+		},
+	}
+}
+
+func dataPipelineNodeResourceSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"id": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"name": {
+			Type:     schema.TypeString,
+			Required: true,
+		},
+		"node_type": {
+			Type:         schema.TypeString,
+			Required:     true,
+			ValidateFunc: validation.StringInSlice([]string{"source", "router", "destination", "processing_group"}, false),
+		},
+		"filter_expression": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"is_enabled": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  true,
+		},
+		"output": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"target": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"condition": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"order": {
+						Type:     schema.TypeInt,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"processor": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"id": {
+						Type:     schema.TypeString,
+						Computed: true,
+					},
+					"name": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"processor_type": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"is_enabled": {
+						Type:     schema.TypeBool,
+						Optional: true,
+						Default:  true,
+					},
+					"config": {
+						Type:             schema.TypeString,
+						Required:         true,
+						ValidateFunc:     validation.StringIsJSON,
+						DiffSuppressFunc: structure.SuppressJsonDiff,
 					},
 				},
 			},
