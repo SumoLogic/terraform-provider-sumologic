@@ -73,6 +73,52 @@ type DataPipelineMetadataRequest struct {
 	Description string `json:"description"`
 }
 
+type DataPipelineSampleTestRequest struct {
+	Pipeline         DataPipelineRequest `json:"pipeline"`
+	SampleData       string              `json:"sampleData"`
+	MessageSeparator string              `json:"messageSeparator,omitempty"`
+	MetadataFields   map[string]string   `json:"metadataFields,omitempty"`
+}
+
+type DataPipelineSampleTestResponse struct {
+	Messages []DataPipelineSampleTestMessage `json:"messages"`
+}
+
+type DataPipelineSampleTestMessage struct {
+	MessageIndex int                          `json:"messageIndex"`
+	Input        string                       `json:"input"`
+	Output       string                       `json:"output"`
+	Truncated    bool                         `json:"truncated"`
+	NodeResults  []DataPipelineSampleTestNode `json:"nodeResults"`
+	EdgeResults  []DataPipelineSampleTestEdge `json:"edgeResults"`
+}
+
+type DataPipelineSampleTestNode struct {
+	NodeName               string                            `json:"nodeName"`
+	NodeType               string                            `json:"nodeType"`
+	Matched                bool                              `json:"matched"`
+	Input                  string                            `json:"input"`
+	Output                 string                            `json:"output"`
+	ProcessorResults       []DataPipelineSampleTestProcessor `json:"processorResults"`
+	SelectedRouteCondition string                            `json:"selectedRouteCondition"`
+	SelectedRouteTarget    string                            `json:"selectedRouteTarget"`
+}
+
+type DataPipelineSampleTestProcessor struct {
+	ProcessorName  string `json:"processorName"`
+	ProcessorType  string `json:"processorType"`
+	Input          string `json:"input"`
+	Output         string `json:"output"`
+	MessageDropped bool   `json:"messageDropped"`
+}
+
+type DataPipelineSampleTestEdge struct {
+	SourceNode          string `json:"sourceNode"`
+	TargetNode          string `json:"targetNode"`
+	ConditionExpression string `json:"conditionExpression"`
+	EdgeOrder           int    `json:"edgeOrder"`
+}
+
 func (s *Client) GetDataPipeline(id string) (*DataPipeline, error) {
 	url := fmt.Sprintf("v1/pipelines/%s", id)
 
@@ -224,4 +270,18 @@ func (s *Client) DeleteDataPipeline(id string) error {
 	url := fmt.Sprintf("v1/pipelines/%s", id)
 	_, err := s.Delete(url)
 	return err
+}
+
+func (s *Client) TestDataPipeline(request DataPipelineSampleTestRequest) (*DataPipelineSampleTestResponse, error) {
+	data, err := s.Post("v1/pipelines/test", request)
+	if err != nil {
+		return nil, err
+	}
+
+	var response DataPipelineSampleTestResponse
+	if err := json.Unmarshal(data, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
