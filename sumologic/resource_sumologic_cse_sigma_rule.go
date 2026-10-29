@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -237,6 +238,15 @@ func resourceSumologicCSESigmaRuleCreate(d *schema.ResourceData, meta interface{
 func resourceSumologicCSESigmaRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
+	// The stream is not part of the schema, so keep whatever the rule already has.
+	existing, err := c.GetCSEMatchRule(d.Id())
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return fmt.Errorf("CSE Sigma Rule %s not found", d.Id())
+	}
+
 	var suppressionWindowSize *int
 	if v, ok := d.GetOk("suppression_window_size"); ok {
 		size := v.(int)
@@ -244,7 +254,7 @@ func resourceSumologicCSESigmaRuleUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	// The original source is overwritten on every update, so it must always be sent.
-	err := c.UpdateCSEMatchRule(CSEMatchRule{
+	err = c.UpdateCSEMatchRule(CSEMatchRule{
 		ID:                    d.Id(),
 		DescriptionExpression: d.Get("description_expression").(string),
 		Enabled:               d.Get("enabled").(bool),
@@ -254,7 +264,7 @@ func resourceSumologicCSESigmaRuleUpdate(d *schema.ResourceData, meta interface{
 		Name:                  d.Get("name").(string),
 		NameExpression:        d.Get("name_expression").(string),
 		SeverityMapping:       resourceToSeverityMapping(d.Get("severity_mapping").([]interface{})[0]),
-		Stream:                "record",
+		Stream:                existing.Stream,
 		SummaryExpression:     d.Get("summary_expression").(string),
 		Tags:                  resourceToStringArray(d.Get("tags").([]interface{})),
 		SuppressionWindowSize: suppressionWindowSize,

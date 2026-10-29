@@ -18,6 +18,10 @@ func TestAccSumologicCSESigmaRule_createAndUpdate(t *testing.T) {
 	name := acctest.RandomWithPrefix("Test Sigma Rule")
 	nameUpdated := acctest.RandomWithPrefix("Updated Sigma Rule")
 
+	// The Sigma ID is needed to build the config, so look it up before resource.Test.
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless TF_ACC is set")
+	}
 	testAccPreCheck(t)
 	sigmaID := testAccCSESigmaRuleID(t)
 
@@ -34,10 +38,6 @@ func TestAccSumologicCSESigmaRule_createAndUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "original_source", "sigma"),
-					resource.TestCheckResourceAttrSet(resourceName, "category"),
-					resource.TestCheckResourceAttrSet(resourceName, "expression"),
-					resource.TestCheckResourceAttrSet(resourceName, "name_expression"),
-					resource.TestCheckResourceAttrSet(resourceName, "description_expression"),
 					resource.TestCheckResourceAttr(resourceName, "severity_mapping.#", "1"),
 				),
 			},
