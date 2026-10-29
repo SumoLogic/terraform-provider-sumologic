@@ -63,6 +63,7 @@ func Provider() *schema.Provider {
 			"sumologic_cse_aggregation_rule":                     resourceSumologicCSEAggregationRule(),
 			"sumologic_cse_chain_rule":                           resourceSumologicCSEChainRule(),
 			"sumologic_cse_match_rule":                           resourceSumologicCSEMatchRule(),
+			"sumologic_cse_sigma_rule":                           resourceSumologicCSESigmaRule(),
 			"sumologic_cse_threshold_rule":                       resourceSumologicCSEThresholdRule(),
 			"sumologic_cse_first_seen_rule":                      resourceSumologicCSEFirstSeenRule(),
 			"sumologic_cse_outlier_rule":                         resourceSumologicCSEOutlierRule(),
