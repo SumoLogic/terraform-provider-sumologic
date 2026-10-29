@@ -6,9 +6,9 @@ description: |-
 ---
 
 # sumologic_cse_sigma_rule
-Provides a Sumo Logic CSE [Match Rule](https://help.sumologic.com/Cloud_SIEM_Enterprise/CSE_Rules/03_Write_a_Match_Rule) created from a Sigma rule.
+Provides a Sumo Logic CSE Match Rule created from a Sigma rule.
 
-The Sigma rule is looked up by its ID and converted to a Sumo Logic match rule. The converted fields are copied into the new rule when it is created, and the rule is marked as originating from Sigma. Later changes to the Sigma rule are not applied to the existing rule.
+The Sigma rule is looked up by its ID and converted to a Sumo Logic match rule. The converted fields are copied into the new rule when it is created, and the rule is marked as originating from Sigma. Later changes to the parent Sigma rule are not applied to the created match rule.
 
 ## Example Usage
 ```hcl
