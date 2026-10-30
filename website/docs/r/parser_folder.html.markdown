@@ -41,7 +41,7 @@ The following arguments are supported:
 
 ~> **NOTE:** Locked folders cannot be updated or moved. This resource does not lock or unlock folders.
 
-~> **WARNING:** Deleting a folder in the Parsers library also deletes everything inside it. To prevent accidental data loss, this resource refuses to delete a folder that still contains items, and returns an error with the number of items it contains. Parsers and folders managed with Terraform that reference this folder through `parent_id` are destroyed first, so a normal `terraform destroy` works. If the folder contains items that Terraform does not manage, delete or move those items first.
+~> **WARNING:** Deleting a folder in the Parsers library also deletes everything inside it. To prevent accidental data loss, this resource refuses to delete a folder that is not empty, and returns an error with the number of items it contains. Delete or move the items out of the folder first. Note that parsers and folders that are managed by Terraform are deleted by their own resources, so removing them from your configuration or running `terraform destroy` still deletes them. Use `lifecycle { prevent_destroy = true }` on resources that must not be destroyed.
 
 ## Attributes reference
 
