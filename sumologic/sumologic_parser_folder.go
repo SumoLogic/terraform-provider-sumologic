@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 )
 
@@ -22,7 +21,6 @@ func (s *Client) CreateParsersLibraryFolder(folder ParsersLibraryFolder) (string
 	if err != nil {
 		return "", err
 	}
-	log.Printf("created parser folder response: %s", string(data))
 
 	var created ParsersLibraryFolder
 	if err := json.Unmarshal(data, &created); err != nil {
