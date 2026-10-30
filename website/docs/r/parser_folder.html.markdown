@@ -39,7 +39,9 @@ The following arguments are supported:
 - `description` - (Optional) Description of the folder. Up to 4096 characters. Defaults to an empty string.
 - `parent_id` - (Optional) Identifier of the parent folder in the Parsers library. Defaults to the root folder. Changing it moves the folder.
 
-~> **NOTE:** Locked folders cannot be updated or moved. This resource does not lock or unlock folders. Deleting a folder that still contains items not managed by Terraform may fail.
+~> **NOTE:** Locked folders cannot be updated or moved. This resource does not lock or unlock folders.
+
+~> **WARNING:** Deleting a folder in the Parsers library also deletes everything inside it. To prevent accidental data loss, this resource refuses to delete a folder that still contains items, and returns an error listing them. Parsers and folders managed with Terraform that reference this folder through `parent_id` are destroyed first, so a normal `terraform destroy` works. If the folder contains items that Terraform does not manage, delete or move those items first.
 
 ## Attributes reference
 
