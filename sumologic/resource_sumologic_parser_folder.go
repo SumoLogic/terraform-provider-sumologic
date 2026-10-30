@@ -87,23 +87,21 @@ func resourceToParserFolder(d *schema.ResourceData) ParsersLibraryFolder {
 func resourceSumologicParserFolderCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Id() == "" {
-		folder := resourceToParserFolder(d)
+	folder := resourceToParserFolder(d)
 
-		if folder.ParentID == "" {
-			rootID, err := c.GetParsersLibraryRootID()
-			if err != nil {
-				return err
-			}
-			folder.ParentID = rootID
-		}
-
-		id, err := c.CreateParsersLibraryFolder(folder)
+	if folder.ParentID == "" {
+		rootID, err := c.GetParsersLibraryRootID()
 		if err != nil {
 			return err
 		}
-		d.SetId(id)
+		folder.ParentID = rootID
 	}
+
+	id, err := c.CreateParsersLibraryFolder(folder)
+	if err != nil {
+		return err
+	}
+	d.SetId(id)
 
 	return resourceSumologicParserFolderRead(d, meta)
 }
