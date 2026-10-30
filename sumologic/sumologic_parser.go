@@ -3,7 +3,6 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 )
 
@@ -41,7 +40,6 @@ func (s *Client) CreateParsersLibraryParser(parser ParsersLibraryParser) (string
 	if err != nil {
 		return "", err
 	}
-	log.Printf("created parser response: %s", string(data))
 
 	var created ParsersLibraryParser
 	if err := json.Unmarshal(data, &created); err != nil {

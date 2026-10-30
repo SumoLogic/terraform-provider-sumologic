@@ -126,23 +126,21 @@ func resourceToParser(d *schema.ResourceData) ParsersLibraryParser {
 func resourceSumologicParserCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Id() == "" {
-		parser := resourceToParser(d)
+	parser := resourceToParser(d)
 
-		if parser.ParentID == "" {
-			rootID, err := c.GetParsersLibraryRootID()
-			if err != nil {
-				return err
-			}
-			parser.ParentID = rootID
-		}
-
-		id, err := c.CreateParsersLibraryParser(parser)
+	if parser.ParentID == "" {
+		rootID, err := c.GetParsersLibraryRootID()
 		if err != nil {
 			return err
 		}
-		d.SetId(id)
+		parser.ParentID = rootID
 	}
+
+	id, err := c.CreateParsersLibraryParser(parser)
+	if err != nil {
+		return err
+	}
+	d.SetId(id)
 
 	return resourceSumologicParserRead(d, meta)
 }
