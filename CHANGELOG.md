@@ -3,6 +3,7 @@
 
 FEATURES:
 * **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
+* **New Resource:** `sumologic_parser_folder` - Manage folders in the Parsers library, for organizing `sumologic_parser` resources.
 * `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
 
 ENHANCEMENTS:
