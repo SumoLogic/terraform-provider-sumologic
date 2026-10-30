@@ -109,6 +109,7 @@ func Provider() *schema.Provider {
 			"sumologic_subdomain":                                resourceSumologicSubdomain(),
 			"sumologic_dashboard":                                resourceSumologicDashboard(),
 			"sumologic_parser":                                   resourceSumologicParser(),
+			"sumologic_parser_folder":                            resourceSumologicParserFolder(),
 			"sumologic_macro":                                    resourceSumologicMacro(),
 			"sumologic_password_policy":                          resourceSumologicPasswordPolicy(),
 			"sumologic_saml_configuration":                       resourceSumologicSamlConfiguration(),
