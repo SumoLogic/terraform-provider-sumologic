@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -192,19 +191,5 @@ func resourceSumologicParserFolderUpdate(d *schema.ResourceData, meta interface{
 
 func resourceSumologicParserFolderDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-
-	// Deleting a folder also deletes everything under it, so refuse unless it is empty.
-	folder, err := c.GetParsersLibraryFolder(d.Id())
-	if err != nil {
-		return err
-	}
-	if folder == nil {
-		return nil
-	}
-	if len(folder.Children) > 0 {
-		return fmt.Errorf("parser folder %s is not empty and was not deleted: deleting it would also delete its %d child item(s). "+
-			"Delete or move these items first", d.Id(), len(folder.Children))
-	}
-
 	return c.DeleteParsersLibraryFolder(d.Id())
 }
