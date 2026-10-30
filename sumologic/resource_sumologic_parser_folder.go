@@ -3,7 +3,6 @@ package sumologic
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -203,24 +202,9 @@ func resourceSumologicParserFolderDelete(d *schema.ResourceData, meta interface{
 		return nil
 	}
 	if len(folder.Children) > 0 {
-		return fmt.Errorf("parser folder %s is not empty and was not deleted: deleting it would also delete its %d child item(s) (%s). "+
-			"Delete or move these items first", d.Id(), len(folder.Children), describeParserFolderChildren(folder.Children))
+		return fmt.Errorf("parser folder %s is not empty and was not deleted: deleting it would also delete its %d child item(s). "+
+			"Delete or move these items first", d.Id(), len(folder.Children))
 	}
 
 	return c.DeleteParsersLibraryFolder(d.Id())
-}
-
-// describeParserFolderChildren returns a short, readable list of the first few children.
-func describeParserFolderChildren(children []ParsersLibraryFolderChild) string {
-	const maxListed = 5
-
-	var parts []string
-	for i, child := range children {
-		if i == maxListed {
-			parts = append(parts, fmt.Sprintf("and %d more", len(children)-maxListed))
-			break
-		}
-		parts = append(parts, fmt.Sprintf("%s '%s' (%s)", child.ContentType, child.Name, child.ID))
-	}
-	return strings.Join(parts, ", ")
 }
