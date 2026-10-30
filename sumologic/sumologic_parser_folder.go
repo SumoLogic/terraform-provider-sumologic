@@ -85,16 +85,6 @@ type ParsersLibraryFolder struct {
 	IsLocked    bool   `json:"isLocked"`
 	IsSystem    bool   `json:"isSystem"`
 	IsMutable   bool   `json:"isMutable"`
-
-	// Children is only returned when a folder is read. It lists the direct children of the folder.
-	Children []ParsersLibraryFolderChild `json:"children,omitempty"`
-}
-
-// ParsersLibraryFolderChild is a direct child (folder or parser) of a parsers library folder.
-type ParsersLibraryFolderChild struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	ContentType string `json:"contentType"`
 }
 
 // parsersLibraryFolderCreateRequest is the body of POST /v1/parsers (ParsersLibraryFolder).
