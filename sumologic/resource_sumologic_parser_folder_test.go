@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -126,6 +127,65 @@ func TestAccSumologicParserFolder_disappears(t *testing.T) {
 					},
 				),
 				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+// Deleting a folder deletes everything under it, so the resource must refuse to delete a folder
+// that has children it does not manage.
+func TestAccSumologicParserFolder_deleteWithChildren(t *testing.T) {
+	var folder ParsersLibraryFolder
+	var childID string
+	testName := "terraform_test_parser_folder_" + acctest.RandString(16)
+	resourceName := "sumologic_parser_folder.test"
+
+	deleteChild := func() {
+		if childID == "" {
+			return
+		}
+		client := testAccProvider.Meta().(*Client)
+		_ = client.DeleteParsersLibraryParser(childID)
+		childID = ""
+	}
+	t.Cleanup(deleteChild)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckParserFolderDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSumologicParserFolder(testName, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckParserFolderExists(resourceName, &folder),
+					// Add a parser to the folder outside of Terraform.
+					func(s *terraform.State) error {
+						client := testAccProvider.Meta().(*Client)
+						id, err := client.CreateParsersLibraryParser(ParsersLibraryParser{
+							Name:     testName + "_child",
+							Stanzas:  "[sourcetype:" + testName + "_child]\nFORMAT = CSV",
+							ParentID: folder.ID,
+						})
+						if err != nil {
+							return err
+						}
+						childID = id
+						return nil
+					},
+				),
+			},
+			{
+				// Destroy must be refused while the folder has a child.
+				Config:      testAccSumologicParserFolder(testName, ""),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("is not empty"),
+			},
+			{
+				// Once the child is gone, the folder can be destroyed.
+				PreConfig: deleteChild,
+				Config:    testAccSumologicParserFolder(testName, ""),
+				Destroy:   true,
 			},
 		},
 	})
