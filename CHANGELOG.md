@@ -7,6 +7,9 @@ FEATURES:
 ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 
+BUG FIXES:
+* `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`. The export read snake_case keys from the API response, which uses `visualSettings` and `showRemoteServices`.
+
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:
 * `sumologic_monitor`, `sumologic_monitor_folder`, `sumologic_slo`, `sumologic_slo_folder`, `sumologic_muting_schedule`, `sumologic_token`: Server-managed fields (`version`, `created_at`, `created_by`, `modified_at`, `modified_by`, `is_mutable`, `is_system`, plus `is_locked` on monitors and monitor folders) are now `Computed` only instead of `Optional` and `Computed`. Setting them in configuration was never meaningful and is now rejected.
