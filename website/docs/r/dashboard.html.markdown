@@ -389,13 +389,15 @@ with the settings of the parent panel.
 - `collapsible_panel_child_keys` - (Required) A list of panel keys that are contained inside this collapsible panel.
 
 ### Schema for `query`
-- `query_string` - (Required) The metrics or logs query.
-- `query_type` - (Required) The type of the query. One of `Metrics` or `Logs`.
+- `query_string` - (Optional) The metrics or logs query. Not required for `Traces` queries, which send an empty string.
+- `query_type` - (Required) The type of the query. One of `Metrics`, `Logs` or `Traces`.
 - `query_key` - (Required) The key for metric or log query. Used as an identifier for queries.
 - `metric_query_mode` - (Optional) _Should only be specified for metric query_. The mode of the metric query.
 One of `Basic` or `Advanced`.
 - `metric_query_data` - (Optional) _Should only be specified for metric query_. Data format for the metric query. See
 [metric_query_data schema](#schema-for-metric_query_data) for details.
+- `traces_query_data` - (Optional) _Should only be specified for traces query_. Filters for the traces query. See
+[traces_query_data schema](#schema-for-traces_query_data) for details.
 - `parse_mode` - (Optional) This field only applies for queryType of `Logs` but other query types may be supported in the future.
             Define the parsing mode to scan the JSON format log messages. Possible values are:
               1. `Auto`
@@ -408,6 +410,15 @@ One of `Basic` or `Advanced`.
             `Message` will use the timeStamp on the message, `Receipt` will use the timestamp it was received by Sumo.
 - `transient` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Determines if the row should be returned in the response. Can be used in conjunction with a join, if only the result of the join is needed, and not the intermediate rows. Setting `transient` to `true` wherever the intermediate results aren't required speeds up the computation and reduces the amount of data transferred over the network.
 - `output_cardinality_limit` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Specifies the output cardinality limitations for the query, which is the maximum number of timeseries returned in the result.
+
+### Schema for `traces_query_data`
+- `filter` - (Block List, Required) A list of filters for the traces query.
+    - `field` - (Required) The field to filter on, for example `application`, `service` or `deployment.environment`.
+    - `value` - (Required) The value to match. Dashboard variables such as `{{service}}` are allowed.
+    - `operator` - (Optional) The comparison operator. _Defaults to `=`_.
+    - `value_type` - (Optional) The type of the value. _Defaults to `StringTracingValue`_.
+    - `target` - (Optional) Which spans the filter applies to. _Defaults to `any span`_.
+    - `type` - (Optional) The filter type. _Defaults to `FieldDescriptor`_.
 
 ### Schema for `metric_query_data`
 - `metric` - (Required) The metric of the query.

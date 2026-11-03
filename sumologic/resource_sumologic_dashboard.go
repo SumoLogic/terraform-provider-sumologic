@@ -369,12 +369,12 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"query_string": {
 			Type:     schema.TypeString,
-			Required: true,
+			Optional: true,
 		},
 		"query_type": {
 			Type:         schema.TypeString,
 			Required:     true,
-			ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics"}, false),
+			ValidateFunc: validation.StringInSlice([]string{"Logs", "Metrics", "Traces"}, false),
 		},
 		"query_key": {
 			Type:     schema.TypeString,
@@ -391,6 +391,14 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 			Optional: true,
 			Elem: &schema.Resource{
 				Schema: getMetricsQueryDataSchema(),
+			},
+		},
+		"traces_query_data": {
+			Type:     schema.TypeList,
+			MaxItems: 1,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: getTracesQueryDataSchema(),
 			},
 		},
 		"parse_mode": {
@@ -414,6 +422,47 @@ func getSumoSearchPanelQuerySchema() map[string]*schema.Schema {
 			Type:     schema.TypeInt,
 			Optional: true,
 			Default:  1000,
+		},
+	}
+}
+
+func getTracesQueryDataSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"filter": {
+			Type:     schema.TypeList,
+			Required: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"field": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"value": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"operator": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "=",
+					},
+					"value_type": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "StringTracingValue",
+					},
+					"target": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "any span",
+					},
+					"type": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "FieldDescriptor",
+					},
+				},
+			},
 		},
 	}
 }
@@ -855,7 +904,7 @@ func getTracesListPanel(tfPanel map[string]interface{}) interface{} {
 	if consistentVisualSettings, ok := tfPanel["keep_visual_settings_consistent_with_parent"].(bool); ok {
 		panel.KeepVisualSettingsConsistentWithParent = consistentVisualSettings
 	}
-	tfQueries := tfPanel["query"].([]interface{})
+	tfQueries, _ := tfPanel["queries"].([]interface{})
 	var queries []SearchPanelQuery
 	for _, tfQuery := range tfQueries {
 		query := getSearchPanelQuery(tfQuery.(map[string]interface{}))
@@ -914,6 +963,11 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 			query.MetricsQueryData = getMetricsQueryData(tfQueryData[0].(map[string]interface{}))
 		}
 	}
+	if val, ok := tfQuery["traces_query_data"]; ok {
+		if tfQueryData := val.([]interface{}); len(tfQueryData) == 1 {
+			query.TracesQueryData = getTracesQueryData(tfQueryData[0].(map[string]interface{}))
+		}
+	}
 	if val, ok := tfQuery["parse_mode"]; ok {
 		query.ParseMode = val.(string)
 	}
@@ -928,6 +982,24 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 	}
 
 	return query
+}
+
+func getTracesQueryData(tfQueryData map[string]interface{}) *TracesQueryData {
+	queryData := TracesQueryData{Filters: []TracesFilter{}}
+
+	for _, tfFilter := range tfQueryData["filter"].([]interface{}) {
+		f := tfFilter.(map[string]interface{})
+		queryData.Filters = append(queryData.Filters, TracesFilter{
+			Type:      f["type"].(string),
+			Operator:  f["operator"].(string),
+			Field:     f["field"].(string),
+			Value:     f["value"].(string),
+			ValueType: f["value_type"].(string),
+			Target:    f["target"].(string),
+		})
+	}
+
+	return &queryData
 }
 
 func getMetricsQueryData(tfQueryData map[string]interface{}) *MetricsQueryData {
@@ -1338,7 +1410,7 @@ func getTerraformTracesListPanel(panel map[string]interface{}) TerraformObject {
 	if title, ok := panel["title"].(string); ok {
 		tfTracesListPanel[0]["title"] = title
 	}
-	if visualSettings, ok := panel["visual_settings"].(string); ok {
+	if visualSettings, ok := panel["visualSettings"].(string); ok {
 		tfTracesListPanel[0]["visual_settings"] = visualSettings
 	}
 	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
@@ -1400,6 +1472,10 @@ func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{
 			tfPanelQueries[i]["metrics_query_data"] =
 				getTerraformMetricsQueryDataScheme(metricsQueryData.(map[string]interface{}))
 		}
+		if tracesQueryData, ok := query["tracesQueryData"]; ok && tracesQueryData != nil {
+			tfPanelQueries[i]["traces_query_data"] =
+				getTerraformTracesQueryData(tracesQueryData.(map[string]interface{}))
+		}
 		if parseMode, ok := query["parseMode"]; ok {
 			tfPanelQueries[i]["parse_mode"] = parseMode
 		}
@@ -1414,6 +1490,27 @@ func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{
 		}
 	}
 	return tfPanelQueries
+}
+
+func getTerraformTracesQueryData(queryData map[string]interface{}) TerraformObject {
+	tfTracesQueryData := MakeTerraformObject()
+
+	filters, _ := queryData["filters"].([]interface{})
+	tfFilters := make([]map[string]interface{}, len(filters))
+	for i, val := range filters {
+		filter := val.(map[string]interface{})
+		tfFilters[i] = map[string]interface{}{
+			"type":       filter["type"],
+			"operator":   filter["operator"],
+			"field":      filter["field"],
+			"value":      filter["value"],
+			"value_type": filter["valueType"],
+			"target":     filter["target"],
+		}
+	}
+	tfTracesQueryData[0]["filter"] = tfFilters
+
+	return tfTracesQueryData
 }
 
 func getTerraformMetricsQueryDataScheme(queryData map[string]interface{}) TerraformObject {
