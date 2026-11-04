@@ -8,7 +8,7 @@ ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 
 BUG FIXES:
-* `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`. The export read snake_case keys from the API response, which uses `visualSettings` and `showRemoteServices`.
+* `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`.
 
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:
