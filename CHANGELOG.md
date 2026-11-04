@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+DOCS:
+* Added documentation for the `sumologic_monitor_folder` data source, which was added in 3.1.2 without a docs page.
 
 FEATURES:
 * **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
