@@ -10,6 +10,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * `sumologic_dashboard`: Fixed a panic when creating or updating a `traces_list_panel` with `queries`. `query_type` now accepts `Traces`, `query_string` is optional (trace queries send an empty string), and exporting a `traces_list_panel` no longer drops `visual_settings`.
+* `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`.
 
 ## 3.3.6 (October 22, 2026)
 BUG FIXES:

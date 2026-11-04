@@ -1434,7 +1434,7 @@ func getTerraformServiceMapPanel(panel map[string]interface{}) TerraformObject {
 	if title, ok := panel["title"].(string); ok {
 		tfServiceMapPanel[0]["title"] = title
 	}
-	if visualSettings, ok := panel["visual_settings"].(string); ok {
+	if visualSettings, ok := panel["visualSettings"].(string); ok {
 		tfServiceMapPanel[0]["visual_settings"] = visualSettings
 	}
 	if keepVisualSettingsConsistentWithParent, ok := panel["keepVisualSettingsConsistentWithParent"]; ok {
@@ -1446,7 +1446,7 @@ func getTerraformServiceMapPanel(panel map[string]interface{}) TerraformObject {
 	if service, ok := panel["service"].(string); ok {
 		tfServiceMapPanel[0]["service"] = service
 	}
-	if showRemoteServices, ok := panel["show_remote_services"].(bool); ok {
+	if showRemoteServices, ok := panel["showRemoteServices"].(bool); ok {
 		tfServiceMapPanel[0]["show_remote_services"] = showRemoteServices
 	}
 	if environment, ok := panel["environment"].(string); ok {
