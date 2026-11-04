@@ -1,5 +1,6 @@
 ## X.Y.Z (Unreleased)
 DOCS:
+* Added  missing `admin_mode` and `base_url` entries to the provider Argument Reference.
 * Added documentation for the `sumologic_monitor_folder` data source, which was added in 3.1.2 without a docs page.
 
 FEATURES:

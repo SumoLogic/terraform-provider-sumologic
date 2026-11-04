@@ -108,6 +108,8 @@ $ terraform plan
 - `access_id` - (Required) This is the Sumo Logic Access ID. It must be provided, but it can also be source from the SUMOLOGIC_ACCESSID environment variable.
 - `access_key` - (Required) This is the Sumo Logic Access Key. It must be provided, but it can also be sourced from the SUMOLOGIC_ACCESSKEY variable.
 - `environment` - (Required) This is the API endpoint to use. See the [Sumo Logic documentation](https://help.sumologic.com/APIs/General_API_Information/Sumo_Logic_Endpoints_and_Firewall_Security) for details on which environment you should use. It must be provided, but it can be sourced from the SUMOLOGIC_ENVIRONMENT variable.
+- `base_url` - (Optional) The base URL of the Sumo Logic API. Use this to override the URL derived from `environment`. It can also be sourced from the SUMOLOGIC_BASE_URL environment variable.
+- `admin_mode` - (Optional) Set to `true` to run the provider in Admin Mode. In Admin Mode, requests are sent with administrator privileges, which lets you manage Content Library items owned by other users (for example, folders under the Admin Recommended Folder). The authenticated user must have the Content Admin capability (Manage Content) for these requests to succeed. Defaults to `false`. To use both modes in one configuration, define a second provider block with `admin_mode = true` and an `alias`, then reference it with `provider = sumologic.<alias>` on the resources that need it. See the [Example Usage](#example-usage) above.
 
 ## Common Source Properties
 
