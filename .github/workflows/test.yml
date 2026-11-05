@@ -100,7 +100,7 @@ jobs:
           fi
           
           echo "Running tests for Terraform ${{ matrix.terraform }}"
-          go test -timeout 0 -v -cover ./sumologic/
+          go test -timeout 0 -v -cover ./sumologic/ -run 'DataPipeline|dataPipeline'
         env:
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
@@ -130,4 +130,3 @@ jobs:
           SUMOLOGIC_TEST_O365_TENANT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_TENANT_ID }}
           SUMOLOGIC_TEST_O365_CLIENT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_ID }}
           SUMOLOGIC_TEST_O365_CLIENT_SECRET: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_SECRET }}
-          SKIP_DATA_PIPELINE_TESTS: "true"
