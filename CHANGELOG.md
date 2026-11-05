@@ -13,6 +13,7 @@ FEATURES:
 ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 * `sumologic_data_pipeline`: `name` and `description` can now be updated in place instead of forcing a destroy and recreate.
+* `sumologic_data_pipeline`: Added support for `processing_group` nodes and their `processor` list, including a `filter_expression` and `is_enabled` on `node`.
 
 BUG FIXES:
 * `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`.
