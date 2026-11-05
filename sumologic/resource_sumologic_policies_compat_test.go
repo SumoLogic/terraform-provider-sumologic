@@ -1,10 +1,12 @@
 package sumologic
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -97,6 +99,33 @@ func (a *statefulPoliciesAPI) checkWritten(endpoint string) resource.TestCheckFu
 	}
 }
 
+// sameJSON compares two JSON documents ignoring formatting and key order.
+func sameJSON(a, b string) bool {
+	var x, y interface{}
+	if json.Unmarshal([]byte(a), &x) != nil || json.Unmarshal([]byte(b), &y) != nil {
+		return false
+	}
+	return reflect.DeepEqual(x, y)
+}
+
+// checkDestroyedLikeLegacyProvider verifies what destroy leaves behind: the required policies are reset to their
+// defaults and the newer policies keep the organization's values.
+func (a *statefulPoliciesAPI) checkDestroyedLikeLegacyProvider() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// The state passed to CheckDestroy is the one from before the destroy, so verify against the API instead.
+		for endpoint, want := range map[string]string{
+			"audit":                       `{"enabled":false}`,
+			"maxUserSessionTimeout":       `{"maxUserSessionTimeout":"7d"}`,
+			"userConcurrentSessionsLimit": `{"enabled":false,"maxConcurrentSessions":100}`,
+		} {
+			if got := a.value(endpoint); !sameJSON(got, want) {
+				return fmt.Errorf("%s not reset on destroy: got %s, want %s", endpoint, got, want)
+			}
+		}
+		return a.checkNewPoliciesKeepOrganizationValues()(s)
+	}
+}
+
 func (a *statefulPoliciesAPI) checkNewPoliciesWereNeverWritten() resource.TestCheckFunc {
 	return func(*terraform.State) error {
 		for _, endpoint := range a.writtenEndpoints() {
@@ -125,16 +154,18 @@ func (a *statefulPoliciesAPI) checkNewPoliciesKeepOrganizationValues() resource.
 	}
 }
 
-// legacyPoliciesTerraformConfig is a configuration written before the optional policies existed.
-func legacyPoliciesTerraformConfig(baseURL string, audit bool) string {
-	return fmt.Sprintf(`
-provider "sumologic" {
-  access_id   = "fake"
-  access_key  = "fake"
-  base_url    = "%s/api/"
-  environment = ""
+// pointProviderAtFakeAPI makes the provider talk to the fake API through the environment variables it already reads.
+func pointProviderAtFakeAPI(t *testing.T, api *statefulPoliciesAPI) {
+	t.Helper()
+	t.Setenv("SUMOLOGIC_BASE_URL", api.server.URL+"/api/")
+	t.Setenv("SUMOLOGIC_ACCESSID", "fake")
+	t.Setenv("SUMOLOGIC_ACCESSKEY", "fake")
+	t.Setenv("SUMOLOGIC_ENVIRONMENT", "")
 }
 
+// legacyPoliciesTerraformConfig is a configuration written before the optional policies existed.
+func legacyPoliciesTerraformConfig(audit bool) string {
+	return fmt.Sprintf(`
 resource "sumologic_policies" "legacy" {
   audit                                 = %t
   data_access_level                     = false
@@ -145,7 +176,7 @@ resource "sumologic_policies" "legacy" {
     enabled                 = false
     max_concurrent_sessions = 100
   }
-}`, baseURL, audit)
+}`, audit)
 }
 
 // localProviderFactories serves the provider built from this branch.
@@ -159,12 +190,14 @@ func localProviderFactories() map[string]func() (*schema.Provider, error) {
 // must still not write them.
 func TestAccPoliciesCompat_legacyConfigNeverTouchesNewPolicies(t *testing.T) {
 	api := newStatefulPoliciesAPI(t)
+	pointProviderAtFakeAPI(t, api)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: localProviderFactories(),
+		CheckDestroy:      api.checkDestroyedLikeLegacyProvider(),
 		Steps: []resource.TestStep{
 			{
-				Config: legacyPoliciesTerraformConfig(api.server.URL, false),
+				Config: legacyPoliciesTerraformConfig(false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_policies.legacy", "audit", "false"),
 					// The existing organization values are read into state, not overwritten.
@@ -177,13 +210,13 @@ func TestAccPoliciesCompat_legacyConfigNeverTouchesNewPolicies(t *testing.T) {
 			},
 			{
 				// Same configuration again: no diff.
-				Config:   legacyPoliciesTerraformConfig(api.server.URL, false),
+				Config:   legacyPoliciesTerraformConfig(false),
 				PlanOnly: true,
 			},
 			{
 				// Unrelated change: the required policies are written, the newer ones are not.
 				PreConfig: api.resetWrites,
-				Config:    legacyPoliciesTerraformConfig(api.server.URL, true),
+				Config:    legacyPoliciesTerraformConfig(true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_policies.legacy", "audit", "true"),
 					api.checkWritten("audit"),
@@ -199,9 +232,11 @@ func TestAccPoliciesCompat_legacyConfigNeverTouchesNewPolicies(t *testing.T) {
 // build and must not be rewritten by it.
 func TestAccPoliciesCompat_stateFromReleasedProviderPlansCleanly(t *testing.T) {
 	api := newStatefulPoliciesAPI(t)
-	config := legacyPoliciesTerraformConfig(api.server.URL, false)
+	pointProviderAtFakeAPI(t, api)
+	config := legacyPoliciesTerraformConfig(false)
 
 	resource.Test(t, resource.TestCase{
+		CheckDestroy: api.checkDestroyedLikeLegacyProvider(),
 		Steps: []resource.TestStep{
 			{
 				ExternalProviders: map[string]resource.ExternalProvider{
@@ -218,7 +253,7 @@ func TestAccPoliciesCompat_stateFromReleasedProviderPlansCleanly(t *testing.T) {
 			{
 				// A real change after the upgrade runs an update, which must not write the newer policies.
 				ProviderFactories: localProviderFactories(),
-				Config:            legacyPoliciesTerraformConfig(api.server.URL, true),
+				Config:            legacyPoliciesTerraformConfig(true),
 				PreConfig:         api.resetWrites,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("sumologic_policies.legacy", "audit", "true"),
