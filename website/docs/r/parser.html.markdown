@@ -33,6 +33,9 @@ resource "sumologic_parser" "custom" {
   name          = "custom-parser"
   description   = "Custom parser"
   parent_id     = sumologic_parser_folder.firewalls.id
+}
+```
+
 Parser in an existing folder, with local stanzas:
 
 ```hcl
