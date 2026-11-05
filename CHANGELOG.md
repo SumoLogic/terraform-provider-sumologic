@@ -8,6 +8,7 @@ FEATURES:
 * `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
 
 ENHANCEMENTS:
+* `sumologic_policies`: Add optional `oauth_cimd_policy`, `unused_access_keys_disable_after_in_days` and `access_keys_lifetime_in_days` to configure the OAuth Clients (CIMD), Unused Access Keys Deactivation and Access Keys Expiration policies.
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
 
 BUG FIXES:

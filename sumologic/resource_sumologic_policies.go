@@ -2,6 +2,7 @@ package sumologic
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 var DefaultPolicies = Policies{
@@ -43,6 +44,24 @@ func resourceSumologicPolicies() *schema.Resource {
 			"share_dashboards_outside_organization": {
 				Type:     schema.TypeBool,
 				Required: true,
+			},
+			"oauth_cimd_policy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"disabled", "enabled", "enabled-pre-registered-only"}, false),
+			},
+			"unused_access_keys_disable_after_in_days": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(0, 365),
+			},
+			"access_keys_lifetime_in_days": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"0", "30", "45", "60", "90", "180", "365"}, false),
 			},
 			"user_concurrent_sessions_limit": {
 				Type:     schema.TypeList,
@@ -117,6 +136,15 @@ func setPoliciesResource(d *schema.ResourceData, policies *Policies) {
 	d.Set("search_audit", policies.SearchAudit.Enabled)
 	d.Set("share_dashboards_outside_organization", policies.ShareDashboardsOutsideOrganization.Enabled)
 	setUserConcurrentSessionsLimitPolicy(d, &policies.UserConcurrentSessionsLimit)
+	if policies.OAuthCimd != nil {
+		d.Set("oauth_cimd_policy", policies.OAuthCimd.OAuthCimdPolicy)
+	}
+	if policies.DisableUnusedAccessKeys != nil {
+		d.Set("unused_access_keys_disable_after_in_days", policies.DisableUnusedAccessKeys.UnusedAccessKeysDisableAfterInDays)
+	}
+	if policies.AccessKeysLifetime != nil {
+		d.Set("access_keys_lifetime_in_days", policies.AccessKeysLifetime.AccessKeysLifetimeInDays)
+	}
 }
 
 func resourceToPolicies(d *schema.ResourceData) Policies {
@@ -127,6 +155,19 @@ func resourceToPolicies(d *schema.ResourceData) Policies {
 	policies.SearchAudit = SearchAuditPolicy{d.Get("search_audit").(bool)}
 	policies.ShareDashboardsOutsideOrganization = ShareDashboardsOutsideOrganizationPolicy{d.Get("share_dashboards_outside_organization").(bool)}
 	policies.UserConcurrentSessionsLimit = getUserConcurrentSessionsLimitPolicy(d)
+	// Writing these policies can have side effects even when the value is unchanged. Computed attributes are filled
+	// from state on update, so only send the ones that are set on create or that actually changed.
+	// GetOkExists keeps an explicit 0 ("never") distinguishable from an unset attribute.
+	isCreate := d.Id() == ""
+	if v, ok := d.GetOk("oauth_cimd_policy"); ok && (isCreate || d.HasChange("oauth_cimd_policy")) {
+		policies.OAuthCimd = &OAuthCimdPolicy{v.(string)}
+	}
+	if v, ok := d.GetOkExists("unused_access_keys_disable_after_in_days"); ok && (isCreate || d.HasChange("unused_access_keys_disable_after_in_days")) {
+		policies.DisableUnusedAccessKeys = &DisableUnusedAccessKeysPolicy{v.(int)}
+	}
+	if v, ok := d.GetOk("access_keys_lifetime_in_days"); ok && (isCreate || d.HasChange("access_keys_lifetime_in_days")) {
+		policies.AccessKeysLifetime = &AccessKeysLifetimePolicy{v.(string)}
+	}
 	return policies
 }
 
