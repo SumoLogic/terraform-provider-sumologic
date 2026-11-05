@@ -412,7 +412,7 @@ One of `Basic` or `Advanced`.
 - `output_cardinality_limit` - (Optional) This field only applies for queryType of `Metrics` but other query types may be supported in the future. Specifies the output cardinality limitations for the query, which is the maximum number of timeseries returned in the result.
 
 ### Schema for `traces_query_data`
-- `filter` - (Block List, Required) A list of filters for the traces query.
+- `filter` - (Block List, Optional) A list of filters for the traces query.
     - `field` - (Required) The field to filter on, for example `application`, `service` or `deployment.environment`.
     - `value` - (Required) The value to match. Dashboard variables such as `{{service}}` are allowed.
     - `operator` - (Optional) The comparison operator. _Defaults to `=`_.

@@ -430,7 +430,7 @@ func getTracesQueryDataSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"filter": {
 			Type:     schema.TypeList,
-			Required: true,
+			Optional: true,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"field": {
@@ -965,7 +965,9 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 	}
 	if val, ok := tfQuery["traces_query_data"]; ok {
 		if tfQueryData := val.([]interface{}); len(tfQueryData) == 1 {
-			query.TracesQueryData = getTracesQueryData(tfQueryData[0].(map[string]interface{}))
+			// an empty traces_query_data block is passed through as nil
+			tfTracesQueryData, _ := tfQueryData[0].(map[string]interface{})
+			query.TracesQueryData = getTracesQueryData(tfTracesQueryData)
 		}
 	}
 	if val, ok := tfQuery["parse_mode"]; ok {
@@ -987,7 +989,8 @@ func getSearchPanelQuery(tfQuery map[string]interface{}) SearchPanelQuery {
 func getTracesQueryData(tfQueryData map[string]interface{}) *TracesQueryData {
 	queryData := TracesQueryData{Filters: []TracesFilter{}}
 
-	for _, tfFilter := range tfQueryData["filter"].([]interface{}) {
+	tfFilters, _ := tfQueryData["filter"].([]interface{})
+	for _, tfFilter := range tfFilters {
 		f := tfFilter.(map[string]interface{})
 		queryData.Filters = append(queryData.Filters, TracesFilter{
 			Type:      f["type"].(string),
@@ -1417,7 +1420,9 @@ func getTerraformTracesListPanel(panel map[string]interface{}) TerraformObject {
 		tfTracesListPanel[0]["keep_visual_settings_consistent_with_parent"] = keepVisualSettingsConsistentWithParent
 	}
 
-	tfTracesListPanel[0]["queries"] = getTerraformSearchPanelQuery(panel["queries"].([]interface{}))
+	if queries, ok := panel["queries"].([]interface{}); ok {
+		tfTracesListPanel[0]["queries"] = getTerraformSearchPanelQuery(queries)
+	}
 
 	if timeRange := panel["timeRange"]; timeRange != nil {
 		tfTracesListPanel[0]["time_range"] = GetTerraformTimeRange(timeRange.(map[string]interface{}))
@@ -1472,9 +1477,8 @@ func getTerraformSearchPanelQuery(queries []interface{}) []map[string]interface{
 			tfPanelQueries[i]["metrics_query_data"] =
 				getTerraformMetricsQueryDataScheme(metricsQueryData.(map[string]interface{}))
 		}
-		if tracesQueryData, ok := query["tracesQueryData"]; ok && tracesQueryData != nil {
-			tfPanelQueries[i]["traces_query_data"] =
-				getTerraformTracesQueryData(tracesQueryData.(map[string]interface{}))
+		if tracesQueryData, ok := query["tracesQueryData"].(map[string]interface{}); ok {
+			tfPanelQueries[i]["traces_query_data"] = getTerraformTracesQueryData(tracesQueryData)
 		}
 		if parseMode, ok := query["parseMode"]; ok {
 			tfPanelQueries[i]["parse_mode"] = parseMode
@@ -1496,17 +1500,23 @@ func getTerraformTracesQueryData(queryData map[string]interface{}) TerraformObje
 	tfTracesQueryData := MakeTerraformObject()
 
 	filters, _ := queryData["filters"].([]interface{})
-	tfFilters := make([]map[string]interface{}, len(filters))
-	for i, val := range filters {
-		filter := val.(map[string]interface{})
-		tfFilters[i] = map[string]interface{}{
-			"type":       filter["type"],
-			"operator":   filter["operator"],
-			"field":      filter["field"],
-			"value":      filter["value"],
-			"value_type": filter["valueType"],
-			"target":     filter["target"],
+	tfFilters := make([]map[string]interface{}, 0, len(filters))
+	for _, val := range filters {
+		filter, ok := val.(map[string]interface{})
+		if !ok {
+			continue
 		}
+		// a field the API omits stays unset, so the schema default applies instead of a nil/mistyped value
+		tfFilter := map[string]interface{}{}
+		for apiKey, tfKey := range map[string]string{
+			"type": "type", "operator": "operator", "field": "field",
+			"value": "value", "valueType": "value_type", "target": "target",
+		} {
+			if str, ok := filter[apiKey].(string); ok {
+				tfFilter[tfKey] = str
+			}
+		}
+		tfFilters = append(tfFilters, tfFilter)
 	}
 	tfTracesQueryData[0]["filter"] = tfFilters
 
