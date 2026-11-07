@@ -62,6 +62,8 @@ The following arguments are supported:
 
 ~> **NOTE:** The order of `dimension_transformation` blocks is preserved and sent to the API in the order written.
 
+~> **NOTE:** Every dimension referenced in a `value` template (for example `{{metric}}`) must also be listed in an `aggregate_on` of an `AggregateOnTransformation` in the same rule. The API rejects the rule otherwise.
+
 ## Attributes reference
 
 In addition to all arguments above, the following attributes are exported:

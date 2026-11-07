@@ -65,7 +65,7 @@ func TestAccSumologicMetricTransformationRule_dimensionTransformations(t *testin
 		CheckDestroy: testAccCheckMetricTransformationRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicMetricTransformationRuleWithTransformations(testName, "metric"),
+				Config: testAccSumologicMetricTransformationRuleWithTransformations(testName, `"metric"`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetricTransformationRuleExists(resourceName, &rule),
 					resource.TestCheckResourceAttr(resourceName, "retention", "0"),
@@ -80,11 +80,13 @@ func TestAccSumologicMetricTransformationRule_dimensionTransformations(t *testin
 				),
 			},
 			{
-				// update a nested value
-				Config: testAccSumologicMetricTransformationRuleWithTransformations(testName, "cluster"),
+				// update a nested value. "metric" must stay in aggregate_on because the
+				// AddOrReplace value references {{metric}}.
+				Config: testAccSumologicMetricTransformationRuleWithTransformations(testName, `"metric", "cluster"`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetricTransformationRuleExists(resourceName, &rule),
-					resource.TestCheckResourceAttr(resourceName, "dimension_transformation.0.aggregate_on.0", "cluster"),
+					resource.TestCheckResourceAttr(resourceName, "dimension_transformation.0.aggregate_on.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "dimension_transformation.0.aggregate_on.1", "cluster"),
 				),
 			},
 			{
@@ -214,7 +216,7 @@ resource "sumologic_metric_transformation_rule" "test" {
 
   dimension_transformation {
     transformation_type = "AggregateOnTransformation"
-    aggregate_on        = ["%s"]
+    aggregate_on        = [%s]
   }
 
   dimension_transformation {
