@@ -30,14 +30,46 @@ func (s *Client) GetPolicies() (*Policies, error) {
 		}
 	}
 
-	return &Policies{
+	policies := &Policies{
 		Audit:                              auditPolicy,
 		DataAccessLevel:                    dataAccessLevelPolicy,
 		MaxUserSessionTimeout:              maxUserSessionTimeoutPolicy,
 		SearchAudit:                        searchAuditPolicy,
 		ShareDashboardsOutsideOrganization: shareDashboardsOutsideOrganizationPolicy,
 		UserConcurrentSessionsLimit:        userConcurrentSessionsLimitPolicy,
-	}, nil
+	}
+	if err := s.getOptionalPolicies(policies); err != nil {
+		return nil, err
+	}
+	return policies, nil
+}
+
+// getOptionalPolicies reads the policies that older deployments may not serve. A policy whose endpoint is
+// missing (404) is left nil instead of failing the whole read.
+func (s *Client) getOptionalPolicies(policies *Policies) error {
+	var oAuthCimdPolicy OAuthCimdPolicy
+	var disableUnusedAccessKeysPolicy DisableUnusedAccessKeysPolicy
+	var accessKeysLifetimePolicy AccessKeysLifetimePolicy
+
+	optionalPolicies := []struct {
+		endpoint string
+		response interface{}
+		assign   func()
+	}{
+		{"oAuthCimd", &oAuthCimdPolicy, func() { policies.OAuthCimd = &oAuthCimdPolicy }},
+		{"disableUnusedAccessKeys", &disableUnusedAccessKeysPolicy, func() { policies.DisableUnusedAccessKeys = &disableUnusedAccessKeysPolicy }},
+		{"accessKeysLifetime", &accessKeysLifetimePolicy, func() { policies.AccessKeysLifetime = &accessKeysLifetimePolicy }},
+	}
+	for _, optional := range optionalPolicies {
+		found, err := s.getPolicyIfPresent(optional.endpoint, optional.response)
+		if err != nil {
+			return err
+		}
+		if found {
+			optional.assign()
+		}
+	}
+	return nil
 }
 
 func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
@@ -47,6 +79,9 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 	var searchAuditPolicy SearchAuditPolicy
 	var shareDashboardsOutsideOrganizationPolicy ShareDashboardsOutsideOrganizationPolicy
 	var userConcurrentSessionsLimitPolicy UserConcurrentSessionsLimitPolicy
+	var oAuthCimdPolicy OAuthCimdPolicy
+	var disableUnusedAccessKeysPolicy DisableUnusedAccessKeysPolicy
+	var accessKeysLifetimePolicy AccessKeysLifetimePolicy
 
 	policyRequests := []PolicyRequest{
 		PolicyRequest{"audit", &policies.Audit, &auditPolicy},
@@ -55,6 +90,16 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 		PolicyRequest{"searchAudit", &policies.SearchAudit, &searchAuditPolicy},
 		PolicyRequest{"shareDashboardsOutsideOrganization", &policies.ShareDashboardsOutsideOrganization, &shareDashboardsOutsideOrganizationPolicy},
 		PolicyRequest{"userConcurrentSessionsLimit", &policies.UserConcurrentSessionsLimit, &userConcurrentSessionsLimitPolicy},
+	}
+	// Optional policies are only sent when set (see resourceToPolicies).
+	if policies.OAuthCimd != nil {
+		policyRequests = append(policyRequests, PolicyRequest{"oAuthCimd", policies.OAuthCimd, &oAuthCimdPolicy})
+	}
+	if policies.DisableUnusedAccessKeys != nil {
+		policyRequests = append(policyRequests, PolicyRequest{"disableUnusedAccessKeys", policies.DisableUnusedAccessKeys, &disableUnusedAccessKeysPolicy})
+	}
+	if policies.AccessKeysLifetime != nil {
+		policyRequests = append(policyRequests, PolicyRequest{"accessKeysLifetime", policies.AccessKeysLifetime, &accessKeysLifetimePolicy})
 	}
 
 	var err error
@@ -65,14 +110,19 @@ func (s *Client) UpdatePolicies(policies Policies) (*Policies, error) {
 		}
 	}
 
-	return &Policies{
+	updated := &Policies{
 		Audit:                              auditPolicy,
 		DataAccessLevel:                    dataAccessLevelPolicy,
 		MaxUserSessionTimeout:              maxUserSessionTimeoutPolicy,
 		SearchAudit:                        searchAuditPolicy,
 		ShareDashboardsOutsideOrganization: shareDashboardsOutsideOrganizationPolicy,
 		UserConcurrentSessionsLimit:        userConcurrentSessionsLimitPolicy,
-	}, nil
+	}
+	// Read back every optional policy (including the ones just written) so the returned state is complete.
+	if err := s.getOptionalPolicies(updated); err != nil {
+		return nil, err
+	}
+	return updated, nil
 }
 
 func (s *Client) getPolicy(endpoint string, policy interface{}) error {
@@ -84,6 +134,18 @@ func (s *Client) getPolicy(endpoint string, policy interface{}) error {
 	}
 
 	return json.Unmarshal(data, &policy)
+}
+
+// getPolicyIfPresent is like getPolicy but reports found=false when the endpoint does not exist (404).
+func (s *Client) getPolicyIfPresent(endpoint string, policy interface{}) (bool, error) {
+	data, err := s.Get(fmt.Sprintf("v1/policies/%s", endpoint))
+	if err != nil {
+		return false, err
+	}
+	if data == nil {
+		return false, nil
+	}
+	return true, json.Unmarshal(data, policy)
 }
 
 func (s *Client) putPolicy(endpoint string, body interface{}, policy interface{}) error {
@@ -128,6 +190,18 @@ type UserConcurrentSessionsLimitPolicy struct {
 	MaxConcurrentSessions int  `json:"maxConcurrentSessions"`
 }
 
+type OAuthCimdPolicy struct {
+	OAuthCimdPolicy string `json:"oAuthCimdPolicy"`
+}
+
+type DisableUnusedAccessKeysPolicy struct {
+	UnusedAccessKeysDisableAfterInDays int `json:"unusedAccessKeysDisableAfterInDays"`
+}
+
+type AccessKeysLifetimePolicy struct {
+	AccessKeysLifetimeInDays string `json:"accessKeysLifetimeInDays"`
+}
+
 type Policies struct {
 	Audit                              AuditPolicy
 	DataAccessLevel                    DataAccessLevelPolicy
@@ -135,4 +209,8 @@ type Policies struct {
 	SearchAudit                        SearchAuditPolicy
 	ShareDashboardsOutsideOrganization ShareDashboardsOutsideOrganizationPolicy
 	UserConcurrentSessionsLimit        UserConcurrentSessionsLimitPolicy
+	// The policies below are optional: nil means "leave the server-side value untouched".
+	OAuthCimd               *OAuthCimdPolicy
+	DisableUnusedAccessKeys *DisableUnusedAccessKeysPolicy
+	AccessKeysLifetime      *AccessKeysLifetimePolicy
 }

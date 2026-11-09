@@ -16,6 +16,9 @@ The following policies are supported:
 - [Search Audit Policy][4]
 - [Share a Dashboard Outside Organization Policy][5]
 - [User Concurrent Sessions Limit Policy][6]
+- OAuth Clients Policy (Client ID Metadata Documents, CIMD)
+- Unused Access Keys Deactivation Policy
+- Access Keys Expiration Policy
 
 ## Example Usage
 ```hcl
@@ -29,6 +32,9 @@ resource "sumologic_policies" "example_policies" {
     enabled = false
     max_concurrent_sessions = 100
   }
+  oauth_cimd_policy = "disabled"
+  unused_access_keys_disable_after_in_days = 60
+  access_keys_lifetime_in_days = "90"
 }
 ```
 
@@ -42,6 +48,11 @@ The following arguments are supported:
 - `search_audit` - (Required) Whether the [Search Audit Policy][4] is enabled.
 - `share_dashboards_outside_organization` - (Required) Whether the [Share a Dashboard Outside Organization Policy][5] is enabled.
 - `user_concurrent_sessions_limit` - (Block List, Max: 1, Required) The [User Concurrent Sessions Limit Policy][6]. See [user_concurrent_sessions_limit schema](#user_concurrent_sessions_limit) for details.
+- `oauth_cimd_policy` - (Optional) The OAuth Clients policy. Controls whether OAuth clients can authenticate with Client ID Metadata Documents (CIMD); it does not manage individual OAuth clients. One of `disabled`, `enabled` or `enabled-pre-registered-only`. In `enabled-pre-registered-only`, CIMD clients can only be created manually on the OAuth Clients page. If not set, the current value in Sumo Logic is kept.
+- `unused_access_keys_disable_after_in_days` - (Optional) Number of days after which an unused access key is automatically deactivated, from `0` to `365`. `0` means never. If not set, the current value in Sumo Logic is kept.
+- `access_keys_lifetime_in_days` - (Optional) Number of days after which an access key expires unless rotated. One of `0`, `30`, `45`, `60`, `90`, `180` or `365`. `0` means never. If not set, the current value in Sumo Logic is kept.
+
+~> **NOTE:** The optional policies above are not reset when the `sumologic_policies` resource is destroyed, because their defaults vary per organization.
 
 ### Schema for `user_concurrent_sessions_limit`
 - `enabled` - (Required) Whether the [User Concurrent Sessions Limit Policy][6] is enabled.
