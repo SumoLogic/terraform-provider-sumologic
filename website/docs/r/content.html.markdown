@@ -328,7 +328,8 @@ The following arguments are supported:
 - `parent_id` - (Required) The identifier of the folder to import into. Identifiers from the Library in the Sumo user interface are provided in decimal format which is incompatible with Terraform. The identifier needs to be in hexadecimal format.
 - `config` - (Required) JSON block for the content to import. NOTE: Updating the name will create a new object and leave a untracked content item (delete the existing content item and create a new content item if you want to update the name).
   For a `SavedSearchWithScheduleSyncDefinition`, `searchSchedule` takes either a single `notification` object or a
-  `notifications` array of notification objects (up to 10 by default), but not both.
+  `notifications` array of notification objects (up to 10 by default), but not both. If both are specified,
+  `terraform apply` fails with an error from the Content import API; the conflict is not caught at plan time.
 
 ### Timeouts
 
