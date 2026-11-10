@@ -1,13 +1,20 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-FEATURES:
-* `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
+BUG FIXES:
+* `sumologic_policies`: Add optional `oauth_cimd_policy`, `unused_access_keys_disable_after_in_days` and `access_keys_lifetime_in_days` to configure the OAuth Clients (CIMD), Unused Access Keys Deactivation and Access Keys Expiration policies.
 
+## 3.3.7 (November 9, 2026)
+DOCS:
+* Added  missing `admin_mode` and `base_url` entries to the provider Argument Reference.
+* Added documentation for the `sumologic_monitor_folder` data source, which was added in 3.1.2 without a docs page.
+FEATURES:
+* **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
+* **New Resource:** `sumologic_parser_folder` - Manage folders in the Parsers library, for organizing `sumologic_parser` resources.
+* `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
 ENHANCEMENTS:
 * `sumologic_dashboard`: Added `traces_query_data` to panel `query` blocks, so `traces_list_panel` filters (application, service, deployment.environment, etc.) are deployed and exported.
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
-
 BUG FIXES:
 * `sumologic_dashboard`: Fixed a panic when creating or updating a `traces_list_panel` with `queries`. `query_type` now accepts `Traces`, `query_string` is optional (trace queries send an empty string), and exporting a `traces_list_panel` no longer drops `visual_settings`.
 * `sumologic_dashboard`: Exporting a `service_map_panel` no longer drops `visual_settings` and `show_remote_services`.

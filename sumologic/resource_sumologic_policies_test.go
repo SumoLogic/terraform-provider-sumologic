@@ -17,6 +17,9 @@ func TestAccPolicies_basic(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 70},
+		OAuthCimd:                          &OAuthCimdPolicy{OAuthCimdPolicy: "enabled-pre-registered-only"},
+		DisableUnusedAccessKeys:            &DisableUnusedAccessKeysPolicy{UnusedAccessKeysDisableAfterInDays: 90},
+		AccessKeysLifetime:                 &AccessKeysLifetimePolicy{AccessKeysLifetimeInDays: "180"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -44,6 +47,9 @@ func TestAccPolicies_create(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 70},
+		OAuthCimd:                          &OAuthCimdPolicy{OAuthCimdPolicy: "enabled-pre-registered-only"},
+		DisableUnusedAccessKeys:            &DisableUnusedAccessKeysPolicy{UnusedAccessKeysDisableAfterInDays: 90},
+		AccessKeysLifetime:                 &AccessKeysLifetimePolicy{AccessKeysLifetimeInDays: "180"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -70,6 +76,9 @@ func TestAccPolicies_update(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: true},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: true},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: true, MaxConcurrentSessions: 80},
+		OAuthCimd:                          &OAuthCimdPolicy{OAuthCimdPolicy: "enabled"},
+		DisableUnusedAccessKeys:            &DisableUnusedAccessKeysPolicy{UnusedAccessKeysDisableAfterInDays: 30},
+		AccessKeysLifetime:                 &AccessKeysLifetimePolicy{AccessKeysLifetimeInDays: "60"},
 	}
 
 	updatedPolicies := Policies{
@@ -79,6 +88,9 @@ func TestAccPolicies_update(t *testing.T) {
 		SearchAudit:                        SearchAuditPolicy{Enabled: false},
 		ShareDashboardsOutsideOrganization: ShareDashboardsOutsideOrganizationPolicy{Enabled: false},
 		UserConcurrentSessionsLimit:        UserConcurrentSessionsLimitPolicy{Enabled: false, MaxConcurrentSessions: 100},
+		OAuthCimd:                          &OAuthCimdPolicy{OAuthCimdPolicy: "disabled"},
+		DisableUnusedAccessKeys:            &DisableUnusedAccessKeysPolicy{UnusedAccessKeysDisableAfterInDays: 0},
+		AccessKeysLifetime:                 &AccessKeysLifetimePolicy{AccessKeysLifetimeInDays: "0"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -117,7 +129,13 @@ func testAccCheckPoliciesDestroy() resource.TestCheckFunc {
 				return fmt.Errorf("Encountered an error: %w", err)
 			}
 
-			if (*policies) != DefaultPolicies {
+			// Compare only the policies that are reset on destroy; the optional ones are left untouched.
+			if policies.Audit != DefaultPolicies.Audit ||
+				policies.DataAccessLevel != DefaultPolicies.DataAccessLevel ||
+				policies.MaxUserSessionTimeout != DefaultPolicies.MaxUserSessionTimeout ||
+				policies.SearchAudit != DefaultPolicies.SearchAudit ||
+				policies.ShareDashboardsOutsideOrganization != DefaultPolicies.ShareDashboardsOutsideOrganization ||
+				policies.UserConcurrentSessionsLimit != DefaultPolicies.UserConcurrentSessionsLimit {
 				return fmt.Errorf("Policies weren't reset properly")
 			}
 		}
@@ -145,6 +163,9 @@ func testPoliciesCheckResourceAttr(resourceName string, policies *Policies) reso
 			resource.TestCheckResourceAttr(resourceName, "share_dashboards_outside_organization", strconv.FormatBool(policies.ShareDashboardsOutsideOrganization.Enabled)),
 			resource.TestCheckResourceAttr(resourceName, "user_concurrent_sessions_limit.0.enabled", strconv.FormatBool(policies.UserConcurrentSessionsLimit.Enabled)),
 			resource.TestCheckResourceAttr(resourceName, "user_concurrent_sessions_limit.0.max_concurrent_sessions", strconv.Itoa(policies.UserConcurrentSessionsLimit.MaxConcurrentSessions)),
+			resource.TestCheckResourceAttr(resourceName, "oauth_cimd_policy", policies.OAuthCimd.OAuthCimdPolicy),
+			resource.TestCheckResourceAttr(resourceName, "unused_access_keys_disable_after_in_days", strconv.Itoa(policies.DisableUnusedAccessKeys.UnusedAccessKeysDisableAfterInDays)),
+			resource.TestCheckResourceAttr(resourceName, "access_keys_lifetime_in_days", policies.AccessKeysLifetime.AccessKeysLifetimeInDays),
 		)
 		return f(s)
 	}
@@ -162,6 +183,9 @@ resource "sumologic_policies" "%s" {
     enabled = %t
     max_concurrent_sessions = %d
   }
+  oauth_cimd_policy = "%s"
+  unused_access_keys_disable_after_in_days = %d
+  access_keys_lifetime_in_days = "%s"
 }`, label,
 		policies.Audit.Enabled,
 		policies.DataAccessLevel.Enabled,
@@ -169,5 +193,8 @@ resource "sumologic_policies" "%s" {
 		policies.SearchAudit.Enabled,
 		policies.ShareDashboardsOutsideOrganization.Enabled,
 		policies.UserConcurrentSessionsLimit.Enabled,
-		policies.UserConcurrentSessionsLimit.MaxConcurrentSessions)
+		policies.UserConcurrentSessionsLimit.MaxConcurrentSessions,
+		policies.OAuthCimd.OAuthCimdPolicy,
+		policies.DisableUnusedAccessKeys.UnusedAccessKeysDisableAfterInDays,
+		policies.AccessKeysLifetime.AccessKeysLifetimeInDays)
 }
