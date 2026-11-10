@@ -252,12 +252,83 @@ resource "sumologic_content" "test" {
 }
 ```
 
+## Example Scheduled Search with Multiple Notifications
+Use the `notifications` array in `searchSchedule` to send more than one notification from a single scheduled search.
+Each entry takes the same shape as a single `notification` object. Exactly one of `notification` or `notifications`
+must be specified. By default, up to 10 notifications are allowed per scheduled search.
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+resource "sumologic_content" "test" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "SavedSearchWithScheduleSyncDefinition",
+        "name": "Scheduled Search with Multiple Notifications Test",
+        "search": {
+            "queryText": "\"warn\"",
+            "defaultTimeRange": "-15m",
+            "byReceiptTime": false,
+            "viewName": "",
+            "viewStartTime": "2025-01-01T00:00:00Z",
+            "queryParameters": [],
+            "parsingMode": "Manual"
+        },
+        "searchSchedule": {
+            "cronExpression": "0 0 * * * ? *",
+            "displayableTimeRange": "-10m",
+            "parseableTimeRange": {
+                "type": "BeginBoundedTimeRange",
+                "from": {
+                    "type": "RelativeTimeRangeBoundary",
+                    "relativeTime": "-50m"
+                },
+                "to": null
+            },
+            "timeZone": "America/Los_Angeles",
+            "threshold": {
+                "operator": "gt",
+                "count": 0
+            },
+            "notifications": [
+                {
+                    "taskType": "EmailSearchNotificationSyncDefinition",
+                    "toList": ["ops@acme.org"],
+                    "subjectTemplate": "Search Results: {{Name}}",
+                    "includeQuery": true,
+                    "includeResultSet": true,
+                    "includeHistogram": false,
+                    "includeCsvAttachment": false
+                },
+                {
+                    "taskType": "EmailSearchNotificationSyncDefinition",
+                    "toList": ["oncall@acme.org"],
+                    "subjectTemplate": "On-call: {{Name}}",
+                    "includeQuery": true,
+                    "includeResultSet": false,
+                    "includeHistogram": false,
+                    "includeCsvAttachment": true
+                },
+                {
+                    "taskType": "SaveToViewNotificationSyncDefinition",
+                    "viewName": "test_view"
+                }
+            ],
+            "scheduleType": "1Hour",
+            "muteErrorEmails": false,
+            "parameters": []
+        },
+        "description": "Runs every hour with timerange of 15m and sends two email notifications and saves to a view"
+    })
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
 
 - `parent_id` - (Required) The identifier of the folder to import into. Identifiers from the Library in the Sumo user interface are provided in decimal format which is incompatible with Terraform. The identifier needs to be in hexadecimal format.
 - `config` - (Required) JSON block for the content to import. NOTE: Updating the name will create a new object and leave a untracked content item (delete the existing content item and create a new content item if you want to update the name).
+  For a `SavedSearchWithScheduleSyncDefinition`, `searchSchedule` takes either a single `notification` object or a
+  `notifications` array of notification objects (up to 10 by default), but not both.
 
 ### Timeouts
 

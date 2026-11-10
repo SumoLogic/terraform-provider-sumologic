@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_content`: Added an example of a scheduled search with multiple notifications using the `notifications` array in `searchSchedule`.
+
 BUG FIXES:
 * `sumologic_policies`: Add optional `oauth_cimd_policy`, `unused_access_keys_disable_after_in_days` and `access_keys_lifetime_in_days` to configure the OAuth Clients (CIMD), Unused Access Keys Deactivation and Access Keys Expiration policies.
 
