@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
+
 BUG FIXES:
 * `sumologic_policies`: Add optional `oauth_cimd_policy`, `unused_access_keys_disable_after_in_days` and `access_keys_lifetime_in_days` to configure the OAuth Clients (CIMD), Unused Access Keys Deactivation and Access Keys Expiration policies.
 
