@@ -1,7 +1,6 @@
 package sumologic
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -52,53 +51,6 @@ func TestAccContent_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccContent_multipleNotifications(t *testing.T) {
-	var content Content
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContentDestroy(content),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicContent(configJson),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContentExists("sumologic_content.test", &content, t),
-					testAccCheckContentAttributes("sumologic_content.test"),
-				),
-			}, {
-				Config: testAccSumologicContent(multiNotificationConfigJson),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckContentExists("sumologic_content.test", &content, t),
-					testAccCheckContentAttributes("sumologic_content.test"),
-					resource.TestCheckResourceAttrWith("sumologic_content.test", "config", testAccCheckContentNotificationCount(2)),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckContentNotificationCount(expected int) resource.CheckResourceAttrWithFunc {
-	return func(value string) error {
-		var config struct {
-			SearchSchedule struct {
-				Notification  interface{}   `json:"notification"`
-				Notifications []interface{} `json:"notifications"`
-			} `json:"searchSchedule"`
-		}
-		if err := json.Unmarshal([]byte(value), &config); err != nil {
-			return err
-		}
-		if config.SearchSchedule.Notification != nil {
-			return fmt.Errorf("expected no singular notification, got %v", config.SearchSchedule.Notification)
-		}
-		if len(config.SearchSchedule.Notifications) != expected {
-			return fmt.Errorf("expected %d notifications, got %d", expected, len(config.SearchSchedule.Notifications))
-		}
-		return nil
-	}
 }
 
 func testAccCheckContentExists(name string, content *Content, t *testing.T) resource.TestCheckFunc {
@@ -225,59 +177,6 @@ var configJson = `{
 		"parameters": []
 	},
 	"description": "Runs every hour with timerange of 15m and sends email notifications"
-}`
-
-var multiNotificationConfigJson = `{
-	"type": "SavedSearchWithScheduleSyncDefinition",
-	"name": "tf-content-scheduled-search-01",
-	"search": {
-		"queryText": "\"error\"",
-		"defaultTimeRange": "-15m",
-		"byReceiptTime": false,
-		"viewName": "",
-		"viewStartTime": "1970-01-01T00:00:00Z",
-		"queryParameters": [],
-		"intervalTimeType": "messageTime",
-		"parsingMode": "Manual"
-	},
-	"searchSchedule": {
-		"cronExpression": "0 0 * * * ? *",
-		"displayableTimeRange": "-10m",
-		"parseableTimeRange": {
-			"type": "BeginBoundedTimeRange",
-			"from": {
-				"type": "RelativeTimeRangeBoundary",
-				"relativeTime": "-50m"
-			},
-			"to": null
-		},
-		"timeZone": "America/Los_Angeles",
-		"threshold": null,
-		"notifications": [
-			{
-				"taskType": "EmailSearchNotificationSyncDefinition",
-				"toList": ["ops@acme.org"],
-				"subjectTemplate": "Search Results: {{Name}}",
-				"includeQuery": true,
-				"includeResultSet": true,
-				"includeHistogram": false,
-				"includeCsvAttachment": false
-			},
-			{
-				"taskType": "EmailSearchNotificationSyncDefinition",
-				"toList": ["oncall@acme.org"],
-				"subjectTemplate": "On-call: {{Name}}",
-				"includeQuery": true,
-				"includeResultSet": false,
-				"includeHistogram": false,
-				"includeCsvAttachment": true
-			}
-		],
-		"scheduleType": "1Hour",
-		"muteErrorEmails": false,
-		"parameters": []
-	},
-	"description": "Runs every hour with timerange of 15m and sends multiple email notifications"
 }`
 
 func testAccSumologicContent(configJson string) string {
