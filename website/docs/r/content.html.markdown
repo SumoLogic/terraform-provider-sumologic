@@ -258,6 +258,20 @@ Each entry takes the same shape as a single `notification` object. Exactly one o
 must be specified. By default, up to 10 notifications are allowed per scheduled search.
 ```hcl
 data "sumologic_personal_folder" "personalFolder" {}
+resource "sumologic_connection" "connection" {
+  type            = "WebhookConnection"
+  name            = "test-connection"
+  description     = "My description"
+  url             = "https://connection-endpoint.com"
+  default_payload = <<JSON
+{
+  "client" : "Sumo Logic",
+  "eventType" : "{{Name}}",
+  "search_url" : "{{QueryUrl}}"
+}
+JSON
+  webhook_type    = "Webhook"
+}
 resource "sumologic_content" "test" {
     parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
     config = jsonencode({
@@ -292,31 +306,25 @@ resource "sumologic_content" "test" {
                 {
                     "taskType": "EmailSearchNotificationSyncDefinition",
                     "toList": ["ops@acme.org"],
-                    "subjectTemplate": "Search Results: {{Name}}",
+                    "subjectTemplate": "Search Results: {{SearchName}}",
                     "includeQuery": true,
                     "includeResultSet": true,
-                    "includeHistogram": false,
+                    "includeHistogram": true,
                     "includeCsvAttachment": false
                 },
                 {
-                    "taskType": "EmailSearchNotificationSyncDefinition",
-                    "toList": ["oncall@acme.org"],
-                    "subjectTemplate": "On-call: {{Name}}",
-                    "includeQuery": true,
-                    "includeResultSet": false,
-                    "includeHistogram": false,
-                    "includeCsvAttachment": true
-                },
-                {
-                    "taskType": "SaveToViewNotificationSyncDefinition",
-                    "viewName": "test_view"
+                    "taskType": "WebhookSearchNotificationSyncDefinition",
+                    "webhookId": "${sumologic_connection.connection.id}",
+                    "payload": "{\"text\": \"Alert: {{SearchName}} triggered with {{NumRawResults}} results\"}",
+                    "itemizeAlerts": false,
+                    "maxItemizedAlerts": 0
                 }
             ],
             "scheduleType": "1Hour",
             "muteErrorEmails": false,
             "parameters": []
         },
-        "description": "Runs every hour with timerange of 15m and sends two email notifications and saves to a view"
+        "description": "Runs every hour with timerange of 15m and sends an email and a webhook notification"
     })
 }
 ```
