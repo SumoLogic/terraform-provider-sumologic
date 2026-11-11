@@ -9,7 +9,7 @@ description: |-
 
 Provides the ability to create, read, delete, and update [MutingSchedule][1].
 
-## Example One-Time Muting Schedule From 12AM to 1AM on 2023-08-05 for All Monitors
+## Example One-Time Muting Schedule From 12AM to 1AM on 2030-01-05 for All Monitors
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -21,14 +21,14 @@ resource "sumologic_muting_schedule" "muting_schedule" {
   }
   schedule  {
 	timezone = "America/Los_Angeles"
-	start_date = "2023-08-05"
+	start_date = "2030-01-05"
 	start_time = "00:00"
 	duration = 60
   }
 }
 ```
 
-## Example Daily Muting Schedule From 9AM to 10AM and 5PM to 6PM Starting On 2023-08-05 for a Monitor or Folder
+## Example Daily Muting Schedule From 9AM to 10AM and 5PM to 6PM Starting On 2030-01-05 for a Monitor or Folder
 
 ```hcl
 resource "sumologic_muting_schedule" "muting_schedule" {
@@ -40,7 +40,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
   }
   schedule  {
 	timezone = "America/Los_Angeles"
-	start_date = "2023-08-05"
+	start_date = "2030-01-05"
 	start_time = "00:00"
 	duration = 60
 	rrule = "FREQ=DAILY;INTERVAL=1;BYHOUR=9,17"
@@ -64,7 +64,7 @@ resource "sumologic_muting_schedule" "muting_schedule" {
   }
   schedule  {
     timezone = "America/Los_Angeles"
-    start_date = "2023-08-05"
+    start_date = "2030-01-05"
     start_time = "00:00"
     duration = 60
     rrule = "FREQ=MONTHLY;INTERVAL=1;BYDAY=+3SA"
@@ -87,7 +87,7 @@ The following arguments are supported:
 #### Schedule Definition
   - `timezone` - (Required) Time zone for the schedule per
             [IANA Time Zone Database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
-  - `start_date` - (Required) Schedule start date in the format of `yyyy-mm-dd`
+  - `start_date` - (Required) Schedule start date in the format of `yyyy-mm-dd`. Must not be earlier than yesterday. The example dates are in the future and will need updating once they pass.
   - `start_time` - (Required) Schedule start time in the format of `hh:mm`
   - `duration` - (Required) Duration of the muting in minutes
   - `rrule` - (Optional) Recurrence Rule. See https://freetools.textmagic.com/rrule-generator for more details.

@@ -74,6 +74,7 @@ resource "sumologic_monitor_folder" "tf_security_team_stag_folder" {
   name        = "Staging Monitors"
   description = "Monitors for the Security Team Staging Environment."
   parent_id   = sumologic_monitor_folder.tf_security_team_root_folder.id
+}
 ```
 
 ## Argument reference

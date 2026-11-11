@@ -89,6 +89,11 @@ resource "sumologic_slo" "slo_tf_window_based" {
   }
 }
 
+resource "sumologic_slo_folder" "tf_slo_folder" {
+  name        = "slo-tf-folder"
+  description = "folder for SLOs created with terraform"
+}
+
 resource "sumologic_slo" "slo_tf_request_based" {
   name        = "slo-tf-request-based"
   description = "example SLO created with terraform for request based SLI"
