@@ -38,11 +38,9 @@ jobs:
           filters: |
             run_tests:
               - '**'
-              - '!README.md'
-              - '!CHANGELOG.md'
-              - '!CONTRIBUTING.md'
+              # markdown files in the repo root (README, CHANGELOG, CONTRIBUTING, AGENTS, ...)
+              - '!*.md'
               - '!website/**'
-              - '!AGENTS.md'
               - '!scripts/**'
               - '!.github/CODEOWNERS'
               - '!.github/pull_request_template.md'
