@@ -143,6 +143,7 @@ func Provider() *schema.Provider {
 			"sumologic_usage_attribution_config":       dataSourceSumologicUsageAttributionConfig(),
 			"sumologic_caller_identity":                dataSourceSumologicCallerIdentity(),
 			"sumologic_collector":                      dataSourceSumologicCollector(),
+			"sumologic_data_pipeline":                  dataSourceSumologicDataPipeline(),
 			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
 			"sumologic_personal_folder":                dataSourceSumologicPersonalFolder(),
 			"sumologic_folder":                         dataSourceSumologicFolder(),
