@@ -1,10 +1,13 @@
 package sumologic
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
@@ -16,6 +19,9 @@ func resourceSumologicDataPipeline() *schema.Resource {
 		Delete: resourceSumologicDataPipelineDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			return validateDataPipelineNodeFields(d.Get("node").([]interface{}))
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -75,7 +81,16 @@ func resourceSumologicDataPipeline() *schema.Resource {
 						"node_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"source", "router", "destination"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"source", "router", "destination", "processing_group"}, false),
+						},
+						"filter_expression": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"is_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
 						},
 						"output": {
 							Type:     schema.TypeList,
@@ -93,6 +108,37 @@ func resourceSumologicDataPipeline() *schema.Resource {
 									"order": {
 										Type:     schema.TypeInt,
 										Optional: true,
+									},
+								},
+							},
+						},
+						"processor": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"processor_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"is_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  true,
+									},
+									"config": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ValidateFunc:     validation.StringIsJSON,
+										DiffSuppressFunc: structure.SuppressJsonDiff,
 									},
 								},
 							},
@@ -127,20 +173,6 @@ func resourceSumologicDataPipelineCreate(d *schema.ResourceData, meta interface{
 	return resourceSumologicDataPipelineRead(d, meta)
 }
 
-func checkNoProcessingGroupNodes(id string, pipeline *DataPipeline) error {
-	for _, node := range pipeline.Nodes {
-		if node.NodeType == "processing_group" {
-			return fmt.Errorf(
-				"data pipeline %s has a processing_group node (%q): sumologic_data_pipeline does not support "+
-					"managing processors yet, and updating this pipeline through Terraform would delete that node; "+
-					"remove it from Terraform management until processor support is added",
-				id, node.Name,
-			)
-		}
-	}
-	return nil
-}
-
 func resourceSumologicDataPipelineRead(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
@@ -153,13 +185,24 @@ func resourceSumologicDataPipelineRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	if err := checkNoProcessingGroupNodes(d.Id(), pipeline); err != nil {
-		return err
-	}
-
 	pipeline.Nodes = reorderDataPipelineNodes(pipeline.Nodes, dataPipelineNodeNameOrder(d, pipeline))
 
+	for i, node := range pipeline.Nodes {
+		if node.NodeType != "processing_group" {
+			continue
+		}
+		pipeline.Nodes[i].Processors = sortDataPipelineProcessorsByOrder(node.Processors)
+	}
+
 	return setDataPipelineResourceFields(d, pipeline)
+}
+
+func sortDataPipelineProcessorsByOrder(processors []DataPipelineProcessor) []DataPipelineProcessor {
+	sorted := append([]DataPipelineProcessor{}, processors...)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return sorted[i].Order < sorted[j].Order
+	})
+	return sorted
 }
 
 func dataPipelineNodeNameOrder(d *schema.ResourceData, pipeline *DataPipeline) []string {
@@ -308,6 +351,25 @@ func expandDataPipelineRequest(d *schema.ResourceData) DataPipelineRequest {
 	}
 }
 
+func validateDataPipelineNodeFields(raw []interface{}) error {
+	for _, r := range raw {
+		m, ok := r.(map[string]interface{})
+		if !ok || m["node_type"] == "processing_group" {
+			continue
+		}
+		if expr, _ := m["filter_expression"].(string); expr != "" {
+			return fmt.Errorf("node %q: filter_expression can only be set on processing_group nodes", m["name"])
+		}
+		if enabled, ok := m["is_enabled"].(bool); ok && !enabled {
+			return fmt.Errorf("node %q: is_enabled can only be set on processing_group nodes", m["name"])
+		}
+		if processors, _ := m["processor"].([]interface{}); len(processors) > 0 {
+			return fmt.Errorf("node %q: processor can only be set on processing_group nodes", m["name"])
+		}
+	}
+	return nil
+}
+
 func expandDataPipelineNodes(raw []interface{}) []DataPipelineNode {
 	nodes := make([]DataPipelineNode, len(raw))
 	for i, r := range raw {
@@ -318,8 +380,34 @@ func expandDataPipelineNodes(raw []interface{}) []DataPipelineNode {
 			NodeType: m["node_type"].(string),
 			Outputs:  expandDataPipelineOutputs(m["output"].([]interface{})),
 		}
+		if nodes[i].NodeType == "processing_group" {
+			isEnabled := m["is_enabled"].(bool)
+			nodes[i].FilterExpression = m["filter_expression"].(string)
+			nodes[i].IsEnabled = &isEnabled
+			nodes[i].Processors = expandDataPipelineProcessors(m["processor"].([]interface{}))
+		}
 	}
 	return nodes
+}
+
+func expandDataPipelineProcessors(raw []interface{}) []DataPipelineProcessor {
+	processors := make([]DataPipelineProcessor, len(raw))
+	for i, r := range raw {
+		m := r.(map[string]interface{})
+
+		var config json.RawMessage
+		json.Unmarshal([]byte(m["config"].(string)), &config)
+
+		processors[i] = DataPipelineProcessor{
+			ID:            m["id"].(string),
+			Name:          m["name"].(string),
+			ProcessorType: m["processor_type"].(string),
+			Order:         i + 1,
+			IsEnabled:     m["is_enabled"].(bool),
+			Config:        config,
+		}
+	}
+	return processors
 }
 
 func expandDataPipelineOutputs(raw []interface{}) []DataPipelineOutput {
@@ -357,11 +445,32 @@ func setDataPipelineResourceFields(d *schema.ResourceData, pipeline *DataPipelin
 func flattenDataPipelineResourceNodes(nodes []DataPipelineNode) []interface{} {
 	flattened := make([]interface{}, len(nodes))
 	for i, node := range nodes {
+		isEnabled := true
+		if node.IsEnabled != nil {
+			isEnabled = *node.IsEnabled
+		}
 		flattened[i] = map[string]interface{}{
-			"id":        node.ID,
-			"name":      node.Name,
-			"node_type": node.NodeType,
-			"output":    flattenDataPipelineOutputs(node.Outputs),
+			"id":                node.ID,
+			"name":              node.Name,
+			"node_type":         node.NodeType,
+			"filter_expression": node.FilterExpression,
+			"is_enabled":        isEnabled,
+			"output":            flattenDataPipelineOutputs(node.Outputs),
+			"processor":         flattenDataPipelineResourceProcessors(node.Processors),
+		}
+	}
+	return flattened
+}
+
+func flattenDataPipelineResourceProcessors(processors []DataPipelineProcessor) []interface{} {
+	flattened := make([]interface{}, len(processors))
+	for i, processor := range processors {
+		flattened[i] = map[string]interface{}{
+			"id":             processor.ID,
+			"name":           processor.Name,
+			"processor_type": processor.ProcessorType,
+			"is_enabled":     processor.IsEnabled,
+			"config":         string(processor.Config),
 		}
 	}
 	return flattened

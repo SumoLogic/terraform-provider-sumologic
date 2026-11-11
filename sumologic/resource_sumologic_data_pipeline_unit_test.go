@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -193,6 +195,102 @@ func TestReorderDataPipelineNodesAppendsUnreferencedNodes(t *testing.T) {
 	}
 }
 
+func TestSortDataPipelineProcessorsByOrderFollowsServerOrder(t *testing.T) {
+	apiOrder := []DataPipelineProcessor{
+		{ID: "P1", Name: "Add Fields", Order: 1},
+		{ID: "P3", Name: "Filter by Condition", Order: 3},
+		{ID: "P2", Name: "JSON Parse", Order: 2},
+	}
+
+	got := sortDataPipelineProcessorsByOrder(apiOrder)
+
+	want := []string{"Add Fields", "JSON Parse", "Filter by Condition"}
+	if len(got) != len(want) {
+		t.Fatalf("len(got) = %d, want %d", len(got), len(want))
+	}
+	for i, name := range want {
+		if got[i].Name != name {
+			t.Errorf("got[%d].Name = %q, want %q", i, got[i].Name, name)
+		}
+	}
+}
+
+func TestResourceDataPipelineReadDetectsOutOfBandProcessorReorder(t *testing.T) {
+	pipelineJSON := func(regexOrder, jsonOrder int) string {
+		return fmt.Sprintf(`{
+  "id": "00000000HX546",
+  "name": "prod-log-pipeline",
+  "pipelineType": "route_based",
+  "isEnabled": true,
+  "routeExpression": "_sourceCategory=prod/*",
+  "version": 3,
+  "state": "published",
+  "nodes": [
+    {"id": "NODE1", "name": "Routing Expression", "nodeType": "source", "outputs": [{"target": "Normalize"}]},
+    {"id": "NODE2", "name": "Normalize", "nodeType": "processing_group", "isEnabled": true,
+     "outputs": [{"target": "Sumo Logic"}],
+     "processors": [
+       {"id": "P1", "name": "Extract IP", "processorType": "REGEX_PARSE", "order": %d, "isEnabled": true, "config": {"regexPattern": "ip"}},
+       {"id": "P2", "name": "Parse Body", "processorType": "JSON_PARSE", "order": %d, "isEnabled": true, "config": {"fieldContainingJson": "_raw"}}
+     ]},
+    {"id": "NODE3", "name": "Sumo Logic", "nodeType": "destination"}
+  ]
+}`, regexOrder, jsonOrder)
+	}
+	config := map[string]interface{}{
+		"name":             "prod-log-pipeline",
+		"route_expression": "_sourceCategory=prod/*",
+		"node": []interface{}{
+			map[string]interface{}{
+				"name":      "Routing Expression",
+				"node_type": "source",
+				"output":    []interface{}{map[string]interface{}{"target": "Normalize"}},
+			},
+			map[string]interface{}{
+				"name":      "Normalize",
+				"node_type": "processing_group",
+				"output":    []interface{}{map[string]interface{}{"target": "Sumo Logic"}},
+				"processor": []interface{}{
+					map[string]interface{}{"name": "Extract IP", "processor_type": "REGEX_PARSE", "config": `{"regexPattern":"ip"}`},
+					map[string]interface{}{"name": "Parse Body", "processor_type": "JSON_PARSE", "config": `{"fieldContainingJson":"_raw"}`},
+				},
+			},
+			map[string]interface{}{"name": "Sumo Logic", "node_type": "destination"},
+		},
+	}
+	r := resourceSumologicDataPipeline()
+
+	inSync, _ := newDataPipelineRoutingTestClient(map[string]string{"v1/pipelines/00000000HX546": pipelineJSON(1, 2)})
+	d := r.Data(&terraform.InstanceState{ID: "00000000HX546"})
+	if err := resourceSumologicDataPipelineRead(d, inSync); err != nil {
+		t.Fatalf("Expected read to succeed, received: %s", err)
+	}
+	diff, err := r.Diff(context.Background(), d.State(), terraform.NewResourceConfigRaw(config), inSync)
+	if err != nil {
+		t.Fatalf("Expected diff to succeed, received: %s", err)
+	}
+	if diff != nil && !diff.Empty() {
+		t.Fatalf("Expected no diff when server order matches config, got %v", diff.Attributes)
+	}
+
+	reordered, _ := newDataPipelineRoutingTestClient(map[string]string{"v1/pipelines/00000000HX546": pipelineJSON(2, 1)})
+	d = r.Data(d.State())
+	if err := resourceSumologicDataPipelineRead(d, reordered); err != nil {
+		t.Fatalf("Expected read to succeed, received: %s", err)
+	}
+	processors := d.Get("node.1.processor").([]interface{})
+	if got := processors[0].(map[string]interface{})["name"]; got != "Parse Body" {
+		t.Errorf("Expected state to follow server order, first processor = %v", got)
+	}
+	diff, err = r.Diff(context.Background(), d.State(), terraform.NewResourceConfigRaw(config), reordered)
+	if err != nil {
+		t.Fatalf("Expected diff to succeed, received: %s", err)
+	}
+	if diff == nil || diff.Empty() {
+		t.Fatal("Expected a diff after the processors were reordered outside Terraform")
+	}
+}
+
 func TestTopologicalDataPipelineNodeOrderLinear(t *testing.T) {
 	apiOrder := []DataPipelineNode{
 		{Name: "Routing Expression", NodeType: "source", Outputs: []DataPipelineOutput{{Target: "Triage"}}},
@@ -260,6 +358,7 @@ func TestTopologicalDataPipelineNodeOrderUnreachableNodeAppended(t *testing.T) {
 
 func TestExpandDataPipelineNodesRoundTrip(t *testing.T) {
 	order := 1
+	isEnabled := true
 	nodes := []DataPipelineNode{
 		{
 			ID:       "NODE2",
@@ -270,6 +369,24 @@ func TestExpandDataPipelineNodesRoundTrip(t *testing.T) {
 				{Target: "Sumo Logic"},
 			},
 		},
+		{
+			ID:               "NODE3",
+			Name:             "Log Normalization",
+			NodeType:         "processing_group",
+			FilterExpression: "_sourceCategory=prod/app/*",
+			IsEnabled:        &isEnabled,
+			Outputs:          []DataPipelineOutput{{Target: "Sumo Logic"}},
+			Processors: []DataPipelineProcessor{
+				{
+					ID:            "PROC1",
+					Name:          "json-parser-1",
+					ProcessorType: "parsejson",
+					Order:         1,
+					IsEnabled:     true,
+					Config:        json.RawMessage(`{"field":"_raw"}`),
+				},
+			},
+		},
 	}
 
 	raw := flattenDataPipelineResourceNodes(nodes)
@@ -277,6 +394,99 @@ func TestExpandDataPipelineNodesRoundTrip(t *testing.T) {
 
 	if !reflect.DeepEqual(got, nodes) {
 		t.Errorf("expand(flatten(nodes)) = %#v\nwant %#v", got, nodes)
+	}
+}
+
+func TestExpandDataPipelineNodesOmitsProcessingGroupFieldsOnOtherNodes(t *testing.T) {
+	raw := []interface{}{
+		map[string]interface{}{
+			"id":                "",
+			"name":              "Triage",
+			"node_type":         "router",
+			"filter_expression": "",
+			"is_enabled":        true,
+			"output":            []interface{}{map[string]interface{}{"target": "Sumo Logic", "condition": "", "order": 0}},
+			"processor":         []interface{}{},
+		},
+	}
+
+	body, err := json.Marshal(expandDataPipelineNodes(raw))
+	if err != nil {
+		t.Fatalf("Expected marshal to succeed, received: %s", err)
+	}
+
+	var nodes []map[string]interface{}
+	if err := json.Unmarshal(body, &nodes); err != nil {
+		t.Fatalf("Expected unmarshal to succeed, received: %s", err)
+	}
+	for _, field := range []string{"filterExpression", "isEnabled", "processors"} {
+		if _, ok := nodes[0][field]; ok {
+			t.Errorf("router node should not send %q, got %s", field, body)
+		}
+	}
+}
+
+func TestValidateDataPipelineNodeFields(t *testing.T) {
+	node := func(nodeType string, overrides map[string]interface{}) map[string]interface{} {
+		m := map[string]interface{}{
+			"name":              "n",
+			"node_type":         nodeType,
+			"filter_expression": "",
+			"is_enabled":        true,
+			"processor":         []interface{}{},
+		}
+		for k, v := range overrides {
+			m[k] = v
+		}
+		return m
+	}
+	processor := []interface{}{map[string]interface{}{"name": "p"}}
+
+	cases := []struct {
+		name    string
+		node    map[string]interface{}
+		wantErr string
+	}{
+		{"router defaults", node("router", nil), ""},
+		{"processing group with all fields", node("processing_group", map[string]interface{}{
+			"filter_expression": "env=prod", "is_enabled": false, "processor": processor,
+		}), ""},
+		{"router filter_expression", node("router", map[string]interface{}{"filter_expression": "env=prod"}), "filter_expression"},
+		{"source is_enabled false", node("source", map[string]interface{}{"is_enabled": false}), "is_enabled"},
+		{"destination processor", node("destination", map[string]interface{}{"processor": processor}), "processor"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateDataPipelineNodeFields([]interface{}{tc.node})
+			if tc.wantErr == "" {
+				if err != nil {
+					t.Errorf("Expected no error, received: %s", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+				t.Errorf("Expected error mentioning %q, received: %v", tc.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestResourceDataPipelineDiffRejectsProcessingGroupFieldsOnOtherNodes(t *testing.T) {
+	client, _ := newDataPipelineRoutingTestClient(map[string]string{
+		"v1/pipelines/00000000HX546": simplePipelineJSON,
+	})
+	r := resourceSumologicDataPipeline()
+	d := r.Data(&terraform.InstanceState{ID: "00000000HX546"})
+	if err := resourceSumologicDataPipelineRead(d, client); err != nil {
+		t.Fatalf("Expected read to succeed, received: %s", err)
+	}
+
+	config := simplePipelineConfig("_sourceCategory=prod/*", true)
+	config["node"].([]interface{})[0].(map[string]interface{})["filter_expression"] = "env=prod"
+
+	_, err := r.Diff(context.Background(), d.State(), terraform.NewResourceConfigRaw(config), client)
+	if err == nil || !strings.Contains(err.Error(), "filter_expression can only be set on processing_group nodes") {
+		t.Errorf("Expected diff to reject filter_expression on a source node, received: %v", err)
 	}
 }
 

@@ -7,6 +7,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * `sumologic_data_pipeline`: `name` and `description` can now be updated in place instead of forcing a destroy and recreate.
+* `sumologic_data_pipeline`: Added support for `processing_group` nodes and their `processor` list, including a `filter_expression` and `is_enabled` on `node`.
 
 ## 3.3.8 (November 11, 2026)
 DOCS:
