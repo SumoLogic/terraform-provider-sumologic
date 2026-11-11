@@ -20,6 +20,7 @@ FEATURES:
 * New data source `sumologic_usage_attribution_config`: read the usage attribution configuration, including the custom tags, breakdown options and dashboard ID.
 * **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
 * **New Resource:** `sumologic_data_pipeline` - Manage a Sumo Logic data pipeline's metadata, routing/processing node graph, and enabled state.
+* **New Data Source:** `sumologic_data_pipeline_test` - Run sample data through an inline data pipeline definition and inspect how each message is transformed at every node and processor.
 
 ENHANCEMENTS:
 * `sumologic_data_pipeline`: `name` and `description` can now be updated in place instead of forcing a destroy and recreate.
