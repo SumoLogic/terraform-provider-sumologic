@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_parser`: Fixed the second example (it was missing the required `stanzas`), gave each example a title and a self-contained config, and documented defaults, whitespace handling, move-on-change of `parent_id`, locked and system parser behaviour, and destroy behaviour.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
