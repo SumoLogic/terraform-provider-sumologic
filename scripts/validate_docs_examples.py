@@ -201,7 +201,7 @@ HOW_TO_FIX = (
     'To reproduce locally (needs go and terraform on your PATH):\n'
     '  python3 -I scripts/validate_docs_examples.py <page>\n'
     'Line numbers above count from the first line of the example. Each example must be valid HCL, use only '
-    'attributes that exist in the schema, and declare everything it references. See "Docs standard" in AGENTS.md.'
+    'attributes that exist in the schema, and declare everything it references. See DOCS_STANDARD.md.'
 )
 
 
