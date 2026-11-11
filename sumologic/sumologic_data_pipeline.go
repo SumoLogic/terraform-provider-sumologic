@@ -68,6 +68,11 @@ type DataPipelineUpdateRequest struct {
 	Version int `json:"version"`
 }
 
+type DataPipelineMetadataRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func (s *Client) GetDataPipeline(id string) (*DataPipeline, error) {
 	url := fmt.Sprintf("v1/pipelines/%s", id)
 
@@ -197,6 +202,22 @@ func (s *Client) SetDataPipelineEnabled(id string, enabled bool) error {
 	url := fmt.Sprintf("v1/pipelines/%s/%s", id, action)
 	_, err := s.Patch(url, nil)
 	return err
+}
+
+func (s *Client) UpdateDataPipelineMetadata(id string, request DataPipelineMetadataRequest) (*DataPipeline, error) {
+	url := fmt.Sprintf("v1/pipelines/%s/metadata", id)
+
+	data, err := s.Patch(url, request)
+	if err != nil {
+		return nil, err
+	}
+
+	var pipeline DataPipeline
+	if err := json.Unmarshal(data, &pipeline); err != nil {
+		return nil, err
+	}
+
+	return &pipeline, nil
 }
 
 func (s *Client) DeleteDataPipeline(id string) error {

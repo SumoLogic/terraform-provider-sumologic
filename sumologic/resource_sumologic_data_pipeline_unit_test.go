@@ -96,6 +96,36 @@ func TestSetDataPipelineEnabledSuccess(t *testing.T) {
 	}
 }
 
+func TestUpdateDataPipelineMetadataSuccess(t *testing.T) {
+	response := &http.Response{
+		Status:     http.StatusText(200),
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader([]byte(publishedPipelineJSON))),
+	}
+	client := newTestClient(response)
+
+	pipeline, err := client.UpdateDataPipelineMetadata("00000000HX546", DataPipelineMetadataRequest{
+		Name:        "renamed-pipeline",
+		Description: "",
+	})
+	if err != nil {
+		t.Fatalf("Expected UpdateDataPipelineMetadata to succeed, received: %s", err)
+	}
+	if pipeline.ID != "00000000HX546" {
+		t.Errorf("ID = %q, want %q", pipeline.ID, "00000000HX546")
+	}
+}
+
+func TestDataPipelineMetadataRequestEmptyDescriptionSerialized(t *testing.T) {
+	body, err := json.Marshal(DataPipelineMetadataRequest{Name: "renamed-pipeline", Description: ""})
+	if err != nil {
+		t.Fatalf("Marshal failed: %s", err)
+	}
+	if !bytes.Contains(body, []byte(`"description":""`)) {
+		t.Errorf("marshaled request = %s, want it to contain \"description\":\"\"", body)
+	}
+}
+
 func TestDeleteDataPipelineSuccess(t *testing.T) {
 	response := &http.Response{
 		Status:     http.StatusText(200),
@@ -313,10 +343,11 @@ func applyDataPipelineUpdate(t *testing.T, config map[string]interface{}) []stri
 	t.Helper()
 
 	client, httpClient := newDataPipelineRoutingTestClient(map[string]string{
-		"v1/pipelines/00000000HX546":         simplePipelineJSON,
-		"v1/pipelines/00000000HX546/publish": simplePipelineJSON,
-		"v1/pipelines/00000000HX546/enable":  `{}`,
-		"v1/pipelines/00000000HX546/disable": `{}`,
+		"v1/pipelines/00000000HX546":          simplePipelineJSON,
+		"v1/pipelines/00000000HX546/publish":  simplePipelineJSON,
+		"v1/pipelines/00000000HX546/enable":   `{}`,
+		"v1/pipelines/00000000HX546/disable":  `{}`,
+		"v1/pipelines/00000000HX546/metadata": simplePipelineJSON,
 	})
 	r := resourceSumologicDataPipeline()
 
@@ -361,6 +392,51 @@ func TestResourceDataPipelineUpdateConfigChangeUpdatesAndPublishes(t *testing.T)
 		"PUT v1/pipelines/00000000HX546",
 		"POST v1/pipelines/00000000HX546/publish",
 		"PATCH v1/pipelines/00000000HX546/enable",
+		"GET v1/pipelines/00000000HX546",
+	}
+	if !reflect.DeepEqual(requested, want) {
+		t.Errorf("requested = %v, want %v", requested, want)
+	}
+}
+
+func TestResourceDataPipelineUpdateNameOnlySendsOnlyMetadata(t *testing.T) {
+	config := simplePipelineConfig("_sourceCategory=prod/*", true)
+	config["name"] = "prod-log-pipeline-renamed"
+	requested := applyDataPipelineUpdate(t, config)
+
+	want := []string{
+		"PATCH v1/pipelines/00000000HX546/metadata",
+		"GET v1/pipelines/00000000HX546",
+	}
+	if !reflect.DeepEqual(requested, want) {
+		t.Errorf("requested = %v, want %v", requested, want)
+	}
+}
+
+func TestResourceDataPipelineUpdateDescriptionOnlySendsOnlyMetadata(t *testing.T) {
+	config := simplePipelineConfig("_sourceCategory=prod/*", true)
+	config["description"] = "Handles prod log parsing."
+	requested := applyDataPipelineUpdate(t, config)
+
+	want := []string{
+		"PATCH v1/pipelines/00000000HX546/metadata",
+		"GET v1/pipelines/00000000HX546",
+	}
+	if !reflect.DeepEqual(requested, want) {
+		t.Errorf("requested = %v, want %v", requested, want)
+	}
+}
+
+func TestResourceDataPipelineUpdateConfigAndMetadataChangeRunsBoth(t *testing.T) {
+	config := simplePipelineConfig("_sourceCategory=prod/updated", true)
+	config["name"] = "prod-log-pipeline-renamed"
+	requested := applyDataPipelineUpdate(t, config)
+
+	want := []string{
+		"PUT v1/pipelines/00000000HX546",
+		"POST v1/pipelines/00000000HX546/publish",
+		"PATCH v1/pipelines/00000000HX546/enable",
+		"PATCH v1/pipelines/00000000HX546/metadata",
 		"GET v1/pipelines/00000000HX546",
 	}
 	if !reflect.DeepEqual(requested, want) {

@@ -22,14 +22,12 @@ func resourceSumologicDataPipeline() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "",
-				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
 			},
 			"pipeline_type": {
@@ -259,7 +257,9 @@ func resourceSumologicDataPipelineUpdate(d *schema.ResourceData, meta interface{
 		Version:             d.Get("version").(int),
 	}
 
-	if d.HasChangesExcept("is_enabled") {
+	graphChanged := d.HasChangesExcept("is_enabled", "name", "description")
+
+	if graphChanged {
 		if _, err := c.UpdateDataPipeline(d.Id(), request); err != nil {
 			return fmt.Errorf("error updating data pipeline %s: %v", d.Id(), err)
 		}
@@ -269,8 +269,19 @@ func resourceSumologicDataPipelineUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	if err := c.SetDataPipelineEnabled(d.Id(), request.IsEnabled); err != nil {
-		return fmt.Errorf("error setting enabled state for data pipeline %s: %v", d.Id(), err)
+	if graphChanged || d.HasChange("is_enabled") {
+		if err := c.SetDataPipelineEnabled(d.Id(), request.IsEnabled); err != nil {
+			return fmt.Errorf("error setting enabled state for data pipeline %s: %v", d.Id(), err)
+		}
+	}
+
+	if d.HasChanges("name", "description") {
+		if _, err := c.UpdateDataPipelineMetadata(d.Id(), DataPipelineMetadataRequest{
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+		}); err != nil {
+			return fmt.Errorf("error updating metadata for data pipeline %s: %v", d.Id(), err)
+		}
 	}
 
 	return resourceSumologicDataPipelineRead(d, meta)
