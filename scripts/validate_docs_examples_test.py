@@ -59,5 +59,61 @@ class FileStubs(unittest.TestCase):
         self.assertEqual(v.file_stubs(RESOURCE), [])
 
 
+class ExampleLines(unittest.TestCase):
+    PAGE = 'intro\n\n```hcl\n' + RESOURCE + '```\n\ntext\n```hcl\nterraform {\n}\n```\n\n```hcl\n' + RESOURCE + '```\n'
+
+    def test_line_is_the_fence_line(self):
+        self.assertEqual([line for line, _ in v.examples_with_lines(self.PAGE)], [3, 15])
+
+    def test_skips_examples_without_resources(self):
+        self.assertEqual(len(v.examples_with_lines(self.PAGE)), 2)
+
+    def test_examples_from_text_matches(self):
+        self.assertEqual(v.examples_from_text(self.PAGE), [b for _, b in v.examples_with_lines(self.PAGE)])
+
+
+class ErrorText(unittest.TestCase):
+    OUT = (
+        'Error: Reference to undeclared resource\n\n'
+        '  on main.tf line %d, in resource "sumologic_slo" "s":\n'
+        '  %d:   parent_id = sumologic_slo_folder.f.id\n\n'
+        'A managed resource "sumologic_slo_folder" "f" has not been declared in the root module.\n'
+    )
+
+    def test_lines_are_relative_to_the_example(self):
+        n = v.HEADER_LINES + 4
+        out = v.example_relative(self.OUT % (n, n))
+        self.assertIn('at line 4 of the example', out)
+        self.assertIn('  4:   parent_id', out)
+        self.assertNotIn('main.tf', out)
+
+    def test_keeps_the_full_message(self):
+        self.assertIn('has not been declared', v.example_relative(self.OUT % (20, 20)))
+
+    def test_first_error(self):
+        self.assertEqual(v.first_error(self.OUT % (20, 20)), 'Error: Reference to undeclared resource')
+        self.assertEqual(v.first_error('Success! The configuration is valid.'), 'Success! The configuration is valid.')
+        self.assertEqual(v.first_error(''), '')
+
+
+class Warnings(unittest.TestCase):
+    OUT = 'Warning: Provider development overrides are in effect\n\nThe following overrides are set.\n\nError: Bad thing\n\nDetails here.\n'
+
+    def test_drops_warning_keeps_error(self):
+        out = v.drop_warnings(self.OUT)
+        self.assertNotIn('Warning', out)
+        self.assertTrue(out.startswith('Error: Bad thing'))
+        self.assertIn('Details here.', out)
+
+    def test_success_output_is_kept_when_only_a_warning_is_present(self):
+        out = 'Warning: Provider development overrides are in effect\n\nbody\n\nSuccess! The configuration is valid.\n'
+        self.assertEqual(v.drop_warnings(out), 'Success! The configuration is valid.')
+
+
+class Annotations(unittest.TestCase):
+    def test_escapes_newlines_and_percent(self):
+        self.assertEqual(v.escape_annotation('a\nb%c\r'), 'a%0Ab%25c%0D')
+
+
 if __name__ == '__main__':
     unittest.main()
