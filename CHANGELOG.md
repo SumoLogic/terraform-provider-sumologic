@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
