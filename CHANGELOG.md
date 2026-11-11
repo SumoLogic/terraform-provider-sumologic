@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
+* `sumologic_policies`: Clarified that `access_keys_lifetime_in_days` applies to all access keys in the organization, including deactivated ones and keys created later.
+
 ENHANCEMENTS:
 * `sumologic_dashboard`: Added `traces_query_data` to panel `query` blocks, so `traces_list_panel` filters (application, service, deployment.environment, etc.) are deployed and exported.
 
