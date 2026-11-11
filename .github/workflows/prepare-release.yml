@@ -276,8 +276,12 @@ jobs:
             const nextVersionIdx = lines.findIndex((l, i) => i > unreleasedIdx && l.match(/^## \d/));
 
             // Extract unreleased items (skip header and placeholder)
+            // Keep blank lines between sections (DOCS:, BUG FIXES:, ...): without them markdown
+            // folds each heading into the bullet above it. Only trim the ends.
             const unreleasedItems = lines.slice(unreleasedIdx + 1, nextVersionIdx)
-              .filter(l => l.trim() && !l.match(/^\* Add new change notes here$/));
+              .filter(l => !l.match(/^\* Add new change notes here$/));
+            while (unreleasedItems.length && !unreleasedItems[0].trim()) unreleasedItems.shift();
+            while (unreleasedItems.length && !unreleasedItems[unreleasedItems.length - 1].trim()) unreleasedItems.pop();
 
             // Inject any draft entries for missing PRs
             const draftEntries = process.env.DRAFT_ENTRIES || '';
