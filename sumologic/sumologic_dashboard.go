@@ -142,10 +142,24 @@ type SearchPanelQuery struct {
 	QueryKey               string            `json:"queryKey"`
 	MetricsQueryMode       string            `json:"metricsQueryMode,omitempty"`
 	MetricsQueryData       *MetricsQueryData `json:"metricsQueryData,omitempty"`
+	TracesQueryData        *TracesQueryData  `json:"tracesQueryData,omitempty"`
 	ParseMode              string            `json:"parseMode,omitempty"`
 	TimeSource             string            `json:"timeSource,omitempty"`
 	Transient              bool              `json:"transient,omitempty"`
 	OutputCardinalityLimit int               `json:"outputCardinalityLimit,omitempty"`
+}
+
+type TracesQueryData struct {
+	Filters []TracesFilter `json:"filters"`
+}
+
+type TracesFilter struct {
+	Type      string `json:"type"`
+	Operator  string `json:"operator"`
+	Field     string `json:"field"`
+	Value     string `json:"value"`
+	ValueType string `json:"valueType"`
+	Target    string `json:"target"`
 }
 
 type MetricsQueryData struct {
