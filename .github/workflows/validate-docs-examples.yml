@@ -1,0 +1,57 @@
+name: Validate docs examples
+
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate docs examples
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # so we can diff against the base branch
+
+      # Only pages changed in this PR are checked, so existing pages with known problems do not
+      # block unrelated PRs. The job always runs and reports success when no page changed, which
+      # keeps it usable as a required check.
+      - name: Find changed docs pages
+        id: pages
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          pages=$(git diff --name-only --diff-filter=AM "origin/$BASE_REF...HEAD" -- 'website/docs/r/*.markdown' 'website/docs/d/*.markdown')
+          if [ -z "$pages" ]; then
+            echo "No docs pages changed."
+          else
+            echo "Changed docs pages:"
+            echo "$pages"
+          fi
+          {
+            echo "list<<EOF"
+            echo "$pages"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-go@v5
+        if: steps.pages.outputs.list != ''
+        with:
+          go-version-file: go.mod
+
+      - uses: hashicorp/setup-terraform@v3
+        if: steps.pages.outputs.list != ''
+        with:
+          terraform_wrapper: false
+
+      - name: Run terraform validate on every example
+        if: steps.pages.outputs.list != ''
+        env:
+          PAGES: ${{ steps.pages.outputs.list }}
+        run: |
+          # shellcheck disable=SC2086
+          python3 -I scripts/validate_docs_examples.py $PAGES

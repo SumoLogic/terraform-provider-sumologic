@@ -101,6 +101,8 @@ python3 -I scripts/validate_docs_examples.py website/docs/r/<x>.html.markdown
 
 It builds the provider from this checkout, runs `terraform validate` on each `resource` / `data` example, and runs a negative control (the first example plus a made-up argument must fail). Exit 0 means all examples are valid. A page with no examples fails. Examples that declare another provider's resources (for example `aws_*`) are skipped, so review those by eye. `validate` checks the schema only: it makes no API call and does no plan. Its unit tests: `python3 -I scripts/validate_docs_examples_test.py`.
 
+CI runs the same script on every docs page a PR adds or changes (`Validate docs examples` workflow), and the PR fails if any example does not validate. Pages the PR does not touch are not checked.
+
 ### Checklist before hand-off
 
 - [ ] At least one example per common use case; each passes `terraform validate`.
