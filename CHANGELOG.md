@@ -1,6 +1,7 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
 * `sumologic_policies`: Clarified that `access_keys_lifetime_in_days` applies to all access keys in the organization, including deactivated ones and keys created later.
