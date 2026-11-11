@@ -201,6 +201,29 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 	return s.handleSumoResponse(resp)
 }
 
+func (s *Client) Patch(urlPath string, payload interface{}) ([]byte, error) {
+	var body io.Reader
+	if payload != nil {
+		b, err := json.Marshal(payload)
+		if err != nil {
+			return nil, err
+		}
+		body = bytes.NewBuffer(b)
+	}
+
+	req, err := s.createSumoRequest(http.MethodPatch, urlPath, body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.handleSumoResponse(resp)
+}
+
 func (s *Client) Get(urlPath string) ([]byte, error) {
 	return s.GetWithErrOpt(urlPath, false)
 }
