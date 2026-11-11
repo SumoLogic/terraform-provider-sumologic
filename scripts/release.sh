@@ -326,7 +326,7 @@ cp "$WORK_CL" CHANGELOG.md
 # Extract everything between Unreleased header and next version header
 # awk (not sed) so this behaves the same on BSD and GNU: the Unreleased header is line 1,
 # so a sed range starting at line 1 never sees its end pattern.
-unreleased_body=$(awk '/^## X\.Y\.Z/{f=1; next} /^## [0-9]/{f=0} f' CHANGELOG.md | sed '/^[[:space:]]*$/d; /^\* Add new change notes here$/d')
+unreleased_body=$(awk '/^## X\.Y\.Z/{f=1; next} /^## [0-9]/{f=0} f' CHANGELOG.md | sed '/^\* Add new change notes here$/d; /./,$!d')
 rest_of_file=$(sed -n '/^## [0-9]/,$p' CHANGELOG.md)
 
 {
@@ -434,8 +434,8 @@ if [[ -z "$draft_release_id" ]]; then
   info "Check: https://github.com/${REPO}/releases"
   confirm "Skip auto-publish and verify manually?"
 else
-  # Extract notes between version header and next version header, strip the header line and blank lines
-  release_notes=$(sed -n "/^## ${new_version}/,/^## [0-9]/p" CHANGELOG.md | sed '$d' | tail -n +2 | sed '/^[[:space:]]*$/d')
+  # Extract notes between version header and next version header, strip the header line and leading blank lines
+  release_notes=$(sed -n "/^## ${new_version}/,/^## [0-9]/p" CHANGELOG.md | sed '$d' | tail -n +2 | sed '/./,$!d')
 
   echo ""
   echo -e "${BOLD}Release notes to publish:${NC}"
