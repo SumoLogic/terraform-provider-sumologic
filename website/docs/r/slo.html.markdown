@@ -171,6 +171,7 @@ The following arguments are supported:
 - `name` - (Required) The name of the SLO. The name must be alphanumeric.
 - `description` - (Optional) The description of the SLO.
 - `parent_id` - (Optional) The ID of the SLO Folder that contains this SLO. Defaults to the root folder.
+- `content_type` - (Optional) The type of the content object. The provider always sets this to `Slo`; a value in the configuration is ignored.
 - `signal_type` - (Required) The type of SLO. Valid values are `Latency`, `Error`, `Throughput`, `Availability`
   , `Other`. Defaults to `Latency`.
 - `service` - (Optional) Name of the service.
@@ -193,6 +194,17 @@ The following arguments are supported:
     - [request_based_evaluation](#request_based_evaluation) - Evaluate SLI based on occurrence of successful
       events / total events over entire compliance period.
     - [monitor_based_evaluation](#monitor_based_evaluation) - SLIs for Monitor-based SLOs are calculated at a granularity of 1 minute. A minute is treated as unsuccessful if the Monitor threshold is violated at any point of time within that minute.
+
+Additional data provided in state:
+
+- `id` - (Computed) The identifier for this SLO.
+- `version` - (Computed) The version of the SLO, set by Sumo Logic.
+- `is_mutable` - (Computed) Whether the SLO can be modified, as reported by Sumo Logic.
+- `is_system` - (Computed) Whether the SLO is a system-provided one, as reported by Sumo Logic.
+- `created_at` - (Computed) Time the SLO was created, as reported by Sumo Logic.
+- `created_by` - (Computed) ID of the user who created the SLO.
+- `modified_at` - (Computed) Time the SLO was last modified.
+- `modified_by` - (Computed) ID of the user who last modified the SLO.
 
 #### window_based_evaluation
 

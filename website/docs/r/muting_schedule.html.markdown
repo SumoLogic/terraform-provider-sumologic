@@ -79,10 +79,22 @@ The following arguments are supported:
 - `type` - (Required) The type of object model. Valid value: `MutingSchedulesLibraryMutingSchedule`
 - `name` - (Required) Name of the muting schedule.
 - `description` - (Optional) Description of the muting schedule.
-- `content_type` - (Optional) The type of the content object. Valid value: `MutingSchedule`
+- `content_type` - (Optional) The type of the content object. Valid value: `MutingSchedule`. Defaults to `MutingSchedule`.
+- `parent_id` - (Optional) The ID of the folder that contains this muting schedule. Defaults to the root folder.
 - `monitor` - (Optional) Monitor scope that the schedule applies to. See `Monitor Scope` for more details.
 - `schedule` - (Required) Schedule definition. See `Schedule Definition` for more details.
 - `notification_groups` - (Optional) Alert group scope that the schedule applies to. See `Group Scope` for more details.
+
+Additional data provided in state:
+
+- `id` - (Computed) The identifier for this muting schedule.
+- `version` - (Computed) The version of the muting schedule, set by Sumo Logic.
+- `is_mutable` - (Computed) Whether the muting schedule can be modified, as reported by Sumo Logic.
+- `is_system` - (Computed) Whether the muting schedule is a system-provided one, as reported by Sumo Logic.
+- `created_at` - (Computed) Time the muting schedule was created, as reported by Sumo Logic.
+- `created_by` - (Computed) ID of the user who created the muting schedule.
+- `modified_at` - (Computed) Time the muting schedule was last modified.
+- `modified_by` - (Computed) ID of the user who last modified the muting schedule.
 
 #### Schedule Definition
   - `timezone` - (Required) Time zone for the schedule per

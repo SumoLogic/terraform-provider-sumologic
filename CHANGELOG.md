@@ -4,6 +4,7 @@
 DOCS:
 * `sumologic_muting_schedule`: Fixed the examples, which used a `start_date` in the past that the schema rejects, and documented that `start_date` must not be earlier than yesterday.
 * `sumologic_slo`, `sumologic_slo_folder`, `sumologic_monitor_folder`: Fixed examples that were incomplete or referenced resources they did not declare.
+* `sumologic_muting_schedule`, `sumologic_slo`, `sumologic_slo_folder`, `sumologic_monitor_folder`: Documented every remaining argument and exported attribute, including `parent_id`, `content_type`, `type`, `version` and the created/modified fields.
 
 ## 3.3.8 (November 11, 2026)
 DOCS:

@@ -90,10 +90,19 @@ The following arguments are supported:
 - `name` - (Required) The name of the SLO folder. The name must be alphanumeric.
 - `description` - (Required) The description of the SLO folder.
 - `parent_id` - (Optional) The identifier of the SLO Folder that contains this SLO Folder. Defaults to the root folder.
+- `type` - (Optional) The type of object model. Defaults to `SlosLibraryFolder`.
+- `content_type` - (Optional) The type of the content object. Defaults to `Folder`.
 
 Additional data provided in state:
 
 - `id` - (Computed) The identifier for this SLO folder.
+- `version` - (Computed) The version of the SLO folder, set by Sumo Logic.
+- `is_mutable` - (Computed) Whether the SLO folder can be modified, as reported by Sumo Logic.
+- `is_system` - (Computed) Whether the SLO folder is a system-provided one, as reported by Sumo Logic.
+- `created_at` - (Computed) Time the SLO folder was created, as reported by Sumo Logic.
+- `created_by` - (Computed) ID of the user who created the SLO folder.
+- `modified_at` - (Computed) Time the SLO folder was last modified.
+- `modified_by` - (Computed) ID of the user who last modified the SLO folder.
 
 ## Import
 

@@ -86,6 +86,7 @@ The following arguments are supported:
 - `name` - (Required) The name of the monitor folder. The name must be alphanumeric.
 - `description` - (Required) The description of the monitor folder.
 - `parent_id` - (Optional) The identifier of the Monitor Folder that contains this Monitor Folder. Defaults to the root folder.
+- `content_type` - (Optional) The type of the content object. Defaults to `Folder`.
 - `obj_permission` - (Optional) `obj_permission` construct represents a Permission Statement associated with this Folder. A set of `obj_permission` constructs can be specified under a single Folder. An `obj_permission` construct can be used to control permissions Explicitly associated with a Folder. But, it cannot be used to control permissions Inherited from a Parent / Ancestor Folder.  Default FGP would be still set to the Folder upon creation (e.g. the creating user would have full permission), even if no `obj_permission` construct is specified at a Folder and the FGP feature is enabled at the account. 
   - `subject_type` - (Required) Valid values: 
     - `role` 
@@ -101,6 +102,13 @@ The following arguments are supported:
 Additional data provided in state:
 
 - `id` - (Computed) The identifier for this monitor folder.
+- `version` - (Computed) The version of the monitor folder, set by Sumo Logic.
+- `is_mutable` - (Computed) Whether the monitor folder can be modified, as reported by Sumo Logic.
+- `is_system` - (Computed) Whether the monitor folder is a system-provided one, as reported by Sumo Logic.
+- `created_at` - (Computed) Time the monitor folder was created, as reported by Sumo Logic.
+- `created_by` - (Computed) ID of the user who created the monitor folder.
+- `modified_at` - (Computed) Time the monitor folder was last modified.
+- `modified_by` - (Computed) ID of the user who last modified the monitor folder.
 
 ## Import
 
