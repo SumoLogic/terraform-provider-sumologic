@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_muting_schedule`: Fixed the examples, which used a `start_date` in the past that the schema rejects, and documented that `start_date` must not be earlier than yesterday.
+* `sumologic_slo`, `sumologic_slo_folder`, `sumologic_monitor_folder`: Fixed examples that were incomplete or referenced resources they did not declare.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
