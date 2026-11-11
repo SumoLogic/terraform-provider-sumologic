@@ -750,3 +750,127 @@ func dashboardCollapsiblePanelConfig(title string, collapsed bool) string {
 		title, collapsed,
 	)
 }
+
+// Covers a Traces query without query_string (as written by Terraformer, which omits empty strings),
+// a service map panel with visual_settings and show_remote_services, and the empty plan after apply.
+func TestAccSumologicDashboard_tracesAndServiceMapPanels(t *testing.T) {
+	testNameSuffix := acctest.RandString(16)
+	title := "terraform_test_dashboard_traces_" + testNameSuffix
+	resourceName := "sumologic_dashboard.tf_traces_test"
+
+	var dashboard Dashboard
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDashboardDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: dashboardTracesAndServiceMapConfig(title),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDashboardExists(resourceName, &dashboard, t),
+					resource.TestCheckResourceAttr(resourceName, "panel.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.visual_settings", `{"table":{}}`),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.query_type", "Traces"),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.query_string", ""),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.traces_query_data.0.filter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.traces_query_data.0.filter.0.field", "deployment.environment"),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.traces_query_data.0.filter.0.operator", "="),
+					resource.TestCheckResourceAttr(resourceName, "panel.0.traces_list_panel.0.queries.0.traces_query_data.0.filter.0.value_type", "StringTracingValue"),
+					resource.TestCheckResourceAttr(resourceName, "panel.1.service_map_panel.0.visual_settings", `{"general":{}}`),
+					resource.TestCheckResourceAttr(resourceName, "panel.1.service_map_panel.0.show_remote_services", "true"),
+					resource.TestCheckResourceAttr(resourceName, "panel.2.sumo_search_panel.0.query.0.query_string", "_sourceCategory=* | count"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func dashboardTracesAndServiceMapConfig(title string) string {
+	return fmt.Sprintf(`
+		data "sumologic_personal_folder" "personalFolder" {}
+		resource "sumologic_dashboard" "tf_traces_test" {
+			title = "%s"
+			description = "Test dashboard with traces list and service map panels"
+			folder_id = data.sumologic_personal_folder.personalFolder.id
+			refresh_interval = 120
+			theme = "Light"
+			time_range {
+				begin_bounded_time_range {
+					from {
+						literal_time_range {
+							range_name = "today"
+						}
+					}
+				}
+			}
+			panel {
+				traces_list_panel {
+					key = "traces-list-panel-001"
+					title = "Traces"
+					visual_settings = "{\"table\":{}}"
+					keep_visual_settings_consistent_with_parent = true
+					queries {
+						query_type = "Traces"
+						query_key = "A"
+						traces_query_data {
+							filter {
+								field = "deployment.environment"
+								value = "prod"
+							}
+						}
+					}
+					queries {
+						query_type = "Traces"
+						query_key = "B"
+						traces_query_data {}
+					}
+				}
+			}
+			panel {
+				service_map_panel {
+					key = "service-map-panel-001"
+					title = "Service Map"
+					visual_settings = "{\"general\":{}}"
+					keep_visual_settings_consistent_with_parent = true
+					application = "example-app"
+					service = "example-service"
+					environment = "example-env"
+					show_remote_services = true
+				}
+			}
+			panel {
+				sumo_search_panel {
+					key = "search-panel-001"
+					title = "Logs"
+					query {
+						query_string = "_sourceCategory=* | count"
+						query_type = "Logs"
+						query_key = "A"
+					}
+				}
+			}
+			layout {
+				grid {
+					layout_structure {
+						key = "traces-list-panel-001"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":0}"
+					}
+					layout_structure {
+						key = "service-map-panel-001"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":10}"
+					}
+					layout_structure {
+						key = "search-panel-001"
+						structure = "{\"height\":10,\"width\":24,\"x\":0,\"y\":20}"
+					}
+				}
+			}
+		}`,
+		title,
+	)
+}

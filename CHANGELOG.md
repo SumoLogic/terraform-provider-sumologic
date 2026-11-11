@@ -5,7 +5,11 @@ DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
 * `sumologic_policies`: Clarified that `access_keys_lifetime_in_days` applies to all access keys in the organization, including deactivated ones and keys created later.
 
+ENHANCEMENTS:
+* `sumologic_dashboard`: Added `traces_query_data` to panel `query` blocks, so `traces_list_panel` filters (application, service, deployment.environment, etc.) are deployed and exported.
+
 BUG FIXES:
+* `sumologic_dashboard`: Fixed a panic when creating or updating a `traces_list_panel` with `queries`. `query_type` now accepts `Traces`, `query_string` is optional (trace queries send an empty string), and exporting a `traces_list_panel` no longer drops `visual_settings`.
 * `sumologic_policies`: Add optional `oauth_cimd_policy`, `unused_access_keys_disable_after_in_days` and `access_keys_lifetime_in_days` to configure the OAuth Clients (CIMD), Unused Access Keys Deactivation and Access Keys Expiration policies.
 
 ## 3.3.7 (November 9, 2026)
