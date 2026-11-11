@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_cse_automation`, `sumologic_cse_insights_resolution`, `sumologic_cse_inventory_entity_group_configuration`: Fixed the examples (added the required `enabled`, used the allowed `NoAction` parent and `user` inventory type), fixed the `playbook_id` and `suppressed` argument names, corrected which arguments are required, and documented every argument and exported attribute.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
