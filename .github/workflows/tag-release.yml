@@ -181,7 +181,11 @@ jobs:
             const notes = changelog.slice(start, nextHeader > -1 ? nextHeader : undefined)
               .split('\n').slice(1)
               .filter(l => l.trim())
-              .join('\n');
+              // keep a blank line before each section heading (DOCS:, BUG FIXES:, ...); without it
+              // markdown folds the heading into the bullet above it
+              .flatMap(l => /^[A-Z][A-Z ]*:$/.test(l) ? ['', l] : [l])
+              .join('\n')
+              .trim();
 
             // Publish
             await github.rest.repos.updateRelease({
