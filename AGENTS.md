@@ -46,7 +46,7 @@ Run `make fmt`, `make test` and `tfproviderlint ./...` before opening a PR. The 
 ## Pull requests
 
 - Branch from the latest `master`. Do not push to `master` directly.
-- Use the PR template in `.github/pull_request_template.md`. Keep the template and every checkbox in the PR description, and tick a box only when it is true. A CI check fails the PR if the template items are missing or unticked.
+- Use the PR template in `.github/pull_request_template.md`. Keep the template and every checkbox in the PR description, and tick a box only when it is true.
 - Update `CHANGELOG.md`: keep the `## X.Y.Z (Unreleased)` header and the `* Add new change notes here` line, and add your entry under the right heading (`DOCS:`, `FEATURES:`, `ENHANCEMENTS:`, `BUG FIXES:`). Do not choose a version number.
 - Do not create tags or releases (Sumo Logic team only, see `CONTRIBUTING.md`).
 - Agents: do not push, open or update a PR, or post comments without the user's explicit confirmation.
