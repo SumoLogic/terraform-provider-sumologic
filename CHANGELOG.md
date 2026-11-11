@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
