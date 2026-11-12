@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_user`: Fixed the example, which referenced an attribute that `sumologic_role` does not have, added examples for a deactivated user and for transferring content on deletion, and documented limits and `transfer_to` behavior.
+* `sumologic_data_forwarding_rule`: Made both examples self-contained (they now declare the destination and Scheduled View they reference), and documented allowed values, defaults and destroy behavior.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
