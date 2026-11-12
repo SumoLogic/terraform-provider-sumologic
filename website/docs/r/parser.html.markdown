@@ -51,7 +51,7 @@ resource "sumologic_parser" "custom_local" {
   description   = "Custom parser with local stanzas"
   parent_id     = "0000000000000001"
   stanzas       = "[parser]\nFORMAT = CSV"
-  local_stanzas = "[sourcetype:custom]\nWRAPPER = BSD_SYSLOG"
+  local_stanzas = "[parser]\nWRAPPER = BSD_SYSLOG"
 }
 ```
 
@@ -61,7 +61,7 @@ The following arguments are supported:
 
 - `name` - (Required) Name of the parser. Between 1 and 255 characters.
 - `description` - (Optional) Description of the parser. Up to 4096 characters. Defaults to an empty string.
-- `stanzas` - (Required) Parser code, as a single string, written in the Sumo Logic parsing language (see the [Parsing Language Reference Guide](https://www.sumologic.com/help/docs/cse/schema/parsing-language-reference-guide/)). Code is organized into stanzas: one `[parser]` stanza, optional `[transform:<name>]` stanzas and an optional `[dependencies]` stanza. Attribute names are uppercase, for example `FORMAT = CSV`; `FORMAT` is one of `REGEX` (default), `CSV`, `JSON`, `XML`, `WINDOWS_XML`, `CEF` or `LEEF`. To map parsed logs to Cloud SIEM records, include `MAPPER:vendor`, `MAPPER:product` and `MAPPER:event_id` statements. The API reference examples use `[sourcetype:<name>]` stanzas. Leading and trailing whitespace is ignored when Terraform compares the configured value with the stored one.
+- `stanzas` - (Required) Parser code, as a single string, written in the Sumo Logic parsing language (see the [Parsing Language Reference Guide](https://www.sumologic.com/help/docs/cse/schema/parsing-language-reference-guide/)). Code is organized into stanzas: one `[parser]` stanza, optional `[transform:<name>]` stanzas and an optional `[dependencies]` stanza. Attribute names are uppercase, for example `FORMAT = CSV`; `FORMAT` is one of `REGEX` (default), `CSV`, `JSON`, `XML`, `WINDOWS_XML`, `CEF` or `LEEF`. To map parsed logs to Cloud SIEM records, include `MAPPER:vendor`, `MAPPER:product` and `MAPPER:event_id` statements. The API reference examples use the deprecated `[sourcetype:<name>]` stanzas; use `[parser]` instead. Leading and trailing whitespace is ignored when Terraform compares the configured value with the stored one.
 - `local_stanzas` - (Optional) Localized stanzas, as a single string. Locked parsers and system parsers (provided by Sumo Logic) can only be changed through their localized fields, so use this argument to customize those. Leading and trailing whitespace is ignored when comparing.
 - `model_path` - (Optional) The path to the Model a Model-Connector is associated with, for example `Models/firewalls/PAN`. Omit for a regular parser.
 - `sourcetype_path` - (Optional) The path to the sourcetype a Model-Connector is associated with, for example `Parsers/firewalls/PAN-firewall`. Omit for a regular parser.
@@ -69,7 +69,7 @@ The following arguments are supported:
 - `is_partial` - (Optional) Whether this is only a config fragment rather than a complete parser or Model-Connector. Defaults to `false`.
 - `parent_id` - (Optional) Identifier of the parent folder in the Parsers library, for example `0000000000000001`. Defaults to the root folder of the Parsers library. Changing it moves the existing parser to the new folder; it does not recreate it. Use the `id` of a [sumologic_parser_folder](parser_folder.html) to manage the folder in Terraform.
 
-~> **NOTE:** Locking requires the `LockParsers` capability. A locked parser cannot be moved or deleted, and only its localized fields can be modified; updating or moving it requires unlocking it first. This resource does not lock or unlock parsers, so `terraform destroy` fails for a locked parser until it is unlocked outside Terraform (the API states locked objects cannot be deleted).
+~> **NOTE:** Locking requires the `LockParsers` capability. Only the localized fields of a locked parser can be modified, and updating or moving it requires unlocking it first. This resource does not lock or unlock parsers, so unlock the parser outside Terraform before changing it. Whether a parser can be deleted also depends on `is_mutable` and `is_system`; if `terraform destroy` fails for a locked or system parser, the API returns the reason.
 
 ~> **NOTE:** `terraform destroy` deletes the parser from the Parsers library.
 
@@ -84,7 +84,7 @@ In addition to all arguments above, the following attributes are exported:
 - `created_by` - Identifier of the user who created the parser.
 - `modified_at` - Last modification timestamp (RFC3339, UTC).
 - `modified_by` - Identifier of the user who last modified the parser.
-- `is_locked` - Whether the parser is locked. Locked parsers cannot be moved or deleted, and only their localized fields can be modified.
+- `is_locked` - Whether the parser is locked. Only the localized fields of a locked parser can be modified, and it must be unlocked before it can be updated or moved.
 - `is_system` - Whether the parser is provided by Sumo Logic. System parsers can only be localized; their non-local fields cannot be updated.
 - `is_mutable` - Whether the parser can be modified. Immutable objects are read-only.
 
