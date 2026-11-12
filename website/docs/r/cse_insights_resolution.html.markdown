@@ -29,7 +29,7 @@ The following arguments are supported:
 
 - `name` - (Required) The name of the insights resolution.
 - `description` - (Optional) The description of the insights resolution.
-- `parent` - (Optional) The built-in resolution this custom resolution falls under. Allowed values: `Resolved`, `FalsePositive`, `NoAction`, `Duplicate` (case sensitive, no spaces); these are the four built-in resolutions "Resolved", "False Positive", "No Action" and "Duplicate" in the UI. The new resolution appears as a sub-resolution under its parent. Any other value is rejected at plan time.
+- `parent` - (Optional) The built-in resolution this custom resolution falls under. Allowed values: `Resolved`, `FalsePositive`, `NoAction`, `Duplicate` (case sensitive, no spaces); these are the four built-in resolutions "Resolved", "False Positive", "No Action" and "Duplicate" in the UI. The new resolution appears as a sub-resolution under its parent. The provider sends the parent's ID (`Resolved` = 1, `FalsePositive` = 2, `NoAction` = 3, `Duplicate` = 4), which matches the built-in resolutions Sumo Logic creates by default. Any other value is rejected at plan time.
 
 The following attributes are exported:
 
