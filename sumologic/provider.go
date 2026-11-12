@@ -112,6 +112,7 @@ func Provider() *schema.Provider {
 			"sumologic_parser_folder":                            resourceSumologicParserFolder(),
 			"sumologic_macro":                                    resourceSumologicMacro(),
 			"sumologic_password_policy":                          resourceSumologicPasswordPolicy(),
+			"sumologic_usage_attribution_config":                 resourceSumologicUsageAttributionConfig(),
 			"sumologic_saml_configuration":                       resourceSumologicSamlConfiguration(),
 			"sumologic_kinesis_metrics_source":                   resourceSumologicKinesisMetricsSource(),
 			"sumologic_kinesis_log_source":                       resourceSumologicKinesisLogSource(),
@@ -139,6 +140,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"sumologic_cse_log_mapping_vendor_product": dataSourceCSELogMappingVendorAndProduct(),
 			"sumologic_admin_recommended_folder":       dataSourceSumologicAdminRecommendedFolder(),
+			"sumologic_usage_attribution_config":       dataSourceSumologicUsageAttributionConfig(),
 			"sumologic_caller_identity":                dataSourceSumologicCallerIdentity(),
 			"sumologic_collector":                      dataSourceSumologicCollector(),
 			"sumologic_http_source":                    dataSourceSumologicHTTPSource(),
