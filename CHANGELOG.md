@@ -5,6 +5,7 @@ DOCS:
 * `sumologic_cse_automation`, `sumologic_cse_insights_resolution`, `sumologic_cse_inventory_entity_group_configuration`: Fixed the examples (added the required `enabled`, used the allowed `NoAction` parent and `user` inventory type), fixed the `playbook_id` and `suppressed` argument names, corrected which arguments are required, and documented every argument and exported attribute, including allowed values and server-side validation.
 * `sumologic_user`: Fixed the example, which referenced an attribute that `sumologic_role` does not have, added examples for a deactivated user and for transferring content on deletion, and documented limits and `transfer_to` behavior.
 * `sumologic_data_forwarding_rule`: Made both examples self-contained (they now declare the destination and Scheduled View they reference), and documented allowed values, defaults and destroy behavior.
+* `sumologic_parser`: Fixed the second example (it was missing the required `stanzas`), gave each example a title and a self-contained config, and documented defaults, whitespace handling, move-on-change of `parent_id`, locked and system parser behaviour, and destroy behaviour.
 
 ## 3.3.8 (November 11, 2026)
 DOCS:
