@@ -5,14 +5,17 @@ description: |-
   Provides a Sumologic Local Windows Event Log Source.
 ---
 
-# sumologic_local_windows_event_source
+# sumologic_local_windows_event_log_source
 Provides a [Sumologic Local Windows Event Log Source][1].
 
 Note: installed collector sources are a special case for terraform based management. It is not possible to install a local collector via the API, only to add sources to it. The installed collector must be done installed locally on the instance and be set to cloud managed mode to allow for API based configuration.
 
 ## Example Usage
 
-Example: 1 This will configure JSON format with "concise" setting and pick up System and Application logs with /os/windows/events as the source category.
+Each example declares the installed collector it attaches the source to, so it can be copied on its own. The installed collector must already exist and be registered in Sumo Logic; the `sumologic_collector` data source looks it up by name.
+
+### System and Application logs in JSON format
+Configures JSON format and picks up the System and Application logs, with `/os/windows/events` as the source category.
 
 ```hcl
 data "sumologic_collector" "installed_collector" {
@@ -20,64 +23,92 @@ data "sumologic_collector" "installed_collector" {
 }
 
 resource "sumologic_local_windows_event_log_source" "local" {
-  name             = "windows_logs"
-  description      = "windows system and application logs in json format"
-  category         = "/os/windows/events"
-  collector_id     = "${data.sumologic_collector.installed_collector.id}"
-  log_names        = ["System","Application"]
-  event_format     = 1
+  name         = "windows_logs"
+  description  = "windows system and application logs in json format"
+  category     = "/os/windows/events"
+  collector_id = data.sumologic_collector.installed_collector.id
+  log_names    = ["System", "Application"]
+  event_format = 1
 }
 ```
 
-Example 2: Using custom logs and a deny list
+### Custom logs and a deny list
+Collects two additional channels and drops events with the listed event IDs.
 
 ```hcl
-resource "sumologic_local_windows_event_log_source" "local" {
-  name             = "windows_logs"
-  description      = "windows logs in json format"
-  category         = "/os/windows/events"
-  collector_id     = "${data.sumologic_collector.installed_collector.id}"
-  log_names        = ["System","Application","Microsoft-Windows-PowerShell/Operational", "Microsoft-Windows-TaskScheduler/Operational"]
-  deny_list = "9999,7890"
-  event_format     = 1
+data "sumologic_collector" "installed_collector" {
+  name = "terraform_source_testing"
+}
+
+resource "sumologic_local_windows_event_log_source" "local_custom" {
+  name         = "windows_logs_custom"
+  description  = "windows logs in json format"
+  category     = "/os/windows/events"
+  collector_id = data.sumologic_collector.installed_collector.id
+  log_names = [
+    "System",
+    "Application",
+    "Microsoft-Windows-PowerShell/Operational",
+    "Microsoft-Windows-TaskScheduler/Operational",
+  ]
+  deny_list    = "9999,7890"
+  event_format = 1
+}
+```
+
+### Legacy (XML) format with an allow list
+Collects only the listed event IDs from the Security log, in the legacy format with the complete event message.
+
+```hcl
+data "sumologic_collector" "installed_collector" {
+  name = "terraform_source_testing"
+}
+
+resource "sumologic_local_windows_event_log_source" "local_security" {
+  name            = "windows_security"
+  description     = "windows security events in legacy format"
+  category        = "/os/windows/security"
+  collector_id    = data.sumologic_collector.installed_collector.id
+  log_names       = ["Security"]
+  event_format    = 0
+  event_message   = 0
+  render_messages = true
+  allow_list      = "4624,4625"
 }
 ```
 
 ## Argument Reference
 
-The following arguments are supported:
+In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
-* `name` - (Required) The name of the local file source. This is required, and has to be unique. Changing this will force recreation the source.
-* `description` - (Optional) The description of the source.
-* `log_names` - List of Windows log types to collect (e.g., Security, Application, System)
-* `render_messages` - When using legacy format, indicates if full event messages are collected
-* `event_format` - 0 for legacy format (XML), 1 for JSON format. Default 0.
-* `event_message` - 0 for complete message, 1 for message title, 2 for metadata only. Required if event_format is 0
-* `deny_list` - Comma-separated list of event IDs to deny
-* `category` - (Optional) The default source category for the source.
-* `fields` - (Optional) Map containing [key/value pairs][2].
-* `allow_list` - (Optional) Comma-separated list of event IDs to allow.
+* `log_names` - (Required) List of Windows event log channels to collect, for example `System`, `Application`, `Security`, or a custom channel such as `Microsoft-Windows-PowerShell/Operational`.
+* `event_format` - (Optional) Output format of collected events. `0` for legacy format (XML), `1` for JSON format. Allowed values: `0`, `1`. Defaults to `0`.
+* `event_message` - (Optional) How much of the event message to collect (with JSON format the UI calls this Event Collection Level: Complete, Concise, Metadata Only). `0` for the complete message, `1` for the message title only, `2` for metadata only. Allowed values: `0`, `1`, `2`. The schema description states this is required when `event_format` is `0`; the provider does not enforce it, so set it explicitly when using the legacy format. When omitted, no value is sent.
+* `render_messages` - (Optional) When using the legacy format (`event_format = 0`), whether full event messages are collected. Defaults to `true`.
+* `allow_list` - (Optional) Comma-separated list of event IDs to collect (the help page recommends using only one of `allow_list` and `deny_list` at a time, and notes event ID filters need a recent installed collector version), for example `"4624,4625"`. When omitted, no allow list is sent.
+* `deny_list` - (Optional) Comma-separated list of event IDs to exclude, for example `"9999,7890"`. When omitted, no deny list is sent.
 
 ### See also
 
-* [Common Source Properties](https://github.com/terraform-providers/terraform-provider-sumologic/tree/master/website#common-source-properties)
+* [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
 * [Windows Event Source properties](https://help.sumologic.com/docs/send-data/use-json-configure-sources/json-parameters-installed-sources/#local-windows-event-logsource)
 
 ## Attributes Reference
 The following attributes are exported:
 
-  * `id` - The internal ID of the local file source.
+  * `id` - The internal ID of the source.
 
 ## Import
-Local Windows Event Log Sources can be imported using the collector and source IDs, e.g.:
+Local Windows Event Log Sources can be imported using the collector and source IDs (`collector/source`), e.g.:
 
 ```hcl
-terraform import sumologic_local_windows_event_source.test 123/456
+terraform import sumologic_local_windows_event_log_source.test 123/456
 ```
+
+Local Windows Event Log Sources can also be imported using the collector name and source name (`collectorName/sourceName`), e.g.:
 
 ```hcl
-terraform import sumologic_local_windows_event_source.test my-test-collector/my-test-source
+terraform import sumologic_local_windows_event_log_source.test my-test-collector/my-test-source
 ```
 
-[1]: https://help.sumologic.com/docs/send-data/installed-collectors/sources/local-windows-event-log-source/
-[2]: https://help.sumologic.com/Manage/Fields
+[1]: https://www.sumologic.com/help/docs/send-data/installed-collectors/sources/local-windows-event-log-source/
