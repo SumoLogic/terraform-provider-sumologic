@@ -41,7 +41,6 @@ var endpoints = map[string]string{
 	"de":  "https://api.de.sumologic.com/api/",
 	"jp":  "https://api.jp.sumologic.com/api/",
 	"ca":  "https://api.ca.sumologic.com/api/",
-	"in":  "https://api.in.sumologic.com/api/",
 	"kr":  "https://api.kr.sumologic.com/api/",
 	"ch":  "https://api.ch.sumologic.com/api/",
 	"esc": "https://api.esc.sumologic.com/api/",
