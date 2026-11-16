@@ -1,9 +1,6 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-REMOVALS:
-* Provider: Removed the `in` value for `environment`, because that deployment no longer exists. Configurations that set `environment = "in"` now fail with `could not find endpoint for environment in`.
-
 DOCS:
 * `sumologic_cse_automation`, `sumologic_cse_insights_resolution`, `sumologic_cse_inventory_entity_group_configuration`: Fixed the examples (added the required `enabled`, used the allowed `NoAction` parent and `user` inventory type), fixed the `playbook_id` and `suppressed` argument names, corrected which arguments are required, and documented every argument and exported attribute, including allowed values and server-side validation.
 * `sumologic_user`: Fixed the example, which referenced an attribute that `sumologic_role` does not have, added examples for a deactivated user and for transferring content on deletion, and documented limits and `transfer_to` behavior.
