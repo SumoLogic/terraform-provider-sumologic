@@ -11,59 +11,97 @@ Provides a [Sumologic HTTP source][1], [Sumologic HTTP Traces source][2], [Sumol
 __IMPORTANT:__ The endpoint is stored in plain-text in the state. This is a potential security issue.
 
 ## Example Usage
+
+Each example declares the hosted collector it attaches the source to, so it can be copied on its own.
+
+### HTTP logs source with an exclude filter
 ```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Hosted collector for HTTP sources"
+}
+
 resource "sumologic_http_source" "http_source" {
-  name                = "HTTP"
-  description         = "My description"
-  category            = "my/source/category"
-  collector_id        = "${sumologic_collector.collector.id}"
-  filters       {
-      name = "Test Exclude Debug"
-      filter_type = "Exclude"
-      regexp = ".*DEBUG.*"
+  name         = "HTTP"
+  description  = "My description"
+  category     = "my/source/category"
+  collector_id = sumologic_collector.collector.id
+
+  filters {
+    name        = "Test Exclude Debug"
+    filter_type = "Exclude"
+    regexp      = ".*DEBUG.*"
   }
+}
+```
+
+### HTTP Traces source
+```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Hosted collector for HTTP sources"
 }
 
 resource "sumologic_http_source" "http_traces_source" {
-  name                = "HTTP Traces"
-  description         = "My description"
-  category            = "my/source/category"
-  collector_id        = "${sumologic_collector.collector.id}"
-  content_type        = "Zipkin"
+  name         = "HTTP Traces"
+  description  = "My description"
+  category     = "my/source/category"
+  collector_id = sumologic_collector.collector.id
+  content_type = "Zipkin"
+}
+```
+
+### Kinesis Log source
+```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Hosted collector for HTTP sources"
 }
 
 resource "sumologic_http_source" "kinesisLog" {
-  name = "demo-name"
-  description = "demo-desc"
-  category = "demo-category"
+  name         = "demo-name"
+  description  = "demo-desc"
+  category     = "demo-category"
   content_type = "KinesisLog"
-  collector_id = "${sumologic_collector.test.id}"
+  collector_id = sumologic_collector.collector.id
+}
+```
+
+### HTTP OTLP source
+```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Hosted collector for HTTP sources"
 }
 
 resource "sumologic_http_source" "http_otlp_source" {
-  name = "HTTP OTLP"
-  description = "My description"
-  category = "my/source/category"
+  name         = "HTTP OTLP"
+  description  = "My description"
+  category     = "my/source/category"
   content_type = "Otlp"
-  collector_id = "${sumologic_collector.test.id}"
+  collector_id = sumologic_collector.collector.id
+}
+```
+
+### HTTP source with JSON array unrolling
+```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Hosted collector for HTTP sources"
 }
 
 resource "sumologic_http_source" "http_source_json_unroll" {
-  name           = "JSON Unroll"
-  description    = "My description"
-  category       = "my/source/category"
-  collector_id   = "${sumologic_collector.collector.id}"
+  name                         = "JSON Unroll"
+  description                  = "My description"
+  category                     = "my/source/category"
+  collector_id                 = sumologic_collector.collector.id
   multiline_processing_enabled = false
-  json_unrolling = true
+  json_unrolling               = true
+
   json_unroll_settings {
     path       = "$.Records"
     field_name = "new_field_name"
   }
-}
-
-resource "sumologic_collector" "collector" {
-  name        = "my-collector"
-  description = "Just testing this"
 }
 ```
 
@@ -71,15 +109,15 @@ resource "sumologic_collector" "collector" {
 
 In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
-- `message_per_request` - (Optional) When set to `true`, will create one log message per HTTP request.
+- `message_per_request` - (Optional) When set to `true`, creates one log message per HTTP request. Defaults to `false`.
 - `content_type`        - (Optional) This should only be used when creating a Traces, Kinesis Log, HTTP OTLP or a RUM source.
    - When configuring a HTTP Traces Source, set this property to `Zipkin`. 
    - When configuring a Kinesis Logs Source, set this property to `KinesisLog`. 
    - When configuring a HTTP OTLP Source, set this property to `Otlp`.
    - When configuring a RUM Source, set this property to `Rum`. 
-- `json_unrolling` - (Optional) When set to `true`, enables JSON array unrolling. Each element of the JSON array found at `json_unroll_settings.path` is ingested as a separate log message.
-- `json_unroll_settings` - (Optional) Configuration block for JSON array unrolling. When omitted, `path` defaults to `$` (root array).
-  - `path` - (Required when `json_unroll_settings` is present) JSONPath expression identifying the array to unroll (e.g. `$.Records`). Defaults to `$` when the block is omitted.
+- `json_unrolling` - (Optional) Defaults to `false`. When set to `true`, enables JSON array unrolling. Each element of the JSON array found at `json_unroll_settings.path` is ingested as a separate log message.
+- `json_unroll_settings` - (Optional) Configuration block for JSON array unrolling; at most one block. Used with `json_unrolling`. When the block is omitted, `path` defaults to `$` (root array).
+  - `path` - (Required inside the block) JSONPath expression identifying the array to unroll (e.g. `$.Records`). Defaults to `$` when the block is omitted.
   - `field_name` - (Optional) Key under which each unrolled array element is nested in the output message. Defaults to the top-level field name extracted from `path` (e.g. `$.Records` → `Records`).
 
 ### See also
