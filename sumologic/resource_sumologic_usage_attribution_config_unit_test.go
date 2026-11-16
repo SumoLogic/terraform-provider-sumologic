@@ -1,6 +1,7 @@
 package sumologic
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // These tests run the resource and data source against a fake of the usage attribution config API, so they need no
@@ -227,5 +229,117 @@ func TestUsageAttributionConfigDataSource_readsWithoutWriting(t *testing.T) {
 	}
 	if api.putCount() != 0 {
 		t.Errorf("a data source must not write, got %d PUTs", api.putCount())
+	}
+}
+
+// The API keeps a custom tag once and ignores one that is also a standard tag, so what it returns can be shorter than
+// what was configured. These cover how the resource reacts to that.
+
+const usageAttributionDroppedStandardTagResponse = `{
+  "enabled": true,
+  "standardTags": [{"name": "sourceCategory", "enabled": true}, {"name": "collector", "enabled": true}],
+  "customTags": [{"name": "department", "enabled": true}],
+  "lookupColumns": [],
+  "breakdownByOptions": ["sourceCategory", "collector", "department"]
+}`
+
+func TestUsageAttributionConfigUpdate_failsWhenAStandardTagIsIgnored(t *testing.T) {
+	api := newFakeUsageAttributionApi(usageAttributionDroppedStandardTagResponse)
+	d := usageAttributionResourceData(t, map[string]interface{}{
+		"custom_tags": []interface{}{"department", "sourceCategory"},
+	})
+
+	err := resourceSumologicUsageAttributionConfigCreate(d, api.client(t))
+
+	if err == nil {
+		t.Fatalf("expected an error because sourceCategory is a standard tag")
+	}
+	for _, expected := range []string{"sourceCategory", "standard tags", "collector"} {
+		if !strings.Contains(err.Error(), expected) {
+			t.Errorf("expected the error to mention %q, got: %v", expected, err)
+		}
+	}
+	if strings.Contains(strings.Split(err.Error(), "standard tags:")[0], "department") {
+		t.Errorf("department was kept and must not be reported as ignored, got: %v", err)
+	}
+	if d.Id() != "" {
+		t.Errorf("a failed create must not record the resource, got id %q", d.Id())
+	}
+}
+
+func TestUsageAttributionConfigUpdate_keepsStateInStepWhenATagIsIgnored(t *testing.T) {
+	api := newFakeUsageAttributionApi(usageAttributionDroppedStandardTagResponse)
+	d := usageAttributionResourceData(t, map[string]interface{}{
+		"custom_tags": []interface{}{"department", "sourceCategory"},
+	})
+	d.SetId("usageAttributionConfig")
+
+	if err := resourceSumologicUsageAttributionConfigUpdate(d, api.client(t)); err == nil {
+		t.Fatalf("expected an error because sourceCategory is a standard tag")
+	}
+
+	// the update was applied, so the state has to show what Sumo Logic now holds
+	custom := d.Get("custom_tags").([]interface{})
+	if len(custom) != 1 || custom[0] != "department" {
+		t.Errorf("expected the state to hold what Sumo Logic kept, got %v", custom)
+	}
+}
+
+func TestUsageAttributionConfigUpdate_acceptsTagsWhenAllAreKept(t *testing.T) {
+	api := newFakeUsageAttributionApi(usageAttributionConfigResponse)
+	d := usageAttributionResourceData(t, map[string]interface{}{
+		"custom_tags": []interface{}{"department", "cost_center"},
+	})
+
+	if err := resourceSumologicUsageAttributionConfigCreate(d, api.client(t)); err != nil {
+		t.Fatalf("expected no error when every custom tag is kept, got %v", err)
+	}
+}
+
+func TestUsageAttributionConfigUpdate_whenTurnedOffDoesNotComplainAboutTags(t *testing.T) {
+	// turning usage attribution off leaves the stored custom tags alone and ignores the ones sent, so the tags in the
+	// answer can differ from the configuration without anything having been ignored
+	api := newFakeUsageAttributionApi(`{"enabled": false, "standardTags": [{"name": "collector", "enabled": true}], "customTags": [{"name": "department", "enabled": true}], "lookupColumns": [], "breakdownByOptions": []}`)
+	d := usageAttributionResourceData(t, map[string]interface{}{
+		"enabled":     false,
+		"custom_tags": []interface{}{"cost_center"},
+	})
+	d.SetId("usageAttributionConfig")
+
+	if err := resourceSumologicUsageAttributionConfigUpdate(d, api.client(t)); err != nil {
+		t.Fatalf("turning it off must not fail on tags, got %v", err)
+	}
+}
+
+func TestUsageAttributionConfigCustomizeDiff_rejectsRepeatedNames(t *testing.T) {
+	// run the resource's own diff, so the CustomizeDiff is exercised the way Terraform calls it when it plans
+	planWith := func(tags []interface{}) error {
+		r := resourceSumologicUsageAttributionConfig()
+		config := terraform.NewResourceConfigRaw(map[string]interface{}{"custom_tags": tags})
+		_, err := r.Diff(context.Background(), nil, config, nil)
+		return err
+	}
+
+	if err := planWith([]interface{}{"department", "cost_center"}); err != nil {
+		t.Errorf("distinct names must be accepted, got %v", err)
+	}
+	err := planWith([]interface{}{"department", "cost_center", "department"})
+	if err == nil || !strings.Contains(err.Error(), "department") {
+		t.Errorf("expected a repeated name to be rejected and named, got %v", err)
+	}
+	if err != nil && strings.Contains(err.Error(), "cost_center") {
+		t.Errorf("cost_center is not repeated and must not be named, got %v", err)
+	}
+}
+
+func TestUsageAttributionConfigSchema_everyAttributeHasADescription(t *testing.T) {
+	for _, s := range []map[string]*schema.Schema{
+		resourceSumologicUsageAttributionConfig().Schema,
+	} {
+		for name, attribute := range s {
+			if attribute.Description == "" {
+				t.Errorf("%s has no Description", name)
+			}
+		}
 	}
 }

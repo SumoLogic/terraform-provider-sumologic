@@ -53,9 +53,12 @@ The following arguments are supported:
   and keeps the custom tags and the dashboard.
 - `custom_tags` - (Optional) The names of the custom tags to attribute volume to, in addition to the standard tags. Each
   name must start with a letter or underscore and contain only letters, digits and underscores
-  (`^[A-Za-z_][A-Za-z0-9_]*$`). A name that is already a standard tag is ignored and a name given twice is kept once. The
-  list replaces the custom tags currently configured, so an omitted or empty list removes them all. A tag added here
-  applies only to data ingested after it is added.
+  (`^[A-Za-z_][A-Za-z0-9_]*$`) and must not repeat; a repeated name is rejected when you run `terraform plan`. A name that
+  is already a standard tag is not accepted either: Sumo Logic ignores it, so `terraform apply` fails and lists the
+  ignored names and the standard tags (see `standard_tags` below). The list replaces the custom tags currently
+  configured, so an omitted or empty list removes them all. Custom tags are only changed while `enabled` is `true`:
+  while `enabled` is `false` Sumo Logic keeps the stored tags and ignores this list, so the tags shown in state can
+  differ from the configuration. A tag added here applies only to data ingested after it is added.
 
 ## Attributes reference
 
