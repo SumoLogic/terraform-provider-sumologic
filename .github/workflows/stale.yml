@@ -1,0 +1,39 @@
+name: Close stale issues
+
+# Marks issues with no activity for a long time as stale, then closes them
+# if there is still no reply. Pull requests are not touched.
+# `debug-only` is on, so runs only log what they would do. Set it to false
+# once the log looks right.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          debug-only: true
+          days-before-issue-stale: 730
+          days-before-issue-close: 30
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          stale-issue-label: stale
+          exempt-issue-labels: "ticketed,bug,crash,pinned,security"
+          exempt-all-issue-assignees: true
+          exempt-all-issue-milestones: true
+          operations-per-run: 100
+          stale-issue-message: >
+            This issue has had no activity for over two years, so it may no longer apply to
+            the current provider version. If it still happens on the latest release, please
+            comment and we will keep it open. Otherwise it will be closed in 30 days. You can
+            always open a new issue.
+          close-issue-message: >
+            Closing due to inactivity. If this still applies to the latest provider release,
+            please open a new issue with your configuration and the provider version.
