@@ -1,0 +1,50 @@
+name: Feature or resource request
+description: Request a new resource, data source, or attribute, or a change to existing behavior
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Please search [existing issues](https://github.com/SumoLogic/terraform-provider-sumologic/issues) first and add a reaction to one if it matches.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What are you requesting?
+      options:
+        - New resource
+        - New data source
+        - New attribute on an existing resource
+        - Change to existing behavior
+    validations:
+      required: true
+  - type: input
+    id: resource
+    attributes:
+      label: Resource or data source
+      description: The existing one this affects, or the name you propose for a new one.
+      placeholder: sumologic_policies
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What are you trying to manage with Terraform, and what do you do today instead?
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Sumo Logic API or UI reference
+      description: A link to the public API documentation or the UI setting this maps to. This speeds up triage.
+  - type: textarea
+    id: config
+    attributes:
+      label: Proposed configuration
+      description: A sketch of the configuration you would like to write.
+      render: terraform
+  - type: input
+    id: provider_version
+    attributes:
+      label: Provider version you are using
+      placeholder: "3.3.8"
