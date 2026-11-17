@@ -1,0 +1,63 @@
+name: Require PR checklist
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  checklist:
+    name: Require PR checklist
+    # Dependabot PR descriptions have no checklist.
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      # PRs opened before this date used the old template (and "*" bullets), so they are exempt.
+      - name: Check whether this PR is in scope
+        id: scope
+        env:
+          CREATED_AT: ${{ github.event.pull_request.created_at }}
+          ENFORCE_FROM: "2026-11-17T00:00:00Z"
+        run: |
+          if [[ "$CREATED_AT" < "$ENFORCE_FROM" ]]; then
+            echo "PR opened $CREATED_AT, before $ENFORCE_FROM: skipping."
+            echo "enforce=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enforce=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out code
+        if: steps.scope.outputs.enforce == 'true'
+        uses: actions/checkout@v4
+
+      # The template is read from the base branch, so a PR cannot weaken it by editing it.
+      # Every checklist item in the template must appear in the PR body.
+      - name: Verify PR body keeps every template checklist item
+        if: steps.scope.outputs.enforce == 'true'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          missing=0
+          while IFS= read -r item; do
+            if ! printf '%s' "$PR_BODY" | tr -d '\r' | grep -qF -- "$item"; then
+              echo "::error::PR description is missing template checklist item: $item"
+              missing=1
+            fi
+          done < <(git show "origin/$BASE_REF:.github/pull_request_template.md" \
+            | tr -d '\r' \
+            | sed -nE 's/^[[:space:]]*[*-] \[[ xX]\] +//p')
+          exit $missing
+
+      # The action only recognises "- [ ]" bullets, so the template must use dashes.
+      - name: Require all checklist items to be ticked
+        if: steps.scope.outputs.enforce == 'true'
+        uses: mheap/require-checklist-action@9c8100a52aa9726d4648e61aa92415f6c843c990 # v2.6.1
+        with:
+          requireChecklist: true
