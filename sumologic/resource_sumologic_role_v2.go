@@ -54,7 +54,7 @@ func resourceSumologicRoleV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"All", "Allow", "Deny"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"", "All", "Allow", "Deny"}, false),
 			},
 
 			"name": {

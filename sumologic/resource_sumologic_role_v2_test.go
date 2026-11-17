@@ -279,7 +279,7 @@ func TestSumologicRoleV2_selectionType_Validation(t *testing.T) {
 		t.Fatal("selection_type must define a ValidateFunc")
 	}
 
-	for _, valid := range []string{"All", "Allow", "Deny"} {
+	for _, valid := range []string{"", "All", "Allow", "Deny"} {
 		if _, errs := validate(valid, "selection_type"); len(errs) != 0 {
 			t.Errorf("expected %q to be accepted, got %v", valid, errs)
 		}
