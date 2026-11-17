@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSumologicRoleV2() *schema.Resource {
@@ -50,9 +51,10 @@ func resourceSumologicRoleV2() *schema.Resource {
 			},
 
 			"selection_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"", "All", "Allow", "Deny"}, false),
 			},
 
 			"name": {

@@ -272,3 +272,22 @@ func testAccCheckRoleV2Attributes(name string) resource.TestCheckFunc {
 		return f(s)
 	}
 }
+
+func TestSumologicRoleV2_selectionType_Validation(t *testing.T) {
+	validate := resourceSumologicRoleV2().Schema["selection_type"].ValidateFunc
+	if validate == nil {
+		t.Fatal("selection_type must define a ValidateFunc")
+	}
+
+	for _, valid := range []string{"", "All", "Allow", "Deny"} {
+		if _, errs := validate(valid, "selection_type"); len(errs) != 0 {
+			t.Errorf("expected %q to be accepted, got %v", valid, errs)
+		}
+	}
+
+	for _, invalid := range []string{"AllViews", "all", "None"} {
+		if _, errs := validate(invalid, "selection_type"); len(errs) == 0 {
+			t.Errorf("expected %q to be rejected", invalid)
+		}
+	}
+}
