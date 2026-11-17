@@ -1,0 +1,68 @@
+name: Bug report
+description: Something in the provider does not work as documented (crash, wrong plan or apply, import problem)
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please search [existing issues](https://github.com/SumoLogic/terraform-provider-sumologic/issues) first.
+        Do not paste access IDs, access keys or other credentials. Report security problems privately, not here.
+  - type: input
+    id: provider_version
+    attributes:
+      label: Provider version
+      description: From `terraform version` or your lock file.
+      placeholder: "3.3.8"
+    validations:
+      required: true
+  - type: input
+    id: terraform_version
+    attributes:
+      label: Terraform (or OpenTofu) version
+      placeholder: "1.9.8"
+    validations:
+      required: true
+  - type: input
+    id: resource
+    attributes:
+      label: Affected resource or data source
+      placeholder: sumologic_monitor
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Minimal configuration
+      description: The smallest configuration that reproduces the problem, with secrets removed.
+      render: terraform
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the plan diff or error output. For a crash, include the panic text.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. terraform apply
+        2. change X
+        3. terraform plan
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Sumo Logic deployment (for example us1, eu), related issues, workarounds.

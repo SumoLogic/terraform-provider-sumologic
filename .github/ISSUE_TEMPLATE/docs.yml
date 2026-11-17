@@ -1,0 +1,36 @@
+name: Documentation problem
+description: A docs page is wrong, unclear, or missing an example or field description
+labels: ["documentation", "needs-triage"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Docs page
+      description: Link to the page on the Terraform Registry, or the file under `website/docs/`.
+      placeholder: https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs/resources/monitor
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is the problem?
+      options:
+        - Example is invalid or does not work
+        - Field description is missing, wrong, or incomplete
+        - Deprecated field has no preferred replacement noted
+        - Missing example for a common use case
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What is wrong and what it should say. If an example fails, paste the `terraform validate` or `terraform plan` output.
+    validations:
+      required: true
+  - type: input
+    id: provider_version
+    attributes:
+      label: Provider version
+      placeholder: "3.3.8"

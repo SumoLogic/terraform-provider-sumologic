@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/SumoLogic/terraform-provider-sumologic/discussions
+    about: Ask how to configure something in Discussions. Issues are for bugs, requests and docs problems.
+  - name: Provider documentation
+    url: https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs
+    about: Check the resource and data source docs on the Terraform Registry.
+  - name: Sumo Logic product support
+    url: https://www.sumologic.com/help/
+    about: For problems with the Sumo Logic service itself rather than the Terraform provider.
