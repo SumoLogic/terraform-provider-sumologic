@@ -38,7 +38,7 @@ The following arguments are supported:
 - `log_analytics_filter` - (Optional) A search filter which would be applied on partitions which belong to Log Analytics product area.
 - `audit_data_filter` - (Optional) A search filter which would be applied on partitions which belong to Audit Data product area. Help Doc : (https://help.sumologic.com/docs/manage/security/audit-index/).
 - `selection_type` - (Optional) Describes the Permission Construct for the list of views in "selectedViews" parameter. 
-### Valid Values are : 
+### Valid Values are (case-sensitive) : 
   - `All` selectionType would allow access to all views in the org.
   - `Allow` selectionType would allow access to specific views mentioned in "selectedViews" parameter.
   - `Deny` selectionType would deny access to specific views mentioned in "selectedViews" parameter.

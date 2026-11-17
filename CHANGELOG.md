@@ -1,5 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
+BUG FIXES:
+* `sumologic_role_v2`: `selection_type` is now validated at plan time and must be one of `All`, `Allow` or `Deny`. Previously an invalid value such as `AllViews` reached the API and failed with an opaque HTTP 500.
+
 DOCS:
 * Data collection source resources: fixed the examples of `sumologic_http_source`, `sumologic_metadata_source`, `sumologic_local_windows_event_log_source`, `sumologic_o365_audit_source`, `sumologic_gcp_metrics_source` and `sumologic_azure_metrics_source` so each is valid and self-contained (collector and variables declared). Added examples to `sumologic_azure_event_hub_log_source`, `sumologic_kinesis_log_source` and `sumologic_s3_audit_source`, documented every source-specific argument (defaults, allowed values, forces-new), and linked the matching Sumo Logic help pages.
 
