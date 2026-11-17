@@ -12,6 +12,10 @@ DOCS:
 * `sumologic_data_forwarding_rule`: Made both examples self-contained (they now declare the destination and Scheduled View they reference), and documented allowed values, defaults and destroy behavior.
 * `sumologic_parser`: Fixed the second example (it was missing the required `stanzas`), gave each example a title and a self-contained config, and documented defaults, whitespace handling, move-on-change of `parent_id`, locked and system parser behaviour, and destroy behaviour.
 
+FEATURES:
+* New resource `sumologic_usage_attribution_config`: turn usage attribution (Granular Usage Visibility) on or off and set its custom tags.
+* New data source `sumologic_usage_attribution_config`: read the usage attribution configuration, including the custom tags, breakdown options and dashboard ID.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.
