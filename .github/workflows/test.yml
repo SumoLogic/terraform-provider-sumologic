@@ -103,6 +103,14 @@ jobs:
             exit 0
           fi
           
+          # Dependabot runs do not get repository secrets, so the acceptance tests
+          # cannot authenticate. Run only the tests that need no credentials.
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            echo "Dependabot PR: running unit tests only (acceptance tests need secrets)"
+            go test -timeout 0 -v -skip '^TestAcc' ./sumologic/
+            exit $?
+          fi
+
           echo "Running tests for Terraform ${{ matrix.terraform }}"
           go test -timeout 0 -v -cover ./sumologic/
         env:
