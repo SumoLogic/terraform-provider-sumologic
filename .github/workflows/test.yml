@@ -115,8 +115,10 @@ jobs:
           fi
           
           # Dependabot runs do not get repository secrets, so the acceptance tests
-          # cannot authenticate. Run only the tests that need no credentials.
-          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+          # cannot authenticate. Run only the tests that need no credentials. The PR author is
+          # checked (not the actor), because the actor is whoever reopened or re-ran the PR.
+          # It is empty for manual (workflow_dispatch) runs, which run the full suite.
+          if [ "$PR_AUTHOR" = "dependabot[bot]" ]; then
             echo "Dependabot PR: running unit tests only (acceptance tests need secrets)"
             go test -timeout 0 -v -skip '^TestAcc' ./sumologic/
             exit $?
@@ -125,6 +127,7 @@ jobs:
           echo "Running tests for Terraform ${{ matrix.terraform }}"
           go test -timeout 0 -v -cover ./sumologic/
         env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
 
