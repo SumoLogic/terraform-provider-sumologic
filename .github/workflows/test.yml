@@ -15,8 +15,9 @@ on:
   # change.
   schedule:
     - cron: '0 13 * * *'
-  # Manual run, e.g. the full acceptance suite against a Dependabot branch (those runs get no
-  # secrets): gh workflow run Tests -f ref=<branch>
+  # Manual run of the full acceptance suite against any branch: gh workflow run Tests -f ref=<branch>
+  # For a Dependabot PR use the Dependabot acceptance workflow instead, which also reports the result
+  # on the PR (Dependabot runs of this workflow get no secrets).
   workflow_dispatch:
     inputs:
       ref:
@@ -71,6 +72,8 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2.3.3
+      with:
+        ref: ${{ inputs.ref }}
 
     - name: Get dependencies
       run: |
