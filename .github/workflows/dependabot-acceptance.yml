@@ -19,10 +19,10 @@ on:
 permissions:
   contents: read
 
-# The acceptance tests share one Sumo Logic org, so PRs are tested one at a time. Queued runs are
-# kept instead of cancelled.
+# The acceptance tests share one Sumo Logic org, so PRs are tested one at a time, and not at the same
+# time as the Tests workflow, which uses the same group. Running ones are never cancelled.
 concurrency:
-  group: dependabot-acceptance
+  group: TfAccTests
   cancel-in-progress: false
 
 jobs:
