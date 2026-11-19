@@ -13,8 +13,11 @@ permissions:
 jobs:
   checklist:
     name: Require PR checklist
-    # Dependabot PR descriptions have no checklist.
-    if: github.actor != 'dependabot[bot]'
+    # Dependabot and release automation PR descriptions have no checklist. The release PR author
+    # is checked (not the actor), because the actor changes to whoever edits the PR.
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'sumo-terraform-provider-release[bot]'
     runs-on: ubuntu-latest
     steps:
       # PRs opened before this date used the old template (and "*" bullets), so they are exempt.
