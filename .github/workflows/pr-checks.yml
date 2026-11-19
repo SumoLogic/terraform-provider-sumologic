@@ -7,6 +7,8 @@ on:
 jobs:
   changelog-check:
     name: Check CHANGELOG.md
+    # Dependabot PRs get a read-only token, so the warning comment below cannot be posted.
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -23,7 +25,9 @@ jobs:
             exit 0
           fi
           if ! git diff --name-only HEAD^1 HEAD | grep -q 'CHANGELOG.md'; then
-            gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ Warning: Please update CHANGELOG.md with your changes."
+            # Only a warning: a PR from a fork has a read-only token, so do not fail the check if the comment cannot be posted.
+            gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ Warning: Please update CHANGELOG.md with your changes." \
+              || echo "::warning::CHANGELOG.md is not updated, and a comment could not be posted."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

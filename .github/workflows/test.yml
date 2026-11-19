@@ -15,6 +15,14 @@ on:
   # change.
   schedule:
     - cron: '0 13 * * *'
+  # Manual run, e.g. the full acceptance suite against a Dependabot branch (those runs get no
+  # secrets): gh workflow run Tests -f ref=<branch>
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to test (default: the branch the workflow runs from)'
+        required: false
+        type: string
 
 # From https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
 # When a concurrent job or workflow is queued, if another job or workflow using the same
@@ -31,8 +39,9 @@ jobs:
       - uses: actions/checkout@v2.3.3
         with:
           fetch-depth: 0  # so we can diff against base
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
+        if: github.event_name != 'workflow_dispatch'
         with:
           predicate-quantifier: 'every'
           filters: |
@@ -90,6 +99,8 @@ jobs:
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2.3.3
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Get dependencies
         run: |
@@ -103,9 +114,20 @@ jobs:
             exit 0
           fi
           
+          # Dependabot runs do not get repository secrets, so the acceptance tests
+          # cannot authenticate. Run only the tests that need no credentials. The PR author is
+          # checked (not the actor), because the actor is whoever reopened or re-ran the PR.
+          # It is empty for manual (workflow_dispatch) runs, which run the full suite.
+          if [ "$PR_AUTHOR" = "dependabot[bot]" ]; then
+            echo "Dependabot PR: running unit tests only (acceptance tests need secrets)"
+            go test -timeout 0 -v -skip '^TestAcc' ./sumologic/
+            exit $?
+          fi
+
           echo "Running tests for Terraform ${{ matrix.terraform }}"
           go test -timeout 0 -v -cover ./sumologic/
         env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
 
@@ -134,3 +156,4 @@ jobs:
           SUMOLOGIC_TEST_O365_TENANT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_TENANT_ID }}
           SUMOLOGIC_TEST_O365_CLIENT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_ID }}
           SUMOLOGIC_TEST_O365_CLIENT_SECRET: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_SECRET }}
+          SKIP_DATA_PIPELINE_TESTS: "true"

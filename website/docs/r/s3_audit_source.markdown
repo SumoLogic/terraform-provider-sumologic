@@ -11,8 +11,9 @@ Provides a [AWS S3 Audit Source][2].
 __IMPORTANT:__ The AWS credentials are stored in plain-text in the state. This is a potential security issue.
 
 ## Example Usage
-```hcl
 
+### Amazon S3 Audit source with an access key
+```hcl
 resource "sumologic_s3_audit_source" "terraform_s3_audit" {
   name          = "Amazon S3 Audit"
   description   = "My description"
@@ -20,17 +21,17 @@ resource "sumologic_s3_audit_source" "terraform_s3_audit" {
   content_type  = "AwsS3AuditBucket"
   scan_interval = 300000
   paused        = false
-  collector_id  = "${sumologic_collector.collector.id}"
+  collector_id  = sumologic_collector.collector.id
 
   authentication {
     type = "S3BucketAuthentication"
-    access_key = "someKey"
-    secret_key = "******"
+    access_key = var.aws_access_key
+    secret_key = var.aws_secret_key
   }
 
   path {
     type = "S3BucketPathExpression"
-    bucket_name     = "Bucket1"
+    bucket_name     = "my-s3-access-logs-bucket"
     path_expression = "*"
   }
 }
@@ -39,26 +40,62 @@ resource "sumologic_collector" "collector" {
   name        = "my-collector"
   description = "Just testing this"
 }
+
+variable "aws_access_key" {
+  type = string
+}
+
+variable "aws_secret_key" {
+  type      = string
+  sensitive = true
+}
+```
+
+### Amazon S3 Audit source with an IAM role
+```hcl
+resource "sumologic_collector" "collector" {
+  name        = "my-collector"
+  description = "Just testing this"
+}
+
+resource "sumologic_s3_audit_source" "terraform_s3_audit_role" {
+  name         = "Amazon S3 Audit (role)"
+  description  = "My description"
+  category     = "aws/s3audit"
+  content_type = "AwsS3AuditBucket"
+  collector_id = sumologic_collector.collector.id
+
+  authentication {
+    type     = "AWSRoleBasedAuthentication"
+    role_arn = "arn:aws:iam::123456789012:role/sumo-s3-audit-role"
+  }
+
+  path {
+    type            = "S3BucketPathExpression"
+    bucket_name     = "my-s3-access-logs-bucket"
+    path_expression = "logs/*"
+  }
+}
 ```
 
 ## Argument reference
 
 In addition to the [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties), the following arguments are supported:
 
- - `content_type` - (Required) The content-type of the collected data. Details can be found in the [Sumologic documentation for hosted sources][1].
- - `scan_interval` - (Required) Time interval in milliseconds of scans for new data. The default is 300000 and the minimum value is 1000 milliseconds.
- - `paused` - (Required) When set to true, the scanner is paused. To disable, set to false.
- - `authentication` - (Required) Authentication details for connecting to the S3 bucket.
+ - `content_type` - (Required, forces a new resource) The content-type of the collected data. Must be `AwsS3AuditBucket`.
+ - `scan_interval` - (Optional) Time interval in milliseconds of scans for new data. Defaults to `300000`.
+ - `paused` - (Optional) When set to `true`, the scanner is paused. Defaults to `false`.
+ - `authentication` - (Required, forces a new resource; exactly one block) Authentication details for connecting to the S3 bucket.
      + `type` - (Required) Must be either `S3BucketAuthentication` or `AWSRoleBasedAuthentication`.
-     + `access_key` - (Required) Your AWS access key if using type `S3BucketAuthentication`.
-     + `secret_key` - (Required) Your AWS secret key if using type `S3BucketAuthentication`.
-     + `role_arn` - (Required) Your AWS role ARN if using type `AWSRoleBasedAuthentication`.This is not supported for AWS China regions.
+     + `access_key` - (Optional) Required when `type` is `S3BucketAuthentication`. Your AWS access key if using type `S3BucketAuthentication`.
+     + `secret_key` - (Optional) Required when `type` is `S3BucketAuthentication`. Your AWS secret key if using type `S3BucketAuthentication`.
+     + `role_arn` - (Optional) Required when `type` is `AWSRoleBasedAuthentication`. Your AWS role ARN if using type `AWSRoleBasedAuthentication`.This is not supported for AWS China regions.
      + `region` - (Optional) Your AWS Bucket region.
- - `path` - (Required) The location to scan for new data.
+ - `path` - (Required, forces a new resource; exactly one block) The location to scan for new data.
      + `type` - (Required) type of polling source. This has to be `S3BucketPathExpression` for `S3 Audit source`.
      + `bucket_name` - (Required) The name of the bucket. 
      + `path_expression` - (Required) The path to the data.
-     + `sns_topic_or_subscription_arn` - (Computed) This is a computed field for SNS topic/subscription ARN.
+     + `sns_topic_or_subscription_arn` - (Computed, read-only) SNS topic/subscription ARN, set by Sumo Logic when SNS notification is configured; list of objects with `is_success` and `arn`.
 
 ### See also
    * [Common Source Properties](https://registry.terraform.io/providers/SumoLogic/sumologic/latest/docs#common-source-properties)
@@ -83,5 +120,4 @@ S3 Audit sources can be imported using the collector name and source name (`coll
 terraform import sumologic_s3_audit_source.test my-test-collector/my-test-source
 ```
 
-[1]: https://help.sumologic.com/Send_Data/Sources/03Use_JSON_to_Configure_Sources/JSON_Parameters_for_Hosted_Sources
-[2]: https://help.sumologic.com/03Send-Data/Sources/02Sources-for-Hosted-Collectors/Amazon-Web-Services/Amazon-S3-Audit-Source
+[2]: https://www.sumologic.com/help/docs/send-data/hosted-collectors/amazon-aws/amazon-s3-audit-source/

@@ -4,6 +4,31 @@
 DOCS:
 * `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
 
+## 3.4.0 (November 19, 2026)
+BUG FIXES:
+* `sumologic_role_v2`: `selection_type` is now validated at plan time and must be one of `All`, `Allow` or `Deny` (an empty value still defaults to `All`). Previously an invalid value such as `AllViews` reached the API and failed with an opaque HTTP 500.
+
+DOCS:
+* Data collection source resources: fixed the examples of `sumologic_http_source`, `sumologic_metadata_source`, `sumologic_local_windows_event_log_source`, `sumologic_o365_audit_source`, `sumologic_gcp_metrics_source` and `sumologic_azure_metrics_source` so each is valid and self-contained (collector and variables declared). Added examples to `sumologic_azure_event_hub_log_source`, `sumologic_kinesis_log_source` and `sumologic_s3_audit_source`, documented every source-specific argument (defaults, allowed values, forces-new), and linked the matching Sumo Logic help pages.
+* `sumologic_muting_schedule`: Fixed the examples, which used a `start_date` in the past that the schema rejects, and documented that `start_date` must not be earlier than yesterday.
+* `sumologic_slo`, `sumologic_slo_folder`, `sumologic_monitor_folder`: Fixed examples that were incomplete or referenced resources they did not declare.
+* `sumologic_muting_schedule`, `sumologic_slo`, `sumologic_slo_folder`, `sumologic_monitor_folder`: Documented every remaining argument and exported attribute, including `parent_id`, `content_type`, `type`, `version` and the created/modified fields.
+* `sumologic_cse_automation`, `sumologic_cse_insights_resolution`, `sumologic_cse_inventory_entity_group_configuration`: Fixed the examples (added the required `enabled`, used the allowed `NoAction` parent and `user` inventory type), fixed the `playbook_id` and `suppressed` argument names, corrected which arguments are required, and documented every argument and exported attribute, including allowed values and server-side validation.
+* `sumologic_user`: Fixed the example, which referenced an attribute that `sumologic_role` does not have, added examples for a deactivated user and for transferring content on deletion, and documented limits and `transfer_to` behavior.
+* `sumologic_data_forwarding_rule`: Made both examples self-contained (they now declare the destination and Scheduled View they reference), and documented allowed values, defaults and destroy behavior.
+* `sumologic_parser`: Fixed the second example (it was missing the required `stanzas`), gave each example a title and a self-contained config, and documented defaults, whitespace handling, move-on-change of `parent_id`, locked and system parser behaviour, and destroy behaviour.
+
+FEATURES:
+* New resource `sumologic_usage_attribution_config`: turn usage attribution (Granular Usage Visibility) on or off and set its custom tags.
+* New data source `sumologic_usage_attribution_config`: read the usage attribution configuration, including the custom tags, breakdown options and dashboard ID.
+* **New Data Source:** `sumologic_data_pipeline` - Retrieve details of a Sumo Logic data pipeline, including its full routing/processing node graph.
+* **New Resource:** `sumologic_data_pipeline` - Manage a Sumo Logic data pipeline's metadata, routing/processing node graph, and enabled state.
+* **New Data Source:** `sumologic_data_pipeline_test` - Run sample data through an inline data pipeline definition and inspect how each message is transformed at every node and processor.
+
+ENHANCEMENTS:
+* `sumologic_data_pipeline`: `name` and `description` can now be updated in place instead of forcing a destroy and recreate.
+* `sumologic_data_pipeline`: Added support for `processing_group` nodes and their `processor` list, including a `filter_expression` and `is_enabled` on `node`.
+
 ## 3.3.8 (November 11, 2026)
 DOCS:
 * `sumologic_policies`: Added one example per use case, allowed values and limits for every argument, and destroy and side-effect notes.

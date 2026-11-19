@@ -41,7 +41,6 @@ var endpoints = map[string]string{
 	"de":  "https://api.de.sumologic.com/api/",
 	"jp":  "https://api.jp.sumologic.com/api/",
 	"ca":  "https://api.ca.sumologic.com/api/",
-	"in":  "https://api.in.sumologic.com/api/",
 	"kr":  "https://api.kr.sumologic.com/api/",
 	"ch":  "https://api.ch.sumologic.com/api/",
 	"esc": "https://api.esc.sumologic.com/api/",
@@ -192,6 +191,29 @@ func (s *Client) Put(urlPath string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("If-Match", etag)
+
+	resp, err := s.doSumoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.handleSumoResponse(resp)
+}
+
+func (s *Client) Patch(urlPath string, payload interface{}) ([]byte, error) {
+	var body io.Reader
+	if payload != nil {
+		b, err := json.Marshal(payload)
+		if err != nil {
+			return nil, err
+		}
+		body = bytes.NewBuffer(b)
+	}
+
+	req, err := s.createSumoRequest(http.MethodPatch, urlPath, body)
+	if err != nil {
+		return nil, err
+	}
 
 	resp, err := s.doSumoRequest(req)
 	if err != nil {
