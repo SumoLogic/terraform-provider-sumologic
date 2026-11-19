@@ -5,7 +5,16 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # A dependency goes to the first group it matches, so the specific groups come first. A failing
+    # group then points at one family of dependencies instead of the whole weekly batch.
     groups:
+      terraform-plugin-sdk:
+        patterns:
+          - "github.com/hashicorp/terraform-plugin-*"
+      aws-sdk-go-v2:
+        patterns:
+          - "github.com/aws/aws-sdk-go-v2*"
+          - "github.com/aws/smithy-go"
       go-minor-and-patch:
         update-types:
           - "minor"

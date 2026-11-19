@@ -1,0 +1,176 @@
+name: Dependabot acceptance
+
+# Manual run of the full acceptance suite against open Dependabot PRs. Dependabot runs get no
+# repository secrets, so the regular Tests workflow can only run the unit tests for them.
+#
+#   gh workflow run dependabot-acceptance.yml --ref master -f pr=969   # one PR
+#   gh workflow run dependabot-acceptance.yml --ref master             # every open Dependabot PR
+#
+# The workflow file and the secrets come from master; the code under test is the PR head commit.
+# Starting the run is the approval to expose the secrets to that commit, so review the PR first.
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Dependabot PR number to test (default: every open Dependabot PR, one at a time)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+# The acceptance tests share one Sumo Logic org, so PRs are tested one at a time. Queued runs are
+# kept instead of cancelled.
+concurrency:
+  group: dependabot-acceptance
+  cancel-in-progress: false
+
+jobs:
+  select:
+    name: Select Dependabot PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      prs: ${{ steps.select.outputs.prs }}
+    steps:
+      - name: Select PRs
+        id: select
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_INPUT: ${{ inputs.pr }}
+        run: |
+          # Only same-repo branches created by Dependabot are tested, so the secrets are never
+          # exposed to code from a fork or from a human-authored PR.
+          # shellcheck disable=SC2016  # $repo is a jq variable, not a shell one
+          filter='[.[]
+            | select(.user.login == "dependabot[bot]"
+                     and .head.repo.full_name == $repo
+                     and (.head.ref | startswith("dependabot/")))
+            | {number, ref: .head.ref, sha: .head.sha, title}]'
+          if [ -n "$PR_INPUT" ]; then
+            case "$PR_INPUT" in *[!0-9]*) echo "pr must be a number" >&2; exit 1;; esac
+            prs=$(gh api "repos/$REPO/pulls/$PR_INPUT" | jq -c --arg repo "$REPO" "[.] | $filter")
+            if [ "$(jq length <<<"$prs")" = "0" ]; then
+              echo "PR $PR_INPUT is not a same-repo Dependabot PR" >&2
+              exit 1
+            fi
+          else
+            prs=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" | jq -c -s --arg repo "$REPO" "add | $filter")
+          fi
+          echo "prs=$prs" >> "$GITHUB_OUTPUT"
+          echo "$prs" | jq -r '.[] | "PR #\(.number) \(.ref) @ \(.sha[0:7])"'
+
+  acceptance:
+    name: PR #${{ matrix.pr.number }}
+    needs: select
+    if: needs.select.outputs.prs != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        pr: ${{ fromJSON(needs.select.outputs.prs) }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ matrix.pr.number }}
+      PR_SHA: ${{ matrix.pr.sha }}
+      STATUS_CONTEXT: acceptance / dependabot
+    steps:
+      - name: Mark pending
+        run: |
+          gh api "repos/$REPO/statuses/$PR_SHA" -f state=pending -f context="$STATUS_CONTEXT" \
+            -f description="Acceptance tests running" -f target_url="$GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.pr.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: go build -v .
+
+      - name: Acceptance tests
+        id: tests
+        run: |
+          set -o pipefail
+          go test -timeout 0 -v ./sumologic/ 2>&1 | tee test.log
+        env:
+          TF_ACC: "1"
+          TF_ACC_TERRAFORM_VERSION: '1.7.5'
+          SUMOLOGIC_ACCESSID: ${{ secrets.SUMOLOGIC_ACCESSID }}
+          SUMOLOGIC_ACCESSKEY: ${{ secrets.SUMOLOGIC_ACCESSKEY }}
+          SUMOLOGIC_ENVIRONMENT: ${{ secrets.SUMOLOGIC_ENVIRONMENT }}
+          SUMOLOGIC_TEST_BUCKET_NAME: ${{ secrets.SUMOLOGIC_TEST_BUCKET_NAME }}
+          SUMOLOGIC_TEST_CONSUMER_GROUP: ${{ secrets.SUMOLOGIC_TEST_CONSUMER_GROUP }}
+          SUMOLOGIC_TEST_EVENT_HUB: ${{ secrets.SUMOLOGIC_TEST_EVENT_HUB }}
+          SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SUMOLOGIC_TEST_GOOGLE_APPLICATION_CREDENTIALS }}
+          SUMOLOGIC_TEST_NAMESPACE: ${{ secrets.SUMOLOGIC_TEST_NAMESPACE }}
+          SUMOLOGIC_TEST_REGION: ${{ secrets.SUMOLOGIC_TEST_REGION }}
+          SUMOLOGIC_TEST_ROLE_ARN: ${{ secrets.SUMOLOGIC_TEST_ROLE_ARN }}
+          SUMOLOGIC_TEST_SAS_KEY: ${{ secrets.SUMOLOGIC_TEST_SAS_KEY }}
+          SUMOLOGIC_TEST_SAS_KEY_NAME: ${{ secrets.SUMOLOGIC_TEST_SAS_KEY_NAME }}
+          SUMOLOGIC_DATA_FORWARDING_BUCKET: ${{ secrets.SUMOLOGIC_DATA_FORWARDING_BUCKET }}
+          SUMOLOGIC_DATA_FORWARDING_ROLE_ARN: ${{ secrets.SUMOLOGIC_DATA_FORWARDING_ROLE_ARN }}
+          SUMOLOGIC_DATA_FORWARDING_AWS_REGION: ${{ secrets.SUMOLOGIC_DATA_FORWARDING_AWS_REGION }}
+          SUMOLOGIC_TEST_AZURE_TENANT_ID: ${{ secrets.SUMOLOGIC_TEST_AZURE_TENANT_ID }}
+          SUMOLOGIC_TEST_AZURE_CLIENT_ID: ${{ secrets.SUMOLOGIC_TEST_AZURE_CLIENT_ID }}
+          SUMOLOGIC_TEST_AZURE_CLIENT_SECRET: ${{ secrets.SUMOLOGIC_TEST_AZURE_CLIENT_SECRET }}
+          SUMOLOGIC_TEST_O365_TENANT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_TENANT_ID }}
+          SUMOLOGIC_TEST_O365_CLIENT_ID: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_ID }}
+          SUMOLOGIC_TEST_O365_CLIENT_SECRET: ${{ secrets.SUMOLOGIC_TEST_O365_CLIENT_SECRET }}
+          SKIP_DATA_PIPELINE_TESTS: "true"
+
+      # Reporting runs even when the tests fail. It only calls the GitHub API, never PR code.
+      - name: Report result
+        if: always()
+        run: |
+          if [ "${{ steps.tests.outcome }}" = "success" ]; then
+            state=success; icon="✅ passed"
+          elif [ "${{ steps.tests.outcome }}" = "failure" ]; then
+            state=failure; icon="❌ failed"
+          else
+            state=error; icon="⚠️ did not complete (build failed, cancelled or timed out)"
+          fi
+          run_url="$GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID"
+
+          failed=""
+          if [ -f test.log ]; then
+            failed=$(grep -E '^--- FAIL: ' test.log || true)
+            failed=$(printf '%s\n' "$failed" | head -20)
+          fi
+
+          gh api "repos/$REPO/statuses/$PR_SHA" -f state="$state" -f context="$STATUS_CONTEXT" \
+            -f description="Acceptance tests ${icon#* }" -f target_url="$run_url"
+
+          marker='<!-- dependabot-acceptance -->'
+          {
+            echo "$marker"
+            echo "**Acceptance tests $icon** for \`${PR_SHA:0:7}\` ([run]($run_url))"
+            if [ -n "$failed" ]; then
+              echo
+              echo '```'
+              echo "$failed"
+              echo '```'
+            fi
+            echo
+            echo "_Full suite against the PR head commit. Re-run after any force-push: \`gh workflow run dependabot-acceptance.yml --ref master -f pr=$PR_NUMBER\`._"
+          } > comment.md
+
+          existing=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$marker\"))][0].id // empty")
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F body=@comment.md
+          else
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file comment.md
+          fi
