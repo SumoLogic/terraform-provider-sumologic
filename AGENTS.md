@@ -46,7 +46,7 @@ Run `make fmt`, `make test` and `tfproviderlint ./...` before opening a PR. The 
 ## Pull requests
 
 - Branch from the latest `master`. Do not push to `master` directly.
-- Use the PR template in `.github/pull_request_template.md`. Keep the template and every checkbox in the PR description, and tick a box only when it is true.
+- Use the PR template in `.github/pull_request_template.md`. Keep the template and every checkbox in the PR description, and tick a box only when it is true. Copy each checklist line verbatim (CI's "Require PR checklist" check fails if any line is reworded or shortened); put extra sections such as testing notes outside the checklist. Write the body to a file and use `gh pr create --body-file` so backticks are not escaped.
 - Link the issue the PR resolves with a closing keyword on its own line in the description (`Closes #123`, or `Fixes #123`). GitHub then closes the issue when the PR is merged into `master`. Write one keyword per issue (`Closes #1, #2` only closes the first). If there is no issue, tick the box as N/A and remove the `Closes #` line.
 - Update `CHANGELOG.md`: keep the `## X.Y.Z (Unreleased)` header and the `* Add new change notes here` line, and add your entry under the right heading (`DOCS:`, `FEATURES:`, `ENHANCEMENTS:`, `BUG FIXES:`). Do not choose a version number.
 - Do not create tags or releases (Sumo Logic team only, see `CONTRIBUTING.md`).
