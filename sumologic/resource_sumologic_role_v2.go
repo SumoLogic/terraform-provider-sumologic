@@ -21,7 +21,7 @@ func resourceSumologicRoleV2() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"selected_views": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: "List of views which with specific view level filters in accordance to the selectionType chosen.",
 				Elem: &schema.Resource{
@@ -164,7 +164,7 @@ func resourceSumologicRoleV2Create(d *schema.ResourceData, meta interface{}) err
 
 func resourceToRoleV2(d *schema.ResourceData) RoleV2 {
 
-	selectedViewsData := d.Get("selected_views").([]interface{})
+	selectedViewsData := d.Get("selected_views").(*schema.Set).List()
 	var selectedViews []ViewFilterDefinition
 	for _, data := range selectedViewsData {
 		selectedViews = append(selectedViews, resourceToViewFilterDefinition([]interface{}{data}))
