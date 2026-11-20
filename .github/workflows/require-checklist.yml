@@ -36,7 +36,7 @@ jobs:
 
       - name: Check out code
         if: steps.scope.outputs.enforce == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # The template is read from the base branch, so a PR cannot weaken it by editing it.
       # Every checklist item in the template must appear in the PR body.

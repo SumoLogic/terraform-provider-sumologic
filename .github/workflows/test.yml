@@ -37,7 +37,7 @@ jobs:
     outputs:
       run_tests: ${{ steps.filter.outputs.run_tests }}
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0  # so we can diff against base
       - uses: dorny/paths-filter@v4
@@ -65,7 +65,7 @@ jobs:
     steps:
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2.3.3
+      uses: actions/checkout@v7
       with:
         ref: ${{ inputs.ref }}
 
@@ -95,7 +95,7 @@ jobs:
           - '1.7.5'
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2.3.3
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
