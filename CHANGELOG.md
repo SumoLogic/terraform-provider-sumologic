@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* return computed `field_names` property for resource `field_extraction_rule`
 
 DOCS:
 * `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
