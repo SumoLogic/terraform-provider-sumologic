@@ -30,7 +30,9 @@ jobs:
           go-version-file: go.mod
 
       - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@v1.10.0
+        # Newer govulncheck releases need a newer Go than go.mod (v1.8.0+ need Go 1.26), and the Go
+        # toolchain cannot be downloaded when actions/setup-go v6 sets GOTOOLCHAIN=local.
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
 
       - name: Run govulncheck
         continue-on-error: true
