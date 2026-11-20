@@ -53,7 +53,7 @@ jobs:
               );
             }
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Extract version and tag
         id: tag-step
@@ -115,7 +115,7 @@ jobs:
       contents: write   # update the draft release
       actions: read     # poll the goreleaser run
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Wait for goreleaser
         uses: actions/github-script@v9
