@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
+
 ## 3.4.0 (November 19, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selection_type` is now validated at plan time and must be one of `All`, `Allow` or `Deny` (an empty value still defaults to `All`). Previously an invalid value such as `AllViews` reached the API and failed with an opaque HTTP 500.
