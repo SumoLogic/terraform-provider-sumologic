@@ -17,7 +17,15 @@ jobs:
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
-    - run: go install github.com/bflad/tfproviderlint/cmd/tfproviderlint@latest
-    - run: tfproviderlint ./...
+    # The released tfproviderlint embeds golang.org/x/tools v0.30.0, which cannot load packages
+    # built with Go 1.27 ("package ... without types was imported from ..."). Build it with a
+    # newer x/tools, using the Go version from go.mod so it can analyze this module.
+    - name: Build tfproviderlint
+      run: |
+        git clone --depth 1 --branch v0.31.0 https://github.com/bflad/tfproviderlint.git "$RUNNER_TEMP/tfproviderlint-src"
+        cd "$RUNNER_TEMP/tfproviderlint-src"
+        go get golang.org/x/tools@v0.53.0 golang.org/x/mod@v0.43.0
+        go build -o "$RUNNER_TEMP/tfproviderlint" ./cmd/tfproviderlint
+    - run: $RUNNER_TEMP/tfproviderlint ./...
       env:
         GOFLAGS: "-buildvcs=false"
