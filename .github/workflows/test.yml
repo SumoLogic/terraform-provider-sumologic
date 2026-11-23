@@ -81,6 +81,9 @@ jobs:
     - name: Build
       run: |
         go build -v .
+    - name: Test the affected-tests selector
+      run: |
+        go test ./scripts/affected-tests
   # run acceptance tests in a matrix with Terraform core versions
   test:
     name: Matrix Test
@@ -98,6 +101,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
+          fetch-depth: 0  # so we can diff against the base branch
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -108,6 +112,15 @@ jobs:
       - name: Get dependencies
         run: |
           go mod download
+
+      # On PRs only, run the acceptance tests the change can affect (see scripts/affected-tests).
+      # Pushes to master, the nightly schedule, manual runs and PRs labelled full-ci run everything.
+      - name: Select acceptance tests
+        id: select
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'full-ci')
+        run: |
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > changed.txt
+          xargs go run ./scripts/affected-tests < changed.txt | tee -a "$GITHUB_OUTPUT"
 
       - name: TF acceptance tests
         timeout-minutes: 90
@@ -128,9 +141,16 @@ jobs:
           fi
 
           echo "Running tests for Terraform ${{ matrix.terraform }}"
+          if [ "$SELECT_FULL" = "false" ]; then
+            echo "Running only the affected tests: $SELECT_RUN"
+            go test -timeout 0 -v -cover -run "$SELECT_RUN" ./sumologic/
+            exit $?
+          fi
           go test -timeout 0 -v -cover ./sumologic/
         env:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          SELECT_FULL: ${{ steps.select.outputs.full }}
+          SELECT_RUN: ${{ steps.select.outputs.run }}
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
 
