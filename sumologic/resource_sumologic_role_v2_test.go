@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
@@ -290,4 +291,78 @@ func TestSumologicRoleV2_selectionType_Validation(t *testing.T) {
 			t.Errorf("expected %q to be rejected", invalid)
 		}
 	}
+}
+
+func TestRoleV2SelectedViewsIgnoresOrder(t *testing.T) {
+	views := func(names ...string) []interface{} {
+		out := []interface{}{}
+		for _, n := range names {
+			out = append(out, map[string]interface{}{"view_name": n, "view_filter": ""})
+		}
+		return out
+	}
+	r := resourceSumologicRoleV2()
+
+	configured := schema.TestResourceDataRaw(t, r.Schema, map[string]interface{}{
+		"name":           "r",
+		"selected_views": views("index_a", "index_b", "index_c"),
+	})
+
+	// the API may return the views in a different order than configured
+	read := r.TestResourceData()
+	if err := read.Set("selected_views", flattenSelectedViews([]ViewFilterDefinition{
+		{ViewName: "index_c"}, {ViewName: "index_a"}, {ViewName: "index_b"},
+	})); err != nil {
+		t.Fatal(err)
+	}
+
+	want := configured.Get("selected_views").(*schema.Set)
+	got := read.Get("selected_views").(*schema.Set)
+	if !want.Equal(got) {
+		t.Errorf("selected_views differ by order: want %v, got %v", want.List(), got.List())
+	}
+	if n := len(resourceToRoleV2(read).SelectedViews); n != 3 {
+		t.Errorf("expected 3 selected views, got %d", n)
+	}
+}
+
+func TestAccSumologicRoleV2_selectedViewsOrder(t *testing.T) {
+	var roleV2 RoleV2
+	testName := acctest.RandomWithPrefix("tf-acc-test")
+	config := fmt.Sprintf(`
+resource "sumologic_role_v2" "test" {
+    name           = "%s"
+    selection_type = "Allow"
+    capabilities   = ["manageContent"]
+    selected_views {
+        view_name = "sumologic_default"
+    }
+    selected_views {
+        view_name = "sumologic_audit_events"
+    }
+    selected_views {
+        view_name = "sumologic_volume"
+    }
+}
+`, testName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRoleV2Destroy(roleV2),
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRoleV2Exists("sumologic_role_v2.test", &roleV2, t),
+					resource.TestCheckResourceAttr("sumologic_role_v2.test", "selected_views.#", "3"),
+				),
+			},
+			{
+				// the API does not guarantee view order; a re-plan must be empty
+				Config:   config,
+				PlanOnly: true,
+			},
+		},
+	})
 }
