@@ -1,11 +1,19 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+## 3.4.1 (November 23, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
 
 DOCS:
 * `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
+ENHANCEMENTS:
+* Bump actions/checkout from 2 to 7 ([#981](https://github.com/SumoLogic/terraform-provider-sumologic/pull/981))
+* Bump hashicorp/setup-terraform from 3 to 4 ([#979](https://github.com/SumoLogic/terraform-provider-sumologic/pull/979))
+* Bump actions/setup-go from 5 to 6 ([#980](https://github.com/SumoLogic/terraform-provider-sumologic/pull/980))
+* Bump actions/create-github-app-token from 2 to 3 ([#967](https://github.com/SumoLogic/terraform-provider-sumologic/pull/967))
+* Bump actions/github-script from 7 to 9 ([#966](https://github.com/SumoLogic/terraform-provider-sumologic/pull/966))
+* Bump dorny/paths-filter from 3 to 4 ([#968](https://github.com/SumoLogic/terraform-provider-sumologic/pull/968))
 
 ## 3.4.0 (November 19, 2026)
 BUG FIXES:
