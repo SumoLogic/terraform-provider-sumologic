@@ -1,8 +1,8 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
-BUILD:
-* Bump Go to 1.27.4. Go 1.25 reached end of life on August 19, 2026.
+BUG FIXES:
+* `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
 
 DOCS:
 * `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.

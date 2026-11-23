@@ -30,7 +30,7 @@ resource "sumologic_role_v2" "example_role_v2" {
 
 The following arguments are supported:
 
-- `selected_views` - (Optional) List of views with specific view level filters in accordance to the selectionType chosen.
+- `selected_views` - (Optional) Set of views with specific view level filters in accordance to the selectionType chosen.
 - `name` - (Required) Name of the role.
 - `capabilities` - (Optional) List of [capabilities](https://help.sumologic.com/docs/manage/users-roles/roles/role-capabilities/) associated with this role. 
 - `description` - (Optional) Description of the role.
