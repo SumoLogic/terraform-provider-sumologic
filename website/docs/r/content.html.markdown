@@ -329,6 +329,110 @@ resource "sumologic_content" "test" {
 }
 ```
 
+## Example Dashboard
+Use the `content` resource to manage a dashboard when you want to keep the dashboard JSON exported from the Sumo Logic UI.
+The UI has no "export as Terraform" option for dashboards, so the config below is the dashboard JSON (`type` of
+`DashboardV2SyncDefinition`) wrapped in `jsonencode`. To start from an existing dashboard, export its JSON from the
+Sumo Logic UI or the Content Management API, then paste it into `config`.
+
+~> **NOTE:** For new dashboards, prefer the dedicated [`sumologic_dashboard`](dashboard.html) resource, which is
+configured with native Terraform blocks instead of raw JSON.
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
+resource "sumologic_content" "dashboard" {
+    parent_id = data.sumologic_personal_folder.personalFolder.id
+    config = jsonencode({
+        "type": "DashboardV2SyncDefinition",
+        "name": "API Health Dashboard",
+        "description": "Demo dashboard managed with the content resource",
+        "title": "API Health Dashboard",
+        "theme": "Light",
+        "topologyLabelMap": {
+            "data": {}
+        },
+        "refreshInterval": 0,
+        "timeRange": {
+            "type": "BeginBoundedTimeRange",
+            "from": {
+                "type": "RelativeTimeRangeBoundary",
+                "relativeTime": "-6h"
+            },
+            "to": null
+        },
+        "layout": {
+            "layoutType": "Grid",
+            "layoutStructures": [
+                {
+                    "key": "panel-text-01",
+                    "structure": "{\"height\":3,\"width\":24,\"x\":0,\"y\":0}"
+                },
+                {
+                    "key": "panel-search-01",
+                    "structure": "{\"height\":10,\"width\":24,\"x\":0,\"y\":3}"
+                }
+            ]
+        },
+        "panels": [
+            {
+                "id": null,
+                "key": "panel-text-01",
+                "title": "About",
+                "visualSettings": "{\"general\":{\"mode\":\"TextPanel\",\"type\":\"text\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "TextPanel",
+                "text": "Shows error counts for the selected service. Use the service variable above to change it.",
+                "queries": []
+            },
+            {
+                "id": null,
+                "key": "panel-search-01",
+                "title": "Errors by Service",
+                "visualSettings": "{\"general\":{\"mode\":\"timeSeries\",\"type\":\"column\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "SumoSearchPanel",
+                "queries": [
+                    {
+                        "transient": false,
+                        "queryString": "_sourceCategory=prod/{{service}} error | timeslice 5m | count by _timeslice",
+                        "queryType": "Logs",
+                        "queryKey": "A",
+                        "metricsQueryMode": null,
+                        "metricsQueryData": null,
+                        "tracesQueryData": null,
+                        "spansQueryData": null,
+                        "parseMode": "Auto",
+                        "timeSource": "Message",
+                        "outputCardinalityLimit": 1000
+                    }
+                ],
+                "description": "",
+                "timeRange": null,
+                "coloringRules": null,
+                "linkedDashboards": []
+            }
+        ],
+        "variables": [
+            {
+                "id": null,
+                "name": "service",
+                "displayName": "service",
+                "defaultValue": "api",
+                "sourceDefinition": {
+                    "variableSourceType": "CsvVariableSourceDefinition",
+                    "values": "api,web"
+                },
+                "allowMultiSelect": false,
+                "includeAllOption": false,
+                "hideFromUI": false,
+                "valueType": "Any"
+            }
+        ],
+        "coloringRules": []
+    })
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
