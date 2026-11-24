@@ -7,6 +7,9 @@ BUG FIXES:
 
 DOCS:
 * `sumologic_field`: Fixed the example that declared the same resource name twice, split it into titled examples, and documented `data_type`, `field_id`, allowed values, side effects, import and destroy behavior.
+
+BUILD:
+* Bump Go to 1.27.4, since Go 1.25 reached end of life on August 19, 2026. Go 1.27 no longer supports `windows/arm` or `darwin/arm`, so release binaries are no longer built for those two platforms.
 ENHANCEMENTS:
 * Bump actions/checkout from 2 to 7 ([#981](https://github.com/SumoLogic/terraform-provider-sumologic/pull/981))
 * Bump hashicorp/setup-terraform from 3 to 4 ([#979](https://github.com/SumoLogic/terraform-provider-sumologic/pull/979))
