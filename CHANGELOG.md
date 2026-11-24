@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+BUILD:
+* Update direct and indirect Go dependencies (`go get -u ./...`, `go mod tidy`). `govulncheck` reports no vulnerabilities, down from 5 reachable ones in `golang.org/x/net`. `terraform-plugin-sdk/v2` moves from 2.40.1 to 2.41.1.
+
 ## 3.4.1 (November 23, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
