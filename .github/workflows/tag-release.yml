@@ -4,6 +4,14 @@ on:
   pull_request:
     types: [closed]
     branches: [master]
+  # Re-run only the publish half for a tag that already exists, e.g. when goreleaser failed
+  # and the tag was moved by hand. The tag job is skipped.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag whose draft release to publish (e.g. v3.4.1)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -110,18 +118,64 @@ jobs:
 
   publish:
     needs: tag
+    # needs.tag is skipped on workflow_dispatch, which would skip this job by default
+    if: >
+      always() &&
+      (needs.tag.result == 'success' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: write   # update the draft release
       actions: read     # poll the goreleaser run
     steps:
+      - name: Generate GitHub App token
+        if: github.event_name == 'workflow_dispatch'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.TF_APP_ID }}
+          private-key: ${{ secrets.TF_APP_PRIVATE_KEY }}
+          owner: SumoLogic
+
+      - name: Verify team membership
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            try {
+              await github.rest.teams.getMembershipForUserInOrg({
+                org: 'SumoLogic',
+                team_slug: 'tf-platform-team',
+                username: context.actor,
+              });
+            } catch (e) {
+              core.setFailed(`${context.actor} is not a member of @SumoLogic/tf-platform-team or membership could not be verified (${e.status}).`);
+            }
+
       - uses: actions/checkout@v7
+
+      - name: Resolve tag
+        id: resolve
+        uses: actions/github-script@v9
+        env:
+          # via env, not inline ${{ }}: dispatch input is user-controlled
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          TAG_JOB_TAG: ${{ needs.tag.outputs.tag }}
+        with:
+          script: |
+            const tag = process.env.INPUT_TAG || process.env.TAG_JOB_TAG;
+            if (!/^v\d+\.\d+\.\d+$/.test(tag || '')) {
+              core.setFailed(`Invalid tag: ${tag}`);
+              return;
+            }
+            core.setOutput('tag', tag);
+            core.setOutput('version', tag.slice(1));
 
       - name: Wait for goreleaser
         uses: actions/github-script@v9
         with:
           script: |
-            const tag = '${{ needs.tag.outputs.tag }}';
+            const tag = '${{ steps.resolve.outputs.tag }}';
             core.info(`Waiting for goreleaser run for ${tag}...`);
 
             // Poll for the workflow run to appear and complete (up to 15 min)
@@ -158,8 +212,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const version = '${{ needs.tag.outputs.version }}';
-            const tag = '${{ needs.tag.outputs.tag }}';
+            const version = '${{ steps.resolve.outputs.version }}';
+            const tag = '${{ steps.resolve.outputs.tag }}';
 
             // Find the draft release
             const { data: releases } = await github.rest.repos.listReleases({
@@ -204,8 +258,8 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
-            const version = '${{ needs.tag.outputs.version }}';
-            const tag = '${{ needs.tag.outputs.tag }}';
+            const version = '${{ steps.resolve.outputs.version }}';
+            const tag = '${{ steps.resolve.outputs.tag }}';
             const url = 'https://registry.terraform.io/v1/providers/SumoLogic/sumologic';
             const maxAttempts = 20;
             const intervalMs = 90000; // 90 seconds
