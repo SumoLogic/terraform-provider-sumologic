@@ -1,0 +1,111 @@
+name: Update Go dependencies
+
+# Weekly: update every Go module (direct and indirect) and open one PR for review.
+# Dependabot only raises PRs for direct dependencies by default, and govulncheck found its
+# reachable vulnerabilities in an indirect one (golang.org/x/net). The PR is never merged
+# automatically: the unit tests run on it, and the full acceptance suite runs on it like on any
+# other PR to master. dependabot-acceptance.yml does not apply: it only accepts Dependabot PRs.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      # App token (not GITHUB_TOKEN): events from GITHUB_TOKEN do not trigger CI on the PR
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.TF_APP_ID }}
+          private-key: ${{ secrets.TF_APP_PRIVATE_KEY }}
+          owner: SumoLogic
+
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Update modules
+        run: |
+          go get -u ./...
+          go mod tidy
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- go.mod go.sum; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No module updates."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and test
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          go build ./...
+          go vet ./...
+          go test ./... -skip '^TestAcc' -count=1
+
+      - name: Install govulncheck
+        if: steps.changes.outputs.changed == 'true'
+        # Pinned like govulncheck.yml: newer releases need a newer Go than go.mod can download.
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+
+      - name: Run govulncheck
+        if: steps.changes.outputs.changed == 'true'
+        id: vuln
+        run: |
+          govulncheck ./... > govulncheck.txt 2>&1 || true
+          {
+            echo 'summary<<EOF'
+            tail -n 5 govulncheck.txt
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VULN_SUMMARY: ${{ steps.vuln.outputs.summary }}
+          BRANCH: automation/go-dependencies
+        run: |
+          git config user.name "sumo-terraform-provider-release[bot]"
+          git config user.email "sumo-terraform-provider-release[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add go.mod go.sum
+          git commit -m "Update Go dependencies"
+          git push --force origin "$BRANCH"
+
+          cat > body.md <<EOF
+          ### Description
+
+          Weekly \`go get -u ./...\` and \`go mod tidy\`, from the "Update Go dependencies" workflow. \`go build\`, \`go vet\` and the unit tests (\`-skip '^TestAcc'\`) passed on this branch.
+
+          \`govulncheck\` (last lines):
+
+          \`\`\`
+          ${VULN_SUMMARY}
+          \`\`\`
+
+          Review the diff and wait for the acceptance suite before merging. This PR is not merged automatically.
+          EOF
+
+          existing=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --body-file body.md
+            echo "Updated PR #$existing"
+          else
+            gh pr create --base master --head "$BRANCH" \
+              --title "Update Go dependencies" --body-file body.md --label dependencies
+          fi
