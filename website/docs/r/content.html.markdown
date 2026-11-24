@@ -329,6 +329,218 @@ resource "sumologic_content" "test" {
 }
 ```
 
+## Example Dashboard
+Use a `DashboardV2SyncDefinition` to manage a dashboard through the `sumologic_content` resource. The UI has no
+"Export as Terraform" option, so the usual way to build `config` is to open the dashboard in the Sumo Logic UI,
+choose **More > Export**, and paste the exported JSON into `jsonencode(...)`. To create dashboards from native
+Terraform blocks instead, use the [`sumologic_dashboard`](dashboard.html) resource.
+
+The `config` follows the dashboard request model, with these differences:
+- `type` and `name` are required, because `config` is a content definition.
+- `title`, `theme` and `timeRange` are required.
+- The folder is set with `parent_id`, so `folderId` is not part of `config`.
+- `domain`, `hierarchies`, `isPublic`, `highlightViolations` and `organizations` are not supported in `config`.
+- Panel `visualSettings` and layout `structure` are JSON encoded as strings.
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
+resource "sumologic_content" "dashboard" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "DashboardV2SyncDefinition",
+        "name": "API Health Dashboard",
+        "title": "API Health Dashboard",
+        "description": "Errors, CPU and latency for the API service",
+        "theme": "Light",
+        "topologyLabelMap": {
+            "data": {}
+        },
+        "refreshInterval": 300,
+        "timeRange": {
+            "type": "BeginBoundedTimeRange",
+            "from": {
+                "type": "RelativeTimeRangeBoundary",
+                "relativeTime": "-1h"
+            },
+            "to": null
+        },
+        "layout": {
+            "layoutType": "Grid",
+            "layoutStructures": [
+                {
+                    "key": "panelA1B2C3D4E5F60001",
+                    "structure": "{\"height\":3,\"width\":24,\"x\":0,\"y\":0}"
+                },
+                {
+                    "key": "panelA1B2C3D4E5F60002",
+                    "structure": "{\"height\":8,\"width\":12,\"x\":0,\"y\":3}"
+                },
+                {
+                    "key": "panelA1B2C3D4E5F60003",
+                    "structure": "{\"height\":8,\"width\":12,\"x\":12,\"y\":3}"
+                },
+                {
+                    "key": "panelA1B2C3D4E5F60004",
+                    "structure": "{\"height\":8,\"width\":24,\"x\":0,\"y\":11}"
+                }
+            ]
+        },
+        "panels": [
+            {
+                "id": null,
+                "key": "panelA1B2C3D4E5F60001",
+                "title": "About",
+                "visualSettings": "{\"text\":{\"format\":\"markdownV2\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "TextPanel",
+                "text": "Errors, CPU and latency for the API service."
+            },
+            {
+                "id": null,
+                "key": "panelA1B2C3D4E5F60002",
+                "title": "API errors",
+                "visualSettings": "{\"general\":{\"mode\":\"timeSeries\",\"type\":\"line\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "SumoSearchPanel",
+                "queries": [
+                    {
+                        "transient": false,
+                        "queryString": "_sourceCategory=api/{{env}} error | timeslice 5m | count by _timeslice",
+                        "queryType": "Logs",
+                        "queryKey": "A",
+                        "metricsQueryMode": null,
+                        "metricsQueryData": null,
+                        "tracesQueryData": null,
+                        "spansQueryData": null,
+                        "parseMode": "Auto",
+                        "timeSource": "Message"
+                    }
+                ],
+                "description": "Error count in 5 minute buckets",
+                "timeRange": null,
+                "coloringRules": null,
+                "linkedDashboards": []
+            },
+            {
+                "id": null,
+                "key": "panelA1B2C3D4E5F60003",
+                "title": "CPU user",
+                "visualSettings": "{\"general\":{\"mode\":\"timeSeries\",\"type\":\"line\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "SumoSearchPanel",
+                "queries": [
+                    {
+                        "transient": false,
+                        "queryString": "metric=CPU_user _sourceCategory=api/{{env}} | avg by _sourceHost",
+                        "queryType": "Metrics",
+                        "queryKey": "A",
+                        "metricsQueryMode": "Basic",
+                        "metricsQueryData": {
+                            "metric": "CPU_user",
+                            "aggregationType": "Average",
+                            "groupBy": "_sourceHost",
+                            "filters": [
+                                {
+                                    "key": "_sourceCategory",
+                                    "value": "api/{{env}}",
+                                    "negation": false
+                                }
+                            ],
+                            "operators": []
+                        },
+                        "tracesQueryData": null,
+                        "spansQueryData": null,
+                        "outputCardinalityLimit": 1000
+                    }
+                ],
+                "description": "",
+                "timeRange": null,
+                "coloringRules": null,
+                "linkedDashboards": []
+            },
+            {
+                "id": null,
+                "key": "panelA1B2C3D4E5F60004",
+                "title": "Recommendations latency (p95)",
+                "visualSettings": "{\"general\":{\"mode\":\"timeSeries\",\"type\":\"line\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "SumoSearchPanel",
+                "queries": [
+                    {
+                        "transient": false,
+                        "queryString": "* | (endtimestamp - starttimestamp) / 1000 as duration | where toLowerCase(operation) matches toLowerCase(\"*/api/recommendations\") | timeslice 10m | pct(duration, 95) as duration_pct_95 by _timeslice",
+                        "queryType": "Spans",
+                        "queryKey": "A",
+                        "metricsQueryMode": null,
+                        "metricsQueryData": null,
+                        "tracesQueryData": null,
+                        "spansQueryData": {
+                            "filters": [
+                                {
+                                    "type": "KeyValuePair",
+                                    "fieldName": "operation",
+                                    "operator": "=",
+                                    "fieldValue": "*/api/recommendations"
+                                }
+                            ],
+                            "visualizations": [
+                                {
+                                    "type": "calculation",
+                                    "name": "duration_pct_95",
+                                    "field": "duration",
+                                    "aggregator": {
+                                        "key": "pct",
+                                        "percentile": 95.0
+                                    }
+                                }
+                            ],
+                            "groupBy": [
+                                {
+                                    "type": "time",
+                                    "fieldValue": "10m"
+                                }
+                            ],
+                            "limit": []
+                        },
+                        "parseMode": "Auto",
+                        "timeSource": "Message",
+                        "outputCardinalityLimit": 1000
+                    }
+                ],
+                "description": "",
+                "timeRange": {
+                    "type": "BeginBoundedTimeRange",
+                    "from": {
+                        "type": "RelativeTimeRangeBoundary",
+                        "relativeTime": "-1d"
+                    },
+                    "to": null
+                },
+                "coloringRules": null,
+                "linkedDashboards": []
+            }
+        ],
+        "variables": [
+            {
+                "id": null,
+                "name": "env",
+                "displayName": "env",
+                "defaultValue": "prod",
+                "sourceDefinition": {
+                    "variableSourceType": "CsvVariableSourceDefinition",
+                    "values": "prod,staging,dev"
+                },
+                "allowMultiSelect": false,
+                "includeAllOption": false,
+                "hideFromUI": false,
+                "valueType": "Any"
+            }
+        ],
+        "coloringRules": []
+    })
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:

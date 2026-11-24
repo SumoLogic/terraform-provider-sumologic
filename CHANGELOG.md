@@ -1,6 +1,9 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+DOCS:
+* `sumologic_content`: Added an example that manages a dashboard (`DashboardV2SyncDefinition`) through the content resource.
+
 ## 3.4.1 (November 23, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
