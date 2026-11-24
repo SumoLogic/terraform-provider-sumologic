@@ -329,6 +329,89 @@ resource "sumologic_content" "test" {
 }
 ```
 
+## Example Dashboard
+Use a `DashboardV2SyncDefinition` to manage a dashboard through the `sumologic_content` resource. The UI has no
+"Export as Terraform" option, so the usual way to build `config` is to open the dashboard in the Sumo Logic UI,
+choose **More > Export**, and paste the exported JSON into `jsonencode(...)`. To create dashboards from native
+Terraform blocks instead, use the [`sumologic_dashboard`](dashboard.html) resource.
+```hcl
+data "sumologic_personal_folder" "personalFolder" {}
+
+resource "sumologic_content" "dashboard" {
+    parent_id = "${data.sumologic_personal_folder.personalFolder.id}"
+    config = jsonencode({
+        "type": "DashboardV2SyncDefinition",
+        "name": "API Health Dashboard",
+        "description": "Error counts and notes for the API service",
+        "title": "API Health Dashboard",
+        "theme": "Light",
+        "topologyLabelMap": {
+            "data": {}
+        },
+        "refreshInterval": 0,
+        "timeRange": {
+            "type": "BeginBoundedTimeRange",
+            "from": {
+                "type": "RelativeTimeRangeBoundary",
+                "relativeTime": "-1h"
+            },
+            "to": null
+        },
+        "layout": {
+            "layoutType": "Grid",
+            "layoutStructures": [
+                {
+                    "key": "panel-text",
+                    "structure": "{\"height\":6,\"width\":24,\"x\":0,\"y\":0}"
+                },
+                {
+                    "key": "panel-errors",
+                    "structure": "{\"height\":10,\"width\":24,\"x\":0,\"y\":6}"
+                }
+            ]
+        },
+        "panels": [
+            {
+                "id": null,
+                "key": "panel-text",
+                "title": "About",
+                "visualSettings": "{\"text\":{\"format\":\"markdownV2\",\"verticalAlignment\":\"top\",\"horizontalAlignment\":\"left\",\"fontSize\":12}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "TextPanel",
+                "text": "Errors from the API service over the last hour."
+            },
+            {
+                "id": null,
+                "key": "panel-errors",
+                "title": "API errors",
+                "visualSettings": "{\"general\":{\"mode\":\"timeSeries\",\"type\":\"line\"}}",
+                "keepVisualSettingsConsistentWithParent": true,
+                "panelType": "SumoSearchPanel",
+                "queries": [
+                    {
+                        "transient": false,
+                        "queryString": "_sourceCategory=api error | timeslice 5m | count by _timeslice",
+                        "queryType": "Logs",
+                        "queryKey": "A",
+                        "metricsQueryMode": null,
+                        "metricsQueryData": null,
+                        "tracesQueryData": null,
+                        "parseMode": "Manual",
+                        "timeSource": "Message"
+                    }
+                ],
+                "description": "",
+                "timeRange": null,
+                "coloringRules": null,
+                "linkedDashboards": []
+            }
+        ],
+        "variables": [],
+        "coloringRules": []
+    })
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
