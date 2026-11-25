@@ -1,6 +1,10 @@
 ## X.Y.Z (Unreleased)
 * Add new change notes here
 
+FEATURES:
+* **New Resource:** `sumologic_service_account` manages service accounts.
+* **New Data Source:** `sumologic_service_account` looks up a service account by `id` or `email`.
+
 DOCS:
 * `sumologic_content`: Added an example that manages a dashboard (`DashboardV2SyncDefinition`) with the `content` resource, and a pointer to `sumologic_dashboard` for new dashboards.
 
