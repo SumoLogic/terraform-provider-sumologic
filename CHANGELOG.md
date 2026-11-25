@@ -4,6 +4,9 @@
 DOCS:
 * `sumologic_content`: Added an example that manages a dashboard (`DashboardV2SyncDefinition`) with the `content` resource, and a pointer to `sumologic_dashboard` for new dashboards.
 
+FEATURES:
+* **New Resource:** `sumologic_metric_transformation_rule` - Manages Sumo Logic metric transformation rules.
+
 ## 3.4.1 (November 23, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
@@ -64,12 +67,8 @@ DOCS:
 * Added  missing `admin_mode` and `base_url` entries to the provider Argument Reference.
 * Added documentation for the `sumologic_monitor_folder` data source, which was added in 3.1.2 without a docs page.
 FEATURES:
-<<<<<<< Updated upstream
 * **New Resource:** `sumologic_parser` - Manage parsers in the Parsers library (`/v1/parsers`).
 * **New Resource:** `sumologic_parser_folder` - Manage folders in the Parsers library, for organizing `sumologic_parser` resources.
-=======
-* **New Resource:** `sumologic_metric_transformation_rule` - Manages Sumo Logic metric transformation rules.
->>>>>>> Stashed changes
 * `sumologic_cse_sigma_rule`: Creates a Cloud SIEM match rule from a Sigma rule ID. The converted fields are copied into the new rule, which is marked as originating from Sigma.
 ENHANCEMENTS:
 * `sumologic_monitor`: `time_range` in logs/metrics static, missing data and anomaly trigger conditions now also accepts 3 days (`72h`, `3d`, `4320m` and their negative forms), for orgs that have had their time range limit raised.
