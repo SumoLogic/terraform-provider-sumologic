@@ -193,8 +193,9 @@ resource "sumologic_service_account" "foo" {
 
 func TestAccSumologicServiceAccount_conflictingDeleteOptions(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -301,8 +302,9 @@ data "sumologic_service_account" "by_id" {
 
 func TestAccSumologicServiceAccount_dataSourceUnknownEmail(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: `
