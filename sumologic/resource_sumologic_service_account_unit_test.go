@@ -354,3 +354,17 @@ func TestIsNotFoundError(t *testing.T) {
 		t.Fatalf("nil must not be a not found error")
 	}
 }
+
+func TestServiceAccountEmailMustContainAt(t *testing.T) {
+	validate := resourceSumologicServiceAccount().Schema["email"].ValidateFunc
+	for email, wantErr := range map[string]bool{
+		"ci-bot@example.com": false,
+		"not-an-email":       true,
+		"":                   true,
+	} {
+		_, errs := validate(email, "email")
+		if (len(errs) > 0) != wantErr {
+			t.Errorf("email %q: expected error=%v, got %v", email, wantErr, errs)
+		}
+	}
+}

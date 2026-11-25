@@ -3,6 +3,7 @@ package sumologic
 import (
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -27,7 +28,7 @@ func resourceSumologicServiceAccount() *schema.Resource {
 			"email": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 255),
+				ValidateFunc: validation.All(validation.StringLenBetween(1, 255), validation.StringMatch(regexp.MustCompile("@"), "must be an email address")),
 			},
 			"role_ids": {
 				Type:     schema.TypeSet,
