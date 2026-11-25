@@ -331,7 +331,7 @@ resource "sumologic_role" "first" {
 resource "sumologic_role" "second" {
   name         = "tf-acc-%[1]s-second"
   description  = "Second role for a service account acceptance test"
-  capabilities = ["viewFields"]
+  capabilities = []
 }
 
 resource "sumologic_service_account" "foo" {
