@@ -101,6 +101,11 @@ func resourceSumologicMetricTransformationRule() *schema.Resource {
 
 // resourceSumologicMetricTransformationRuleCustomizeDiff catches invalid combinations at plan time.
 func resourceSumologicMetricTransformationRuleCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// d.Get returns zero values for attributes that are unknown at plan time (for example from a
+	// dynamic block or a computed value), so skip any check whose inputs are not yet known.
+	if !d.NewValueKnown("dimension_transformation") {
+		return nil
+	}
 	transformations := d.Get("dimension_transformation").([]interface{})
 
 	for i, t := range transformations {
@@ -108,12 +113,22 @@ func resourceSumologicMetricTransformationRuleCustomizeDiff(ctx context.Context,
 		if !ok {
 			continue
 		}
+		prefix := fmt.Sprintf("dimension_transformation.%d.", i)
+		if !d.NewValueKnown(prefix + "transformation_type") {
+			continue
+		}
 		switch tm["transformation_type"].(string) {
 		case metricTransformationTypeAggregateOn:
+			if !d.NewValueKnown(prefix + "aggregate_on") {
+				continue
+			}
 			if aggregateOn, _ := tm["aggregate_on"].([]interface{}); len(aggregateOn) == 0 {
 				return fmt.Errorf("dimension_transformation.%d: aggregate_on is required when transformation_type is %s", i, metricTransformationTypeAggregateOn)
 			}
 		case metricTransformationTypeAddOrReplace:
+			if !d.NewValueKnown(prefix+"dimension_to_replace") || !d.NewValueKnown(prefix+"value") {
+				continue
+			}
 			if tm["dimension_to_replace"].(string) == "" || tm["value"].(string) == "" {
 				return fmt.Errorf("dimension_transformation.%d: dimension_to_replace and value are required when transformation_type is %s", i, metricTransformationTypeAddOrReplace)
 			}
@@ -123,10 +138,10 @@ func resourceSumologicMetricTransformationRuleCustomizeDiff(ctx context.Context,
 	// Per the API docs: with no dimension transformations the transformed metrics retention is
 	// forced to 0, and a retention of 0 (do not store) is only valid with transformations.
 	if len(transformations) == 0 {
-		if d.Get("transformed_metrics_retention").(int) != 0 {
+		if d.NewValueKnown("transformed_metrics_retention") && d.Get("transformed_metrics_retention").(int) != 0 {
 			return fmt.Errorf("transformed_metrics_retention must be 0 when no dimension_transformation is defined")
 		}
-		if d.Get("retention").(int) == 0 {
+		if d.NewValueKnown("retention") && d.Get("retention").(int) == 0 {
 			return fmt.Errorf("retention can only be 0 when at least one dimension_transformation is defined")
 		}
 	}
@@ -208,7 +223,14 @@ func resourceSumologicMetricTransformationRuleUpdate(d *schema.ResourceData, met
 
 func resourceSumologicMetricTransformationRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
-	return c.DeleteMetricTransformationRule(d.Id())
+	if err := c.DeleteMetricTransformationRule(d.Id()); err != nil {
+		// Client.Delete errors on any status >= 400, including 404. Treat "already gone" as success.
+		if rule, getErr := c.GetMetricTransformationRule(d.Id()); getErr == nil && rule == nil {
+			return nil
+		}
+		return err
+	}
+	return nil
 }
 
 func resourceToMetricTransformationRule(d *schema.ResourceData) MetricTransformationRule {

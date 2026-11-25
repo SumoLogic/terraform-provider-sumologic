@@ -121,6 +121,16 @@ resource "sumologic_metric_transformation_rule" "test" {
 resource "sumologic_metric_transformation_rule" "test" {
   name      = "%s"
   selector  = "_sourceCategory=terraform_test_mtr"
+  retention = 0
+}
+`, testName),
+				ExpectError: regexp.MustCompile("retention can only be 0"),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "sumologic_metric_transformation_rule" "test" {
+  name      = "%s"
+  selector  = "_sourceCategory=terraform_test_mtr"
   retention = 30
 }
 `, testName),
