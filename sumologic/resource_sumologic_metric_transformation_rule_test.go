@@ -129,6 +129,41 @@ resource "sumologic_metric_transformation_rule" "test" {
 			{
 				Config: fmt.Sprintf(`
 resource "sumologic_metric_transformation_rule" "test" {
+  name                          = "%s"
+  selector                      = "_sourceCategory=terraform_test_mtr"
+  retention                     = 0
+  transformed_metrics_retention = 8
+
+  dimension_transformation {
+    transformation_type = "AggregateOnTransformation"
+    aggregate_on        = ["metric"]
+    value               = "unused"
+  }
+}
+`, testName),
+				ExpectError: regexp.MustCompile("dimension_to_replace and value must not be set"),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "sumologic_metric_transformation_rule" "test" {
+  name                          = "%s"
+  selector                      = "_sourceCategory=terraform_test_mtr"
+  retention                     = 0
+  transformed_metrics_retention = 8
+
+  dimension_transformation {
+    transformation_type  = "AddOrReplaceTransformation"
+    dimension_to_replace = "metric"
+    value                = "{{metric}}_aggregated"
+    aggregate_on         = ["metric"]
+  }
+}
+`, testName),
+				ExpectError: regexp.MustCompile("aggregate_on must not be set"),
+			},
+			{
+				Config: fmt.Sprintf(`
+resource "sumologic_metric_transformation_rule" "test" {
   name      = "%s"
   selector  = "_sourceCategory=terraform_test_mtr"
   retention = 30

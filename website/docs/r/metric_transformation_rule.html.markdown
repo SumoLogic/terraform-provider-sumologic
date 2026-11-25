@@ -60,6 +60,8 @@ The following arguments are supported:
 - `dimension_to_replace` - (Optional) The dimension to add or modify. Required when `transformation_type` is `AddOrReplaceTransformation`.
 - `value` - (Optional) The value for the dimension. It can reference other dimensions, for example `{{metric}}_aggregated`. Required when `transformation_type` is `AddOrReplaceTransformation`.
 
+~> **NOTE:** For `AggregateOnTransformation`, set only `aggregate_on`. For `AddOrReplaceTransformation`, set only `dimension_to_replace` and `value`. Setting the other type's fields is rejected at plan time.
+
 ~> **NOTE:** The order of `dimension_transformation` blocks is preserved and sent to the API in the order written.
 
 ~> **NOTE:** Every dimension referenced in a `value` template (for example `{{metric}}`) must also be listed in an `aggregate_on` of an `AggregateOnTransformation` in the same rule. The API rejects the rule otherwise.

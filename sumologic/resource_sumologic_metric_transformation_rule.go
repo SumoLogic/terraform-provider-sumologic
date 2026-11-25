@@ -125,12 +125,23 @@ func resourceSumologicMetricTransformationRuleCustomizeDiff(ctx context.Context,
 			if aggregateOn, _ := tm["aggregate_on"].([]interface{}); len(aggregateOn) == 0 {
 				return fmt.Errorf("dimension_transformation.%d: aggregate_on is required when transformation_type is %s", i, metricTransformationTypeAggregateOn)
 			}
+			// Fields that belong to the other type are not sent to the API, so they would read back
+			// empty and cause a permanent diff.
+			if d.NewValueKnown(prefix+"dimension_to_replace") && d.NewValueKnown(prefix+"value") &&
+				(tm["dimension_to_replace"].(string) != "" || tm["value"].(string) != "") {
+				return fmt.Errorf("dimension_transformation.%d: dimension_to_replace and value must not be set when transformation_type is %s", i, metricTransformationTypeAggregateOn)
+			}
 		case metricTransformationTypeAddOrReplace:
 			if !d.NewValueKnown(prefix+"dimension_to_replace") || !d.NewValueKnown(prefix+"value") {
 				continue
 			}
 			if tm["dimension_to_replace"].(string) == "" || tm["value"].(string) == "" {
 				return fmt.Errorf("dimension_transformation.%d: dimension_to_replace and value are required when transformation_type is %s", i, metricTransformationTypeAddOrReplace)
+			}
+			if d.NewValueKnown(prefix + "aggregate_on") {
+				if aggregateOn, _ := tm["aggregate_on"].([]interface{}); len(aggregateOn) > 0 {
+					return fmt.Errorf("dimension_transformation.%d: aggregate_on must not be set when transformation_type is %s", i, metricTransformationTypeAddOrReplace)
+				}
 			}
 		}
 	}
