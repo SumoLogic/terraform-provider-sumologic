@@ -75,12 +75,13 @@ func (s *Client) DeleteServiceAccount(id string, transferTo string, deleteConten
 }
 
 // isNotFoundError reports whether an API error body says the service account does not exist. It matches the error
-// codes exactly, because other errors (such as an unknown transfer target) also mention a missing object.
+// code exactly. A missing transfer target on delete returns 404 user:user_not_found while the account still exists, so
+// that code must not count as already deleted.
 func isNotFoundError(err error) bool {
 	if err == nil {
 		return false
 	}
-	return HasErrorCode(err.Error(), []string{"serviceaccount:service_account_not_found", "user:user_not_found"}) != ""
+	return HasErrorCode(err.Error(), []string{"serviceaccount:service_account_not_found"}) != ""
 }
 
 // models

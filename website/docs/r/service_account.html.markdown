@@ -77,8 +77,8 @@ The following arguments are supported:
 - `name` - (Required) Name of the service account. 1 to 128 characters.
 - `email` - (Required) Email address of the service account. Up to 255 characters. It can be changed in place.
 - `role_ids` - (Required) Set of IDs of the roles assigned to the service account. At least one role is required.
-- `is_active` - (Optional) `true` if the service account is active, `false` to deactivate it. Defaults to `true`. A service account is always created active, so `false` makes the provider update it right after creation.
-- `transfer_to` - (Optional) ID of a user or service account that receives this service account's content when it is destroyed. If both `transfer_to` and `delete_content` are unset, the content is transferred to the user who runs the delete (the owner of the access key the provider uses). Conflicts with `delete_content`. Only used on deletion; it is not stored by Sumo Logic.
+- `is_active` - (Optional) `true` if the service account is active, `false` to deactivate it. Defaults to `true`. A service account is always created active, so `false` makes the provider update it right after creation. If that second call fails, the account stays active, Terraform marks the resource as tainted, and the next apply replaces it.
+- `transfer_to` - (Optional) ID of a user or service account that receives this service account's content when it is destroyed. If both `transfer_to` and `delete_content` are unset, the content is transferred to the user who runs the delete (the owner of the access key the provider uses). Conflicts with `delete_content`. If the target does not exist, the destroy fails and the service account is kept in the state. Only used on deletion; it is not stored by Sumo Logic.
 - `delete_content` - (Optional) If `true`, the service account's content is deleted when it is destroyed. **The content is permanently deleted and cannot be recovered.** Defaults to `false`. Conflicts with `transfer_to`. Only used on deletion; it is not stored by Sumo Logic.
 
 Deleting a service account also deletes its access keys.

@@ -163,6 +163,83 @@ resource "sumologic_service_account" "deleted" {
 	})
 }
 
+// A destroy whose transfer target does not exist is rejected by the API and must fail without dropping the service
+// account from state.
+func TestAccSumologicServiceAccount_deleteWithMissingTransferTo(t *testing.T) {
+	suffix := uuid.New().String()[:8]
+	role := fmt.Sprintf(`
+resource "sumologic_role" "foo" {
+  name         = "tf-acc-%[1]s"
+  description  = "Role for a service account acceptance test"
+  capabilities = ["viewCollectors"]
+}
+`, suffix)
+	account := func(transferTo string) string {
+		return role + fmt.Sprintf(`
+resource "sumologic_service_account" "foo" {
+  name        = "tf-acc-%[1]s"
+  email       = "tf-acc-%[1]s@example.com"
+  role_ids    = [sumologic_role.foo.id]
+  transfer_to = %[2]q
+}
+`, suffix, transferTo)
+	}
+	var id string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: account("0000000000000001"),
+				Check:  testAccStoreServiceAccountID("sumologic_service_account.foo", &id),
+			},
+			{
+				// Removing the account from the configuration plans a destroy, which the API rejects.
+				Config:      role,
+				ExpectError: regexp.MustCompile(`user_not_found`),
+			},
+			{
+				// The account must still be in state and in the org. Clearing transfer_to lets the final destroy work.
+				Config: account(""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceAccountIDUnchanged("sumologic_service_account.foo", &id),
+					testAccCheckServiceAccountExists("sumologic_service_account.foo"),
+				),
+			},
+		},
+	})
+}
+
+func testAccStoreServiceAccountID(resourceName string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", resourceName)
+		}
+		*id = rs.Primary.ID
+		return nil
+	}
+}
+
+func testAccCheckServiceAccountExists(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", resourceName)
+		}
+		account, err := testAccProvider.Meta().(*Client).GetServiceAccount(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+		if account == nil {
+			return fmt.Errorf("service account %s does not exist in the org", rs.Primary.ID)
+		}
+		return nil
+	}
+}
+
 func TestAccSumologicServiceAccount_deleteContent(t *testing.T) {
 	suffix := uuid.New().String()[:8]
 

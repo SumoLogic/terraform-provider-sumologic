@@ -97,6 +97,13 @@ func (f *fakeServiceAccountApi) handle(w http.ResponseWriter, r *http.Request) {
 			}
 			json.NewEncoder(w).Encode(account)
 		case http.MethodDelete:
+			if r.URL.Query().Get("transferTo") == "MISSING" {
+				// Code and message as returned by the real API when the transfer target does not exist. The
+				// account is left in place.
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte(`{"id":"ABC","errors":[{"code":"user:user_not_found","message":"User with given ID does not exist."}]}`))
+				return
+			}
 			delete(f.accounts, path)
 			w.WriteHeader(http.StatusNoContent)
 		}
@@ -300,6 +307,30 @@ func TestServiceAccountDataSourceByEmail(t *testing.T) {
 	}
 }
 
+func TestServiceAccountDeleteWithMissingTransferTargetKeepsState(t *testing.T) {
+	fake := newFakeServiceAccountApi()
+	client := fake.client(t)
+	d := serviceAccountResourceData(t, map[string]interface{}{
+		"name":        "ci-bot",
+		"email":       "ci-bot@example.com",
+		"role_ids":    []interface{}{"R1"},
+		"transfer_to": "MISSING",
+	})
+	if err := resourceSumologicServiceAccountCreate(d, client); err != nil {
+		t.Fatalf("create failed: %v", err)
+	}
+
+	if err := resourceSumologicServiceAccountDelete(d, client); err == nil {
+		t.Fatalf("expected an error: the transfer target does not exist, so the account was not deleted")
+	}
+	if d.Id() == "" {
+		t.Fatalf("the resource must stay in state when the delete was rejected")
+	}
+	if _, found := fake.accounts["SA1"]; !found {
+		t.Fatalf("the fake should still hold the account")
+	}
+}
+
 func TestIsNotFoundError(t *testing.T) {
 	cases := []struct {
 		name string
@@ -307,7 +338,7 @@ func TestIsNotFoundError(t *testing.T) {
 		want bool
 	}{
 		{"service account missing", `{"errors":[{"code":"serviceaccount:service_account_not_found","message":"Service Account with given ID does not exist."}]}`, true},
-		{"user missing", `{"errors":[{"code":"user:user_not_found","message":"User with given ID does not exist."}]}`, true},
+		{"missing transfer target", `{"errors":[{"code":"user:user_not_found","message":"User with given ID does not exist."}]}`, false},
 		{"access denied", `{"errors":[{"code":"serviceaccount:operation_supported_only_for_admins","message":"Operation supported only for an Administrator!"}]}`, false},
 		{"invalid transfer target", `{"errors":[{"code":"user:invalid_request","message":"The user you selected to transfer content to was not found"}]}`, false},
 		{"not json", `boom`, false},
