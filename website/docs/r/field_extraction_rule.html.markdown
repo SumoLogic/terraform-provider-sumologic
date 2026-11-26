@@ -32,6 +32,8 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `id` - Unique identifier for the field extraction rule.
+- `field_names` - (computed after creation) identifiers projected from the field extraction rule. 
+                  
 
 ## Import
 Extraction Rules can be imported using the extraction rule id, e.g.:
