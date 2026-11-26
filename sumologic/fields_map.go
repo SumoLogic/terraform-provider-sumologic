@@ -30,10 +30,12 @@ var FieldsMap = map[string]map[string]string{
 		"scope":                  "_sourceHost=127.0.0.1",
 		"parseExpression":        "csv _raw extract 1 as f1",
 		"enabled":                "true",
+		"fieldNames":             "f1",
 		"updatedName":            "TestTestTestTerraformFERUpdated",
 		"updatedScope":           "_sourceHost=127.0.0.1",
 		"updatedParseExpression": "csv _raw extract 1 as f1",
 		"updatedEnabled":         "true",
+		"updatedFieldNames":      "f1",
 	},
 
 	"IngestBudget": map[string]string{

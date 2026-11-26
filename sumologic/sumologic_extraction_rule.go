@@ -44,8 +44,9 @@ func (s *Client) GetFieldExtractionRule(id string) (*FieldExtractionRule, error)
 
 func (s *Client) UpdateFieldExtractionRule(fieldExtractionRule FieldExtractionRule) error {
 	url := fmt.Sprintf("v1/extractionRules/%s", fieldExtractionRule.ID)
-
+	var empty_fields []string
 	fieldExtractionRule.ID = ""
+	fieldExtractionRule.FieldNames = empty_fields
 
 	_, err := s.Put(url, fieldExtractionRule)
 	return err
@@ -62,4 +63,6 @@ type FieldExtractionRule struct {
 	ParseExpression string `json:"parseExpression"`
 	// Is the field extraction rule enabled.
 	Enabled bool `json:"enabled"`
+	// Field names extracted by the rule
+	FieldNames []string `json:"fieldNames,omitempty"`
 }

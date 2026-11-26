@@ -1,5 +1,5 @@
 ## X.Y.Z (Unreleased)
-* Add new change notes here
+* return computed `field_names` property for resource `field_extraction_rule`
 
 FEATURES:
 * **New Resource:** `sumologic_service_account` manages service accounts.
