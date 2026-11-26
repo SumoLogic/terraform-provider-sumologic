@@ -8,6 +8,9 @@ FEATURES:
 DOCS:
 * `sumologic_content`: Added an example that manages a dashboard (`DashboardV2SyncDefinition`) with the `content` resource, and a pointer to `sumologic_dashboard` for new dashboards.
 
+FEATURES:
+* **New Resource:** `sumologic_metric_transformation_rule` - Manages Sumo Logic metric transformation rules.
+
 ## 3.4.1 (November 23, 2026)
 BUG FIXES:
 * `sumologic_role_v2`: `selected_views` is now a set instead of a list, so the order the API returns the views in no longer causes a perpetual plan diff. Closes #858.
